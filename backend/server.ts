@@ -1,12 +1,21 @@
 import express, { Request, Response } from "express";
+import cors from "cors";
 
 const app = express();
 
-const port =8080;
+const port = 8080;
 
-app.get("/",(req:Request,res:Response)=>{
-    res.json("Success");
-})
-app.listen(port,()=>{
-    console.log("Server listening on port : ",port);
+const corsOptions = {
+  origin: "http://localhost:5173",
+  methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
+app.get("/", (req: Request, res: Response) => {
+  res.json("Success");
+});
+app.listen(port, () => {
+  console.log("Server listening on port : ", port);
 });
