@@ -89,4 +89,20 @@ router.delete(
   })
 );
 
+//search users
+app.get("/search-users", wrapAsync(async (req, res) => {
+  const { q: searchQuery } = req.query;
+  
+  if (!searchQuery) {
+      return res.status(400).json({ error: "Search query is required" });
+  }
+
+  const users = await User.find({ name: new RegExp(searchQuery, "i") }); // Case-insensitive search
+
+  res.json(users);
+}));
+
+
 module.exports = router;
+
+
