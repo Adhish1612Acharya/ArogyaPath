@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu'; 
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader } from 'lucide-react';
@@ -15,6 +16,29 @@ const sections = [
   ['Sleep Quality', 'Energy Levels', 'Daily Activity Level', 'Exercise Routine', 'Food Habit'],
   ['Water Intake (Litres per day)', 'Health Issues', 'Hormonal Imbalance', 'Skin/Hair Problems', 'Ayurvedic Treatment Preference']
 ];
+
+const options = {
+  Gender: ['Male', 'Female', 'Other'],
+  'Body Type': ['Heavy', 'Lean', 'Medium'],
+  'Skin Type': ['Dry', 'Normal', 'Oily'],
+  'Hair Type': ['Curly', 'Straight', 'Wavy'],
+  'Facial Structure': ['Oval', 'Round', 'Square'],
+  Complexion: ['Dark', 'Fair', 'Wheatish'],
+  Eyes: ['Large', 'Medium', 'Small'],
+  'Food Preference': ['Non-Veg', 'Vegan', 'Veg'],
+  'Bowel Movement': ['Irregular', 'Regular'],
+  'Thirst Level': ['High', 'Low', 'Medium'],
+  'Sleep Quality': ['Average', 'Good', 'Poor'],
+  'Energy Levels': ['High', 'Low', 'Medium'],
+  'Daily Activity Level': ['High', 'Low', 'Medium'],
+  'Exercise Routine': ['Intense', 'Light', 'Moderate', 'Sedentary'],
+  'Food Habit': ['Balanced', 'Fast Food', 'Home Cooked'],
+  'Water Intake (Litres per day)': ['1', '1.5', '2', '3'],
+  'Health Issues': ['Diabetes', 'Digestive Issues', 'Hypertension', 'None'],
+  'Hormonal Imbalance': ['Yes', 'No'],
+  'Skin/Hair Problems': ['Acne', 'Dandruff', 'Hairfall', 'None'],
+  'Ayurvedic Treatment Preference': ['Yes', 'No']
+};
 
 const initialData: Record<string, string | number> = {
   Name: '', Age: '', Gender: '', Height: '', Weight: '',
@@ -69,7 +93,7 @@ export default function PrakritiForm() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen text-green-600">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-green-600">
         <Loader className="animate-spin h-12 w-12" />
         <p className="mt-4 text-xl">Analyzing your data...</p>
       </div>
@@ -77,36 +101,54 @@ export default function PrakritiForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-12">
-      <Card className="w-full max-w-5xl shadow-lg border rounded-lg">
-        <CardHeader className="text-center">
-          <CardTitle className="text-3xl text-gray-800 font-bold">Prakriti Analysis</CardTitle>
+  
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100">      <Card className="w-full max-w-6xl h-full shadow-2xl border rounded-lg bg-white">
+        <CardHeader className="text-center p-8 border-b">
+          <CardTitle className="text-4xl text-green-600 font-bold">Prakriti Analysis</CardTitle>
           <Progress
             value={((sectionIndex + 1) / sections.length) * 100}
-            className="mt-2 bg-gray-200"
+            className="mt-3 bg-gray-300"
           />
         </CardHeader>
-        <CardContent className="space-y-6 px-8 py-8">
+        <CardContent className="space-y-8 p-8 h-full">
           {error && (
             <p className="text-red-500 text-sm text-center">{error}</p>
           )}
-          <div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {sections[sectionIndex].map((field) => (
               <div key={field} className="space-y-1">
                 <Label className="font-medium text-gray-700">{field}</Label>
-                <Input
-                  value={formData[field] as string}
-                  onChange={(e) => handleChange(field, e.target.value)}
-                  placeholder={`Enter your ${field.toLowerCase()}`}
-                  className="border rounded-md px-3 py-2 focus:ring-green-400 focus:border-green-400"
-                  required
-                />
+                {options[field] ? (
+                  <DropdownMenu.Root>
+                    <DropdownMenu.Trigger asChild>
+                      <Button className="w-full border px-3 py-2 text-left">{formData[field] || `Select ${field}`}</Button>
+                    </DropdownMenu.Trigger>
+                    <DropdownMenu.Content className="bg-white rounded shadow-md">
+                      {options[field].map((option) => (
+                        <DropdownMenu.Item
+                          key={option}
+                          onClick={() => handleChange(field, option)}
+                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                        >
+                          {option}
+                        </DropdownMenu.Item>
+                      ))}
+                    </DropdownMenu.Content>
+                  </DropdownMenu.Root>
+                ) : (
+                  <Input
+                    type={field === 'Age' || field === 'Height (cm)' || field === 'Weight (kg)' || field === 'Sleep Duration (Hours)' ? 'number' : 'text'}
+                    value={formData[field] as string}
+                    onChange={(e) => handleChange(field, e.target.value)}
+                    placeholder={`Enter your ${field.toLowerCase()}`}
+                    className="border rounded-md px-3 py-2 focus:ring-green-400 focus:border-green-400"
+                    required
+                  />
+                )}
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-6">
+          <div className="flex justify-between mt-8">
             {sectionIndex > 0 && (
               <Button
                 onClick={() => setSectionIndex(sectionIndex - 1)}
