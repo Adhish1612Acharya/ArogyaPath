@@ -5,15 +5,16 @@ interface IUser extends Document {
   email: string;
   contact: string;
   username: string;
-  completeProfile:boolean;
-  profile:{
-    profileImage:string;
+  completeProfile: boolean;
+  profile: {
+    profileImage: string;
     fullname: string;
     age: number;
     contact: string;
-  } 
-  posts:mongoose.Types.ObjectId[];
-  bookmarks:mongoose.Types.ObjectId[];
+  };
+  posts: mongoose.Types.ObjectId[];
+  bookmarks: mongoose.Types.ObjectId[];
+  role: "user";
 }
 
 export default IUser;

@@ -7,6 +7,8 @@ import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler";
 import passport from "passport";
 import { Strategy as localStrategy } from "passport-local";
+import Expert from "./models/Expert/Expert";
+import User from "./models/User/User";
 
 const app = express();
 
@@ -86,7 +88,7 @@ passport.deserializeUser(
   ): void => {
     switch (obj.type) {
       case "expert":
-        Student.findById(obj.id).then((user) => {
+        Expert.findById(obj.id).then((user) => {
           if (user) {
             done(null, user);
           } else {
@@ -94,6 +96,15 @@ passport.deserializeUser(
           }
         });
         break;
+        case "user":
+          User.findById(obj.id).then((user) => {
+            if (user) {
+              done(null, user);
+            } else {
+              done(new Error("Client id not found:" + obj.id));
+            }
+          });
+          break;
       default:
         done(new Error("no entity type:" + obj.type));
         break;
