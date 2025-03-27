@@ -7,7 +7,7 @@ import User from "../models/User/User.js";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
-  const posts = await Post.find();
+  const posts = await Post.find().populate("owner").populate("tags").populate("verified"); 
   res.status(200).json({ message: "All posts retrieved", posts });
 };
 
@@ -32,7 +32,7 @@ const createPost = async (req, res) => {
 
 const getPostById = async (req, res) => {
   const post = await Post.findById(req.params.postId);
-  if (!post) return res.status(404).json({ message: "Post not found" });
+  if (!post) return res.status(404).json({ message: "Post not found" }).populate("owner").populate("tags").populate("verified");
   res.json({ message: "Post retrieved", post });
 };
 
@@ -54,7 +54,7 @@ const updatePost = async (req, res) => {
 
 const filterPosts = async (req, res) => {
   const { categories } = req.query;
-  if (!categories) return res.status(400).json({ message: "Provide categories" });
+  if (!categories) return res.status(400).json({ message: "Provide categories" }).populate("owner").populate("tags").populate("verified");
   const categoryArray = categories.split(",").map((cat) => cat.trim());
   const posts = await Post.find({ category: { $in: categoryArray } });
   res.json({ message: "Filtered posts", posts });
