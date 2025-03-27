@@ -7,9 +7,9 @@ import RegisterExpert from "./pages/auth/Expert/RegisterExpert";
 import LoginUser from "./pages/auth/Expert/LoginExpert";
 import RegisterUser from "./pages/auth/Expert/RegisterExpert";
 import RoleSelection from "./pages/RoleSelection/RoleSelection";
-import { HomePage } from "./pages/home";
 import { PostsPage } from "./pages/posts";
 import { CreatePostPage } from "./pages/posts/create";
+import { HomePage } from "./pages/Home";
 
 const App = () => {
   const role = useAuth();

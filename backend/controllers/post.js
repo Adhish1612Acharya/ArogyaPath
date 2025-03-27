@@ -2,7 +2,6 @@ import express from "express";
 import Post from "../models/Post/Post.js";
 import generateCategories from "../utils/geminiAI.js";
 
-const router = express.Router();
 
 // Handler functions
 const getAllPosts = async (req, res) => {
