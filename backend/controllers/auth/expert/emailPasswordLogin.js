@@ -1,5 +1,5 @@
 import Expert from "../../../models/Expert/Expert.js";
-import { User } from "../../../types/UserType.js";
+
 
 export const signUp = async (req, res) => {
     let signUpError = false;
