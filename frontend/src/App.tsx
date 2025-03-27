@@ -1,35 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import {  Routes } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
 
-function App() {
-  const [count, setCount] = useState(0)
-
+const App = () => {
+  const { role } = useAuth();
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      {/* {nav && <NavBar />} */}
 
-export default App
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+        style={{ marginTop: "5rem" }}
+      />
+      <div className="main-container">
+        <Routes>
+          {/* <Route path="/" element={<Home />} />
+          <Route element={<AuthProtectedRoute />}>
+            <Route path="/expert/register" element={<RegisterExpert />} />
+            <Route path="/farmer/login" element={<LoginFarmer />} />
+            <Route path="/farmer/register" element={<RegisterFarmer />} />
+            <Route path="/expert/login" element={<LoginExpert />} />
+            <Route path="/auth" element={<RoleSelection />} />
+          </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/posts" element={<PostsPage />} />
+            <Route path="/posts/:id" element={<PostDetailPage />} />
+            <Route path="/workshops" element={<WorkshopsPage />} />
+            <Route path="/workshops/:id" element={<WorkShopDetail />} />
+          </Route>
+          <Route element={<FarmerProtectRoute />}>
+            <Route path="/solve-query" element={<AiSolveQuery />} />
+          </Route>
+
+          <Route element={<ExpertProtectRoute />}>
+            <Route path="/workshops/create" element={<CreateWorkShop />} />
+            <Route path="/profile/farmer" element={<FarmerProfile />} />
+            <Route path="/profile/doctor" element={<DoctorProfile />} />
+            <Route path="/profile/ngo" element={<NGOProfile />} />
+            <Route
+              path="/profile/researchinsti"
+              element={<ResearchInstituteProfile />}
+            />
+            <Route path="/profile/volunteer" element={<VolunteerProfile />} />
+          </Route>
+          <Route path="*" element={<PageNotFound />} /> */}
+        </Routes>
+      </div>
+
+      {/* {nav && <Footer />} */}
+    </>
+  );
+};
+
+export default App;

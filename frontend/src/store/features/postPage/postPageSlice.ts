@@ -8,7 +8,7 @@
 //   addQuestionLoad: false,
 // };
 
-// const revisionManagingDialog = createSlice({
+// const post = createSlice({
 //   name: "addQuestion",
 //   initialState,
 //   reducers: {
