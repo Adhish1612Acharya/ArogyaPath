@@ -22,14 +22,19 @@ const doctorSchema = new Schema<IDoctor>(
 
     // Profile Data (Nested Object)
     profile: {
-      fullname: { type: String, required: true,default:"" },
-      profileImage: { type: String, required: true,default:"" },
-      experience: { type: Number, required: true, min: 0 ,default:0},
-      qualification: { type: String, required: true,default:"" },
-      expertType: { type: String, required: true,default:"" },
-      contact: { type: String, required: true, match: /^[0-9]{10}$/,default:0 },
+      fullname: { type: String, required: true, default: "" },
+      profileImage: { type: String, required: true, default: "" },
+      experience: { type: Number, required: true, min: 0, default: 0 },
+      qualification: { type: String, required: true, default: "" },
+      expertType: { type: String, required: true, default: "" },
+      contact: {
+        type: String,
+        required: true,
+        match: /^[0-9]{10}$/,
+        default: 0,
+      },
     },
-    posts: [{ type: Schema.Types.ObjectId, ref: "Post",default:[] }],
+    posts: [{ type: Schema.Types.ObjectId, ref: "Post", default: [] }],
     role: { type: String, default: "expert" },
     googleId: { type: Number, default: 0 },
   },
