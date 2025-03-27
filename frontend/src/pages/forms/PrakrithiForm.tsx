@@ -52,8 +52,10 @@ export default function PrakritiForm() {
 
     setLoading(true);
     try {
-      const response = await axios.post('/api/analyze', formData);
-      navigate(`/result?reportId=${response.data.reportId}`);
+      console.log("Form data : ",formData);
+      const response = await axios.post('https://prakritianalysis.onrender.com/generate_pdf/', formData);
+      console.log("Response : ",response);
+      // navigate(`/result?reportId=${response.data.reportId}`);
     } catch (error) {
       console.error('Submission failed', error);
     } finally {
