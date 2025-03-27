@@ -8,7 +8,7 @@ interface IProfile {
   contact:number;
 }
 
-export interface IDoctor extends Document {
+export interface IExpert extends Document {
   username: string;
   googleId: number;
   email: string;

@@ -10,6 +10,9 @@ import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert";
 import User from "./models/User/User";
 
+import expertGoogleAuth from "./routes/auth/googleExpertAuth";
+import userGoogleAuth from "./routes/auth/googleUserAuth";
+
 const app = express();
 
 main()
@@ -115,6 +118,9 @@ passport.deserializeUser(
 app.get("/", (req: Request, res: Response) => {
   res.json("Success");
 });
+
+app.use("/api/auth/google/expert",expertGoogleAuth);
+app.use("/api/auth/google/user",userGoogleAuth);
 
 // -------------------Deployment------------------//
 

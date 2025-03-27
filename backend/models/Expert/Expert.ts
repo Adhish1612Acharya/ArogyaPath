@@ -1,10 +1,10 @@
 import mongoose, { model } from "mongoose";
 import passportLocalMongoose from "passport-local-mongoose";
-import { IDoctor } from "./Expert.types";
+import { IExpert } from "./Expert.types";
 
 const Schema = mongoose.Schema;
 
-const doctorSchema = new Schema<IDoctor>(
+const doctorSchema = new Schema<IExpert>(
   {
     username: { type: String, unique: true, required: true },
     email: {
@@ -22,14 +22,19 @@ const doctorSchema = new Schema<IDoctor>(
 
     // Profile Data (Nested Object)
     profile: {
-      fullname: { type: String, required: true,default:"" },
-      profileImage: { type: String, required: true,default:"" },
-      experience: { type: Number, required: true, min: 0 ,default:0},
-      qualification: { type: String, required: true,default:"" },
-      expertType: { type: String, required: true,default:"" },
-      contact: { type: String, required: true, match: /^[0-9]{10}$/,default:0 },
+      fullname: { type: String, required: true, default: "" },
+      profileImage: { type: String, required: true, default: "" },
+      experience: { type: Number, required: true, min: 0, default: 0 },
+      qualification: { type: String, required: true, default: "" },
+      expertType: { type: String, required: true, default: "" },
+      contact: {
+        type: String,
+        required: true,
+        match: /^[0-9]{10}$/,
+        default: 0,
+      },
     },
-    posts: [{ type: Schema.Types.ObjectId, ref: "Post",default:[] }],
+    posts: [{ type: Schema.Types.ObjectId, ref: "Post", default: [] }],
     role: { type: String, default: "expert" },
     googleId: { type: Number, default: 0 },
   },
