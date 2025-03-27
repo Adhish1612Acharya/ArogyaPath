@@ -1,10 +1,10 @@
 import mongoose, { model } from "mongoose";
 import passportLocalMongoose from "passport-local-mongoose";
-import { IDoctor } from "./Expert.types";
+import { IExpert } from "./Expert.types";
 
 const Schema = mongoose.Schema;
 
-const doctorSchema = new Schema<IDoctor>(
+const doctorSchema = new Schema<IExpert>(
   {
     username: { type: String, unique: true, required: true },
     email: {
