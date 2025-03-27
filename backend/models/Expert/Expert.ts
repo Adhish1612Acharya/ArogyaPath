@@ -43,6 +43,6 @@ const doctorSchema = new Schema<IExpert>(
 
 doctorSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
-const Expert = model<IDoctor>("Expert", doctorSchema);
+const Expert = model<IExpert>("Expert", doctorSchema);
 
 export default Expert;
