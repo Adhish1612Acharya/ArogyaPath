@@ -48,6 +48,8 @@ export function CreatePostPage() {
   const [video, setVideo] = useState<File | null>(null);
   const [document, setDocument] = useState<File | null>(null);
   const [routineActivities, setRoutineActivities] = useState<RoutineActivity[]>([]);
+  const [title,setTitle]=useState<string>("");
+  const [content,setContent]=useState<string>("");
 
   const handleTagKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && tagInput.trim()) {
@@ -79,6 +81,7 @@ export function CreatePostPage() {
   const addActivity = () => {
     setRoutineActivities([...routineActivities, { id: Date.now().toString(), time: '', activity: '' }]);
   };
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
@@ -110,14 +113,14 @@ export function CreatePostPage() {
 
             <div className="space-y-2">
               <Label>Title</Label>
-              <Input placeholder="Enter post title" className="bg-white focus-visible:ring-green-500" />
+              <Input placeholder="Enter post title" value={title} onChange={(e)=>setTitle(e.target.value)} className="bg-white focus-visible:ring-green-500" />
             </div>
 
             {postType === 'general' ? (
               <>
                 <div className="space-y-2">
                   <Label>Content</Label>
-                  <Textarea placeholder="Share your thoughts..." className="min-h-[200px] bg-white focus-visible:ring-green-500" />
+                  <Textarea  value={content} onChange={(e)=>setContent(e.target.value)}  placeholder="Share your thoughts..." className="min-h-[200px] bg-white focus-visible:ring-green-500" />
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
