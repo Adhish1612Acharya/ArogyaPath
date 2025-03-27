@@ -1,6 +1,8 @@
 import express from "express";
 import Post from "../models/Post/Post.js";
 import generateCategories from "../utils/geminiAI.js";
+import Expert from "../models/Expert/Expert.js";
+import User from "../models/User/User.js";
 
 
 // Handler functions
@@ -17,6 +19,12 @@ const createPost = async (req, res) => {
 
     // Add categories to request body
     const post = new Post({ title, description, media, category: categories,category:categories,successStory,ownerType,tags,owner:req.user._id });
+
+   if(req.user.role==="user"){
+    await User.findByIdAndUpdate(req.user._id,{$push:{posts:post._id}});
+   }else{
+    await Expert.findByIdAndUpdate(req.user._id,{$push:{posts:post._id}});
+   }
 
     await post.save();
     res.status(201).json({ message: "Post created", post });
