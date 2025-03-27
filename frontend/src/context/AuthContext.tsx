@@ -4,19 +4,17 @@ interface AuthContextType {
   isLoggedIn: boolean | undefined;
   setIsLoggedIn: (value: boolean | undefined) => void;
   role: "user" | "doctor" | undefined;
-  setRole: (value:  "user" | "doctor" | undefined) => void;
+  setRole: (value: "user" | "doctor" | undefined) => void;
 }
 
 // Create the context with a default value
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Context provider component
-export const useAuthContext = ({ children }: { children: ReactNode }) => {
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(false); // Initialize login state
 
-  const [role, setRole] = useState< "user" | "doctor" | undefined>(
-    undefined
-  );
+  const [role, setRole] = useState<"user" | "doctor" | undefined>(undefined);
 
   return (
     <AuthContext.Provider value={{ isLoggedIn, setIsLoggedIn, role, setRole }}>
