@@ -1,23 +1,31 @@
-import express, { Request, Response } from "express";
+import { config as dotEnvConfig } from "dotenv";
+if (process.env.NODE_ENV !== "production") {
+  dotEnvConfig();
+}
+
+console.log("Google client id : ", process.env.GOOGLE_CLIENT_ID);
+
+import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
-import MongoStore from "connect-mongo";
-import session, { Cookie } from "express-session";
+import session from "express-session";
 import bodyParser from "body-parser";
-import errorHandler from "./utils/errorHandler";
-import passport from "passport";
-import { Strategy as localStrategy } from "passport-local";
-import Expert from "./models/Expert/Expert";
-import User from "./models/User/User";
+import errorHandler from "./utils/errorHandler.js";
 
-import expertGoogleAuth from "./routes/auth/googleExpertAuth";
-import userGoogleAuth from "./routes/auth/googleUserAuth";
+import { Strategy as localStrategy } from "passport-local";
+import Expert from "./models/Expert/Expert.js";
+import User from "./models/User/User.js";
+
+import expertGoogleAuth from "./routes/auth/googleExpertAuth.js";
+import userGoogleAuth from "./routes/auth/googleUserAuth.js";
+
+import passport from "passport";
 
 const app = express();
 
 main()
   .then(() => {
-    console.log("DB connected succesfully");
+    console.log("DB connected successfully");
   })
   .catch((err) => {
     console.log("DB connect error");
@@ -28,20 +36,20 @@ async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/ayurpath");
 }
 
-const store = MongoStore.create({
-  mongoUrl: "mongodb://127.0.0.1:27017/sportsbuddy",
-  crypto: {
-    secret: process.env.SECRET || "My secret code",
-  },
-  touchAfter: 24 * 3600,
-});
+// const store = MongoStore.create({
+//   mongoUrl: "mongodb://127.0.0.1:27017/ayurpath",
+//   crypto: {
+//     secret: process.env.SECRET || "My secret code",
+//   },
+//   touchAfter: 24 * 3600,
+// });
 
-store.on("error", (err) => {
-  console.log("Error occured in mongo session store", err);
-});
+// store.on("error", (err) => {
+//   console.log("Error occurred in mongo session store", err);
+// });
 
 const sessionOptions = {
-  store,
+  // store, // Uncomment if you're using MongoStore
   secret: "MySecretKey",
   resave: false,
   saveUninitialized: true,
@@ -75,52 +83,43 @@ app.use(passport.session());
 //   new localStrategy({ usernameField: "email" }, Student.authenticate())
 // );
 
-passport.serializeUser(
-  (
-    entity: any,
-    done: (err: any, user?: { id: string; type: string }) => void
-  ) => {
-    done(null, { id: entity._id, type: entity.role });
-  }
-);
+passport.serializeUser((entity, done) => {
+  done(null, { id: entity._id, type: entity.role });
+});
 
-passport.deserializeUser(
-  (
-    obj: { id: string; type: string },
-    done: (err: any, user?: any) => void
-  ): void => {
-    switch (obj.type) {
-      case "expert":
-        Expert.findById(obj.id).then((user) => {
-          if (user) {
-            done(null, user);
-          } else {
-            done(new Error("Client id not found:" + obj.id));
-          }
-        });
-        break;
-        case "user":
-          User.findById(obj.id).then((user) => {
-            if (user) {
-              done(null, user);
-            } else {
-              done(new Error("Client id not found:" + obj.id));
-            }
-          });
-          break;
-      default:
-        done(new Error("no entity type:" + obj.type));
-        break;
-    }
+passport.deserializeUser((obj, done) => {
+  switch (obj.type) {
+    case "expert":
+      Expert.findById(obj.id).then((user) => {
+        if (user) {
+          done(null, user);
+        } else {
+          done(new Error("Client id not found: " + obj.id));
+        }
+      });
+      break;
+    case "user":
+      User.findById(obj.id).then((user) => {
+        if (user) {
+          done(null, user);
+        } else {
+          done(new Error("Client id not found: " + obj.id));
+        }
+      });
+      break;
+    default:
+      done(new Error("No entity type: " + obj.type));
+      break;
   }
-);
+});
 
-app.get("/", (req: Request, res: Response) => {
+app.get("/", (req, res) => {
   res.json("Success");
 });
 
-app.use("/api/auth/google/expert",expertGoogleAuth);
-app.use("/api/auth/google/user",userGoogleAuth);
+app.use("/auth/google", expertGoogleAuth);
+app.use("/api/auth/google/user", userGoogleAuth);
+// app.use("/api/auth/user")
 
 // -------------------Deployment------------------//
 
@@ -147,11 +146,10 @@ app.use("/api/auth/google/user",userGoogleAuth);
 //   res.sendFile(path.join(buildPath, "index.html"));
 // });
 
-
 app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  console.log("Server listening on port : ", port);
+  console.log("Server listening on port: ", port);
 });

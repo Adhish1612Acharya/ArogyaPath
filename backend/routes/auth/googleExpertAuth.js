@@ -1,7 +1,7 @@
 import express from "express";
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth2";
-import googleAuthController from   "../../controllers/auth/googleAuth";
+import googleAuthController from   "../../controllers/auth/googleAuth.js";
 
 const router = express.Router();
 
@@ -11,11 +11,10 @@ passport.use(
       clientID: process.env.GOOGLE_CLIENT_ID || "default-client-id",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "default-client-secret",
       callbackURL:
-        process.env.GOOGLE_CALLBACK_URL ||
-        `${process.env.SERVER_URL}/api/auth/google/user/callback`,
+       "http://localhost:3000/auth/google/callback",
       passReqToCallback: true,
     },
-    googleAuthController.googleCallBackFunctionForUser
+    googleAuthController.googleCallBackFunctionForExpert
   )
 );
 
@@ -28,7 +27,7 @@ router.get(
 router.get(
   "/callback",
   passport.authenticate("google", {
-    failureRedirect: "/api/auth/user/failureLogin",
+    failureRedirect: "/api/auth/expert/failureLogin",
   }),
   googleAuthController.handleGoogleCallback
 );

@@ -1,13 +1,12 @@
-import { NextFunction, Request, Response } from "express";
-import Expert from "../../models/Expert/Expert";
-import expressError from "../../utils/expressError";
-import User from "../../models/User/User";
+import Expert from "../../models/Expert/Expert.js";
+import expressError from "../../utils/expressError.js";
+import User from "../../models/User/User.js";
 
 export const handleGoogleAuthError = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
+  err,
+  req,
+  res,
+  next
 ) => {
   if (err) {
     console.error(`Error during Google authentication: ${err.message}`);
@@ -15,20 +14,20 @@ export const handleGoogleAuthError = (
   }
 };
 
-export const handleGoogleCallback = (req: Request, res: Response) => {
+export const handleGoogleCallback = (req, res) => {
   res.redirect(`${process.env.VITE_API_URL}/posts`);
 };
 
-export const handleGoogleAuthFailiure = (req: Request, res: Response) => {
+export const handleGoogleAuthFailiure = (req, res) => {
   res.redirect(`${process.env.VITE_API_URL}/auth`);
 };
 
 export const googleCallBackFunctionForExpert = async (
-  req: Request,
-  accessToken: any,
-  refreshToken: any,
-  profile: any,
-  done: any
+  req,
+  accessToken,
+  refreshToken,
+  profile,
+  done
 ) => {
   try {
     const user = await Expert.findOne({ googleId: profile.id }).catch((err) =>
@@ -62,11 +61,11 @@ export const googleCallBackFunctionForExpert = async (
 };
 
 export const googleCallBackFunctionForUser = async (
-  req: Request,
-  accessToken: any,
-  refreshToken: any,
-  profile: any,
-  done: any
+  req,
+  accessToken,
+  refreshToken,
+  profile,
+  done
 ) => {
   try {
     const user = await User.findOne({ googleId: profile.id }).catch((err) =>
