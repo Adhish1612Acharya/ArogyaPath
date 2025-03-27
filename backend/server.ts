@@ -79,27 +79,27 @@ passport.serializeUser(
   }
 );
 
-// passport.deserializeUser(
-//   (
-//     obj: { id: string; type: string },
-//     done: (err: any, user?: any) => void
-//   ): void => {
-//     switch (obj.type) {
-//       case "student":
-//         Student.findById(obj.id).then((user) => {
-//           if (user) {
-//             done(null, user);
-//           } else {
-//             done(new Error("Client id not found:" + obj.id));
-//           }
-//         });
-//         break;
-//       default:
-//         done(new Error("no entity type:" + obj.type));
-//         break;
-//     }
-//   }
-// );
+passport.deserializeUser(
+  (
+    obj: { id: string; type: string },
+    done: (err: any, user?: any) => void
+  ): void => {
+    switch (obj.type) {
+      case "expert":
+        Student.findById(obj.id).then((user) => {
+          if (user) {
+            done(null, user);
+          } else {
+            done(new Error("Client id not found:" + obj.id));
+          }
+        });
+        break;
+      default:
+        done(new Error("no entity type:" + obj.type));
+        break;
+    }
+  }
+);
 
 app.get("/", (req: Request, res: Response) => {
   res.json("Success");

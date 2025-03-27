@@ -1,12 +1,20 @@
+import mongoose from "mongoose";
+
 interface IProfile {
-  username: string;
+  fullname: string;
   experience: number;
   qualification: string;
+  expertType:string;
+  contact:number;
 }
 
-export interface IExperts extends Document {
-  fullname: string;
+export interface IDoctor extends Document {
+  username: string;
+  googleId: number;
   email: string;
   contact: string;
   profile: IProfile;
+  posts: mongoose.Types.ObjectId[];
+  completeProfile: boolean;
+  role:"expert"
 }
