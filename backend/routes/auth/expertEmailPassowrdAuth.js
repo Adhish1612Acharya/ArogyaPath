@@ -1,9 +1,9 @@
 import express from "express";
 import passport from "passport";
-import  emailPasswordExpertAuthController  from "../../controllers/auth/expert/emailPasswordLogin";
-import  emailPasswordUserAuthController  from "../../controllers/auth/user/emailpasswordAuth";
-import wrapAsync from "../../utils/wrapAsync";
-import { isAlreadyLoggedIn } from "../../middlewares/auth";
+import  emailPasswordExpertAuthController  from "../../controllers/auth/expert/emailPasswordLogin.js";
+import  emailPasswordUserAuthController  from "../../controllers/auth/user/emailpasswordAuth.js";
+import wrapAsync from "../../utils/wrapAsync.js";
+import { isAlreadyLoggedIn } from "../../middlewares/auth.js";
 
 const router = express.Router();
 

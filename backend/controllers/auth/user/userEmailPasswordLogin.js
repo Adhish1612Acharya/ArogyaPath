@@ -1,9 +1,7 @@
-import { Request, Response } from "express";
-import Expert from "../../../models/Expert/Expert";
-import { User as UserType } from "../../../types/UserType"; // Renaming for clarity
-import User from "../../../models/User/User";
+import User from "../../../models/User/User.js";
 
-export const signUp = async (req: Request, res: Response) => {
+
+export const signUp = async (req, res) => {
     let signUpError = false;
     let error = "";
     const {
@@ -17,8 +15,8 @@ export const signUp = async (req: Request, res: Response) => {
       email,
     });
   
-    const registeredExpert = await (User as any).register( newExpert, password).catch(
-      (err:any) => {
+    const registeredExpert = await User.register( newExpert, password).catch(
+      (err) => {
         console.log("signUpError");
         console.log(err);
         signUpError = true;
@@ -27,7 +25,7 @@ export const signUp = async (req: Request, res: Response) => {
     );
   
     if (!signUpError && registeredExpert) {
-      req.login(registeredExpert as any, (err) => {
+      req.login(registeredExpert, (err) => {
         if (err) {
           console.log(err);
           res.status(500).json({
@@ -49,21 +47,21 @@ export const signUp = async (req: Request, res: Response) => {
     }
   };
 
-  export const login = async (req: Request, res: Response) => {
+  export const login = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "successLogin",
     });
   };
   
-  export const failureLogin = async (req: Request, res: Response) => {
+  export const failureLogin = async (req, res) => {
     res.status(401).json({
       success: false,
       message: "failureLogin",
     });
   };
   
-  export const logout = (req: Request, res: Response) => {
+  export const logout = (req, res) => {
     req.logout((err) => {
       if (err) {
         console.log(err);

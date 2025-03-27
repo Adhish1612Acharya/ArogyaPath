@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from "express";
-import { User } from "../../types/UserType";
 
-export const checkExpertLogin=(req:Request,res:Response,next:NextFunction)=>{  
+import { User } from "../../types/UserType.js";
+
+export const checkExpertLogin=(req,res,next)=>{  
   if(req.isAuthenticated()){
 
     if(req.user.role==="expert"){

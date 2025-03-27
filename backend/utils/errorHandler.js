@@ -1,10 +1,8 @@
-import { NextFunction, Request, Response } from "express";
-
 const errorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
+  err,
+  req,
+  res,
+  next,
 ) => {
   if (err) {
     const statusNumber = err.status || 500;

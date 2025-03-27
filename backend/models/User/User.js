@@ -1,8 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import  IUser  from "./User.types";
 import passportLocalMongoose from "passport-local-mongoose";
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema(
   {
     username: {
       type: String,
@@ -33,7 +32,6 @@ const userSchema = new Schema<IUser>(
 userSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
 // Define the model with TypeScript type
-const User: Model<IUser> = mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;
-export { IUser };

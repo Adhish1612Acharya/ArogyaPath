@@ -25,7 +25,7 @@ export function LoginPage() {
   const [userType, setUserType] = useState<"user" | "expert">("user");
 
   const googleLogin = async () => {
-    window.open(`http://localhost:3000/api/auth/google/expert`, "_self");
+    window.open(`http://localhost:3000/auth/google`, "_self");
   };
 
   return (
