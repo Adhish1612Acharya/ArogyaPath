@@ -21,6 +21,7 @@ import expertEmailPasswordAuth from "./routes/auth/expertEmailPassowrdAuth.js";
 import postRoute from "./routes/Post.js";
 
 import passport from "passport";
+import MongoStore from "connect-mongo";
 
 const app = express();
 
@@ -37,20 +38,20 @@ async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/ayurpath");
 }
 
-// const store = MongoStore.create({
-//   mongoUrl: "mongodb://127.0.0.1:27017/ayurpath",
-//   crypto: {
-//     secret: process.env.SECRET || "My secret code",
-//   },
-//   touchAfter: 24 * 3600,
-// });
+const store = MongoStore.create({
+  mongoUrl: "mongodb://127.0.0.1:27017/ayurpath",
+  crypto: {
+    secret: process.env.SECRET || "My secret code",
+  },
+  touchAfter: 24 * 3600,
+});
 
-// store.on("error", (err) => {
-//   console.log("Error occurred in mongo session store", err);
-// });
+store.on("error", (err) => {
+  console.log("Error occurred in mongo session store", err);
+});
 
 const sessionOptions = {
-  // store, // Uncomment if you're using MongoStore
+   store, // Uncomment if you're using MongoStore
   secret: "MySecretKey",
   resave: false,
   saveUninitialized: true,
@@ -79,10 +80,16 @@ app.options("*", cors(corsOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 
-// passport.use(
-//   "student",
-//   new localStrategy({ usernameField: "email" }, Student.authenticate())
-// );
+passport.use(
+  "expert",
+  new localStrategy({ usernameField: "email" }, Expert.authenticate())
+);
+
+passport.use(
+  "user",
+  new localStrategy({ usernameField: "email" }, User.authenticate())
+);
+
 
 passport.serializeUser((entity, done) => {
   done(null, { id: entity._id, type: entity.role });

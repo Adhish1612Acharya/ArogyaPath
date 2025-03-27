@@ -2,7 +2,6 @@ import express from "express";
 import passport from "passport";
 import emailPasswordUserAuthController from "../../controllers/auth/user/emailpasswordAuth.js";
 import wrapAsync from "../../utils/wrapAsync.js";
-import { isAlreadyLoggedIn } from "../../middlewares/auth.js";
 
 const router = express.Router();
 
@@ -20,10 +19,10 @@ router.post(
 router.post(
   "/login",
 //   isAlreadyLoggedIn,
-  passport.authenticate("student", {
+  passport.authenticate("user", {
     failureRedirect: "/api/auth/failureLogin",
   }),
-  authController.login
+  emailPasswordUserAuthController.login
 );
 
 router.get("/check",
