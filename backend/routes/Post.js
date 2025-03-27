@@ -3,6 +3,7 @@ const Post = require("../models/Post/Post");
 const validatePost = require("../middlewares/routemiddlewares");
 const wrapAsync = require("../utils/wrapAsync");
 const { generateCategories } = require("../utils/geminiAI");
+const axios = require("axios");
 
 const router = express.Router();
 
@@ -18,6 +19,15 @@ router.post(
   "/",
   wrapAsync(async (req, res) => {
     const { title, description, media } = req.body;
+
+    // const data={
+    //   text:description
+    // }
+    
+    // const response = await axios.post("https://content-verification-aakrithi.onrender.com/predict",data);
+    // res.json(response.data.description);
+
+    // console.log(response.data.description);
 
     // Generate categories using ONLY the description
     const categories = await generateCategories(description);
