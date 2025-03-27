@@ -41,8 +41,8 @@ export function CreatePostPage() {
   const [routineActivities, setRoutineActivities] = useState([
     { time: '', activity: '' },
   ]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [tagInput, setTagInput] = useState('');
+  // const [tags, setTags] = useState<Tag[]>([]);
+  // const [tagInput, setTagInput] = useState('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
 
   const addActivity = () => {
@@ -53,17 +53,17 @@ export function CreatePostPage() {
     setRoutineActivities(routineActivities.filter((_, i) => i !== index));
   };
 
-  const handleTagKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      setTags([...tags, { id: Date.now().toString(), text: tagInput.trim() }]);
-      setTagInput('');
-    }
-  };
+  // const handleTagKeyDown = (e: React.KeyboardEvent) => {
+  //   if (e.key === 'Enter' && tagInput.trim()) {
+  //     e.preventDefault();
+  //     setTags([...tags, { id: Date.now().toString(), text: tagInput.trim() }]);
+  //     setTagInput('');
+  //   }
+  // };
 
-  const removeTag = (tagId: string) => {
-    setTags(tags.filter((tag) => tag.id !== tagId));
-  };
+  // const removeTag = (tagId: string) => {
+  //   setTags(tags.filter((tag) => tag.id !== tagId));
+  // };
 
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
@@ -129,7 +129,7 @@ export function CreatePostPage() {
                     className="min-h-[200px] bg-white focus-visible:ring-green-500"
                   />
                 </div>
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   <Label>Tags</Label>
                   <div className="flex flex-wrap gap-2">
                     {tags.map((tag) => (
@@ -155,7 +155,7 @@ export function CreatePostPage() {
                       className="w-32 h-7 bg-white"
                     />
                   </div>
-                </div>
+                </div> */}
                 <div className="grid grid-cols-2 gap-4">
                   <Button
                     variant="outline"
