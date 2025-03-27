@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Leaf } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Leaf } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Card,
   CardContent,
@@ -11,17 +11,22 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
+import axios from "axios";
 
 export function LoginPage() {
-  const [userType, setUserType] = useState<'patient' | 'expert'>('patient');
+  const [userType, setUserType] = useState<"user" | "expert">("user");
+
+  const googleLogin = async () => {
+    window.open(`http://localhost:3000/api/auth/google/expert`, "_self");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white flex items-center justify-center p-4">
@@ -40,7 +45,7 @@ export function LoginPage() {
             <Label htmlFor="userType">I am a</Label>
             <Select
               value={userType}
-              onValueChange={(value: 'patient' | 'expert') => setUserType(value)}
+              onValueChange={(value: "user" | "expert") => setUserType(value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select user type" />
@@ -57,13 +62,19 @@ export function LoginPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" placeholder="Enter your password" />
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+            />
           </div>
-          <Button className="w-full">Login</Button>
+          <Button className="w-full" onClick={() => {googleLogin()}}>
+            Login
+          </Button>
         </CardContent>
         <CardFooter className="flex flex-col space-y-2">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <Link to="/register" className="text-green-600 hover:underline">
               Register here
             </Link>
