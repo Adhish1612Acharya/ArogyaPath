@@ -20,6 +20,16 @@ export  const validatePost = (req, res, next) => {
   req.validatedData = result.data;
   next();
 };
+export const validateComment = (req, res, next) => {
+  const result = commentSchemaZod.safeParse(req.body);
 
+  if (!result.success) {
+    return res.status(400).json({
+      error: result.error.errors.map(err => err.message),
+    });
+  }
+  req.validatedData = result.data; 
+  next();
+};
 
-export default { validateUser, validateExpert, validatePost };
+export default { validateUser, validateExpert, validatePost, validateComment};
