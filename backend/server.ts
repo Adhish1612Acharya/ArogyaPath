@@ -1,3 +1,10 @@
+import { config as dotEnvConfig } from "dotenv";
+if (process.env.NODE_ENV !== "production") {
+  dotEnvConfig();
+}
+
+console.log("Google client id : ",process.env.GOOGLE_CLIENT_ID)
+
 import express, { Request, Response } from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -29,7 +36,7 @@ async function main() {
 }
 
 const store = MongoStore.create({
-  mongoUrl: "mongodb://127.0.0.1:27017/sportsbuddy",
+  mongoUrl: "mongodb://127.0.0.1:27017/ayurpath",
   crypto: {
     secret: process.env.SECRET || "My secret code",
   },
@@ -119,8 +126,9 @@ app.get("/", (req: Request, res: Response) => {
   res.json("Success");
 });
 
-app.use("/api/auth/google/expert",expertGoogleAuth);
+app.use("/auth/google",expertGoogleAuth);
 app.use("/api/auth/google/user",userGoogleAuth);
+// app.use("/api/auth/user")
 
 // -------------------Deployment------------------//
 
