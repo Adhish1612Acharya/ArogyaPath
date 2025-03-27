@@ -48,5 +48,11 @@ export const postSchemaZod = z.object({
   verified: z.array(objectIdSchema).nonempty(),
 });
 
+export const commentSchemaZod = z.object({
+  owner: z.string().regex(/^[a-fA-F0-9]{24}$/, "Invalid user ID"), // MongoDB ObjectId
+  content: z.string().min(1, "Content cannot be empty"),
+  post: z.string().regex(/^[a-fA-F0-9]{24}$/, "Invalid post ID").optional(),
+});
 
-export default { userSchemaZod, expertSchemaZod, postSchemaZod };
+
+export default { userSchemaZod, expertSchemaZod, postSchemaZod, };
