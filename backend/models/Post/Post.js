@@ -28,6 +28,14 @@ const postSchema = new mongoose.Schema(
         default: [],
       },
     ],
+    verified: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Expert",
+        default: null,
+        required: true
+      },
+    ],
   },
   { timestamps: true }
 );

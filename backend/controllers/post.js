@@ -59,7 +59,28 @@ const filterPosts = async (req, res) => {
   const posts = await Post.find({ category: { $in: categoryArray } });
   res.json({ message: "Filtered posts", posts });
 };
-
+const verifyPost=(async (req, res) => {
+  const { id } = req.params; // Post ID
+  const doctorId = req.user._id; // Doctor's (Expert's) ID from the authenticated user
+  if (!doctorId) {
+    return res.status(400).json({ error: "Appropriate Doctor ID is required" });
+  }
+  const doctor = await Expert.findById(doctorId);
+  if (!doctor) {
+    return res.status(404).json({ error: "Doctor not found" });
+  }
+  const post = await Post.findById(id);
+  if (!post) {
+    return res.status(404).json({ error: "Post not found" });
+  }
+  if (post.verified.includes(doctorId)) {
+    return res.status(400).json({ error: "Doctor has already verified this post" });
+  }
+  post.verified.push(doctorId);
+  await post.save();
+  const updatedPost = await Post.findById(id).populate("verified", "username");
+  res.json({ message: " Post verified successfully", post: updatedPost });
+})
 export default {
     getAllPosts,
     createPost,
@@ -67,4 +88,5 @@ export default {
     deletePost,
     updatePost,
     filterPosts,
+    verifyPost,
 }

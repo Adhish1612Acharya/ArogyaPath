@@ -9,7 +9,7 @@ const router = express.Router();
 router.get(
   "/",
   wrapAsync(async (req, res) => {
-    const experts = await Expert.find();
+    const experts = await Expert.find().populate("posts");
     res.status(200).json(experts);
   })
 );

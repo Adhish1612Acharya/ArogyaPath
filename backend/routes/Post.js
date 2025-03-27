@@ -5,7 +5,7 @@ import wrapAsync from "../utils/wrapAsync.js";
 import generateCategories from "../utils/geminiAI.js";
 import postController from "../controllers/post.js";
 import { postSchemaZod } from "../middlewares/validationmiddleware.js";
-
+import {verifyPost} from "../controllers/post.js"
 const router = express.Router();
 
 router.get("/", wrapAsync(postController.getAllPosts));
@@ -19,4 +19,8 @@ router.put("/:postId", validatePost, wrapAsync(postController.updatePost));
 
 router.get("/filter", wrapAsync(postController.filterPosts));
 
+router.post("/verify/:id",wrapAsync(postController.verifyPost) );//include the middleware adhish
+
 export default router;
+
+
