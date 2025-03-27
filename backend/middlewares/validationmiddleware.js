@@ -45,6 +45,7 @@ export const postSchemaZod = z.object({
   ownerType: z.enum(["User", "Expert"]),
   owner: z.string().min(1, "Owner ID is required"), // Assuming ObjectId is a string
   tags: z.array(z.string()).default([]), // Assuming ObjectId is a string
+  verified: z.array(objectIdSchema).nonempty(),
 });
 
 
