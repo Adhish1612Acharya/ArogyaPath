@@ -1,6 +1,3 @@
-
-import { User } from "../../types/UserType.js";
-
 export const checkExpertLogin=(req,res,next)=>{  
   if(req.isAuthenticated()){
 
@@ -12,5 +9,11 @@ export const checkExpertLogin=(req,res,next)=>{
         message:"notLoggedIn"
     })
   }
-} 
+} else{
+  res.status(403).json({
+      success:false,
+      message:"notLoggedIn"
+  })
 }
+}
+

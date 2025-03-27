@@ -1,7 +1,7 @@
-const express = require("express");
-const User = require("../models/User/User");
-const { validateUser } = require("../middlewares/routemiddlewares");
-const wrapAsync = require("../utils/wrapAsync");
+import express from "express";
+import User from "../models/User/User.js";
+import { validateUser } from "../middlewares/routemiddlewares.js";
+import wrapAsync from "../utils/wrapAsync.js";
 
 const router = express.Router();
 

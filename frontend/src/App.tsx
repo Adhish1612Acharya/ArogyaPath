@@ -12,6 +12,7 @@ import { CreatePostPage } from "./pages/posts/create";
 import { HomePage } from "./pages/Home";
 import PrakrutiForm from "./pages/forms/PrakrutiForm";
 
+
 const App = () => {
   const role = useAuth();
   return (
@@ -41,7 +42,9 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/posts" element={<PostsPage />} />
           <Route path="/posts/create" element={<CreatePostPage />} />
-          <Route path="/prakriti" element={<PrakrutiForm />} />
+
+          <Route path="/prakrithi/analysis" element={<PrakritiForm />} />
+
         </Routes>
       </div>
       {/* {nav && <Footer />} */}

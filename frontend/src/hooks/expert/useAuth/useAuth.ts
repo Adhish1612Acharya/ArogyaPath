@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -14,7 +15,12 @@ const useAuth = () => {
     navigate("/expert/register");
   };
 
-  const googleSignUp = async (role: string, profileData: any, address: string, phoneNumber: string) => {
+  const googleSignUp = async (
+    role: string,
+    profileData: any,
+    address: string,
+    phoneNumber: string
+  ) => {
     toast.info(`Sign up as ${role} is not implemented`);
     navigate("/posts");
   };
@@ -25,8 +31,11 @@ const useAuth = () => {
   };
 
   const expertSignUp = async (data: any) => {
-    toast.info("Expert Sign-up is not implemented");
-    navigate("/posts")
+    const reponse = await axios.post(
+      "http://localhost:3000/api/auth/expert/signUp",
+      data
+    );
+    return reponse;
   };
 
   return {

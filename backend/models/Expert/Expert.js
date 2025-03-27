@@ -6,17 +6,16 @@ import passportLocalMongoose from "passport-local-mongoose";
 const ExpertSchema = new Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
-  contact: { type: String, required: true },
   profile: {
-    fullname: { type: String, required: true },
-    experience: { type: Number, required: true },
-    qualification: { type: String, required: true },
-    expertType: { type: String, required: true },
-    contact: { type: Number, required: true },
+    fullname: { type: String, default: "" },
+    experience: { type: Number,default: 0},
+    qualification: { type: String, default: "" },
+    expertType: { type: String,required:true },
+    contact: { type: Number, default: 0 },
   },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
   completeProfile: { type: Boolean, default: false },
-  role: { type: String, enum: ["expert"], required: true },
+  role: { type: String, enum: ["expert"], default:"expert" },
 });
 
 // Attach Passport-Local Mongoose Plugin

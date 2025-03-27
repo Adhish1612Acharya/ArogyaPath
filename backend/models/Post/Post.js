@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
@@ -10,8 +10,26 @@ const postSchema = new mongoose.Schema(
       document: [String],
     },
     category: { type: [String], required: true },
+    successStory: { type: Boolean, required: true },
+    ownerType: { 
+      type: String, 
+      enum: ["User", "Expert"], // Restrict values to "User" or "Expert"
+      required: true 
+    },
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "ownerType",
+      required: true,
+    },
+    tags: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Expert",
+        default: [],
+      },
+    ],
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("Post", postSchema);
- 
+const Post = mongoose.model("Post", postSchema);
+export default Post;

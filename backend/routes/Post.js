@@ -1,85 +1,22 @@
-const express = require("express");
-const Post = require("../models/Post/Post");
-const validatePost = require("../middlewares/routemiddlewares");
-const wrapAsync = require("../utils/wrapAsync");
-const { generateCategories } = require("../utils/geminiAI");
+import express from "express";
+import Post from "../models/Post/Post.js";
+import { validatePost } from "../middlewares/routemiddlewares.js";
+import wrapAsync from "../utils/wrapAsync.js";
+import generateCategories from "../utils/geminiAI.js";
+import postController from "../controllers/post.js";
+import { postSchemaZod } from "../middlewares/validationmiddleware.js";
 
 const router = express.Router();
 
+router.get("/", wrapAsync(postController.getAllPosts));
+router.post("/", validatePost, wrapAsync(postController.createPost));
 
-router.get(
-  "/",
-  wrapAsync(async (req, res) => {
-    const posts = await Post.find();
-    res.json({ message: "All posts retrieved", posts });
-  })
-);
-router.post(
-  "/",
-  wrapAsync(async (req, res) => {
-    const { title, description, media } = req.body;
+router.get("/:postId", wrapAsync(postController.getPostById));
 
-    // Generate categories using ONLY the description
-    const categories = await generateCategories(description);
+router.delete("/:postId", wrapAsync(postController.deletePost));
 
-    // Add categories to request body
-    const post = new Post({ title, description, media, category: categories });
+router.put("/:postId", validatePost, wrapAsync(postController.updatePost));
 
-    await post.save();
-    res.status(201).json({ message: "Post created", post });
-  })
-);
+router.get("/filter", wrapAsync(postController.filterPosts));
 
-
-router.get(
-
-  "/:postId",
-  wrapAsync(async (req, res) => {
-    const post = await Post.findById(req.params.postId);
-    if (!post) return res.status(404).json({ message: "Post not found" });
-
-    res.json({ message: "Post retrieved", post });
-  })
-);
-
-router.delete(
-  "/:postId",
-  wrapAsync(async (req, res) => {
-    const deletedPost = await Post.findByIdAndDelete(req.params.postId);
-    if (!deletedPost) return res.status(404).json({ message: "Post not found" });
-
-    res.json({ message: "Post deleted" });
-  })
-);
-
-
-router.put(
-  "/:postId",
-  validatePost,
-  wrapAsync(async (req, res) => {
-    const updatedPost = await Post.findByIdAndUpdate(req.params.postId, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedPost) return res.status(404).json({ message: "Post not found" });
-
-    res.json({ message: "Post updated", post: updatedPost });
-  })
-);
-
-
-router.get(
-  "/filter",
-  wrapAsync(async (req, res) => {
-    const { categories } = req.query;
-    if (!categories) return res.status(400).json({ message: "Provide categories" });
-
-    const categoryArray = categories.split(",").map((cat) => cat.trim());
-    const posts = await Post.find({ category: { $in: categoryArray } });
-
-    res.json({ message: "Filtered posts", posts });
-  })
-);
-
-module.exports = router;
+export default router;
