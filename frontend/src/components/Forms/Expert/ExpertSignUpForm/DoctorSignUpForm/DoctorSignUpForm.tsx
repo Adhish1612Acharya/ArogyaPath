@@ -16,8 +16,10 @@ import Button from "@/components/Button/Button";
 import useAuth from "@/hooks/expert/useAuth/useAuth";
 import { SignUpArguTypes } from "@/hooks/expert/useAuth/useAuth.types";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 const DoctorSignUpForm = () => {
+  
   const { expertSignUp, googleSignUp } = useAuth();
 
   const form = useForm<z.infer<typeof doctorSignUpSchema>>({
@@ -37,25 +39,39 @@ const DoctorSignUpForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof doctorSignUpSchema>) => {
-  
-    const dataToPass: SignUpArguTypes = {
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      address: data.address,
-      contactNo: Number(data.phoneNumber),
-      role: data.type,
-      profileData: {
-        uniqueId: Number(data.uniqueId),
-        education: data.education,
-        yearsOfPractice: Number(data.yearsOfPractice),
-      },
-    };
-    await expertSignUp(dataToPass);
+    try {
+      const dataToPass = {
+        username: data.name,
+        email: data.email,
+        password: data.password,
+        profile: {
+          fullname: data.name,
+          experience: Number(data.yearsOfPractice),
+          qualification: data.education,
+          expertType: data.type,
+          contact: data.phoneNumber,
+        },
+      };
+
+      console.log("Data to pass", dataToPass);
+      const reponse: any = await expertSignUp(dataToPass);
+      console.log("SignUp", reponse);
+     
+    } catch (err: any) {
+      console.log(err);
+      if (err.response.status === 401) {
+        console.log("Not logged in");
+        throw new Error("You need to Login");
+      } else if (err.response.status === 400) {
+        console.log(err.response.data.message);
+        throw new Error("Bad request : 400");
+      } else {
+        throw new Error(err.message || "Something went wrong");
+      }
+    }
   };
 
   const signUpWithGoogle = async () => {
-
     const profileFields: (keyof z.infer<typeof doctorSignUpSchema>)[] = [
       "phoneNumber",
       "address",
@@ -83,7 +99,7 @@ const DoctorSignUpForm = () => {
         education: form.getValues("education"),
         yearsOfPractice: Number(form.getValues("yearsOfPractice")),
       };
-      await googleSignUp("doctor", profileData, address, phoneNumber);
+      await googleSignUp("doctor", profileData, address, String(phoneNumber));
     }
   };
 
@@ -156,7 +172,6 @@ const DoctorSignUpForm = () => {
             </FormItem>
           )}
         />
-       
 
         <FormField
           control={form.control}
@@ -202,8 +217,15 @@ const DoctorSignUpForm = () => {
 
         {/* Buttons */}
         <div className="space-y-4">
-          <Button variant="outline" className="cursor-pointer" icon={Lock} disabled={form.formState.isSubmitting} type="submit" fullWidth>
-          {form.formState.isSubmitting ? <Loader2/> : "Create Account"}
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            icon={Lock}
+            disabled={form.formState.isSubmitting}
+            type="submit"
+            fullWidth
+          >
+            {form.formState.isSubmitting ? <Loader2 /> : "Create Account"}
           </Button>
           <Button
             variant="outline"
