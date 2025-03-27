@@ -8,6 +8,11 @@ import User from "../models/User/User.js";
 // Handler functions
 const getAllPosts = async (req, res) => {
   const posts = await Post.find().populate("owner").populate("tags").populate("verified"); 
+  posts = await Post.populate(posts, {
+    path: "verified",
+    match: { $ne: null }, // Only populate if 'verified' is not null
+  });
+
   res.status(200).json({ message: "All posts retrieved", posts });
 };
 
