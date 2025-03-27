@@ -1,11 +1,9 @@
-import mongoose, { Types } from "mongoose";
-import { clientSchemaObj } from "../models/Client";
-import { placeType, providerSchemaObj } from "../models/Provider";
-import { IDoctor } from "../models/Expert/Expert.types";
+import { IExpert } from "../models/Expert/Expert.types";
+
 
 declare global {
   namespace Express {
-    interface User extends IDoctor {
+    interface User extends IExpert {
       _id: string;
       googleId?: number;
       username: string;
