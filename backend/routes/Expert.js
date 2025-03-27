@@ -1,7 +1,7 @@
-const express = require("express");
-const Expert = require("../models/Expert/Expert");
-const validateExpert = require("../middlewares/routemiddlewares");
-const wrapAsync = require("../utils/wrapAsync");
+import express from "express";
+import Expert from "../models/Expert/Expert.js";
+import { validateExpert } from "../middlewares/routemiddlewares.js";
+import wrapAsync from "../utils/wrapAsync.js";
 
 const router = express.Router();
 
@@ -52,15 +52,20 @@ router.put(
   "/:id",
   validateExpert,
   wrapAsync(async (req, res) => {
-    const updatedExpert = await Expert.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const updatedExpert = await Expert.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-    if (!updatedExpert) return res.status(404).json({ error: "Expert not found" });
+    if (!updatedExpert)
+      return res.status(404).json({ error: "Expert not found" });
 
     res.status(200).json({ message: "Expert updated", expert: updatedExpert });
   })
 );
 
-module.exports = router;
+export default router;

@@ -1,9 +1,7 @@
 import express from "express";
 import passport from "passport";
 import  emailPasswordExpertAuthController  from "../../controllers/auth/expert/emailPasswordLogin.js";
-import  emailPasswordUserAuthController  from "../../controllers/auth/user/emailpasswordAuth.js";
 import wrapAsync from "../../utils/wrapAsync.js";
-import { isAlreadyLoggedIn } from "../../middlewares/auth.js";
 
 const router = express.Router();
 
@@ -21,20 +19,20 @@ router.post(
 
 router.post(
   "/login",
-  isAlreadyLoggedIn,
+  // isAlreadyLoggedIn,
   passport.authenticate("student", {
     failureRedirect: "/api/auth/failureLogin",
   }),
-  authController.login
+  emailPasswordExpertAuthController.login
 );
 
-router.get("/check",  isAlreadyLoggedIn, emailPasswordExpertAuthController.login);
+router.get("/check",   emailPasswordExpertAuthController.login);
 
 router.put(
   "/complete-profile",
-  isAuthenticated,
-  checkCompleteProfileForm,
-  wrapAsync(authController.completeProfile)
+  // isAuthenticated,
+  // checkCompleteProfileForm,
+  wrapAsync( emailPasswordExpertAuthController.completeProfile)
 );
 
 export default router;

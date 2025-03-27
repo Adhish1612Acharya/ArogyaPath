@@ -23,7 +23,7 @@ export function HomePage() {
                 </p>
                 <div className="space-x-4">
                   <Button size="lg" asChild>
-                    <Link to="/register">Get Started</Link>
+                    <Link to="/auth">Get Started</Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild>
                     <Link to="/experts">Find Experts</Link>

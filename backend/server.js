@@ -3,7 +3,6 @@ if (process.env.NODE_ENV !== "production") {
   dotEnvConfig();
 }
 
-console.log("Google client id : ", process.env.GOOGLE_CLIENT_ID);
 
 import express from "express";
 import cors from "cors";
@@ -18,6 +17,8 @@ import User from "./models/User/User.js";
 
 import expertGoogleAuth from "./routes/auth/googleExpertAuth.js";
 import userGoogleAuth from "./routes/auth/googleUserAuth.js";
+import expertEmailPasswordAuth from "./routes/auth/expertEmailPassowrdAuth.js";
+import postRoute from "./routes/Post.js";
 
 import passport from "passport";
 
@@ -119,6 +120,8 @@ app.get("/", (req, res) => {
 
 app.use("/auth/google", expertGoogleAuth);
 app.use("/api/auth/google/user", userGoogleAuth);
+app.use("/api/auth/expert",expertEmailPasswordAuth );
+app.use("/api/post",postRoute)
 // app.use("/api/auth/user")
 
 // -------------------Deployment------------------//
