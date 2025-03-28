@@ -1,83 +1,50 @@
 import { useState } from 'react';
+import { Navbar } from '@/components/layout/navbar';
+import { Footer } from '@/components/layout/footer';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from '@/components/ui/select';
 import {
   Plus,
   X,
   Image as ImageIcon,
   Video,
-  FileText,
-  Trash2,
   Clock,
+  Trash2,
 } from 'lucide-react';
-import { Navbar } from '@/components/layout/navbar';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Footer } from '@/components/layout/footer';
-
-interface Tag {
-  id: string;
-  text: string;
-}
 
 interface RoutineActivity {
-  id: string;
   time: string;
   activity: string;
 }
 
 export function CreatePostPage() {
   const [postType, setPostType] = useState<'general' | 'routine'>('general');
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [tagInput, setTagInput] = useState('');
-  const [image, setImage] = useState<File | null>(null);
-  const [video, setVideo] = useState<File | null>(null);
-  const [document, setDocument] = useState<File | null>(null);
-  const [routineActivities, setRoutineActivities] = useState<RoutineActivity[]>([]);
-
-  const handleTagKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      if (!tags.find(tag => tag.text === tagInput.trim())) {
-        setTags([...tags, { id: Date.now().toString(), text: tagInput.trim() }]);
-      }
-      setTagInput('');
-    }
-  };
-
-  const handleDragStart = (index: number) => {
-    setRoutineActivities((prev) => {
-      const newActivities = [...prev];
-      const [draggedActivity] = newActivities.splice(index, 1);
-      newActivities.push(draggedActivity);
-      return newActivities;
-    });
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
+  const [routineActivities, setRoutineActivities] = useState<RoutineActivity[]>([
+    { time: '', activity: '' },
+  ]);
+  
+  const addActivity = () => {
+    setRoutineActivities([...routineActivities, { time: '', activity: '' }]);
   };
 
   const removeActivity = (index: number) => {
     setRoutineActivities(routineActivities.filter((_, i) => i !== index));
-  };
-
-  const addActivity = () => {
-    setRoutineActivities([...routineActivities, { id: Date.now().toString(), time: '', activity: '' }]);
   };
 
   return (
@@ -97,7 +64,7 @@ export function CreatePostPage() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label>Post Type</Label>
-              <Select value={postType} onValueChange={(value:any) => setPostType(value as 'general' | 'routine')}>
+              <Select value={postType} onValueChange={(value) => setPostType(value as 'general' | 'routine')}>
                 <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Select post type" />
                 </SelectTrigger>
@@ -121,55 +88,52 @@ export function CreatePostPage() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
-                  <Button asChild>
-                    <label>
-                      <ImageIcon className="mr-2 h-4 w-4" /> Add Image
-                      <input type="file" accept="image/*" className="hidden" onChange={(e) => setImage(e.target.files?.[0] || null)} />
-                    </label>
+                  <Button variant="outline" className="w-full hover:bg-green-50 hover:text-green-700">
+                    <ImageIcon className="mr-2 h-4 w-4" /> Add Image
                   </Button>
-                  <Button asChild>
-                    <label>
-                      <Video className="mr-2 h-4 w-4" /> Add Video
-                      <input type="file" accept="video/*" className="hidden" onChange={(e) => setVideo(e.target.files?.[0] || null)} />
-                    </label>
-                  </Button>
-                  <Button asChild>
-                    <label>
-                      <FileText className="mr-2 h-4 w-4" /> Add Document
-                      <input type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" onChange={(e) => setDocument(e.target.files?.[0] || null)} />
-                    </label>
+                  <Button variant="outline" className="w-full hover:bg-green-50 hover:text-green-700">
+                    <Video className="mr-2 h-4 w-4" /> Add Video
                   </Button>
                 </div>
               </>
             ) : (
               <div className="space-y-4">
                 {routineActivities.map((activity, index) => (
-                  <div key={activity.id} draggable onDragStart={() => handleDragStart(index)} onDragOver={handleDragOver} className="flex items-start space-x-4 relative p-4 border rounded-lg bg-white hover:shadow-md transition-shadow group">
+                  <div key={index} className="flex items-start space-x-4 relative p-4 border rounded-lg bg-white hover:shadow-md transition-shadow group">
                     <div className="flex-1 space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label>Time</Label>
                           <div className="relative">
                             <Clock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input type="time" value={activity.time} onChange={(e) => {
-                              const newActivities = [...routineActivities];
-                              newActivities[index].time = e.target.value;
-                              setRoutineActivities(newActivities);
-                            }} className="pl-10" />
+                            <Input
+                              type="time"
+                              value={activity.time}
+                              onChange={(e) => {
+                                const newActivities = [...routineActivities];
+                                newActivities[index].time = e.target.value;
+                                setRoutineActivities(newActivities);
+                              }}
+                              className="pl-10"
+                            />
                           </div>
                         </div>
                         <div>
                           <Label>Activity</Label>
-                          <Input value={activity.activity} onChange={(e) => {
-                            const newActivities = [...routineActivities];
-                            newActivities[index].activity = e.target.value;
-                            setRoutineActivities(newActivities);
-                          }} placeholder="Describe the activity" />
+                          <Input
+                            value={activity.activity}
+                            onChange={(e) => {
+                              const newActivities = [...routineActivities];
+                              newActivities[index].activity = e.target.value;
+                              setRoutineActivities(newActivities);
+                            }}
+                            placeholder="Describe the activity"
+                          />
                         </div>
                       </div>
                     </div>
                     {routineActivities.length > 1 && (
-                      <Button variant="ghost" size="icon" className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500" onClick={() => removeActivity(index)}>
+                      <Button variant="ghost" size="icon" className="absolute top-2 right-2 hover:text-red-500" onClick={() => removeActivity(index)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     )}
@@ -181,7 +145,7 @@ export function CreatePostPage() {
               </div>
             )}
 
-            <Button type="button" className="w-full bg-green-600 hover:bg-green-700">Publish Post</Button>
+            <Button className="w-full bg-green-600 hover:bg-green-700">Publish Post</Button>
           </CardContent>
         </Card>
       </main>

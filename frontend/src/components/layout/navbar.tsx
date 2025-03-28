@@ -35,7 +35,7 @@ export function Navbar({ userType, user }: NavbarProps) {
     ],
     patient: [
       { href: '/posts', label: 'Health Feed' },
-      { href: '/experts', label: 'Find Experts' },
+      { href: 'prakrithi/analysis', label: 'Prakrithi Analysis' },
       { href: '/ai-consult', label: 'AI Consultation' },
       { href: '/my-health', label: 'My Health' },
     ],
@@ -51,7 +51,7 @@ export function Navbar({ userType, user }: NavbarProps) {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <Leaf className="h-8 w-8 text-green-600" />
+            <img src="src/assets/react.svg" alt="Logo" className="h-8 w-8" />
               <span className="text-xl font-bold">AyurCare</span>
             </Link>
           </div>
@@ -87,10 +87,10 @@ export function Navbar({ userType, user }: NavbarProps) {
             ) : (
               <div className="flex space-x-2">
                 <Button variant="ghost" asChild>
-                  <Link to="/login">Login</Link>
+                  <Link to="/auth/login">Login</Link>
                 </Button>
                 <Button asChild>
-                  <Link to="/register">Register</Link>
+                  <Link to="/auth/register">Register</Link>
                 </Button>
               </div>
             )}

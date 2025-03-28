@@ -11,7 +11,7 @@ export function LoginUser() {
       <p className="text-center text-sm text-gray-600">
         Dont have an account?{" "}
         <a
-          href="/User/RegisterUser"
+          href="/user/register"
           className="font-medium text-green-600 hover:text-green-500"
         >
           Register here
