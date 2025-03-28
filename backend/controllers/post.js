@@ -17,13 +17,14 @@ const getAllPosts = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-    const { title, description, media,successStory, ownerType,tags } = req.body;
+  console.log(req.body);
+    const { title, description, media,successStory,category, ownerType,tags,verified } = req.body;
 
     // Generate categories using ONLY the description
-    const categories = await generateCategories(description);
+    // const categories = await generateCategories(description);
 
     // Add categories to request body
-    const post = new Post({ title, description, media, category: categories,category:categories,successStory,ownerType,tags,owner:req.user._id });
+    const post = new Post({ title, description, media, category,successStory,ownerType,tags,verified,owner:req.user._id });
 
    if(req.user.role==="user"){
     await User.findByIdAndUpdate(req.user._id,{$push:{posts:post._id}});

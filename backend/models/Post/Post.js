@@ -11,11 +11,18 @@ const postSchema = new mongoose.Schema(
     },
     category: { type: [String], required: true },
     successStory: { type: Boolean, required: true },
-    ownerType: { 
-      type: String, 
+    ownerType: {
+      type: String,
       enum: ["User", "Expert"], // Restrict values to "User" or "Expert"
-      required: true 
+      required: true,
     },
+    routine: [
+      {
+        id:{type:Date,required:true},
+        time: { type: Date, required: true },
+        activity: { type: String, required: true },
+      },
+    ],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "ownerType",
@@ -33,7 +40,7 @@ const postSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Expert",
         default: null,
-        required: true
+        required: true,
       },
     ],
   },

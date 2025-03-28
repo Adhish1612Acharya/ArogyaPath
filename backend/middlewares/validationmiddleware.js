@@ -43,16 +43,18 @@ export const postSchemaZod = z.object({
   category: z.array(z.string()).min(1, "At least one category is required"),
   successStory: z.boolean(),
   ownerType: z.enum(["User", "Expert"]),
-  owner: z.string().min(1, "Owner ID is required"), // Assuming ObjectId is a string
   tags: z.array(z.string()).default([]), // Assuming ObjectId is a string
-  verified: z.array(objectIdSchema).nonempty(),
+  verified: z.array(z.string()).nullable(),
+  routine:z.array()
 });
 
 export const commentSchemaZod = z.object({
   owner: z.string().regex(/^[a-fA-F0-9]{24}$/, "Invalid user ID"), // MongoDB ObjectId
   content: z.string().min(1, "Content cannot be empty"),
-  post: z.string().regex(/^[a-fA-F0-9]{24}$/, "Invalid post ID").optional(),
+  post: z
+    .string()
+    .regex(/^[a-fA-F0-9]{24}$/, "Invalid post ID")
+    .optional(),
 });
 
-
-export default { userSchemaZod, expertSchemaZod, postSchemaZod, };
+export default { userSchemaZod, expertSchemaZod, postSchemaZod };
