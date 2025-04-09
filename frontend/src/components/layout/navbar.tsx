@@ -35,7 +35,7 @@ export function Navbar({ userType, user }: NavbarProps) {
     ],
     patient: [
       { href: '/posts', label: 'Health Feed' },
-      { href: '/experts', label: 'Find Experts' },
+      { href: '/prakrithi/analysis', label: 'Prakrithi analysis' },
       { href: '/ai-consult', label: 'AI Consultation' },
       { href: '/my-health', label: 'My Health' },
     ],

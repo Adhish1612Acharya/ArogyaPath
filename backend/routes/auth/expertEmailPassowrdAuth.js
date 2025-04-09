@@ -21,7 +21,7 @@ router.post(
   "/login",
   // isAlreadyLoggedIn,
   passport.authenticate("expert", {
-    failureRedirect: "/api/auth/failureLogin",
+    failureRedirect: "/api/auth/expert/failureLogin",
   }),
   emailPasswordExpertAuthController.login
 );

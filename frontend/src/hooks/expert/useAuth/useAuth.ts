@@ -26,14 +26,39 @@ const useAuth = () => {
   };
 
   const signInWithEmailPassword = async (email: string, password: string) => {
-    toast.info("Sign-in with Email and Password is not implemented");
-    navigate("/posts");
+    try {
+      console.log("Sign IN with google");
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/expert/login",
+        {
+          email,
+          password,
+        }
+      );
+      console.log("Response", response);
+      if (response.status === 200) {
+        toast.success("Logged in");
+      }
+
+      navigate("/posts");
+    } catch (err: any) {
+      if (err.response.status === 401) {
+        console.log("Not logged in");
+        throw new Error("You need to Login");
+      } else if (err.response.status === 400) {
+        console.log(err.response.data.message);
+        throw new Error("Bad request : 400");
+      } else {
+        throw new Error(err.message || "Something went wrong");
+      }
+    }
   };
 
   const expertSignUp = async (data: any) => {
     const reponse = await axios.post(
       "http://localhost:3000/api/auth/expert/signUp",
-      data
+      data,
+      {withCredentials: true}
     );
     return reponse;
   };

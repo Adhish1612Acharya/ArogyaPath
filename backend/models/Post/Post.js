@@ -9,31 +9,23 @@ const postSchema = new mongoose.Schema(
       video: [String],
       document: [String],
     },
-    category: { type: [String], required: true },
-    successStory: { type: Boolean, required: true },
-    ownerType: { 
-      type: String, 
+    filters: { type: [String], required: true },
+    ownerType: {
+      type: String,
       enum: ["User", "Expert"], // Restrict values to "User" or "Expert"
-      required: true 
+      required: true,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       refPath: "ownerType",
       required: true,
     },
-    tags: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Expert",
-        default: [],
-      },
-    ],
     verified: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Expert",
         default: null,
-        required: true
+        required: true,
       },
     ],
   },

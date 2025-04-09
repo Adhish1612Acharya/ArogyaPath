@@ -198,7 +198,7 @@ export function PostsPage() {
                     </>
                   ) : (
                     <div className="space-y-4">
-                      {post.activities.map((activity, index) => (
+                      {post.activities?.map((activity, index) => (
                         <div
                           key={index}
                           className="flex items-start space-x-4 relative group"

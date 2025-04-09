@@ -1,4 +1,4 @@
-export const checkExpertLogin=(req,res,next)=>{  
+export const checkUserLogin=(req,res,next)=>{  
     if(req.isAuthenticated()){
   
       if(req.user.role==="user"){
