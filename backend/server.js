@@ -9,6 +9,9 @@ import mongoose from "mongoose";
 import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
+import http from 'http';
+import { Server } from 'socket.io';
+import Message from './models/Message/Message.js';
 
 import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert.js";
@@ -77,6 +80,8 @@ const sessionOptions = {
     sameSite: "lax", // ✅ Prevents cross-origin issues
   },
 };
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(bodyParser.json());
 
@@ -171,6 +176,7 @@ app.get("/debug-session", (req, res) => {
 
 // app.use("/auth/google", expertGoogleAuth);
 // app.use("/api/auth/google/user", userGoogleAuth);
+
 // app.use("/api/auth/user")
 
 // -------------------Deployment------------------//
@@ -201,6 +207,16 @@ app.get("/debug-session", (req, res) => {
 app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
+
+// io.on('connection', (socket) => {
+  
+//   console.log(`Connected: ${socket.user._id}`);
+
+//   //socket.on('joinRoom', (roomId) => socket.join(roomId));
+
+//   socket.on('disconnect', () => console.log(`Disconnected: ${socket.user._id}`));
+
+// });
 
 app.listen(port, () => {
   console.log("Server listening on port: ", port);
