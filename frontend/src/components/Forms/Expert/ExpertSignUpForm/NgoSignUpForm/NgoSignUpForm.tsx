@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Loader2, Lock } from "lucide-react";
 import ngoSignUpSchema from "./NgoSignUpFormSchema";
-import Button from "@/components/Button/Button";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-toastify";
 import useAuth from "@/hooks/expert/useAuth/useAuth";
 import { SignUpArguTypes } from "@/hooks/expert/useAuth/useAuth.types";
@@ -163,14 +163,13 @@ const NgoSignUpForm = () => {
           )}
         />
         <div className="space-y-4">
-        <Button variant="outline" className="cursor-pointer" icon={Lock} disabled={form.formState.isSubmitting} type="submit" fullWidth>
+        <Button variant="outline" className="cursor-pointer"  disabled={form.formState.isSubmitting} type="submit" fullWidth>
           {form.formState.isSubmitting ? <Loader2/> : "Create Account"}
           </Button>
           <Button
             variant="outline"
             type="button"
             onClick={signUpWithGoogle}
-            fullWidth
             className="flex items-center justify-center gap-2"
           >
             <img
