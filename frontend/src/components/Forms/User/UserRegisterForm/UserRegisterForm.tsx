@@ -10,10 +10,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Button from "@/components/Button/Button";
 import userRegisterSchema from "./UserRegisterSchema";
 import useAuth from "@/hooks/user/useAuth/useAuth";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export const UserRegisterForm = () => {
   const { userSignUp } = useAuth();
@@ -147,11 +147,10 @@ export const UserRegisterForm = () => {
           <Button
             variant="outline"
             type="submit"
-            fullWidth
             className="bg-green-600 hover:bg-green-700"
             disabled={form.formState.isSubmitting}
           >
-              {form.formState.isSubmitting ?<Loader2/>:"Create Account"}
+            {form.formState.isSubmitting ? <Loader2 /> : "Create Account"}
           </Button>
         </div>
 
