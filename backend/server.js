@@ -10,6 +10,9 @@ import mongoose from "mongoose";
 import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
+import http from 'http';
+import { Server } from 'socket.io';
+import Message from './models/Message/Message.js';
 
 import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert.js";
@@ -63,6 +66,8 @@ const sessionOptions = {
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 };
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(bodyParser.json());
 app.use(session(sessionOptions));
@@ -129,6 +134,7 @@ app.use("/auth/google", expertGoogleAuth);
 app.use("/api/auth/google/user", userGoogleAuth);
 app.use("/api/auth/expert",expertEmailPasswordAuth );
 app.use("/api/post",postRoute)
+
 // app.use("/api/auth/user")
 
 // -------------------Deployment------------------//
@@ -159,6 +165,16 @@ app.use("/api/post",postRoute)
 app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
+
+// io.on('connection', (socket) => {
+  
+//   console.log(`Connected: ${socket.user._id}`);
+
+//   //socket.on('joinRoom', (roomId) => socket.join(roomId));
+
+//   socket.on('disconnect', () => console.log(`Disconnected: ${socket.user._id}`));
+
+// });
 
 app.listen(port, () => {
   console.log("Server listening on port: ", port);

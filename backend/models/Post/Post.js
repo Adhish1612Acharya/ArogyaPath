@@ -10,7 +10,9 @@ const postSchema = new mongoose.Schema(
       document: [String],
     },
     category: { type: [String], required: true },
+    
     successStory: { type: Boolean, required: true },
+    
     ownerType: { 
       type: String, 
       enum: ["User", "Expert"], // Restrict values to "User" or "Expert"
