@@ -9,8 +9,8 @@ import RegisterUser from "./pages/auth/Expert/RegisterExpert";
 import RoleSelection from "./pages/RoleSelection/RoleSelection";
 import { PostsPage } from "./pages/posts";
 import { CreatePostPage } from "./pages/posts/create";
-import { HomePage } from "./pages/Home";
-import PrakrutiForm from "./pages/forms/PrakrutiForm";
+import { HomePage } from "./pages/home";
+import PrakrutiForm from "./pages/User/PrakritiAnalysis";
 
 
 const App = () => {

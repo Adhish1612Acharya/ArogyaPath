@@ -3,7 +3,6 @@ if (process.env.NODE_ENV !== "production") {
   dotEnvConfig();
 }
 
-
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -26,6 +25,7 @@ import postRoute from "./routes/Post.js";
 import passport from "passport";
 import MongoStore from "connect-mongo";
 
+// dotenv.config();
 const app = express();
 
 main()
@@ -53,54 +53,84 @@ store.on("error", (err) => {
   console.log("Error occurred in mongo session store", err);
 });
 
+// const sessionOptions = {
+//   store, // Uncomment if you're using MongoStore
+//   secret: "MySecretKey",
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+//     maxAge: 7 * 24 * 60 * 60 * 1000,
+//     httpOnly: true,
+//   },
+//   secure: process.env.NODE_ENV === "production",
+//   sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+// };
+
 const sessionOptions = {
-   store, // Uncomment if you're using MongoStore
-  secret: "MySecretKey",
+   store, //
+  secret: process.env.SECRET || "MySecretKey",
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false, // ⬅️ Ensure only authenticated sessions are stored
   cookie: {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // ✅ False for local dev
+    sameSite: "lax", // ✅ Prevents cross-origin issues
   },
-  secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
 };
 const server = http.createServer(app);
 const io = new Server(server);
 
 app.use(bodyParser.json());
-app.use(session(sessionOptions));
 
 const corsOptions = {
   origin: "http://localhost:5173",
-  methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
   credentials: true,
+  methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
 };
 
 app.use(cors(corsOptions));
 
 app.options("*", cors(corsOptions));
 
+app.use(session(sessionOptions));
+
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(
-  "expert",
-  new localStrategy({ usernameField: "email" }, Expert.authenticate())
-);
+passport.use("expert", new localStrategy(Expert.authenticate()));
 
-passport.use(
-  "user",
-  new localStrategy({ usernameField: "email" }, User.authenticate())
-);
+passport.use("user", new localStrategy(User.authenticate()));
 
+// passport.serializeUser((entity, done) => {
+//   console.log("Serializing User:", entity);
+//   done(null, { id: entity._id, type: entity.role });
+// });
+
+// passport.deserializeUser((obj, done) => {
+//   console.log("Deserializing User:", obj);
+//   if (!obj || !obj.id) return done(new Error("Invalid session data"));
+
+//   Expert.findById(obj.id).then((user) => {
+//     if (user) {
+//       console.log("✅ User found in DB:", user);
+//       done(null, user);
+//     } else {
+//       done(new Error("User not found"));
+//     }
+//   });
+// });
 
 passport.serializeUser((entity, done) => {
+  console.log("Serializing", entity);
+
   done(null, { id: entity._id, type: entity.role });
 });
 
 passport.deserializeUser((obj, done) => {
+  console.log("Deserializing", obj);
   switch (obj.type) {
     case "expert":
       Expert.findById(obj.id).then((user) => {
@@ -130,10 +160,22 @@ app.get("/", (req, res) => {
   res.json("Success");
 });
 
-app.use("/auth/google", expertGoogleAuth);
-app.use("/api/auth/google/user", userGoogleAuth);
-app.use("/api/auth/expert",expertEmailPasswordAuth );
-app.use("/api/post",postRoute)
+app.use("/api/auth/expert", expertEmailPasswordAuth);
+app.use("/api/post", postRoute);
+
+app.get("/check", (req, res) => {
+  console.log("Logged IN : ", req.isAuthenticated());
+  res.json("LoggedIn : ");
+});
+
+app.get("/debug-session", (req, res) => {
+  console.log(" Session Details:", req.session);
+  console.log(" Authenticated User:", req.user);
+  res.json({ session: req.session, user: req.user });
+});
+
+// app.use("/auth/google", expertGoogleAuth);
+// app.use("/api/auth/google/user", userGoogleAuth);
 
 // app.use("/api/auth/user")
 

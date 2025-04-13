@@ -59,6 +59,7 @@ export const login = async (req, res) => {
 };
 
 export const failureLogin = async (req, res) => {
+  console.log("failure");
   res.status(401).json({
     success: false,
     message: "failureLogin",

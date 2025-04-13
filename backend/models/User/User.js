@@ -29,7 +29,7 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.plugin(passportLocalMongoose, { usernameField: "email" });
+userSchema.plugin(passportLocalMongoose);
 
 // Define the model with TypeScript type
 const User = mongoose.model("User", userSchema);

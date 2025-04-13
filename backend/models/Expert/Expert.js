@@ -19,7 +19,7 @@ const ExpertSchema = new Schema({
 });
 
 // Attach Passport-Local Mongoose Plugin
-ExpertSchema.plugin(passportLocalMongoose, { usernameField: "email" });
+ExpertSchema.plugin(passportLocalMongoose);
 
 // Export the model
 const Expert = mongoose.model("Expert", ExpertSchema);

@@ -11,16 +11,16 @@ import doctorSignUpSchema from "./DoctorSignUpFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2, Lock } from "lucide-react";
-import Button from "@/components/Button/Button";
+import { Loader2 } from "lucide-react";
 import useAuth from "@/hooks/expert/useAuth/useAuth";
-import { SignUpArguTypes } from "@/hooks/expert/useAuth/useAuth.types";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { Button } from "@/components/ui/button";
 
 const DoctorSignUpForm = () => {
-  
   const { expertSignUp, googleSignUp } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof doctorSignUpSchema>>({
     resolver: zodResolver(doctorSignUpSchema),
@@ -54,9 +54,28 @@ const DoctorSignUpForm = () => {
       };
 
       console.log("Data to pass", dataToPass);
-      const reponse: any = await expertSignUp(dataToPass);
-      console.log("SignUp", reponse);
-     
+      // const response: any = await expertSignUp(dataToPass);
+
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/expert/signUp",
+        dataToPass,
+        { withCredentials: true }
+      );
+      console.log("SignUp", response);
+
+      const sessionResp = await axios.get(
+        "http://localhost:3000/debug-session",
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("Session Response:", sessionResp.data);
+
+      if (response.status === 200) {
+        toast.success("Signed Up Successfully");
+        navigate("/posts");
+      }
     } catch (err: any) {
       console.log(err);
       if (err.response.status === 401) {
@@ -220,10 +239,8 @@ const DoctorSignUpForm = () => {
           <Button
             variant="outline"
             className="cursor-pointer"
-            icon={Lock}
             disabled={form.formState.isSubmitting}
             type="submit"
-            fullWidth
           >
             {form.formState.isSubmitting ? <Loader2 /> : "Create Account"}
           </Button>
@@ -231,7 +248,6 @@ const DoctorSignUpForm = () => {
             variant="outline"
             type="button"
             onClick={signUpWithGoogle}
-            fullWidth
             className="flex items-center justify-center gap-2 cursor-pointer"
           >
             <img
