@@ -11,13 +11,12 @@ import doctorSignUpSchema from "./DoctorSignUpFormSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2, Lock } from "lucide-react";
-import Button from "@/components/Button/Button";
+import { Loader2 } from "lucide-react";
 import useAuth from "@/hooks/expert/useAuth/useAuth";
-import { SignUpArguTypes } from "@/hooks/expert/useAuth/useAuth.types";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
 
 const DoctorSignUpForm = () => {
   const { expertSignUp, googleSignUp } = useAuth();
@@ -240,10 +239,8 @@ const DoctorSignUpForm = () => {
           <Button
             variant="outline"
             className="cursor-pointer"
-            icon={Lock}
             disabled={form.formState.isSubmitting}
             type="submit"
-            fullWidth
           >
             {form.formState.isSubmitting ? <Loader2 /> : "Create Account"}
           </Button>
@@ -251,7 +248,6 @@ const DoctorSignUpForm = () => {
             variant="outline"
             type="button"
             onClick={signUpWithGoogle}
-            fullWidth
             className="flex items-center justify-center gap-2 cursor-pointer"
           >
             <img

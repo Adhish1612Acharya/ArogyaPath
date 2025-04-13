@@ -14,11 +14,12 @@ import { z } from "zod";
 import GoogleIcon from "@mui/icons-material/Google";
 import { FC } from "react";
 import loginSchema from "./ExpertLoginFormSchema";
-import Button from "@/components/Button/Button";
+
 import useAuth from "@/hooks/expert/useAuth/useAuth";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const ExpertLoginForm: FC = () => {
   // const { googleLogin, signInWithEmailPassword } = useAuth();
@@ -31,14 +32,16 @@ const ExpertLoginForm: FC = () => {
     },
   });
 
-const  onLoginSubmit=async (data: z.infer<typeof loginSchema>) =>{
-  
+  const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       console.log("Sign IN with email password");
-      const response=await axios.post("http://localhost:3000/api/auth/expert/login", {
-        username: data.email,    // Explicit key-value
-        password: data.password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/expert/login",
+        {
+          username: data.email, // Explicit key-value
+          password: data.password,
+        }
+      );
       console.log("Response", response);
       if (response.status === 200) {
         toast.success("Logged in");
@@ -56,7 +59,7 @@ const  onLoginSubmit=async (data: z.infer<typeof loginSchema>) =>{
         throw new Error(err.message || "Something went wrong");
       }
     }
-  }
+  };
 
   return (
     <Form {...form}>
@@ -90,8 +93,15 @@ const  onLoginSubmit=async (data: z.infer<typeof loginSchema>) =>{
         />
 
         <div className="space-y-4">
-          <Button type="submit" className="cursor-pointer" variant="outline" disabled={form.formState.isSubmitting} fullWidth icon={LogIn}>
-            {form.formState.isSubmitting ? <Loader2/> : "Sign in"}
+          <Button
+            type="submit"
+            className="cursor-pointer"
+            variant="outline"
+            disabled={form.formState.isSubmitting}
+            fullWidth
+            icon={LogIn}
+          >
+            {form.formState.isSubmitting ? <Loader2 /> : "Sign in"}
           </Button>
 
           <Button
@@ -102,7 +112,7 @@ const  onLoginSubmit=async (data: z.infer<typeof loginSchema>) =>{
             fullWidth
             icon={GoogleIcon}
           >
-          Sign In with Google
+            Sign In with Google
           </Button>
         </div>
 
