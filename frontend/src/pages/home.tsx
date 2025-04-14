@@ -93,6 +93,7 @@ export function HomePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [content, setContent] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -103,8 +104,8 @@ export function HomePage() {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("Sent");
     e.preventDefault();
-    if (!selectedFile) return;
 
     const formData = new FormData();
     formData.append("file", selectedFile); // Change key if your API expects something else
@@ -112,16 +113,48 @@ export function HomePage() {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://pranavpai0309-video-processing.hf.space/Video_Processing",
-        formData,
+        "https://downloading-cloudinary-links.onrender.com/download_files",
+        {
+          url: "https://res.cloudinary.com/daawurvug/video/upload/v1743945752/shopit_DEV/bzkel4s6gnrfn446wfss.mp4",
+        },
         {
           headers: {
-            "Content-Type": "multipart/form-data",
+            "Content-Type": "application/json",
           },
         }
       );
 
-      console.log("API Response:", response.data);
+      console.log("API Response:", response.data.download_link);
+
+      // Decode the base64 string
+      const byteCharacters = atob(response.data.download_link .split(",")[1]);
+
+      // Create an array buffer to store the byte data
+      const byteArrays = [];
+
+      // Convert the byte characters into an array buffer
+      for (let offset = 0; offset < byteCharacters.length; offset++) {
+        const byteArray = byteCharacters.charCodeAt(offset);
+        byteArrays.push(byteArray);
+      }
+
+      // Create a blob from the byte array
+      const byteArray = new Uint8Array(byteArrays);
+      const blob = new Blob([byteArray], { type: mimeType });
+
+      // Create a link element to trigger the download
+      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      link.href = url;
+      link.download = fileName;
+
+      // Trigger the download
+      link.click();
+
+      // Clean up
+      URL.revokeObjectURL(url);
+
+      setContent(response.data.Output);
     } catch (error) {
       console.error("Upload error:", error);
     } finally {
@@ -130,33 +163,35 @@ export function HomePage() {
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="p-6 border rounded-lg shadow-md max-w-md mx-auto space-y-4"
-    >
-      <h2 className="text-xl font-bold">Upload Image for Relevance Check</h2>
-
-      <input type="file" accept="video/mp4" onChange={handleFileChange} />
-
-      {previewUrl && (
-        <div>
-          <p className="text-sm text-gray-600 mb-2">Preview:</p>
-          <video
-  src={previewUrl}
-  controls
-  className="w-full max-h-60 object-contain rounded border"
-/>
-
-        </div>
-      )}
-
-      <button
-        type="submit"
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-        disabled={loading}
+    <>
+      <p>{content}</p>
+      <form
+        onSubmit={handleSubmit}
+        className="p-6 border rounded-lg shadow-md max-w-md mx-auto space-y-4"
       >
-        {loading ? "Uploading..." : "Submit"}
-      </button>
-    </form>
+        <h2 className="text-xl font-bold">Upload Image for Relevance Check</h2>
+
+        <input type="file" accept="video/mp4" onChange={handleFileChange} />
+
+        {previewUrl && (
+          <div>
+            <p className="text-sm text-gray-600 mb-2">Preview:</p>
+            <video
+              src={previewUrl}
+              controls
+              className="w-full max-h-60 object-contain rounded border"
+            />
+          </div>
+        )}
+
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+          disabled={loading}
+        >
+          {loading ? "Uploading..." : "Submit"}
+        </button>
+      </form>
+    </>
   );
 }
