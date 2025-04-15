@@ -9,18 +9,10 @@ const postSchema = new mongoose.Schema(
       video: [String],
       document: [String],
     },
-<<<<<<< HEAD
-    category: { type: [String], required: true },
-    
     successStory: { type: Boolean, required: true },
-    
-    ownerType: { 
-      type: String, 
-=======
     filters: { type: [String], required: true },
     ownerType: {
       type: String,
->>>>>>> a8ad4e2fbaf6af729645405c16f879505685dbc0
       enum: ["User", "Expert"], // Restrict values to "User" or "Expert"
       required: true,
     },
@@ -39,6 +31,7 @@ const postSchema = new mongoose.Schema(
     ],
   },
   { timestamps: true }
+
 );
 const Post = mongoose.model("Post", postSchema);
 export default Post;

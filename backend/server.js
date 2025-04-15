@@ -10,7 +10,7 @@ import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
 import http from 'http';
-import { Server } from 'socket.io';
+// import { Server } from 'socket.io';
 import Message from './models/Message/Message.js';
 
 import { Strategy as localStrategy } from "passport-local";
@@ -81,7 +81,7 @@ const sessionOptions = {
   },
 };
 const server = http.createServer(app);
-const io = new Server(server);
+// const io = new Server(server);
 
 app.use(bodyParser.json());
 
