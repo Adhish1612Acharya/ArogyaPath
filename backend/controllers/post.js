@@ -2,6 +2,7 @@ import Post from "../models/Post/Post.js";
 import generateCategories from "../utils/geminiAI.js";
 import Expert from "../models/Expert/Expert.js";
 import User from "../models/User/User.js";
+import axios from "axios";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
@@ -18,26 +19,22 @@ const getAllPosts = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-  const { title, description, media, successStory, ownerType, tags } = req.body;
+  const { title, description, media,filters } = req.body;
+  console.log("req.body", req.body);
 
-  // Call the external API for content verification
-  const response = await axios.post('https://content-verification-aakrithi.onrender.com/predict', { text:description });
-  console.log(response.data);
+
 
   // Check if the description category is "Ayurveda"
-  if (response.data.description === "Ayurveda") {
+  if (response.data.prediction === "Ayurveda") {
     // Generate categories using ONLY the description
-    const categories = await generateCategories(description);
+    // const categories = await generateCategories(description);
 
     // Create a new post with the categories and other details
     const post =await Post.create({
       title,
       description,
       media,
-      category: categories,
-      successStory,
-      ownerType,
-      tags,
+      filters: filters,
       owner: req.user._id,
     });
 

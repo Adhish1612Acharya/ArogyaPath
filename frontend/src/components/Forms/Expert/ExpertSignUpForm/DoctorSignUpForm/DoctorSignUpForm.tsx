@@ -63,14 +63,14 @@ const DoctorSignUpForm = () => {
       );
       console.log("SignUp", response);
 
-      const sessionResp = await axios.get(
-        "http://localhost:3000/debug-session",
-        {
-          withCredentials: true,
-        }
-      );
+      // const sessionResp = await axios.get(
+      //   "http://localhost:3000/debug-session",
+      //   {
+      //     withCredentials: true,
+      //   }
+      // );
 
-      console.log("Session Response:", sessionResp.data);
+      // console.log("Session Response:", sessionResp.data);
 
       if (response.status === 200) {
         toast.success("Signed Up Successfully");

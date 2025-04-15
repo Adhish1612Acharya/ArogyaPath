@@ -9,8 +9,8 @@ const addPostFormSchema = z.object({
       .array(z.instanceof(File))
       .max(3, "You can only upload up to 3 images")
       .optional(),
-    video: z.instanceof(File).optional(),
-    document: z.instanceof(File).optional(),
+    video: z.instanceof(File).nullable(),
+    document: z.instanceof(File).nullable(),
   }),
 });
 

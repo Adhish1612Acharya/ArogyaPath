@@ -1,4 +1,5 @@
 export const isAlreadyLoggedIn = (req, res, next) => {
+  console.log("Logged IN : ", req.isAuthenticated());
   if (!req.isAuthenticated()) {
     return next();
   } else {
@@ -17,28 +18,8 @@ export const isLoggedIn = (req, res, next) => {
     });
   }
 };
-export const isExpert=(req,res,next)=>{
-  if(req.user.constructor.modelName=="Expert"){
-   return next();
-  }else{
-    return res.status(400).json({
-      message: "you have no authorization",
-    });
-  }
-}
-export const isUser=(req,res,next)=>{
-  if(req.user.constructor.modelName=="User"){
-   return next();
-  }else{
-    return res.status(400).json({
-      message: "you have no authorization",
-    });
-  }
-}
 
 export default{
   isAlreadyLoggedIn,
   isLoggedIn,
-  isUser,
-  isExpert,
 }

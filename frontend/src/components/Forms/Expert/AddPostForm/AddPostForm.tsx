@@ -16,7 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import postCreationSchema from "./AddPostFormSchema";
-import { X } from "lucide-react";
+import { Loader, X } from "lucide-react";
+import axios from "axios";
 
 // Get inferred TypeScript type from schema
 type PostFormSchema = z.infer<typeof postCreationSchema>;
@@ -29,16 +30,16 @@ const PostForm = () => {
       description: "",
       media: {
         images: [],
-        video: undefined,
-        document: undefined,
+        video: null,
+        document: null,
       },
     },
   });
 
   const [mediaPreview, setMediaPreview] = useState<PostFormSchema["media"]>({
     images: [],
-    video: undefined,
-    document: undefined,
+    video:null,
+    document: null,
   });
 
   // Refs for hidden inputs
@@ -85,22 +86,47 @@ const PostForm = () => {
   const handleVideoPreviewCancel = () => {
     setMediaPreview((prev) => ({
       ...prev,
-      video: undefined,
+      video: null,
     }));
-    form.setValue("media.video", undefined);
+    form.setValue("media.video", null);
   };
 
   const handleDocPreviewCancel = () => {
     setMediaPreview((prev) => ({
       ...prev,
-      document: undefined,
+      document: null
     }));
-    form.setValue("media.document", undefined);
+    form.setValue("media.document", null);
   };
 
-  const onSubmit = (data: PostFormSchema) => {
-    console.log("✅ Validated Post Data:", data);
-    // Upload / Save logic here
+  const onSubmit = async (data: PostFormSchema) => {
+    try{
+      console.log(" Validated Post Data:", data);
+      const newPost={
+        ...data,
+        filters:["Medicinal","Health"],
+      } 
+  
+      const content=`Title : ${newPost.title}\nDescription : ${newPost.description}`;
+  
+        // Call the external API for content verification
+    const contentResponse = await axios.post('https://content-verification-aakrithi.onrender.com/predict', { text:description });
+    console.log(contentResponse.data);
+      const response=await axios.post(`${import .meta.env.VITE_SERVER_URL}/api/posts`, newPost,{withCredentials:true} );
+    console.log("Post Response : ",response.data);
+    }catch(error){
+      console.error("Post failed:", error.message);
+      console.error("Status code:", error.status);
+      console.error("Response data:", error.data);
+      
+      // Show user-friendly error based on status code
+      if (error.status === 401) {
+        // Redirect to login
+      } else if (error.status === 422) {
+        // Show validation errors
+      }
+    }
+    
   };
 
   return (
@@ -240,8 +266,8 @@ const PostForm = () => {
         </div>
 
         {/* Submit */}
-        <Button type="submit" className="w-full">
-          Post
+        <Button type="submit" variant={"outline"} className="w-full">
+          {form.formState.isSubmitting?<Loader className="animate-spin"/> : "Post"} 
         </Button>
       </form>
     </Form>

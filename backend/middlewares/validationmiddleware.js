@@ -33,15 +33,10 @@ export const postSchemaZod = z.object({
   description: z.string().trim().min(1, "Description is required"),
   media: z.object({
     image: z.array(z.string()).max(5, "Cannot exceed 5 images").default([]),
-    video: z.array(z.string()).max(5, "Cannot exceed 5 videos").default([]),
-    document: z.array(z.string()).max(5, "Cannot exceed 5 documents").default([]),
+    video: z.string().nullable(),
+    document: z.string().nullable(),
   }),
-  category: z.array(z.string()).min(1, "At least one category is required"),
-  successStory: z.boolean(),
-  ownerType: z.enum(["User", "Expert"]),
-  tags: z.array(z.string()).default([]), // Assuming ObjectId is a string
-  verified: z.array(z.string()).nullable(),
-  routine:z.array()
+  filters: z.array(z.string()).min(1, "At least one filter is required"),
 });
 
 // -------------------- Routine Schema --------------------
