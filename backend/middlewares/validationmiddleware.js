@@ -39,15 +39,9 @@ export const postSchemaZod = z.object({
   category: z.array(z.string()).min(1, "At least one category is required"),
   successStory: z.boolean(),
   ownerType: z.enum(["User", "Expert"]),
-<<<<<<< HEAD
-  owner: objectIdSchema,
-  tags: z.array(objectIdSchema).default([]),
-  verified: z.array(objectIdSchema).max(5, "Cannot exceed 5 verifications").nonempty("At least one verification is required"),
-=======
   tags: z.array(z.string()).default([]), // Assuming ObjectId is a string
   verified: z.array(z.string()).nullable(),
   routine:z.array()
->>>>>>> a8ad4e2fbaf6af729645405c16f879505685dbc0
 });
 
 // -------------------- Routine Schema --------------------
@@ -93,27 +87,6 @@ export const successStorySchemaZod = z.object({
 export const commentSchemaZod = z.object({
   owner: objectIdSchema,
   content: z.string().min(1, "Content cannot be empty"),
-<<<<<<< HEAD
-  post: objectIdSchema.optional(),
-});
-
-// -------------------- Like Schema --------------------
-export const likeSchemaZod = z.object({
-  owner: objectIdSchema,
-  post: objectIdSchema,
-});
-
-// -------------------- Export All --------------------
-export default {
-  userSchemaZod,
-  expertSchemaZod,
-  postSchemaZod,
-  routineSchemaZod,
-  successStorySchemaZod,
-  commentSchemaZod,
-  likeSchemaZod
-};
-=======
   post: z
     .string()
     .regex(/^[a-fA-F0-9]{24}$/, "Invalid post ID")
@@ -121,4 +94,3 @@ export default {
 });
 
 export default { userSchemaZod, expertSchemaZod, postSchemaZod };
->>>>>>> a8ad4e2fbaf6af729645405c16f879505685dbc0
