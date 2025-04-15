@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/pages/User/PrakrithiAnalysis.types";
+import { ApiResponse } from "@/pages/User/PrakrithiAnalysis/PrakrithiAnalysis.types";
 
 export interface PrakrithiAnalysisFormProps {
   currentSection: number;

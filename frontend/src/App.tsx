@@ -10,8 +10,8 @@ import RoleSelection from "./pages/RoleSelection/RoleSelection";
 import { PostsPage } from "./pages/posts";
 import { CreatePostPage } from "./pages/posts/create";
 import { HomePage } from "./pages/home";
-import PrakrutiForm from "./pages/User/PrakritiAnalysis";
-
+import PrakrutiForm from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
+import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 
 const App = () => {
   const role = useAuth();
@@ -41,10 +41,9 @@ const App = () => {
           <Route path="/auth" element={<RoleSelection />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/posts" element={<PostsPage />} />
-          <Route path="/posts/create" element={<CreatePostPage />} />
+          <Route path="/expert/posts/create" element={<CreatePost />} />
 
           <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
-
         </Routes>
       </div>
       {/* {nav && <Footer />} */}
