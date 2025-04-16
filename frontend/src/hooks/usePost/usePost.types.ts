@@ -10,6 +10,19 @@ export interface PostFormSchema {
   media: MediaUploads;
 }
 
+export interface Routine {
+  time: string;
+  content: string;
+}
+
+export interface PostFormWithRoutineSchema {
+  title: string;
+  description: string;
+  thumbnail: File | null;
+  routines: Routine[];
+  filters: string[];
+}
+
 export interface PostSubmissionData {
   title: string;
   description: string;

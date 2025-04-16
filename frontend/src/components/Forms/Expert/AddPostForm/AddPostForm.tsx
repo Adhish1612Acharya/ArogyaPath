@@ -24,10 +24,9 @@ import usePost from "@/hooks/usePost/usePost";
 type PostFormSchema = z.infer<typeof postCreationSchema>;
 
 const PostForm = () => {
+  const { submitPost } = usePost();
 
-  const {submitPost}=usePost();
-
-  const navigate=useNavigate();
+  const navigate = useNavigate();
 
   const form = useForm<PostFormSchema>({
     resolver: zodResolver(postCreationSchema),
@@ -44,7 +43,7 @@ const PostForm = () => {
 
   const [mediaPreview, setMediaPreview] = useState<PostFormSchema["media"]>({
     images: [],
-    video:null,
+    video: null,
     document: null,
   });
 
@@ -56,42 +55,50 @@ const PostForm = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files || []);
     const currentImages = form.getValues("media.images") || [];
-  
+
     if (currentImages.length + newFiles.length > 3) {
       alert("You can only upload up to 3 images in total.");
       return;
     }
-  
+
     const updatedImages = [...currentImages, ...newFiles];
-  
+
     form.setValue("media.images", updatedImages);
-    form.setValue("media.document",null);
+    form.setValue("media.document", null);
     form.setValue("media.video", null);
     setMediaPreview((prev) => ({
       ...prev,
       images: [...prev.images, ...newFiles],
     }));
   };
-  
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  
     const file = e.target.files?.[0];
     if (file) {
-      form.setValue("media.images",[]);
-      form.setValue("media.document",null);
+      form.setValue("media.images", []);
+      form.setValue("media.document", null);
       form.setValue("media.video", file);
-      setMediaPreview((prev) => ({ ...prev, images:[],document:null,video: file }));
+      setMediaPreview((prev) => ({
+        ...prev,
+        images: [],
+        document: null,
+        video: file,
+      }));
     }
   };
 
   const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      form.setValue("media.images",[]);
+      form.setValue("media.images", []);
       form.setValue("media.video", null);
       form.setValue("media.document", file);
-      setMediaPreview((prev) => ({ ...prev, images:[],video: null,document: file }));
+      setMediaPreview((prev) => ({
+        ...prev,
+        images: [],
+        video: null,
+        document: file,
+      }));
     }
   };
 
@@ -116,36 +123,34 @@ const PostForm = () => {
   const handleDocPreviewCancel = () => {
     setMediaPreview((prev) => ({
       ...prev,
-      document: null
+      document: null,
     }));
     form.setValue("media.document", null);
   };
 
   const onSubmit = async (newPostData: PostFormSchema) => {
-    try{
-      const newPost={
+    try {
+      const newPost = {
         ...newPostData,
-      } 
-     const response=await submitPost(newPost);
+      };
+      const response = await submitPost(newPost);
 
-     if(response?.success){
-      form.reset();
-      navigate(`/expert/posts/${response?.postId}`);
-     }
-       
-    }catch(error:any){
+      if (response?.success) {
+        form.reset();
+        navigate(`/expert/posts/${response?.postId}`);
+      }
+    } catch (error: any) {
       console.error("Post failed:", error.message);
       console.error("Status code:", error.status);
       console.error("Response data:", error.data);
-      
+
       // Show user-friendly error based on status code
       if (error.status === 401) {
-       navigate("/auth");
+        navigate("/auth");
       } else if (error.status === 403) {
-       navigate("/");
+        navigate("/");
       }
     }
-    
   };
 
   return (
@@ -199,7 +204,7 @@ const PostForm = () => {
         />
         <input
           type="file"
-          accept=".pdf,.doc,.docx"
+          accept=".pdf"
           ref={docInputRef}
           onChange={handleDocChange}
           className="hidden"
@@ -270,7 +275,17 @@ const PostForm = () => {
           )}
           {mediaPreview.document && (
             <div className="relative mt-2 bg-muted px-4 py-2 rounded-md border">
-              <span>📄 {mediaPreview.document.name}</span>
+              <span
+                className="cursor-pointer hover:underline"
+                onClick={() => {
+                  if (mediaPreview.document) {
+                    const url = URL.createObjectURL(mediaPreview.document);
+                    window.open(url, "_blank");
+                  }
+                }}
+              >
+                📄 {mediaPreview.document.name}
+              </span>
               <button
                 type="button"
                 className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded"
@@ -286,7 +301,11 @@ const PostForm = () => {
 
         {/* Submit */}
         <Button type="submit" variant={"outline"} className="w-full">
-          {form.formState.isSubmitting?<Loader className="animate-spin"/> : "Post"} 
+          {form.formState.isSubmitting ? (
+            <Loader className="animate-spin" />
+          ) : (
+            "Post"
+          )}
         </Button>
       </form>
     </Form>

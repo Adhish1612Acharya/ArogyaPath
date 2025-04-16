@@ -9,9 +9,8 @@ import mongoose from "mongoose";
 import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
-import http from 'http';
 // import { Server } from 'socket.io';
-import Message from './models/Message/Message.js';
+import successStoryRoute from "./routes/SuccessStory.js";
 
 import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert.js";
@@ -21,6 +20,7 @@ import expertGoogleAuth from "./routes/auth/googleExpertAuth.js";
 import userGoogleAuth from "./routes/auth/googleUserAuth.js";
 import expertEmailPasswordAuth from "./routes/auth/expertEmailPassowrdAuth.js";
 import postRoute from "./routes/Post.js";
+import routinesRoute from "./routes/Routines.js";
 
 import passport from "passport";
 import MongoStore from "connect-mongo";
@@ -54,7 +54,7 @@ store.on("error", (err) => {
 });
 
 const sessionOptions = {
-   store, 
+  store,
   secret: process.env.SECRET || "MySecretKey",
   resave: false,
   saveUninitialized: false, // ⬅️ Ensure only authenticated sessions are stored
@@ -89,7 +89,6 @@ app.use(passport.session());
 passport.use("expert", new localStrategy(Expert.authenticate()));
 
 passport.use("user", new localStrategy(User.authenticate()));
-
 
 passport.serializeUser((entity, done) => {
   console.log("Serializing", entity);
@@ -130,6 +129,8 @@ app.get("/", (req, res) => {
 
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/posts", postRoute);
+app.use("/api/success-story", successStoryRoute);
+app.use("/api/routines", routinesRoute);
 
 // app.use("/auth/google", expertGoogleAuth);
 // app.use("/api/auth/google/user", userGoogleAuth);
@@ -146,8 +147,6 @@ app.use("/api/posts", postRoute);
 //   console.log(" Authenticated User:", req.user);
 //   res.json({ session: req.session, user: req.user });
 // });
-
-
 
 // -------------------Deployment------------------//
 
@@ -179,7 +178,7 @@ app.use(errorHandler);
 const port = process.env.PORT || 3000;
 
 // io.on('connection', (socket) => {
-  
+
 //   console.log(`Connected: ${socket.user._id}`);
 
 //   //socket.on('joinRoom', (roomId) => socket.join(roomId));
