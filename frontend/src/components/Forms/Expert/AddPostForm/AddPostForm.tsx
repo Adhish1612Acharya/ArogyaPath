@@ -91,7 +91,7 @@ const PostForm = () => {
       form.setValue("media.images",[]);
       form.setValue("media.video", null);
       form.setValue("media.document", file);
-      setMediaPreview((prev) => ({ ...prev, images:[],video: null,ocument: file }));
+      setMediaPreview((prev) => ({ ...prev, images:[],video: null,document: file }));
     }
   };
 

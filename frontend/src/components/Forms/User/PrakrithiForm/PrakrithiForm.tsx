@@ -54,7 +54,7 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
       Food_Preference: "Veg",
       Bowel_Movement: "Regular",
       Thirst_Level: "Medium",
-      Sleep_Duration: 7,
+      Sleep_Duration: 0,
 
       // Section 4: Daily Routine
       Sleep_Quality: "Good",
