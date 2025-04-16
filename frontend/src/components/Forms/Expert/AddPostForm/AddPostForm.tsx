@@ -163,7 +163,7 @@ const PostForm = () => {
                 className="absolute top-2 right-2 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-1"
                 onClick={() => handleImagePreviewCancel(i)}
               >
-                <X size={16} />
+               <X size={16} className="text-black" />
               </button>
             </div>
           ))}
@@ -175,7 +175,7 @@ const PostForm = () => {
                 className="absolute top-2 right-2 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-1"
                 onClick={handleVideoPreviewCancel}
               >
-                <X size={16} />
+                <X size={16} className="text-black" />
               </button>
             </div>
           )}
@@ -195,7 +195,7 @@ const PostForm = () => {
                 className="absolute top-2 right-2 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-1"
                 onClick={handleDocPreviewCancel}
               >
-                <X size={16} />
+               <X size={16} className="text-black" />
               </button>
             </div>
           )}

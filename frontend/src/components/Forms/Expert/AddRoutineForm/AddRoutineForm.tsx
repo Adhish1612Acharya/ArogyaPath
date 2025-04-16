@@ -157,7 +157,7 @@ const AddRoutineForm = () => {
               className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1"
               onClick={cancelThumbnail}
             >
-              <X size={16} />
+             <X size={16} className="text-black" />
             </button>
           </div>
         )}
