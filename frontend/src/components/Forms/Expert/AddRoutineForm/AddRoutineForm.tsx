@@ -1,4 +1,4 @@
-import React from "react";
+import React, { use } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -16,16 +16,23 @@ import { X, Plus } from "lucide-react";
 import { useRef, useState } from "react";
 import addRoutineFormSchema from "./AddRoutineFormSchema";
 import { z } from "zod";
+import usePost from "@/hooks/usePost/usePost";
+import { useNavigate } from "react-router-dom";
 
 type RoutineFormSchema = z.infer<typeof addRoutineFormSchema>;
 
 const AddRoutineForm = () => {
+
+  const { submitRoutinePost } = usePost();
+
+  const navigate = useNavigate();
+
   const form = useForm<RoutineFormSchema>({
     resolver: zodResolver(addRoutineFormSchema),
     defaultValues: {
       title: "",
       description: "",
-      thumbnail: undefined,
+      thumbnail: null,
       routines: [{ time: "", content: "" }],
     },
   });
@@ -51,13 +58,34 @@ const AddRoutineForm = () => {
   };
 
   const cancelThumbnail = () => {
-    form.setValue("thumbnail", undefined);
+    form.setValue("thumbnail", null);
     setThumbnailPreview(null);
   };
 
-  const onSubmit = (data: RoutineFormSchema) => {
-    console.log("✅ Routine Data:", data);
-    // Upload / Save logic here
+  const onSubmit = async (newPostData: RoutineFormSchema) => {
+    try {
+      const newPost = {
+        ...newPostData,
+        filters:["all", "ayurveda"],
+      };
+      const response = await submitRoutinePost(newPost);
+
+      if (response?.success) {
+        form.reset();
+        navigate(`/expert/posts/${response?.postId}`);
+      }
+    } catch (error: any) {
+      console.error("Post failed:", error.message);
+      console.error("Status code:", error.status);
+      console.error("Response data:", error.data);
+
+      // Show user-friendly error based on status code
+      if (error.status === 401) {
+        navigate("/auth");
+      } else if (error.status === 403) {
+        navigate("/");
+      }
+    }
   };
 
   return (
