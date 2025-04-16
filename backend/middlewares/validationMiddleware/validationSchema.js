@@ -15,6 +15,7 @@ export  const validateExpert = (req, res, next) => {
 };
 
 export  const validatePost = (req, res, next) => {
+  console.log(req.body)
   const result = postSchemaZod.safeParse(req.body);
   if (!result.success) return res.status(400).json({ errors: result.error.format() });
   next();

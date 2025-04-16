@@ -17,12 +17,18 @@ import { Button } from "@/components/ui/button";
 import { useRef, useState } from "react";
 import postCreationSchema from "./AddPostFormSchema";
 import { Loader, X } from "lucide-react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import usePost from "@/hooks/usePost/usePost";
 
 // Get inferred TypeScript type from schema
 type PostFormSchema = z.infer<typeof postCreationSchema>;
 
 const PostForm = () => {
+
+  const {submitPost}=usePost();
+
+  const navigate=useNavigate();
+
   const form = useForm<PostFormSchema>({
     resolver: zodResolver(postCreationSchema),
     defaultValues: {
@@ -48,28 +54,44 @@ const PostForm = () => {
   const docInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length > 3) {
-      alert("You can only upload up to 3 images.");
+    const newFiles = Array.from(e.target.files || []);
+    const currentImages = form.getValues("media.images") || [];
+  
+    if (currentImages.length + newFiles.length > 3) {
+      alert("You can only upload up to 3 images in total.");
       return;
     }
-    form.setValue("media.images", files);
-    setMediaPreview((prev) => ({ ...prev, images: files }));
+  
+    const updatedImages = [...currentImages, ...newFiles];
+  
+    form.setValue("media.images", updatedImages);
+    form.setValue("media.document",null);
+    form.setValue("media.video", null);
+    setMediaPreview((prev) => ({
+      ...prev,
+      images: [...prev.images, ...newFiles],
+    }));
   };
+  
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  
     const file = e.target.files?.[0];
     if (file) {
+      form.setValue("media.images",[]);
+      form.setValue("media.document",null);
       form.setValue("media.video", file);
-      setMediaPreview((prev) => ({ ...prev, video: file }));
+      setMediaPreview((prev) => ({ ...prev, images:[],document:null,video: file }));
     }
   };
 
   const handleDocChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      form.setValue("media.images",[]);
+      form.setValue("media.video", null);
       form.setValue("media.document", file);
-      setMediaPreview((prev) => ({ ...prev, document: file }));
+      setMediaPreview((prev) => ({ ...prev, images:[],video: null,ocument: file }));
     }
   };
 
@@ -99,31 +121,28 @@ const PostForm = () => {
     form.setValue("media.document", null);
   };
 
-  const onSubmit = async (data: PostFormSchema) => {
+  const onSubmit = async (newPostData: PostFormSchema) => {
     try{
-      console.log(" Validated Post Data:", data);
       const newPost={
-        ...data,
-        filters:["Medicinal","Health"],
+        ...newPostData,
       } 
-  
-      const content=`Title : ${newPost.title}\nDescription : ${newPost.description}`;
-  
-        // Call the external API for content verification
-    const contentResponse = await axios.post('https://content-verification-aakrithi.onrender.com/predict', { text:description });
-    console.log(contentResponse.data);
-      const response=await axios.post(`${import .meta.env.VITE_SERVER_URL}/api/posts`, newPost,{withCredentials:true} );
-    console.log("Post Response : ",response.data);
-    }catch(error){
+     const response=await submitPost(newPost);
+
+     if(response?.success){
+      form.reset();
+      navigate(`/expert/posts/${response?.postId}`);
+     }
+       
+    }catch(error:any){
       console.error("Post failed:", error.message);
       console.error("Status code:", error.status);
       console.error("Response data:", error.data);
       
       // Show user-friendly error based on status code
       if (error.status === 401) {
-        // Redirect to login
-      } else if (error.status === 422) {
-        // Show validation errors
+       navigate("/auth");
+      } else if (error.status === 403) {
+       navigate("/");
       }
     }
     

@@ -19,17 +19,38 @@ const getAllPosts = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-  const { title, description, media,filters } = req.body;
+  const { title, description,filters } = req.body;
+  const mediaFiles = req.files; // Cast for type hint
   console.log("req.body", req.body);
+  console.log("Media Files:", mediaFiles);
+
+const media = {
+  images: [],
+  video: null ,
+  document: null ,
+};
+
+// Cloudinary stores file URLs in `path`
+mediaFiles.forEach((file) => {
+  const mimeType = file.mimetype;
+
+  if (mimeType.startsWith("image/")) {
+    media.images.push(file.path); // Cloudinary gives the URL in `path`
+  } else if (mimeType.startsWith("video/")) {
+    media.video = file.path;
+  } else if (mimeType === "application/pdf") {
+    media.document = file.path;
+  }
+});
+
+console.log("Processed media:", media);
 
 
 
-  // Check if the description category is "Ayurveda"
-  if (response.data.prediction === "Ayurveda") {
-    // Generate categories using ONLY the description
+    //Generate categories using ONLY the description
     // const categories = await generateCategories(description);
 
-    // Create a new post with the categories and other details
+    //Create a new post with the categories and other details
     const post =await Post.create({
       title,
       description,
@@ -38,19 +59,11 @@ const createPost = async (req, res) => {
       owner: req.user._id,
     });
 
-    // Add the post to the user's or expert's posts array
-    if (req.user.role === "user") {
-      await User.findByIdAndUpdate(req.user._id, { $push: { posts: post._id } });
-    } else {
       await Expert.findByIdAndUpdate(req.user._id, { $push: { posts: post._id } });
-    }
 
     // Return success message with created post
-    return res.status(201).json({ message: "Post created", post });
-  } else {
-    // If the description is not "Ayurveda", return an error response
-    return res.status(400).json({ message: "Invalid description. Only 'Ayurveda' content is allowed." });
-  }
+    return res.status(200).json({ message: "Post created",success:true, postId: post._id,userId: req.user._id });
+   
 };
 
 const getPostById = async (req, res) => {

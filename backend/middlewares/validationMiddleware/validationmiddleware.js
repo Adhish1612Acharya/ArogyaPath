@@ -31,11 +31,6 @@ export const expertSchemaZod = z.object({
 export const postSchemaZod = z.object({
   title: z.string().trim().min(1, "Title is required"),
   description: z.string().trim().min(1, "Description is required"),
-  media: z.object({
-    image: z.array(z.string()).max(5, "Cannot exceed 5 images").default([]),
-    video: z.string().nullable(),
-    document: z.string().nullable(),
-  }),
   filters: z.array(z.string()).min(1, "At least one filter is required"),
 });
 

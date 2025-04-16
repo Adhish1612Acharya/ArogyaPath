@@ -4,11 +4,6 @@ import { ApiState, ErrorResponse, RequestOptions } from "./useApi.types"; // Imp
 
 
 const  useApi=<T = any>()=> {
-  const [state, setState] = useState<ApiState<T>>({
-    data: null,
-    loading: false,
-    error: null,
-  });
 
   const request = async (
     method: Method,
@@ -16,7 +11,6 @@ const  useApi=<T = any>()=> {
     payload?: any,
     options?: RequestOptions
   ) => {
-    setState({ data: null, loading: true, error: null });
 
     const config: AxiosRequestConfig = {
       method,
@@ -34,7 +28,8 @@ const  useApi=<T = any>()=> {
 
     try {
       const response = await axios.request<T>(config);
-      setState({ data: response.data, loading: false, error: null });
+      console.log("Response:", response); // Log the response data
+      return  response.data as T; 
     } catch (err: any) {
         const error = err as AxiosError<ErrorResponse>;
         const status = error.response?.status;
@@ -46,9 +41,9 @@ const  useApi=<T = any>()=> {
             errorMessage = error.response?.data?.message || "Bad request. Please check your input.";
             break;
           case 401:
-            errorMessage = "Unauthorized. Please login.";
-            // Optionally redirect to login here
+            errorMessage = "Not authenticated. Please login.";
             break;
+          
           case 403:
             errorMessage = "Forbidden. You don't have permission for this action.";
             break;
@@ -74,12 +69,6 @@ const  useApi=<T = any>()=> {
   
         console.error(`API Error [${status}]: ${errorMessage}`, error.response?.data);
   
-        setState({
-          data: null,
-          loading: false,
-          error: errorMessage,
-        });
-  
         // Return error response for handling in components
         throw {
           message: errorMessage,
@@ -90,11 +79,20 @@ const  useApi=<T = any>()=> {
     }
   };
 
+  const enhancedPost = async (
+    url: string,
+    payload: any,
+    options?: RequestOptions
+  ): Promise<any> => { 
+    const response=await request("post", url, payload, options);
+    return response;
+  };
+
+
   return { 
-    ...state, get: (url: string, options?: RequestOptions) =>
+   get: (url: string, options?: RequestOptions) =>
     request("get", url, null, options),
-  post: (url: string, payload: any, options?: RequestOptions) =>
-    request("post", url, payload, options),
+  post: enhancedPost,
   put: (url: string, payload: any, options?: RequestOptions) =>
     request("put", url, payload, options),
   del: (url: string, options?: RequestOptions) =>
