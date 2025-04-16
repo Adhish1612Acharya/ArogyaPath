@@ -4,8 +4,8 @@ import { Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
 import LoginExpert from "./pages/auth/Expert/LoginExpert";
 import RegisterExpert from "./pages/auth/Expert/RegisterExpert";
-import LoginUser from "./pages/auth/Expert/LoginExpert";
-import RegisterUser from "./pages/auth/Expert/RegisterExpert";
+import LoginUser from "./pages/auth/User/LoginUser";
+import RegisterUser from "./pages/auth/User/RegisterUser";
 import RoleSelection from "./pages/RoleSelection/RoleSelection";
 import { PostsPage } from "./pages/posts";
 import PrakrutiForm from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
@@ -35,8 +35,8 @@ const App = () => {
         <Routes>
           <Route path="/expert/login" element={<LoginExpert />} />
           <Route path="/expert/register" element={<RegisterExpert />} />
-          <Route path="/farmer/login" element={<LoginUser />} />
-          <Route path="/farmer/register" element={<RegisterUser />} />
+          <Route path="/user/login" element={<LoginUser />} />
+          <Route path="/user/register" element={<RegisterUser />} />
           <Route path="/auth" element={<RoleSelection />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/posts" element={<PostsPage />} />

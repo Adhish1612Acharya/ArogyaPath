@@ -1,6 +1,8 @@
 import { FC } from "react";
-import { Heart } from "lucide-react";
+import { Leaf, HeartPulse, IndianRupee } from "lucide-react";
 import AuthLayoutExpertProps from "./AuthLayoutExpert.types";
+import Button from "@mui/material/Button";
+
 
 const AuthLayoutExpert: FC<AuthLayoutExpertProps> = ({
   children,
@@ -8,29 +10,64 @@ const AuthLayoutExpert: FC<AuthLayoutExpertProps> = ({
   subtitle,
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row h-[80vh]">
-        {/* Left Side (Intro Section) */}
-        <div className="w-full md:w-1/2 bg-indigo-600 p-12 text-white flex flex-col justify-between">
-          <div>
-            <h2 className="text-3xl font-bold mb-6">{title}</h2>
-            <p className="text-indigo-200 mb-8">{subtitle}</p>
-          </div>
-          <div className="grid grid-cols-1 gap-4">
-            <div className="flex items-center space-x-2">
-              <Heart className="w-6 h-6" />
-              <span>Ayurvedic Doctors</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Heart className="w-6 h-6" />
-              <span>Naturopathy Doctors</span>
-            </div>
-          </div>
-        </div>
+    <div className="min-h-screen w-screen bg-gradient-to-br from-amber-50 to-amber-100 flex items-center justify-center p-4 sm:p-6 lg:p-8">
+      {/* Outer centered container with width constraint */}
+      <div className="w-full max-w-7xl mx-auto shadow-xl rounded-2xl overflow-hidden">
+        <div className="flex flex-col lg:flex-row w-full min-h-[80vh] bg-white">
+          {/* Left Ayurvedic panel */}
+          <div className="w-full lg:w-1/2 bg-gradient-to-br from-amber-600 to-amber-800 text-white p-8 sm:p-12 lg:p-16">
+            <div className="h-full flex flex-col max-w-xl mx-auto">
+              {/* Logo */}
+              <div className="flex items-center mb-8">
+                <Leaf className="w-8 h-8 mr-3" />
+                <span className="text-2xl font-bold">ArogyaPath</span>
+              </div>
 
-        {/* Right Side (Form Section) */}
-        <div className="w-full md:w-1/2 p-12 overflow-y-auto max-h-[80vh]">
-          {children}
+              {/* Ayurvedic Messaging */}
+              <div className="flex-grow flex flex-col justify-center">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+                <p className="text-amber-100 text-xl mb-12">{subtitle}</p>
+
+                <div className="space-y-8">
+                  <div className="flex items-start gap-4">
+                    <HeartPulse className="w-6 h-6 text-amber-200 mt-1" />
+                    <div>
+                      <h3 className="text-xl font-medium mb-1">Ancient Wisdom</h3>
+                      <p className="text-amber-100">
+                        Access 3000+ years of Ayurvedic knowledge
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <IndianRupee className="w-6 h-6 text-amber-200 mt-1" />
+                    <div>
+                      <h3 className="text-xl font-medium mb-1">Holistic Practice</h3>
+                      <p className="text-amber-100">
+                        Manage your patients with natural healing approaches
+                      </p>
+                      <Button
+  variant="outlined"
+  color="inherit"
+  sx={{ mt: 2, borderColor: 'white', color: 'white', '&:hover': { borderColor: '#facc15' } }}
+>
+  Learn More
+</Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Form panel */}
+          <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-8 md:p-12 lg:p-16 bg-white">
+          <div className="w-full max-w-md">
+  {children}
+
+</div>
+            
+          </div>
         </div>
       </div>
     </div>

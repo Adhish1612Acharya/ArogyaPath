@@ -11,12 +11,13 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import userLoginSchema from "./UserLoginSchema";
 import { Input } from "@/components/ui/input";
-import Button from "@/components/Button/Button";
+import Button from "@mui/material/Button";
 import { Loader2, LogIn } from "lucide-react";
 import useAuth from "@/hooks/user/useAuth/useAuth";
+import GoogleIcon from "@mui/icons-material/Google";
 
 const UserLoginForm = () => {
-  const { phonePaswordLogin } = useAuth();
+  const { phonePaswordLogin, googleLogin } = useAuth();
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),
@@ -27,11 +28,6 @@ const UserLoginForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
-    // const newData = {
-    //   email: data.phoneNumber + "@gmail.com",
-    //   password: data.password,
-    // };
-
     await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
   };
 
@@ -43,11 +39,15 @@ const UserLoginForm = () => {
           name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone Number</FormLabel>
+              <FormLabel className="text-gray-700">Phone Number</FormLabel>
               <FormControl>
-                <Input placeholder="123-456-7890" {...field} />
+                <Input
+                  placeholder="123-456-7890"
+                  {...field}
+                  className="focus:ring-green-500 focus:border-green-500"
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-rose-600" />
             </FormItem>
           )}
         />
@@ -57,11 +57,24 @@ const UserLoginForm = () => {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <div className="flex items-center justify-between">
+                <FormLabel className="text-gray-700">Password</FormLabel>
+                <a
+                  href="/user/forgot-password"
+                  className="text-sm font-medium text-green-600 hover:text-green-500"
+                >
+                  Forgot password?
+                </a>
+              </div>
               <FormControl>
-                <Input type="password" placeholder="••••••••" {...field} />
+                <Input
+                  type="password"
+                  placeholder="••••••••"
+                  {...field}
+                  className="focus:ring-green-500 focus:border-green-500"
+                />
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-xs text-rose-600" />
             </FormItem>
           )}
         />
@@ -69,14 +82,69 @@ const UserLoginForm = () => {
         <div className="space-y-4">
           <Button
             type="submit"
-            variant="outline"
+            variant="contained"
+            color="success"
             fullWidth
-            icon={LogIn}
-            className="bg-green-600 hover:bg-green-700"
             disabled={form.formState.isSubmitting}
+            startIcon={
+              form.formState.isSubmitting ? (
+                <Loader2 className="animate-spin w-5 h-5" />
+              ) : (
+                <LogIn className="w-5 h-5" />
+              )
+            }
+            sx={{
+              textTransform: "none",
+              py: 1.5,
+              fontWeight: 600,
+              fontSize: "1rem",
+            }}
           >
-            {form.formState.isSubmitting ?<Loader2/>:"Sign in"}
+            Sign in
           </Button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white px-2 text-gray-500">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          <Button
+            type="button"
+            variant="outlined"
+            fullWidth
+            onClick={googleLogin}
+            startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
+            sx={{
+              textTransform: "none",
+              py: 1.5,
+              fontWeight: 500,
+              borderColor: "#E5E7EB",
+              "&:hover": {
+                borderColor: "#D1D5DB",
+                backgroundColor: "#F9FAFB"
+              }
+            }}
+          >
+            Continue with Google
+          </Button>
+        </div>
+
+        <div className="text-center text-sm text-gray-600">
+          <p>
+            Don't have an account?{" "}
+            <a
+              href="/user/register"
+              className="font-medium text-green-600 hover:text-green-500"
+            >
+              Sign up
+            </a>
+          </p>
         </div>
       </form>
     </Form>
