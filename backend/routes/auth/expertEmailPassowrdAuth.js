@@ -2,6 +2,7 @@ import express from "express";
 import passport from "passport";
 import  emailPasswordExpertAuthController  from "../../controllers/auth/expert/emailPasswordLogin.js";
 import wrapAsync from "../../utils/wrapAsync.js";
+import { isAlreadyLoggedIn } from "../../middlewares/commonAuth.js";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.post(
 
 router.post(
   "/login",
-  // isAlreadyLoggedIn,
+  isAlreadyLoggedIn,
   passport.authenticate("expert", {
     failureRedirect: "/api/auth/expert/failureLogin",
   }),

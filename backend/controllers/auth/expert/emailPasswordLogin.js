@@ -11,11 +11,11 @@ export const signUp = async (req, res) => {
     username,
     email,
     profile: {
-      fullname: req.body.profile.name,
+      fullname: req.body.profile.fullname,
       experience: Number(req.body.profile.experience),
-      qualification: req.body.profile.education,
+      qualification: req.body.profile.qualification,
       expertType: req.body.profile.expertType,
-      contact: req.body.profile.phoneNumber,
+      contact: req.body.profile.contact,
     },
   });
 
@@ -37,6 +37,7 @@ export const signUp = async (req, res) => {
           success: false,
         });
       } else {
+        console.log("Sign Up success : ");
         res.status(200).json({
           success: true,
           message: "successSignUp",
@@ -44,6 +45,7 @@ export const signUp = async (req, res) => {
       }
     });
   } else {
+    console.log("Sign Up error : ");
     res.status(400).json({
       success: false,
       message: error,

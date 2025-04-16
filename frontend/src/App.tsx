@@ -8,10 +8,9 @@ import LoginUser from "./pages/auth/Expert/LoginExpert";
 import RegisterUser from "./pages/auth/Expert/RegisterExpert";
 import RoleSelection from "./pages/RoleSelection/RoleSelection";
 import { PostsPage } from "./pages/posts";
-import { CreatePostPage } from "./pages/posts/create";
-import { HomePage } from "./pages/home";
 import PrakrutiForm from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 import CreatePost from "./pages/Expert/CreatePost/CreatePost";
+import HomePage from "./pages/HomePage";
 
 const App = () => {
   const role = useAuth();

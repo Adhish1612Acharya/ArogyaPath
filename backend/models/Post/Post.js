@@ -5,30 +5,24 @@ const postSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     media: {
-      image: [String],
-      video: [String],
-      document: [String],
+      image: {
+        type: [String],
+        validate: {
+          validator: function (val) {
+            return val.length <= 3;
+          },
+          message: 'You can upload a maximum of 3 images.'
+        }
+      },
+      video: {type:String ,default:null},
+      document: {type:String ,default:null},
     },
-    successStory: { type: Boolean, required: true },
     filters: { type: [String], required: true },
-    ownerType: {
-      type: String,
-      enum: ["User", "Expert"], // Restrict values to "User" or "Expert"
-      required: true,
-    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      refPath: "ownerType",
+      ref:"Expert",
       required: true,
     },
-    verified: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Expert",
-        default: null,
-        required: true,
-      },
-    ],
   },
   { timestamps: true }
 
