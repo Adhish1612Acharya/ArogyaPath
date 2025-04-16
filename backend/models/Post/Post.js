@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     media: {
-      image: {
+      images: {
         type: [String],
         validate: {
           validator: function (val) {

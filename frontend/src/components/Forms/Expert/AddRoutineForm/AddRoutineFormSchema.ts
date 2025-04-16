@@ -3,7 +3,7 @@ import { z } from "zod";
 const addRoutineFormSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  thumbnail: z.instanceof(File).optional(),
+  thumbnail: z.instanceof(File).nullable(),
   routines: z
     .array(
       z.object({

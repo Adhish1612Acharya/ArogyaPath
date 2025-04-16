@@ -45,6 +45,13 @@ mediaFiles.forEach((file) => {
 
 console.log("Processed media:", media);
 
+console.log("NewPost", {
+  title,
+  description,
+  media:media,
+  filters: filters,
+  owner: req.user._id,
+});
 
 
     //Generate categories using ONLY the description
@@ -54,7 +61,7 @@ console.log("Processed media:", media);
     const post =await Post.create({
       title,
       description,
-      media,
+      media:media,
       filters: filters,
       owner: req.user._id,
     });
