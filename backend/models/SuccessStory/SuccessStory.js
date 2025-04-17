@@ -18,29 +18,46 @@ const SuccessStorySchema = new Schema(
     owner: {
       type: Schema.Types.ObjectId,
       required: true,
-      refPath: "ownerType",
-    },
-    ownerType: {
-      type: String,
-      required: true,
-      enum: ["User", "Expert"],
+      ref: "User",
     },
     filters: {
       type: [String],
       required: true,
+      min: 1,
     },
     tagged: [
       {
         type: Schema.Types.ObjectId,
         ref: "Expert",
+        default: [],
       },
     ],
     verification: [
       {
         type: Schema.Types.ObjectId,
         ref: "Expert",
+        default: [],
+        required: true,
       },
     ],
+    routines: {
+      type: [
+        {
+          time: {
+            type: String,
+            required: [true, "Time is required"],
+            minlength: [1, "Time must be at least 2 characters"],
+          },
+          content: {
+            type: String,
+            required: [true, "Content is required"],
+            minlength: [1, "Content must be at least 2 characters"],
+          },
+        },
+      ],
+      default: [],
+      required: true,
+    },
   },
   { timestamps: true }
 );

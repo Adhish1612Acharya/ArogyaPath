@@ -2,7 +2,7 @@ import SuccessStory from "../models/SuccessStory/SuccessStory.js";
 
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
-  const { title, description } = req.body;
+  const { title, description,filters,routines, } = req.body;
 
   if (!title || !description) {
     return res.status(400).json({ message: "Title and description are required." });

@@ -1,441 +1,12 @@
-// import React, { useRef, useState, useEffect } from "react";
-// import { useForm, useFieldArray } from "react-hook-form";
-// import { zodResolver } from "@hookform/resolvers/zod";
-// import { z } from "zod";
-// import { useNavigate } from "react-router-dom";
-// import { X, Loader2 } from "lucide-react";
-
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
-// import {
-//   Form,
-//   FormControl,
-//   FormField,
-//   FormItem,
-//   FormLabel,
-//   FormMessage,
-// } from "@/components/ui/form";
-// import { Input } from "@/components/ui/input";
-// import { Textarea } from "@/components/ui/textarea";
-
-// import {
-//   Button as MuiButton,
-//   TextField,
-//   Chip,
-//   Avatar,
-//   CircularProgress,
-// } from "@mui/material";
-
-// import UploadIcon from "@mui/icons-material/Upload";
-// import DeleteIcon from "@mui/icons-material/Delete";
-// import AddIcon from "@mui/icons-material/Add";
-// import SearchIcon from "@mui/icons-material/Search";
-
-// import usePost from "@/hooks/usePost/usePost";
-// import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-// import dayjs from "dayjs";
-
-// const formSchema = z.object({
-//   title: z.string().min(1),
-//   description: z.string().min(1),
-//   media: z.object({
-//     images: z.array(z.instanceof(File)).max(3),
-//     video: z.any().nullable(),
-//     document: z.any().nullable(),
-//   }),
-//   routines: z
-//     .array(
-//       z.object({
-//         time: z.string().min(1),
-//         content: z.string().min(1),
-//       })
-//     )
-//     .optional(),
-//   includeRoutines: z.boolean().default(false),
-//   taggedDoctors: z.array(z.string()).max(5),
-// });
-
-// const AddSuccessStoryForm = () => {
-//   const { submitPost } = usePost();
-//   const navigate = useNavigate();
-
-//   const [preview, setPreview] = useState<{
-//     images: string[];
-//     video: string | null;
-//     document: string | null;
-//   }>({
-//     images: [],
-//     video: null,
-//     document: null,
-//   });
-
-//   const [dialogOpen, setDialogOpen] = useState(false);
-//   const [searchTerm, setSearchTerm] = useState("");
-//   const [searchResults, setSearchResults] = useState<any[]>([]);
-//   const [loadingSearch, setLoadingSearch] = useState(false);
-
-//   const imageRef = useRef<HTMLInputElement>(null);
-//   const videoRef = useRef<HTMLInputElement>(null);
-//   const docRef = useRef<HTMLInputElement>(null);
-
-//   const form = useForm({
-//     resolver: zodResolver(formSchema),
-//     defaultValues: {
-//       title: "",
-//       description: "",
-//       media: { images: [], video: null, document: null },
-//       includeRoutines: false,
-//       routines: [{ time: "", content: "" }],
-//       taggedDoctors: [],
-//     },
-//   });
-
-//   const { fields, append, remove } = useFieldArray({
-//     control: form.control,
-//     name: "routines",
-//   });
-
-//   const handleMediaChange = (
-//     type: "image" | "video" | "document",
-//     files: FileList | null
-//   ) => {
-//     if (!files) return;
-//     if (type === "image") {
-//       const imgs = Array.from(files);
-//       form.setValue("media.images", imgs);
-//       form.setValue("media.video", null);
-//       form.setValue("media.document", null);
-
-//       const filePreview = imgs.map((file) => URL.createObjectURL(file));
-//       setPreview({ images: filePreview, video: null, document: null });
-//     } else if (type === "video") {
-//       const file = files[0];
-//       form.setValue("media.video", file);
-//       form.setValue("media.images", []);
-//       form.setValue("media.document", null);
-//       setPreview({
-//         images: [],
-//         video: URL.createObjectURL(file),
-//         document: null,
-//       });
-//     } else {
-//       const file = files[0];
-//       form.setValue("media.document", file);
-//       form.setValue("media.video", null);
-//       form.setValue("media.images", []);
-//       setPreview({
-//         images: [],
-//         video: null,
-//         document: URL.createObjectURL(file),
-//       });
-//     }
-//   };
-
-//   const handleSearch = async () => {
-//     setLoadingSearch(true);
-//     await new Promise((r) => setTimeout(r, 1000));
-//     setSearchResults(
-//       ["Dr. John Smith", "Dr. Jane Doe", "Dr. Priya Patel", "Dr. Alex Roy"].map(
-//         (name, i) => ({
-//           id: `doc-${i + 1}`,
-//           name,
-//           avatar: `https://i.pravatar.cc/150?img=${i + 5}`,
-//         })
-//       )
-//     );
-//     setLoadingSearch(false);
-//   };
-
-//   const handleDoctorSelect = (doctorId: string) => {
-//     const current = form.getValues("taggedDoctors");
-//     if (current.includes(doctorId)) {
-//       form.setValue(
-//         "taggedDoctors",
-//         current.filter((id) => id !== doctorId)
-//       );
-//     } else if (current.length < 5) {
-//       form.setValue("taggedDoctors", [...current, doctorId]);
-//     }
-//   };
-
-//   const onSubmit = async (data: any) => {
-//     try {
-//       console.log("Success Story Data", data);
-//       //   const response = await submitPost(data);
-//       //   if (response?.success) {
-//       //     form.reset();
-//       //     navigate(`/expert/posts/${response.postId}`);
-//       //   }
-//     } catch (error: any) {
-//       console.error("Post failed:", error.message);
-//     }
-//   };
-
-//   return (
-//     <Form {...form}>
-//       <form
-//         onSubmit={form.handleSubmit(onSubmit)}
-//         className="space-y-6 max-w-3xl mx-auto p-6 bg-white rounded-xl shadow"
-//       >
-//         <FormField
-//           control={form.control}
-//           name="title"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Title</FormLabel>
-//               <FormControl>
-//                 <Input placeholder="Enter story title" {...field} />
-//               </FormControl>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-
-//         <FormField
-//           control={form.control}
-//           name="description"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormLabel>Description</FormLabel>
-//               <FormControl>
-//                 <Textarea placeholder="Write your story..." {...field} />
-//               </FormControl>
-//               <FormMessage />
-//             </FormItem>
-//           )}
-//         />
-
-//         <input
-//           ref={imageRef}
-//           type="file"
-//           accept="image/*"
-//           multiple
-//           className="hidden"
-//           onChange={(e) => handleMediaChange("image", e.target.files)}
-//         />
-//         <input
-//           ref={videoRef}
-//           type="file"
-//           accept="video/*"
-//           className="hidden"
-//           onChange={(e) => handleMediaChange("video", e.target.files)}
-//         />
-//         <input
-//           ref={docRef}
-//           type="file"
-//           accept=".pdf"
-//           className="hidden"
-//           onChange={(e) => handleMediaChange("document", e.target.files)}
-//         />
-
-//         <div className="flex flex-wrap gap-3">
-//           <MuiButton
-//             onClick={() => imageRef.current?.click()}
-//             startIcon={<UploadIcon />}
-//           >
-//             Upload Images
-//           </MuiButton>
-//           <MuiButton
-//             onClick={() => videoRef.current?.click()}
-//             startIcon={<UploadIcon />}
-//           >
-//             Upload Video
-//           </MuiButton>
-//           <MuiButton
-//             onClick={() => docRef.current?.click()}
-//             startIcon={<UploadIcon />}
-//           >
-//             Upload Document
-//           </MuiButton>
-//         </div>
-
-//         {preview.images.length > 0 && (
-//           <div className="grid grid-cols-2 gap-4">
-//             {preview.images.map((img, i) => (
-//               <img
-//                 key={i}
-//                 src={img}
-//                 className="rounded shadow h-40 object-cover"
-//               />
-//             ))}
-//           </div>
-//         )}
-//         {preview.video && (
-//           <video controls className="w-full max-h-64 rounded shadow">
-//             <source src={preview.video} />
-//           </video>
-//         )}
-//         {preview.document && (
-//           <div className="mt-2">📄 {form.getValues("media.document").name}</div>
-//         )}
-
-//         <FormField
-//           control={form.control}
-//           name="includeRoutines"
-//           render={({ field }) => (
-//             <FormItem>
-//               <FormControl>
-//                 <label className="flex items-center gap-2">
-//                   <input
-//                     type="checkbox"
-//                     checked={field.value}
-//                     onChange={field.onChange}
-//                   />
-//                   Share my routines
-//                 </label>
-//               </FormControl>
-//             </FormItem>
-//           )}
-//         />
-
-//         {form.watch("includeRoutines") && (
-//           <div className="space-y-4">
-//             <h4 className="text-lg font-semibold">Routine Entries</h4>
-//             {fields.map((item, index) => (
-//               <div
-//                 key={item.id}
-//                 className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-//               >
-//                 <FormField
-//                   control={form.control}
-//                   name={`routines.${index}.time`}
-//                   render={({ field }) => (
-//                     <FormItem>
-//                       <FormLabel>Time</FormLabel>
-//                       <TimePicker
-//                         ampm
-//                         value={
-//                           field.value ? dayjs(field.value, "hh:mm A") : null
-//                         }
-//                         onChange={(val) =>
-//                           field.onChange(val?.format("hh:mm A") || "")
-//                         }
-//                         slotProps={{
-//                           textField: { fullWidth: true },
-//                         }}
-//                       />
-//                     </FormItem>
-//                   )}
-//                 />
-//                 <FormField
-//                   control={form.control}
-//                   name={`routines.${index}.content`}
-//                   render={({ field }) => (
-//                     <FormItem>
-//                       <FormLabel>Content</FormLabel>
-//                       <FormControl>
-//                         <Textarea placeholder="Routine details..." {...field} />
-//                       </FormControl>
-//                     </FormItem>
-//                   )}
-//                 />
-//               </div>
-//             ))}
-//             <MuiButton
-//               onClick={() => append({ time: "", content: "" })}
-//               startIcon={<AddIcon />}
-//             >
-//               Add Routine
-//             </MuiButton>
-//           </div>
-//         )}
-
-//         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-//           <DialogTrigger asChild>
-//             <MuiButton variant="outlined">Tag a Doctor</MuiButton>
-//           </DialogTrigger>
-//           <DialogContent>
-//             <DialogHeader>
-//               <DialogTitle>Search and Tag Doctors</DialogTitle>
-//             </DialogHeader>
-//             <div className="space-y-4">
-//               <TextField
-//                 fullWidth
-//                 value={searchTerm}
-//                 onChange={(e) => setSearchTerm(e.target.value)}
-//                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-//                 placeholder="Search doctors by name"
-//                 InputProps={{
-//                   endAdornment: loadingSearch ? (
-//                     <CircularProgress size={20} />
-//                   ) : (
-//                     <SearchIcon />
-//                   ),
-//                 }}
-//               />
-//               <div className="grid gap-2">
-//                 {searchResults.map((doc) => (
-//                   <div
-//                     key={doc.id}
-//                     onClick={() => handleDoctorSelect(doc.id)}
-//                     className={`flex items-center gap-4 p-2 border rounded cursor-pointer hover:bg-gray-100 ${
-//                       form.getValues("taggedDoctors").includes(doc.id)
-//                         ? "bg-blue-100"
-//                         : ""
-//                     }`}
-//                   >
-//                     <Avatar src={doc.avatar} />
-//                     <span>{doc.name}</span>
-//                   </div>
-//                 ))}
-//               </div>
-//               <div className="flex gap-2 flex-wrap">
-//                 {form.watch("taggedDoctors").map((id) => {
-//                   const doc = searchResults.find((d) => d.id === id);
-//                   return doc ? (
-//                     <Chip
-//                       key={id}
-//                       label={doc.name}
-//                       onDelete={() => handleDoctorSelect(id)}
-//                     />
-//                   ) : null;
-//                 })}
-//               </div>
-//             </div>
-//           </DialogContent>
-//         </Dialog>
-
-//         <MuiButton
-//           type="submit"
-//           variant="contained"
-//           color="primary"
-//           fullWidth
-//           disabled={form.formState.isSubmitting}
-//         >
-//           {form.formState.isSubmitting ? (
-//             <Loader2 className="animate-spin" />
-//           ) : (
-//             "Submit Success Story"
-//           )}
-//         </MuiButton>
-//       </form>
-//     </Form>
-//   );
-// };
-
-// export default AddSuccessStoryForm;
-
-"use client";
-
 import type React from "react";
-
 import { useState } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
-
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
@@ -453,11 +24,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Plus, X, ImageIcon, FileText, Video } from "lucide-react";
+import { Loader2, X, ImageIcon, FileText, Video } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button, Chip, CircularProgress, IconButton } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  Chip,
+  CircularProgress,
+  IconButton,
+} from "@mui/material";
 import { Close as CloseIcon, Add as AddIcon } from "@mui/icons-material";
 import Avatar from "@mui/material/Avatar";
 
@@ -469,39 +45,51 @@ interface Doctor {
 }
 
 // Define the form schema with zod
-const formSchema = z.object({
-  title: z
-    .string()
-    .min(3, { message: "Title must be at least 3 characters" })
-    .max(100),
-  description: z
-    .string()
-    .min(10, { message: "Description must be at least 10 characters" }),
-  mediaType: z.enum(["images", "video", "document"]).optional(),
-  images: z.array(z.instanceof(File)).optional(),
-  video: z.instanceof(File).optional(),
-  document: z.instanceof(File).optional(),
-  hasRoutines: z.boolean().default(false),
-  routines: z
-    .array(
-      z.object({
-        time: z.any().optional(), // We'll validate this separately
-        description: z.string().min(3, {
-          message: "Routine description must be at least 3 characters",
-        }),
-      })
-    )
-    .optional(),
-  doctors: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        avatar: z.string(),
-      })
-    )
-    .max(5, { message: "You can select up to 5 doctors" }),
-});
+const formSchema = z
+  .object({
+    title: z
+      .string()
+      .min(3, { message: "Title must be at least 3 characters" })
+      .max(100),
+    description: z
+      .string()
+      .min(10, { message: "Description must be at least 10 characters" }),
+    mediaType: z.enum(["images", "video", "document"]).optional(),
+    images: z.array(z.instanceof(File)).optional(),
+    video: z.instanceof(File).optional(),
+    document: z.instanceof(File).optional(),
+    hasRoutines: z.boolean().default(false),
+    routines: z
+      .array(
+        z.object({
+          time: z.string().min(1, { message: "Time is required" }),
+          content: z.string().min(1, { message: "Content is required" }),
+        })
+      )
+      .optional(),
+    doctors: z
+      .array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+          avatar: z.string(),
+        })
+      )
+      .max(5, { message: "You can select up to 5 doctors" }),
+  })
+  .refine(
+    (data) => {
+      if (data.hasRoutines) {
+        return Array.isArray(data.routines) && data.routines.length > 0;
+      }
+      return true;
+    },
+    {
+      message:
+        "At least one routine is required when 'Has Routines' is enabled.",
+      path: ["routines"],
+    }
+  );
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -529,13 +117,17 @@ export default function AddSuccessStoryForm() {
       video: undefined,
       document: undefined,
       hasRoutines: false,
-      routines: [{ time: dayjs(), description: "" }],
+      routines: undefined,
       doctors: [],
     },
   });
 
   // Set up field array for routines
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: routineFields,
+    append,
+    remove,
+  } = useFieldArray({
     control: form.control,
     name: "routines",
   });
@@ -937,13 +529,38 @@ export default function AddSuccessStoryForm() {
                         <FormControl>
                           <Checkbox
                             checked={field.value}
-                            onCheckedChange={(checked) => {
-                              field.onChange(checked);
-                              if (!checked) {
+                            onChange={(e) => {
+                              field.onChange(e.target.checked);
+                              if (e.target.checked) {
                                 form.setValue("routines", [
-                                  { time: dayjs(), description: "" },
+                                  {
+                                    time: "",
+                                    content: "",
+                                  },
                                 ]);
                               }
+                              if (!e.target.checked) {
+                                form.setValue("routines", undefined);
+                              }
+                              <Checkbox
+                                checked={field.value}
+                                onChange={(e) => {
+                                  const checked = e.target.checked;
+                                  field.onChange(checked);
+
+                                  form.setValue(
+                                    "routines",
+                                    checked
+                                      ? [{ time: "", content: "" }]
+                                      : undefined,
+                                    {
+                                      shouldDirty: true,
+                                      shouldTouch: true,
+                                      shouldValidate: true,
+                                    }
+                                  );
+                                }}
+                              />;
                             }}
                           />
                         </FormControl>
@@ -960,37 +577,47 @@ export default function AddSuccessStoryForm() {
 
                 {form.watch("hasRoutines") && (
                   <div className="space-y-4 pl-6 border-l-2 border-muted">
-                    {fields.map((field, index) => (
+                    {routineFields.map((field, index) => (
                       <div
                         key={field.id}
                         className="grid grid-cols-1 md:grid-cols-[200px_1fr_auto] gap-4 items-start"
                       >
-                        <Controller
+                        {/* TIME PICKER */}
+                        <FormField
                           control={form.control}
                           name={`routines.${index}.time`}
-                          render={({ field }) => (
-                            //  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <TimePicker
-                              label="Time"
-                              value={field.value}
-                              onChange={(newValue) => field.onChange(newValue)}
-                              slotProps={{
-                                textField: {
-                                  size: "small",
-                                  error:
-                                    !!form.formState.errors.routines?.[index]
-                                      ?.time,
-                                  // helperText: form.formState.errors.routines?.[index]?.time?.message,
-                                },
-                              }}
-                            />
-                            //    </LocalizationProvider>
+                          render={({ field, fieldState }) => (
+                            <FormItem>
+                              <FormLabel>Time</FormLabel>
+                              <TimePicker
+                                ampm
+                                value={
+                                  field.value
+                                    ? dayjs(field.value, "hh:mm A")
+                                    : null
+                                }
+                                onChange={(val) =>
+                                  field.onChange(
+                                    val ? val.format("hh:mm A") : null
+                                  )
+                                }
+                                slotProps={{
+                                  textField: {
+                                    fullWidth: true,
+                                    variant: "outlined",
+                                    placeholder: "e.g. 08:00 AM",
+                                    error: !!fieldState.error,
+                                    helperText: fieldState.error?.message,
+                                  },
+                                }}
+                              />
+                            </FormItem>
                           )}
                         />
 
                         <FormField
                           control={form.control}
-                          name={`routines.${index}.description`}
+                          name={`routines.${index}.content`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
@@ -1008,7 +635,7 @@ export default function AddSuccessStoryForm() {
                         <IconButton
                           color="default"
                           onClick={() => remove(index)}
-                          disabled={fields.length === 1}
+                          disabled={routineFields.length === 1}
                           sx={{ marginTop: "8px" }}
                         >
                           <CloseIcon />
@@ -1020,7 +647,7 @@ export default function AddSuccessStoryForm() {
                       variant="outlined"
                       size="small"
                       startIcon={<AddIcon />}
-                      onClick={() => append({ time: dayjs(), description: "" })}
+                      onClick={() => append({ time: "", content: "" })}
                       sx={{ marginTop: "8px" }}
                     >
                       Add Routine
@@ -1099,8 +726,7 @@ export default function AddSuccessStoryForm() {
                                 </div>
                                 <Button
                                   type="button"
-                                  variant="ghost"
-                                  size="sm"
+                                  variant="outlined"
                                   disabled={form
                                     .getValues("doctors")
                                     ?.some((d) => d.id === doctor.id)}

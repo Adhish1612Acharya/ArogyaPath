@@ -3,6 +3,7 @@ import {
   expertSchemaZod,
   postSchemaZod,
   routineSchemaZod,
+  successStorySchemaZod,
 } from "./validationSchema.js";
 
 export const validateUser = (req, res, next) => {
@@ -32,6 +33,13 @@ export const validatePost = (req, res, next) => {
 export const validateRoutine = (req, res, next) => {
   console.log(req.body);
   const result = routineSchemaZod.safeParse(req.body);
+  if (!result.success)
+    return res.status(400).json({ errors: result.error.format() });
+  next();
+};
+
+export const validateSuccessStory = (req, res, next) => {
+  const result = successStorySchemaZod.safeParse(req.body);
   if (!result.success)
     return res.status(400).json({ errors: result.error.format() });
   next();

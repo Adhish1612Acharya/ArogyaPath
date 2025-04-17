@@ -54,17 +54,13 @@ export const routineSchemaZod = z.object({
 export const successStorySchemaZod = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  media: z.object({
-    images: z.array(fileSchema).max(5, "Cannot exceed 5 images").optional(),
-    videos: z.array(fileSchema).max(5, "Cannot exceed 5 videos").optional(),
-    documents: z.array(fileSchema).max(5, "Cannot exceed 5 documents").optional()
-  }).optional(),
-  owner: objectIdSchema,
-  ownerType: z.enum(["User", "Expert"]),
   filters: z.array(z.string()).min(1, "At least one filter is required"),
-  tagged: z.array(objectIdSchema).max(5, "Cannot exceed 5 tagged experts").optional(),
-  verification: z.array(objectIdSchema).max(5, "Cannot exceed 5 verifications").optional(),
-}, { timestamps: true });
+  tagged: z.array(objectIdSchema).max(5, "Cannot exceed 5 tagged experts"),
+  routines: z.array(z.object({
+    time: z.string().min(1, "Time is required"),
+    content: z.string().min(1, "Content is required"),
+  })),
+});
 
 // -------------------- Comment Schema --------------------
 export const commentSchemaZod = z.object({
