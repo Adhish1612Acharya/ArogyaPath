@@ -1,11 +1,12 @@
+// LoginExpert.tsx (no changes needed here)
 import AuthLayoutExpert from "@/components/AuthLayoutExpert/AuthLayoutExpert";
 import ExpertLoginForm from "@/components/Forms/Expert/ExpertLoginForm/ExpertLoginForm";
 
 const LoginExpert = () => {
   return (
     <AuthLayoutExpert
-      title="Welcome Back!"
-      subtitle="Sign in to your account to continue your journey with us."
+      title="Welcome Back Vaidya!"
+      subtitle="Sign in to continue your healing journey with ArogyaPath"
     >
       <ExpertLoginForm />
     </AuthLayoutExpert>

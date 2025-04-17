@@ -1,15 +1,8 @@
-import express from "express";
 import Post from "../models/Post/Post.js";
 import generateCategories from "../utils/geminiAI.js";
 import Expert from "../models/Expert/Expert.js";
 import User from "../models/User/User.js";
-<<<<<<< HEAD
-const axios = require('axios');
-
-// Handler functions
-const getAllPosts = async (req, res) => {
-    const posts = await Post.find().populate("owner").populate("tags").populate("verified"); 
-=======
+import axios from "axios";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
@@ -17,7 +10,6 @@ const getAllPosts = async (req, res) => {
     .populate("owner")
     .populate("tags")
     .populate("verified");
->>>>>>> a8ad4e2fbaf6af729645405c16f879505685dbc0
   posts = await Post.populate(posts, {
     path: "verified",
     match: { $ne: null }, // Only populate if 'verified' is not null
@@ -27,85 +19,58 @@ const getAllPosts = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-<<<<<<< HEAD
-  const { title, description, media, successStory, ownerType, tags } = req.body;
+  const { title, description,filters } = req.body;
+  const mediaFiles = req.files; // Cast for type hint
+  console.log("req.body", req.body);
+  console.log("Media Files:", mediaFiles);
 
-  // Call the external API for content verification
-  const response = await axios.post('https://content-verification-aakrithi.onrender.com/predict', { text:description });
-  console.log(response.data);
+const media = {
+  images: [],
+  video: null ,
+  document: null ,
+};
 
-  // Check if the description category is "Ayurveda"
-  if (response.data.description === "Ayurveda") {
-    // Generate categories using ONLY the description
-    const categories = await generateCategories(description);
+// Cloudinary stores file URLs in `path`
+mediaFiles.forEach((file) => {
+  const mimeType = file.mimetype;
 
-    // Create a new post with the categories and other details
-    const post = new Post({
+  if (mimeType.startsWith("image/")) {
+    media.images.push(file.path); // Cloudinary gives the URL in `path`
+  } else if (mimeType.startsWith("video/")) {
+    media.video = file.path;
+  } else if (mimeType === "application/pdf") {
+    media.document = file.path;
+  }
+});
+
+console.log("Processed media:", media);
+
+console.log("NewPost", {
+  title,
+  description,
+  media:media,
+  filters: filters,
+  owner: req.user._id,
+});
+
+
+    //Generate categories using ONLY the description
+    // const categories = await generateCategories(description);
+
+    //Create a new post with the categories and other details
+    const post =await Post.create({
       title,
       description,
-      media,
-      category: categories,
-      successStory,
-      ownerType,
-      tags,
+      media:media,
+      filters: filters,
       owner: req.user._id,
     });
 
-    // Add the post to the user's or expert's posts array
-    if (req.user.role === "user") {
-      await User.findByIdAndUpdate(req.user._id, { $push: { posts: post._id } });
-    } else {
       await Expert.findByIdAndUpdate(req.user._id, { $push: { posts: post._id } });
-    }
-
-    // Save the post to the database
-    await post.save();
 
     // Return success message with created post
-    return res.status(201).json({ message: "Post created", post });
-  } else {
-    // If the description is not "Ayurveda", return an error response
-    return res.status(400).json({ message: "Invalid description. Only 'Ayurveda' content is allowed." });
-=======
-  console.log(req.body);
-  const {
-    title,
-    description,
-    media,
-    successStory,
-    category,
-    ownerType,
-    tags,
-    verified,
-  } = req.body;
-
-  // Generate categories using ONLY the description
-  // const categories = await generateCategories(description);
-
-  // Add categories to request body
-  const post = new Post({
-    title,
-    description,
-    media,
-    category,
-    ownerType,
-    verified,
-    owner: req.user._id,
-  });
-
-  if (req.user.role === "user") {
-    await User.findByIdAndUpdate(req.user._id, { $push: { posts: post._id } });
-  } else {
-    await Expert.findByIdAndUpdate(req.user._id, {
-      $push: { posts: post._id },
-    });
->>>>>>> a8ad4e2fbaf6af729645405c16f879505685dbc0
-  }
-};
-
-
-  await post.save();
-  res.status(201).json({ message: "Post created", post });
+    return res.status(200).json({ message: "Post created",success:true, postId: post._id,userId: req.user._id });
+   
 };
 
 const getPostById = async (req, res) => {

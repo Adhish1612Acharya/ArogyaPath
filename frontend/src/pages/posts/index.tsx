@@ -19,7 +19,6 @@ import {
   Share2,
   Clock,
   BookOpen,
-  Calendar,
   Bookmark,
 } from 'lucide-react';
 import {
@@ -102,152 +101,191 @@ export function PostsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar userType={userType} />
       
-      <main className="container mx-auto px-4 py-24">
-        <div className="flex justify-between items-center mb-8">
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
               Health Feed
             </h1>
-            <p className="text-gray-600 mt-2">Discover wellness wisdom from expert practitioners</p>
+            <p className="text-gray-600 mt-2 text-sm sm:text-base">
+              Discover wellness wisdom from expert practitioners
+            </p>
           </div>
-          <Button asChild className="bg-green-600 hover:bg-green-700">
-            <Link to="/posts/create">
-              <Plus className="mr-2 h-4 w-4" /> Create Post
+          <Button asChild className="bg-green-600 hover:bg-green-700 shadow-md">
+            <Link to="/posts/create" className="flex items-center gap-1">
+              <Plus className="h-4 w-4" /> 
+              <span className="hidden sm:inline">Create Post</span>
             </Link>
           </Button>
         </div>
 
-        <Tabs defaultValue="all" className="space-y-6">
-          <TabsList className="bg-white p-1 space-x-2">
-            <TabsTrigger value="all" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-              All Posts
-            </TabsTrigger>
-            <TabsTrigger value="general" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-              General
-            </TabsTrigger>
-            <TabsTrigger value="routines" className="data-[state=active]:bg-green-50 data-[state=active]:text-green-700">
-              Routines
-            </TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue="all" className="w-full">
+          <div className="overflow-x-auto pb-2">
+            <TabsList className="bg-white p-1 space-x-2 w-max">
+              <TabsTrigger 
+                value="all" 
+                className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+              >
+                All Posts
+              </TabsTrigger>
+              <TabsTrigger 
+                value="general" 
+                className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+              >
+                General
+              </TabsTrigger>
+              <TabsTrigger 
+                value="routines" 
+                className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+              >
+                Routines
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="all" className="space-y-6">
+          <TabsContent value="all" className="mt-6 space-y-6">
             {posts.map((post) => (
-              <Card key={post.id} className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                <CardHeader>
-                  <div className="flex items-center space-x-4">
+              <Card 
+                key={post.id} 
+                className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-0 shadow-sm"
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start space-x-4">
                     <HoverCard>
                       <HoverCardTrigger asChild>
-                        <Avatar className="h-12 w-12 cursor-pointer">
+                        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer border-2 border-green-100">
                           <AvatarImage src={post.author.avatar} alt={post.author.name} />
                           <AvatarFallback>{post.author.name[0]}</AvatarFallback>
                         </Avatar>
                       </HoverCardTrigger>
-                      <HoverCardContent className="w-80">
-                        <div className="flex justify-between space-x-4">
-                          <Avatar>
+                      <HoverCardContent className="w-80 shadow-xl">
+                        <div className="flex space-x-4">
+                          <Avatar className="h-12 w-12">
                             <AvatarImage src={post.author.avatar} />
                             <AvatarFallback>{post.author.name[0]}</AvatarFallback>
                           </Avatar>
                           <div className="space-y-1">
                             <h4 className="text-sm font-semibold">{post.author.name}</h4>
-                            <p className="text-sm text-gray-600">{post.author.credentials}</p>
-                            <p className="text-sm text-gray-600">{post.author.experience}</p>
+                            <p className="text-xs text-gray-600">{post.author.credentials}</p>
+                            <p className="text-xs text-gray-600">{post.author.experience}</p>
                           </div>
                         </div>
                       </HoverCardContent>
                     </HoverCard>
-                    <div>
-                      <CardTitle className="text-lg hover:text-green-600 transition-colors">
+                    <div className="flex-1">
+                      <CardTitle className="text-base sm:text-lg hover:text-green-600 transition-colors">
                         {post.author.name}
                       </CardTitle>
-                      <CardDescription className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" /> 2 hours ago
-                        <span>•</span>
-                        <BookOpen className="h-4 w-4" /> {post.readTime}
+                      <CardDescription className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                          2 hours ago
+                        </span>
+                        <span className="text-gray-300">•</span>
+                        <span className="flex items-center gap-1">
+                          <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                          {post.readTime}
+                        </span>
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <h3 className="text-xl font-semibold mb-4 hover:text-green-600 transition-colors">
+                <CardContent className="pb-2">
+                  <h3 className="text-xl sm:text-2xl font-semibold mb-3 hover:text-green-600 transition-colors">
                     {post.title}
                   </h3>
                   {post.type === 'general' ? (
                     <>
-                      <p className="text-gray-600 mb-4">{post.content}</p>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">{post.content}</p>
                       {post.image && (
                         <img
                           src={post.image}
                           alt={post.title}
-                          className="rounded-lg w-full h-64 object-cover hover:opacity-90 transition-opacity"
+                          className="rounded-lg w-full h-48 sm:h-64 object-cover hover:opacity-90 transition-opacity"
                         />
                       )}
-                      <div className="flex gap-2 mt-4">
+                      <div className="flex flex-wrap gap-2 mt-4">
                         {post.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm hover:bg-green-100 transition-colors cursor-pointer"
+                            className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full text-xs sm:text-sm hover:bg-green-100 transition-colors cursor-pointer"
                           >
-                            {tag}
+                            #{tag}
                           </span>
                         ))}
                       </div>
                     </>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-4 mt-4">
                       {post.activities?.map((activity, index) => (
                         <div
                           key={index}
                           className="flex items-start space-x-4 relative group"
                         >
-                          <div className="flex flex-col items-center">
-                            <div className="h-4 w-4 rounded-full bg-green-500 group-hover:bg-green-600 transition-colors" />
+                          <div className="flex flex-col items-center pt-1">
+                            <div className="h-3 w-3 rounded-full bg-green-500 group-hover:bg-green-600 transition-colors" />
                             {index < post.activities.length - 1 && (
                               <div className="h-full w-0.5 bg-green-200 group-hover:bg-green-300 transition-colors" />
                             )}
                           </div>
                           <div className="flex-1 p-3 rounded-lg hover:bg-green-50 transition-colors">
-                            <p className="font-semibold text-green-700">{activity.time}</p>
-                            <p className="text-gray-600">{activity.activity}</p>
+                            <p className="font-medium text-sm text-green-700">{activity.time}</p>
+                            <p className="text-gray-600 text-sm">{activity.activity}</p>
                           </div>
                         </div>
                       ))}
                     </div>
                   )}
                 </CardContent>
-                <CardFooter className="border-t bg-gray-50">
+                <CardFooter className="border-t bg-gray-50 px-4 py-3">
                   <div className="flex justify-between items-center w-full">
-                    <div className="flex space-x-6 text-gray-500">
+                    <div className="flex space-x-4 sm:space-x-6 text-gray-500">
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => toggleLike(post.id)}
-                        className={`hover:text-red-500 ${
+                        className={`h-8 px-2 hover:text-red-500 ${
                           likedPosts.has(post.id) ? 'text-red-500' : ''
                         }`}
                       >
-                        <Heart className="h-4 w-4 mr-1" />
-                        {post.likes + (likedPosts.has(post.id) ? 1 : 0)}
+                        <Heart className="h-4 w-4 mr-1.5" />
+                        <span className="text-xs sm:text-sm">
+                          {post.likes + (likedPosts.has(post.id) ? 1 : 0)}
+                        </span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="hover:text-blue-500">
-                        <MessageCircle className="h-4 w-4 mr-1" /> {post.comments}
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 px-2 hover:text-blue-500"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-1.5" /> 
+                        <span className="text-xs sm:text-sm">{post.comments}</span>
                       </Button>
-                      <Button variant="ghost" size="sm" className="hover:text-green-500">
-                        <Share2 className="h-4 w-4 mr-1" /> Share
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 px-2 hover:text-green-500"
+                      >
+                        <Share2 className="h-4 w-4 mr-1.5" /> 
+                        <span className="text-xs sm:text-sm">Share</span>
                       </Button>
                     </div>
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => toggleSave(post.id)}
-                      className={`hover:text-yellow-500 ${
+                      className={`h-8 w-8 p-0 hover:text-yellow-500 ${
                         savedPosts.has(post.id) ? 'text-yellow-500' : ''
                       }`}
                     >
-                      <Bookmark className="h-4 w-4" />
+                      <Bookmark 
+                        className={`h-4 w-4 transition-transform ${
+                          savedPosts.has(post.id) ? 'fill-current' : ''
+                        }`} 
+                      />
                     </Button>
                   </div>
                 </CardFooter>

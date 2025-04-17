@@ -1,26 +1,52 @@
 import express from "express";
-import Post from "../models/Post/Post.js";
-import { validatePost } from "../middlewares/routemiddlewares.js";
+import { validatePost } from "../middlewares/validationMiddleware/validationSchema.js";
 import wrapAsync from "../utils/wrapAsync.js";
 import postController from "../controllers/post.js";
-import {isLoggedIn} from "../middlewares/commonAuth.js"
-import {checkExpertLogin} from "../middlewares/experts/auth.js"
+import { isLoggedIn } from "../middlewares/commonAuth.js";
+import { checkExpertLogin } from "../middlewares/experts/auth.js";
+import multer from "multer";
+import { storage } from "../cloudConfig.js";
+import {
+  cloudinaryErrorHandler,
+  parseFormdata,
+} from "../middlewares/cloudinaryMiddleware.js";
+const upload = multer({ storage });
 
 const router = express.Router();
 
-router.get("/", wrapAsync(postController.getAllPosts));
-router.post("/", isLoggedIn,validatePost, wrapAsync(postController.createPost));
+router.get("/", isLoggedIn, wrapAsync(postController.getAllPosts));
 
-router.get("/:postId",isLoggedIn, wrapAsync(postController.getPostById));
+router.post(
+  "/",
+  checkExpertLogin,
+  upload.array("media", 5), // Handle up to 5 files (max 5 images or 1 video/doc)
+  cloudinaryErrorHandler,
+  parseFormdata,
+  validatePost,
+  wrapAsync(postController.createPost)
+);
 
-router.delete("/:postId",isLoggedIn,wrapAsync(postController.deletePost));
+router.get("/:postId", isLoggedIn, wrapAsync(postController.getPostById));
 
-router.put("/:postId",isLoggedIn, validatePost, wrapAsync(postController.updatePost));
+router.delete(
+  "/:postId",
+  checkExpertLogin,
+  wrapAsync(postController.deletePost)
+);
 
-router.get("/filter",isLoggedIn, wrapAsync(postController.filterPosts));
+router.put(
+  "/:postId",
+  checkExpertLogin,
+  validatePost,
+  wrapAsync(postController.updatePost)
+);
 
-router.post("/verify/:id",checkExpertLogin,wrapAsync(postController.verifyPost) );//include the middleware adhish
+router.get("/filter", isLoggedIn, wrapAsync(postController.filterPosts));
+
+router.post(
+  "/verify/:id",
+  checkExpertLogin,
+  wrapAsync(postController.verifyPost)
+); //include the middleware adhish
 
 export default router;
-
-

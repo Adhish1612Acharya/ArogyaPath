@@ -1,27 +1,35 @@
-import Post from "@/types/posts.types";
-import VerifiedPostProfile from "@/types/verifiedPostProfileInfo";
-
-export interface PostArgu {
-  content: string;
+export interface MediaUploads {
   images: File[];
-  videos: File[];
-  documents: File[];
-  filters: string[];
-  verified: VerifiedPostProfile[] | null;
+  video: File | null;
+  document: File | null;
 }
 
-export type CreatePostType = (
-  postData: PostArgu,
-  firebaseDocument: "experts" | "farmers"
-) => Promise<string | null>;
+export interface PostFormSchema {
+  title: string;
+  description: string;
+  media: MediaUploads;
+}
 
-export type GetAllPostType = () => Promise<Post[]>;
+export interface Routine {
+  time: string;
+  content: string;
+}
 
-export type GetFilteredPostType = (
-  filters: string[],
-  userType: string | null
-) => Promise<Post[]>;
+export interface PostFormWithRoutineSchema {
+  title: string;
+  description: string;
+  thumbnail: File | null;
+  routines: Routine[];
+  filters: string[];
+}
 
-export type fetchPostByIdType = (id: string) => Promise<Post | null>;
-
-export type GetYourPostType = () => Promise<Post[]>;
+export interface PostSubmissionData {
+  title: string;
+  description: string;
+  filters: string[];
+  media: {
+    images: File[];
+    video: File | null;
+    document: File | null;
+  };
+}

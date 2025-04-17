@@ -90,4 +90,4 @@ const generateCategories = async (req, res) => {
   }
 };
 
-export default generateCategories
+export default generateCategories;

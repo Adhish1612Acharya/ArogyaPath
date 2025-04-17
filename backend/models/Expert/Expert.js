@@ -13,7 +13,7 @@ const ExpertSchema = new Schema({
     expertType: { type: String,required:true },
     contact: { type: Number, default: 0 },
   },
-  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post" }],
+  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post",default:[] }],
   completeProfile: { type: Boolean, default: false },
   role: { type: String, enum: ["expert"], default:"expert" },
 });

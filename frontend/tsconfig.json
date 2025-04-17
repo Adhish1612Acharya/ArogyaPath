@@ -4,13 +4,19 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
+  // "compilerOptions": {
+  //   "baseUrl": "./",
+  //   "paths": {
+  //     "@/*": ["src/*"]
+  //   },
+  //   "types": ["node", "react", "react-dom"],
+  //   "forceConsistentCasingInFileNames": true,
+  //   "strict": true
+  // }
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
-    },
-    "types": ["node", "react", "react-dom"],
-    "forceConsistentCasingInFileNames": true, 
-    "strict": true 
+      "@/*": ["./src/*"]
+    }
   }
 }

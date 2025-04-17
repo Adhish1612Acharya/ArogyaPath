@@ -1,4 +1,5 @@
 export const isAlreadyLoggedIn = (req, res, next) => {
+  console.log("Logged IN : ", req.isAuthenticated());
   if (!req.isAuthenticated()) {
     return next();
   } else {
@@ -39,6 +40,4 @@ export const isUser=(req,res,next)=>{
 export default{
   isAlreadyLoggedIn,
   isLoggedIn,
-  isUser,
-  isExpert,
 }
