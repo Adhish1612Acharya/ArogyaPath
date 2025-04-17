@@ -122,7 +122,7 @@ export function PostsPage() {
           </div>
           <div className="flex items-center gap-3">
             <Filter />
-            <Button asChild className="bg-green-600 hover:bg-green-700 shadow-md">
+            <Button asChild className="bg-green-600 hover:bg-green-700 shadow-md !text-white">
               <Link to="/posts/create" className="flex items-center gap-1">
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Create Post</span>

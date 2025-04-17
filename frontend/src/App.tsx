@@ -11,6 +11,11 @@ import { PostsPage } from "./pages/posts";
 import PrakrutiForm from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 import HomePage from "./pages/HomePage";
+import { PageNotFound } from "./pages/PageNotFound/PageNotFound";
+import EmailVerify from "./pages/AfterRegisterPage/EmailVerify";
+import MobileVerify from "./pages/AfterRegisterPage/MobileVerify";
+import ExpertCompleteProfile from "./pages/AfterRegisterPage/ExpertCompleteProfile";
+import UserCompleteProfile from "./pages/AfterRegisterPage/UserCompleteProfile";
 
 const App = () => {
   const role = useAuth();
@@ -43,6 +48,11 @@ const App = () => {
           <Route path="/expert/posts/create" element={<CreatePost />} />
 
           <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
+          <Route path="/not-found" element={<PageNotFound  />} />
+          <Route path="/verify-email" element={<EmailVerify />} />
+          <Route path="/verify-mobile" element={<MobileVerify />} />
+          <Route path="/complete-profile/expert" element={<ExpertCompleteProfile />} />
+          <Route path="/complete-profile/user" element={<UserCompleteProfile />} />
         </Routes>
       </div>
       {/* {nav && <Footer />} */}
