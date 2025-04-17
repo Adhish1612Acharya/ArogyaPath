@@ -9,7 +9,7 @@ const ExpertSchema = new Schema({
     fullname: { type: String, default: "" },
     experience: { type: Number, default: 0 },
     qualification: { type: String, default: "" },
-    expertType: { type: String, required: true },
+    expertType: { type: String, default: "ayurvedic" },
     contact: { type: Number, default: 0 },
   },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],

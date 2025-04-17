@@ -1,31 +1,20 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-
-// Import UI components from ShadCN
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { useRef, useState } from "react";
 import postCreationSchema from "./AddPostFormSchema";
-import { Loader, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import usePost from "@/hooks/usePost/usePost";
+import { Button as MUIButton } from "@mui/material";
+import { Loader, X } from "lucide-react";
 
-// Get inferred TypeScript type from schema
 type PostFormSchema = z.infer<typeof postCreationSchema>;
 
 const PostForm = () => {
   const { submitPost } = usePost();
-
   const navigate = useNavigate();
 
   const form = useForm<PostFormSchema>({
@@ -47,7 +36,6 @@ const PostForm = () => {
     document: null,
   });
 
-  // Refs for hidden inputs
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
   const docInputRef = useRef<HTMLInputElement | null>(null);
@@ -55,18 +43,15 @@ const PostForm = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newFiles = Array.from(e.target.files || []);
     const currentImages = form.getValues("media.images") || [];
-
     if (currentImages.length + newFiles.length > 3) {
       alert("You can only upload up to 3 images in total.");
       return;
     }
-
     const updatedImages = [...currentImages, ...newFiles];
-
     form.setValue("media.images", updatedImages);
     form.setValue("media.document", null);
     form.setValue("media.video", null);
-    setMediaPreview((prev) => ({
+    setMediaPreview(prev => ({
       ...prev,
       images: [...prev.images, ...newFiles],
     }));
@@ -78,12 +63,7 @@ const PostForm = () => {
       form.setValue("media.images", []);
       form.setValue("media.document", null);
       form.setValue("media.video", file);
-      setMediaPreview((prev) => ({
-        ...prev,
-        images: [],
-        document: null,
-        video: file,
-      }));
+      setMediaPreview({ images: [], document: null, video: file });
     }
   };
 
@@ -93,76 +73,49 @@ const PostForm = () => {
       form.setValue("media.images", []);
       form.setValue("media.video", null);
       form.setValue("media.document", file);
-      setMediaPreview((prev) => ({
-        ...prev,
-        images: [],
-        video: null,
-        document: file,
-      }));
+      setMediaPreview({ images: [], video: null, document: file });
     }
   };
 
   const handleImagePreviewCancel = (i: number) => {
-    const newImages =
-      mediaPreview.images?.filter((_, index) => index !== i) || [];
-    setMediaPreview((prev) => ({
-      ...prev,
-      images: newImages,
-    }));
+    const newImages = mediaPreview.images?.filter((_, index) => index !== i) || [];
+    setMediaPreview(prev => ({ ...prev, images: newImages }));
     form.setValue("media.images", newImages);
   };
 
   const handleVideoPreviewCancel = () => {
-    setMediaPreview((prev) => ({
-      ...prev,
-      video: null,
-    }));
+    setMediaPreview(prev => ({ ...prev, video: null }));
     form.setValue("media.video", null);
   };
 
   const handleDocPreviewCancel = () => {
-    setMediaPreview((prev) => ({
-      ...prev,
-      document: null,
-    }));
+    setMediaPreview(prev => ({ ...prev, document: null }));
     form.setValue("media.document", null);
   };
 
   const onSubmit = async (newPostData: PostFormSchema) => {
     try {
-      const newPost = {
-        ...newPostData,
-      };
-      const response = await submitPost(newPost);
-
+      const response = await submitPost(newPostData);
       if (response?.success) {
         form.reset();
         navigate(`/expert/posts/${response?.postId}`);
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);
-      console.error("Status code:", error.status);
-      console.error("Response data:", error.data);
-
-      // Show user-friendly error based on status code
-      if (error.status === 401) {
-        navigate("/auth");
-      } else if (error.status === 403) {
-        navigate("/");
-      }
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {/* Title */}
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl mx-auto">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel className="text-base font-semibold">Title</FormLabel>
               <FormControl>
                 <Input placeholder="Enter post title" {...field} />
               </FormControl>
@@ -171,142 +124,99 @@ const PostForm = () => {
           )}
         />
 
-        {/* Description */}
         <FormField
           control={form.control}
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel className="text-base font-semibold">Description</FormLabel>
               <FormControl>
-                <Textarea placeholder="Write your post..." {...field} />
+                <Textarea placeholder="Write your post..." rows={5} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        {/* Hidden File Inputs */}
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          ref={imageInputRef}
-          onChange={handleImageChange}
-          className="hidden"
-        />
-        <input
-          type="file"
-          accept="video/*"
-          ref={videoInputRef}
-          onChange={handleVideoChange}
-          className="hidden"
-        />
-        <input
-          type="file"
-          accept=".pdf"
-          ref={docInputRef}
-          onChange={handleDocChange}
-          className="hidden"
-        />
+        <input type="file" accept="image/*" multiple ref={imageInputRef} onChange={handleImageChange} className="hidden" />
+        <input type="file" accept="video/*" ref={videoInputRef} onChange={handleVideoChange} className="hidden" />
+        <input type="file" accept=".pdf" ref={docInputRef} onChange={handleDocChange} className="hidden" />
 
-        {/* Media Upload Buttons */}
-        <div className="flex flex-wrap gap-3">
-          <Button
-            type="button"
-            onClick={() => imageInputRef.current?.click()}
-            variant="outline"
-          >
-            Add Images (max 3)
-          </Button>
-          <Button
-            type="button"
-            onClick={() => videoInputRef.current?.click()}
-            variant="outline"
-          >
-            Add Video
-          </Button>
-          <Button
-            type="button"
-            onClick={() => docInputRef.current?.click()}
-            variant="outline"
-          >
-            Add Document
-          </Button>
+        <div className="flex flex-wrap gap-4">
+          <MUIButton variant="outlined" color="primary" onClick={() => imageInputRef.current?.click()}>
+            Upload Images
+          </MUIButton>
+          <MUIButton variant="outlined" color="secondary" onClick={() => videoInputRef.current?.click()}>
+            Upload Video
+          </MUIButton>
+          <MUIButton variant="outlined" color="success" onClick={() => docInputRef.current?.click()}>
+            Upload Document
+          </MUIButton>
         </div>
 
-        {/* Previews */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
           {mediaPreview.images?.map((img, i) => (
-            <div key={i} className="relative group">
-              <img
-                src={URL.createObjectURL(img)}
-                alt={`Preview ${i}`}
-                className="h-32 w-full object-cover rounded-md border"
-              />
+            <div key={i} className="relative group shadow rounded-md overflow-hidden">
+              <img src={URL.createObjectURL(img)} alt={`preview-${i}`} className="w-full h-40 object-cover rounded-md" />
               <button
                 type="button"
-                className="absolute top-1 right-1 bg-red-600 text-white text-xs px-1 rounded opacity-0 group-hover:opacity-100 transition"
-                onClick={() => {
-                  handleImagePreviewCancel(i);
-                }}
+                className="absolute top-2 right-2 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-1"
+                onClick={() => handleImagePreviewCancel(i)}
               >
-                <X size={14} />
+               <X size={16} className="text-black" />
               </button>
             </div>
           ))}
           {mediaPreview.video && (
-            <div className="relative mt-2">
-              <video
-                controls
-                className="w-full max-h-64 rounded-md border"
-                src={URL.createObjectURL(mediaPreview.video)}
-              />
+            <div className="relative shadow rounded-md overflow-hidden">
+              <video controls className="w-full max-h-64 rounded-md" src={URL.createObjectURL(mediaPreview.video)} />
               <button
                 type="button"
-                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded"
-                onClick={() => {
-                  handleVideoPreviewCancel();
-                }}
+                className="absolute top-2 right-2 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-1"
+                onClick={handleVideoPreviewCancel}
               >
-                <X size={14} />
+                <X size={16} className="text-black" />
               </button>
             </div>
           )}
           {mediaPreview.document && (
-            <div className="relative mt-2 bg-muted px-4 py-2 rounded-md border">
+            <div className="relative p-4 border rounded-md bg-muted text-sm shadow">
               <span
-                className="cursor-pointer hover:underline"
+                className="text-blue-600 underline cursor-pointer"
                 onClick={() => {
-                  if (mediaPreview.document) {
-                    const url = URL.createObjectURL(mediaPreview.document);
-                    window.open(url, "_blank");
-                  }
+                  const url = URL.createObjectURL(mediaPreview.document!);
+                  window.open(url, "_blank");
                 }}
               >
                 📄 {mediaPreview.document.name}
               </span>
               <button
                 type="button"
-                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded"
-                onClick={() => {
-                  handleDocPreviewCancel();
-                }}
+                className="absolute top-2 right-2 bg-black bg-opacity-50 hover:bg-opacity-80 text-white rounded-full p-1"
+                onClick={handleDocPreviewCancel}
               >
-                <X size={14} />
+               <X size={16} className="text-black" />
               </button>
             </div>
           )}
         </div>
 
-        {/* Submit */}
-        <Button type="submit" variant={"outline"} className="w-full">
-          {form.formState.isSubmitting ? (
-            <Loader className="animate-spin" />
-          ) : (
-            "Post"
-          )}
-        </Button>
+        <MUIButton
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          disabled={form.formState.isSubmitting}
+          sx={{
+            py: 1.5,
+            fontWeight: "bold",
+            fontSize: "1rem",
+            textTransform: "none",
+            boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+          }}
+        >
+          {form.formState.isSubmitting ? <Loader className="animate-spin" /> : "Post"}
+        </MUIButton>
       </form>
     </Form>
   );

@@ -12,7 +12,10 @@ import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { storage } from "../cloudConfig.js";
 import multer from "multer";
 import { isLoggedIn } from "../middlewares/commonAuth.js";
-import { parseFormdata } from "../middlewares/cloudinaryMiddleware.js";
+import {
+  cloudinaryErrorHandler,
+  parseFormdata,
+} from "../middlewares/cloudinaryMiddleware.js";
 const upload = multer({ storage });
 
 const router = express.Router();
@@ -21,6 +24,7 @@ router.post(
   "/",
   checkExpertLogin,
   upload.single("thumbnail"),
+  cloudinaryErrorHandler,
   parseFormdata,
   validateRoutine,
   wrapAsync(createRoutine)
@@ -34,6 +38,7 @@ router.put(
   "/:id",
   checkExpertLogin,
   upload.single("thumbnail"),
+  cloudinaryErrorHandler,
   parseFormdata,
   validateRoutine,
   wrapAsync(updateRoutine)

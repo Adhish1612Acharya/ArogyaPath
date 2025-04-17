@@ -155,11 +155,18 @@ const usePost = () => {
       requestFormData.append("title", postData.title);
       requestFormData.append("description", postData.description);
       requestFormData.append("filters", JSON.stringify(["all", "medicine"]));
-      requestFormData.append("thumbnail", postData.thumbnail || "");
+      if (postData.thumbnail instanceof File) {
+        console.log("Post Thunm nail : ", postData.thumbnail);
+        requestFormData.append("thumbnail", postData.thumbnail);
+      }
       requestFormData.append("routines", JSON.stringify(postData.routines));
 
+      for (let [key, value] of requestFormData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
       const response = await post(
-        `${import.meta.env.VITE_SERVER_URL}/api/posts`,
+        `${import.meta.env.VITE_SERVER_URL}/api/routines`,
         requestFormData,
         {
           headers: {

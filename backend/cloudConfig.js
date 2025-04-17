@@ -16,6 +16,6 @@ export const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "arogyaPath_DEV",
-    allowedFormats: ["png", "jpg", "jpeg"],
+    allowedFormats: ["png", "jpg", "jpeg", "mp4", "pdf"],
   } ,
 });

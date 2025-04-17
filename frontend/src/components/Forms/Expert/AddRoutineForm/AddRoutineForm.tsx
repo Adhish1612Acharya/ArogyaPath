@@ -1,6 +1,11 @@
-import React, { use } from "react";
+import React, { useRef, useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useNavigate } from "react-router-dom";
+import { X, Plus, Loader2 } from "lucide-react";
+
+// ShadCN components
 import {
   Form,
   FormControl,
@@ -11,13 +16,16 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { X, Plus } from "lucide-react";
-import { useRef, useState } from "react";
-import addRoutineFormSchema from "./AddRoutineFormSchema";
-import { z } from "zod";
+
+// Material UI
+import MuiButton from "@mui/material/Button";
+import AddIcon from "@mui/icons-material/Add";
+import UploadIcon from "@mui/icons-material/Upload";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+// Custom logic
 import usePost from "@/hooks/usePost/usePost";
-import { useNavigate } from "react-router-dom";
+import addRoutineFormSchema from "./AddRoutineFormSchema";
 import dayjs from "dayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
@@ -25,7 +33,6 @@ type RoutineFormSchema = z.infer<typeof addRoutineFormSchema>;
 
 const AddRoutineForm = () => {
   const { submitRoutinePost } = usePost();
-
   const navigate = useNavigate();
 
   const form = useForm<RoutineFormSchema>({
@@ -56,6 +63,7 @@ const AddRoutineForm = () => {
       form.setValue("thumbnail", file);
       setThumbnailPreview(URL.createObjectURL(file));
     }
+    thumbnailRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
   };
 
   const cancelThumbnail = () => {
@@ -79,10 +87,6 @@ const AddRoutineForm = () => {
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);
-      console.error("Status code:", error.status);
-      console.error("Response data:", error.data);
-
-      // Show user-friendly error based on status code
       if (error.status === 401) {
         navigate("/auth");
       } else if (error.status === 403) {
@@ -93,14 +97,19 @@ const AddRoutineForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-8 max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-8"
+      >
         {/* Title */}
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel className="text-base font-semibold">
+                Routine Title
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Enter routine title" {...field} />
               </FormControl>
@@ -115,10 +124,13 @@ const AddRoutineForm = () => {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel className="text-base font-semibold">
+                Description
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Describe the purpose of this routine..."
+                  className="min-h-[120px]"
                   {...field}
                 />
               </FormControl>
@@ -135,15 +147,15 @@ const AddRoutineForm = () => {
           onChange={handleThumbnailChange}
           className="hidden"
         />
-        <Button
-          type="button"
-          variant="outline"
+        <MuiButton
+          variant="outlined"
+          startIcon={<UploadIcon />}
           onClick={() => thumbnailRef.current?.click()}
         >
           Upload Thumbnail
-        </Button>
+        </MuiButton>
         {thumbnailPreview && (
-          <div className="relative w-full sm:w-64 mt-2">
+          <div className="relative mt-4 w-full sm:w-64">
             <img
               src={thumbnailPreview}
               alt="Thumbnail preview"
@@ -151,34 +163,34 @@ const AddRoutineForm = () => {
             />
             <button
               type="button"
-              className="absolute top-2 right-2 bg-red-600 text-white rounded p-1"
+              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1"
               onClick={cancelThumbnail}
             >
-              <X size={14} />
+              <X size={16} className="text-black" />
             </button>
           </div>
         )}
 
-        {/* Routines List */}
+        {/* Routine Entries */}
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-semibold">Routine Entries</h3>
-            <Button
-              type="button"
-              variant="ghost"
+            <MuiButton
+              variant="text"
+              size="small"
+              startIcon={<AddIcon />}
               onClick={() => append({ time: "", content: "" })}
-              className="gap-1"
             >
-              <Plus size={16} /> Add Entry
-            </Button>
+              Add Entry
+            </MuiButton>
           </div>
 
           {routineFields.map((routine, index) => (
             <div
               key={routine.id}
-              className="p-4 border rounded-2xl bg-muted/20 relative space-y-4 shadow-sm"
+              className="p-4 border rounded-md bg-muted/10 relative space-y-4"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* TIME PICKER */}
                 <FormField
                   control={form.control}
@@ -232,10 +244,10 @@ const AddRoutineForm = () => {
               {routineFields.length > 1 && (
                 <button
                   type="button"
-                  className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 transition text-white rounded-full p-1.5 shadow"
+                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 hover:bg-red-700 transition text-white rounded-full-full p-1.5 shadow"
                   onClick={() => remove(index)}
                 >
-                  <X size={16} />
+                  <DeleteIcon fontSize="small" />
                 </button>
               )}
             </div>
@@ -243,14 +255,16 @@ const AddRoutineForm = () => {
         </div>
 
         {/* Submit */}
-        <Button
+        <MuiButton
           type="submit"
-          className="w-full rounded-md border border-input bg-transparent px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          variant={"outline"}
-
+          variant="contained"
+          color="primary"
+          fullWidth
+          size="large"
+          style={{ marginTop: "20px" }}
         >
-          Save Routine
-        </Button>
+          {form.formState.isSubmitting ? <Loader2 /> : "Post Routine"}
+        </MuiButton>
       </form>
     </Form>
   );
