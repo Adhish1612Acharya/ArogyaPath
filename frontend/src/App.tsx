@@ -16,6 +16,9 @@ import EmailVerify from "./pages/AfterRegisterPage/EmailVerify";
 import MobileVerify from "./pages/AfterRegisterPage/MobileVerify";
 import ExpertCompleteProfile from "./pages/AfterRegisterPage/ExpertCompleteProfile";
 import UserCompleteProfile from "./pages/AfterRegisterPage/UserCompleteProfile";
+import { GeneralPost } from "./pages/posts/PostPage/GeneralPost";
+import { RoutinePost } from "./pages/posts/PostPage/RoutinePost";
+import { SuccessStoryPost } from "./pages/posts/PostPage/SuccessStoryPost";
 
 const App = () => {
   const role = useAuth();
@@ -53,6 +56,9 @@ const App = () => {
           <Route path="/verify-mobile" element={<MobileVerify />} />
           <Route path="/complete-profile/expert" element={<ExpertCompleteProfile />} />
           <Route path="/complete-profile/user" element={<UserCompleteProfile />} />
+          <Route path="/gposts/:id" element={<GeneralPost />} />
+          <Route path="/routines/:id" element={<RoutinePost />} />
+          <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
         </Routes>
       </div>
       {/* {nav && <Footer />} */}
