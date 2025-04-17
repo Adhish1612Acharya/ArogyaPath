@@ -19,6 +19,7 @@ import UserCompleteProfile from "./pages/AfterRegisterPage/UserCompleteProfile";
 import { GeneralPost } from "./pages/posts/PostPage/GeneralPost";
 import { RoutinePost } from "./pages/posts/PostPage/RoutinePost";
 import { SuccessStoryPost } from "./pages/posts/PostPage/SuccessStoryPost";
+import AISearchPage from "./pages/AIquery/AIQuery";
 
 const App = () => {
   const role = useAuth();
@@ -59,6 +60,7 @@ const App = () => {
           <Route path="/gposts/:id" element={<GeneralPost />} />
           <Route path="/routines/:id" element={<RoutinePost />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+          <Route path="/ai-query" element={<AISearchPage />} />
         </Routes>
       </div>
       {/* {nav && <Footer />} */}
