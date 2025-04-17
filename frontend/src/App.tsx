@@ -20,6 +20,7 @@ import { GeneralPost } from "./pages/posts/PostPage/GeneralPost";
 import { RoutinePost } from "./pages/posts/PostPage/RoutinePost";
 import { SuccessStoryPost } from "./pages/posts/PostPage/SuccessStoryPost";
 import AISearchPage from "./pages/AIquery/AIQuery";
+import { ExpertTaggedPosts } from "./pages/Expert/TaggedView/ViewTagged";
 
 const App = () => {
   const role = useAuth();
@@ -61,6 +62,7 @@ const App = () => {
           <Route path="/routines/:id" element={<RoutinePost />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
           <Route path="/ai-query" element={<AISearchPage />} />
+          <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
         </Routes>
       </div>
       {/* {nav && <Footer />} */}

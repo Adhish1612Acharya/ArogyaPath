@@ -110,10 +110,10 @@ export function Navbar({ userType, user }: NavbarProps) {
                   className="text-blue-700 hover:bg-blue-50"
                   asChild
                 >
-                  <Link to="/auth/login">Login</Link>
+                  <Link to="/auth">Login</Link>
                 </Button>
                 <Button className="bg-[#2563eb] !text-white hover:bg-[#3b82f6]" asChild>
-  <Link to="/auth/register">Register</Link>
+  <Link to="/auth">Register</Link>
 </Button>
               </div>
             )}
