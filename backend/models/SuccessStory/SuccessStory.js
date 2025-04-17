@@ -12,7 +12,7 @@ const SuccessStorySchema = new Schema({
     required: true
   },
   media: {
-    images: [{ path: { type: String }, filename: { type: String } }],
+    images: [{type:string}],
     videos: [{ path: { type: String }, filename: { type: String } }],
     documents: [{ path: { type: String }, filename: { type: String } }]
   },
@@ -36,6 +36,18 @@ const SuccessStorySchema = new Schema({
       ref: "Expert"
     }
   ],
+  routines:[
+    {
+    time:{
+      type:String
+    },
+    content:{
+      type:String
+    },
+    
+
+  }
+],
   verification: [
     {
       type: Schema.Types.ObjectId,

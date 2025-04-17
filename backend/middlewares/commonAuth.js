@@ -18,7 +18,7 @@ export const isLoggedIn = (req, res, next) => {
   }
 };
 export const isExpert=(req,res,next)=>{
-  if(req.user.constructor.modelName=="Expert"){
+  if(req.user.role=="expert"){
    return next();
   }else{
     return res.status(400).json({
@@ -27,7 +27,7 @@ export const isExpert=(req,res,next)=>{
   }
 }
 export const isUser=(req,res,next)=>{
-  if(req.user.constructor.modelName=="User"){
+  if(req.user.role=="user"){
    return next();
   }else{
     return res.status(400).json({
