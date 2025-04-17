@@ -45,7 +45,7 @@ const App = () => {
           <Route path="/auth" element={<RoleSelection />} />
           <Route path="/" element={<HomePage />} />
           <Route path="/posts" element={<PostsPage />} />
-          <Route path="/expert/posts/create" element={<CreatePost />} />
+          <Route path="/posts/create" element={<CreatePost />} />
 
           <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
           <Route path="/not-found" element={<PageNotFound  />} />
