@@ -155,7 +155,7 @@ const usePost = () => {
       requestFormData.append("title", postData.title);
       requestFormData.append("description", postData.description);
       requestFormData.append("filters", JSON.stringify(["all", "medicine"]));
-      requestFormData.append("media", postData.thumbnail || "");
+      requestFormData.append("thumbnail", postData.thumbnail || "");
       requestFormData.append("routines", JSON.stringify(postData.routines));
 
       const response = await post(

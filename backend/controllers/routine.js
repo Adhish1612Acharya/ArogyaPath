@@ -1,29 +1,32 @@
+import Expert from "../models/Expert/Expert.js";
 import Routines from "../models/Routines/Routines.js";
 
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
-  const { title, description, routines } = req.body;
-
-  if (!title || !description || !routines) {
-    return res
-      .status(400)
-      .json({ message: "Title, description, and routines are required." });
-  }
+  const { title, description, routines, filters } = req.body;
+  const thumbnail = req.file ? req.file.path : null;
 
   const newRoutine = new Routines({
     title,
     description,
     routines,
+    thumbnail,
     owner: req.user._id,
-    ownerType: req.user.constructor.modelName, // 'User' or 'Expert'
-    filters: [], // Optional: Populate dynamically
+    filters: filters, // Optional: Populate dynamically
   });
 
   await newRoutine.save();
 
-  return res.status(201).json({
+  // Add the routine ID to the owner's list of routines
+  await Expert.findByIdAndUpdate(req.user._id, {
+    $push: { routines: newRoutine._id },
+  });
+
+  return res.status(200).json({
     message: "Routine created successfully",
-    data: newRoutine,
+    success: true,
+    postId: newRoutine._id,
+    userId: req.user._id,
   });
 };
 

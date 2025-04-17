@@ -1,5 +1,5 @@
 import React, { use } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -18,11 +18,12 @@ import addRoutineFormSchema from "./AddRoutineFormSchema";
 import { z } from "zod";
 import usePost from "@/hooks/usePost/usePost";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
 type RoutineFormSchema = z.infer<typeof addRoutineFormSchema>;
 
 const AddRoutineForm = () => {
-
   const { submitRoutinePost } = usePost();
 
   const navigate = useNavigate();
@@ -66,8 +67,10 @@ const AddRoutineForm = () => {
     try {
       const newPost = {
         ...newPostData,
-        filters:["all", "ayurveda"],
+        filters: ["all", "ayurveda"],
       };
+
+      console.log("New Post : ", newPost);
       const response = await submitRoutinePost(newPost);
 
       if (response?.success) {
@@ -173,26 +176,39 @@ const AddRoutineForm = () => {
           {routineFields.map((routine, index) => (
             <div
               key={routine.id}
-              className="p-4 border rounded-md bg-muted/20 relative space-y-3"
+              className="p-4 border rounded-2xl bg-muted/20 relative space-y-4 shadow-sm"
             >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
+                {/* TIME PICKER */}
                 <FormField
                   control={form.control}
                   name={`routines.${index}.time`}
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Time</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g. 08:00 AM"
-                          type="time"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
+                      <TimePicker
+                        ampm
+                        value={
+                          field.value ? dayjs(field.value, "hh:mm A") : null
+                        }
+                        onChange={(val) =>
+                          field.onChange(val ? val.format("hh:mm A") : null)
+                        }
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            variant: "outlined",
+                            placeholder: "e.g. 08:00 AM",
+                            error: !!fieldState.error,
+                            helperText: fieldState.error?.message,
+                          },
+                        }}
+                      />
                     </FormItem>
                   )}
                 />
+
+                {/* CONTENT FIELD */}
                 <FormField
                   control={form.control}
                   name={`routines.${index}.content`}
@@ -202,6 +218,7 @@ const AddRoutineForm = () => {
                       <FormControl>
                         <Textarea
                           placeholder="What should be done at this time?"
+                          className="min-h-[80px]"
                           {...field}
                         />
                       </FormControl>
@@ -210,13 +227,15 @@ const AddRoutineForm = () => {
                   )}
                 />
               </div>
+
+              {/* REMOVE BUTTON */}
               {routineFields.length > 1 && (
                 <button
                   type="button"
-                  className="absolute top-2 right-2 bg-red-600 text-white rounded p-1"
+                  className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 transition text-white rounded-full p-1.5 shadow"
                   onClick={() => remove(index)}
                 >
-                  <X size={14} />
+                  <X size={16} />
                 </button>
               )}
             </div>
@@ -224,7 +243,12 @@ const AddRoutineForm = () => {
         </div>
 
         {/* Submit */}
-        <Button type="submit" className="w-full">
+        <Button
+          type="submit"
+          className="w-full rounded-md border border-input bg-transparent px-4 py-2 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          variant={"outline"}
+
+        >
           Save Routine
         </Button>
       </form>
