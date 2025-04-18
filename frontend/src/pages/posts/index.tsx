@@ -27,11 +27,13 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Filter } from '@/components/Filter/Filter';
 
 export function PostsPage() {
   const [userType] = useState<'expert' | 'patient'>('patient');
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<'all' | 'general' | 'routine'>('all');
 
   const posts = [
     {
@@ -100,10 +102,14 @@ export function PostsPage() {
     });
   };
 
+  const filteredPosts =
+    activeTab === 'all'
+      ? posts
+      : posts.filter((post) => post.type === activeTab);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar userType={userType} />
-      
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
@@ -114,31 +120,34 @@ export function PostsPage() {
               Discover wellness wisdom from expert practitioners
             </p>
           </div>
-          <Button asChild className="bg-green-600 hover:bg-green-700 shadow-md">
-            <Link to="/posts/create" className="flex items-center gap-1">
-              <Plus className="h-4 w-4" /> 
-              <span className="hidden sm:inline">Create Post</span>
-            </Link>
-          </Button>
+          <div className="flex items-center gap-3">
+            <Filter />
+            <Button asChild className="bg-green-600 hover:bg-green-700 shadow-md">
+              <Link to="/posts/create" className="flex items-center gap-1">
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">Create Post</span>
+              </Link>
+            </Button>
+          </div>
         </div>
 
-        <Tabs defaultValue="all" className="w-full">
+        <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
           <div className="overflow-x-auto pb-2">
             <TabsList className="bg-white p-1 space-x-2 w-max">
-              <TabsTrigger 
-                value="all" 
+              <TabsTrigger
+                value="all"
                 className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
               >
                 All Posts
               </TabsTrigger>
-              <TabsTrigger 
-                value="general" 
+              <TabsTrigger
+                value="general"
                 className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
               >
                 General
               </TabsTrigger>
-              <TabsTrigger 
-                value="routines" 
+              <TabsTrigger
+                value="routine"
                 className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
               >
                 Routines
@@ -147,9 +156,9 @@ export function PostsPage() {
           </div>
 
           <TabsContent value="all" className="mt-6 space-y-6">
-            {posts.map((post) => (
-              <Card 
-                key={post.id} 
+            {filteredPosts.map((post) => (
+              <Card
+                key={post.id}
                 className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-0 shadow-sm"
               >
                 <CardHeader className="pb-3">
@@ -181,12 +190,12 @@ export function PostsPage() {
                       </CardTitle>
                       <CardDescription className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                         <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                           2 hours ago
                         </span>
                         <span className="text-gray-300">•</span>
                         <span className="flex items-center gap-1">
-                          <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" /> 
+                          <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
                           {post.readTime}
                         </span>
                       </CardDescription>
@@ -256,20 +265,20 @@ export function PostsPage() {
                           {post.likes + (likedPosts.has(post.id) ? 1 : 0)}
                         </span>
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 px-2 hover:text-blue-500"
                       >
-                        <MessageCircle className="h-4 w-4 mr-1.5" /> 
+                        <MessageCircle className="h-4 w-4 mr-1.5" />
                         <span className="text-xs sm:text-sm">{post.comments}</span>
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         className="h-8 px-2 hover:text-green-500"
                       >
-                        <Share2 className="h-4 w-4 mr-1.5" /> 
+                        <Share2 className="h-4 w-4 mr-1.5" />
                         <span className="text-xs sm:text-sm">Share</span>
                       </Button>
                     </div>
@@ -281,10 +290,10 @@ export function PostsPage() {
                         savedPosts.has(post.id) ? 'text-yellow-500' : ''
                       }`}
                     >
-                      <Bookmark 
+                      <Bookmark
                         className={`h-4 w-4 transition-transform ${
                           savedPosts.has(post.id) ? 'fill-current' : ''
-                        }`} 
+                        }`}
                       />
                     </Button>
                   </div>
@@ -294,7 +303,6 @@ export function PostsPage() {
           </TabsContent>
         </Tabs>
       </main>
-
       <Footer userType={userType} />
     </div>
   );
