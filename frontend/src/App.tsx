@@ -21,6 +21,9 @@ import { RoutinePost } from "./pages/posts/PostPage/RoutinePost";
 import { SuccessStoryPost } from "./pages/posts/PostPage/SuccessStoryPost";
 import AISearchPage from "./pages/AIquery/AIQuery";
 import { ExpertTaggedPosts } from "./pages/Expert/TaggedView/ViewTagged";
+import { AllGeneralPosts } from "./pages/posts/GeneralPosts";
+import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
+import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
 
 const App = () => {
   const role = useAuth();
@@ -63,6 +66,9 @@ const App = () => {
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
           <Route path="/ai-query" element={<AISearchPage />} />
           <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
+          <Route path="/gposts" element={<AllGeneralPosts />} />
+          <Route path="/routines" element={<AllRoutinePosts />} />
+          <Route path="/success-stories" element={<AllSuccessStoriesPosts />} />
         </Routes>
       </div>
       {/* {nav && <Footer />} */}
