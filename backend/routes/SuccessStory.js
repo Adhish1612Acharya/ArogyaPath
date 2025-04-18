@@ -18,6 +18,7 @@ import {
   cloudinaryErrorHandler,
   parseFormdata,
 } from "../middlewares/cloudinaryMiddleware.js";
+import { checkIsTaggedAndVerified } from "../middlewares/experts/postTagged.js";
 const upload = multer({ storage });
 
 const router = express.Router();
@@ -53,6 +54,11 @@ router.put(
 
 router.delete("/:id", checkUserLogin, wrapAsync(deleteSuccessStory));
 
-router.post("/:id/verify", checkExpertLogin, wrapAsync(verifySuccessStory));
+router.put(
+  "/:id/verify",
+  checkExpertLogin,
+  checkIsTaggedAndVerified,
+  wrapAsync(verifySuccessStory)
+);
 
 export default router;

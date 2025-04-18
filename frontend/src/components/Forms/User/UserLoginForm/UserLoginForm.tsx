@@ -131,7 +131,7 @@ const UserLoginForm = () => {
             type="button"
             variant="outlined"
             fullWidth
-            onClick={googleLogin}
+            // onClick={googleLogin}
             startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
             sx={{
               textTransform: "none",

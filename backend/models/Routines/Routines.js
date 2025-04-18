@@ -16,11 +16,7 @@ const RoutineSchema = new Schema(
       type: String,
       default: null,
     },
-    owner: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: "Expert",
-    },
+
     filters: {
       type: [String],
       required: true,
@@ -46,6 +42,23 @@ const RoutineSchema = new Schema(
         },
         message: "At least one routine is required.",
       },
+    },
+    readTime: {
+      type: String,
+      required: true,
+    },
+    likesCount: {
+      type: Number,
+      default: 0,
+    },
+    commentsCount: {
+      type: Number,
+      default: 0,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "Expert",
     },
     // routines: {
     //   type: [

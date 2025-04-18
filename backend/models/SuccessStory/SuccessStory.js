@@ -25,11 +25,6 @@ const SuccessStorySchema = new Schema(
       video: { type: String, default: null },
       document: { type: String, default: null },
     },
-    owner: {
-      type: Schema.Types.ObjectId,
-      required: true,
-      ref: "User",
-    },
     filters: {
       type: [String],
       required: true,
@@ -67,6 +62,23 @@ const SuccessStorySchema = new Schema(
       ],
       default: [],
       required: true,
+    },
+    readTime: {
+      type: String,
+      required: true,
+    },
+    likesCount: {
+      type: Number,
+      default: 0,
+    },
+    commentsCount: {
+      type: Number,
+      default: 0,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
     },
   },
   { timestamps: true }

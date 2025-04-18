@@ -25,8 +25,10 @@ import { ExpertTaggedPosts } from "./pages/Expert/TaggedView/ViewTagged";
 import GuestProtectedRoute from "./pages/SecuredRoutes/GuestProtectedRoute";
 import ProtectedRoute from "./pages/SecuredRoutes/ProtectedRoute";
 import ExpertProtectedRoute from "./pages/SecuredRoutes/ExpertProtectedRoute";
-import { User } from "lucide-react";
 import UserProtectedRoute from "./pages/SecuredRoutes/UserProtectedRoute";
+import { AllGeneralPosts } from "./pages/posts/GeneralPosts";
+import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
+import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
 
 const App = () => {
   const role = useAuth();
@@ -79,7 +81,13 @@ const App = () => {
             <Route path="/routines/:id" element={<RoutinePost />} />
             <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
             <Route path="/ai-query" element={<AISearchPage />} />
-            <Route path="/posts" element={<PostsPage />} />
+            {/* <Route path="/posts" element={<PostsPage />} /> */}
+            <Route path="/gposts" element={<AllGeneralPosts />} />
+            <Route path="/routines" element={<AllRoutinePosts />} />
+            <Route
+              path="/success-stories"
+              element={<AllSuccessStoriesPosts />}
+            />
           </Route>
 
           <Route

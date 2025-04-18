@@ -204,82 +204,149 @@ export function PostsPage() {
             </div>
           </div>
 
-          <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
-            <div className="overflow-x-auto pb-2">
-              <TabsList className="bg-white p-1 space-x-2 w-max">
-                <TabsTrigger
-                  value="all"
-                  className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
-                >
-                  All Posts
-                </TabsTrigger>
-                <TabsTrigger
-                  value="general"
-                  className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
-                >
-                  General
-                </TabsTrigger>
-                <TabsTrigger
-                  value="routine"
-                  className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
-                >
-                  Routines
-                </TabsTrigger>
-                <TabsTrigger
-                  value="success"
-                  className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
-                >
-                  Success Stories
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+  <div className="overflow-x-auto pb-2">
+    <TabsList className="bg-white p-1 space-x-2 w-max">
+      <TabsTrigger
+        value="all"
+        className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+      >
+        All Posts
+      </TabsTrigger>
+      <TabsTrigger
+        value="general"
+        className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+      >
+        General
+      </TabsTrigger>
+      <TabsTrigger
+        value="routine"
+        className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+      >
+        Routines
+      </TabsTrigger>
+      <TabsTrigger
+        value="success"
+        className="px-4 py-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-sm"
+      >
+        Success Stories
+      </TabsTrigger>
+    </TabsList>
+  </div>
 
-            <TabsContent value="all" className="mt-6 space-y-6">
-              {isLoading ? (
-                Array(3).fill(0).map((_, index) => (
-                  <PostCardSkeleton key={index} />
-                ))
-              ) : (
-                filteredPosts.map((post) => {
-                  if (post.type === 'general') {
-                    return (
-                      <GeneralPostCard
-                        key={post.id}
-                        post={post}
-                        liked={likedPosts.has(post.id)}
-                        saved={savedPosts.has(post.id)}
-                        onLike={() => toggleLike(post.id)}
-                        onSave={() => toggleSave(post.id)}
-                      />
-                    );
-                  } else if (post.type === 'routine') {
-                    return (
-                      <RoutinePostCard
-                        key={post.id}
-                        post={post}
-                        liked={likedPosts.has(post.id)}
-                        saved={savedPosts.has(post.id)}
-                        onLike={() => toggleLike(post.id)}
-                        onSave={() => toggleSave(post.id)}
-                      />
-                    );
-                  } else if (post.type === 'success') {
-                    return (
-                      <SuccessStoryCard
-                        key={post.id}
-                        post={post}
-                        liked={likedPosts.has(post.id)}
-                        saved={savedPosts.has(post.id)}
-                        onLike={() => toggleLike(post.id)}
-                        onSave={() => toggleSave(post.id)}
-                      />
-                    );
-                  }
-                  return null;
-                })
-              )}
-            </TabsContent>
-          </Tabs>
+  {/* All Tab Content */}
+  <TabsContent value="all" className="mt-6 space-y-6">
+    {isLoading ? (
+      Array(3).fill(0).map((_, index) => (
+        <PostCardSkeleton key={index} />
+      ))
+    ) : (
+      filteredPosts.map((post) => {
+        if (post.type === 'general') {
+          return (
+            <GeneralPostCard
+              key={post.id}
+              post={post}
+              liked={likedPosts.has(post.id)}
+              saved={savedPosts.has(post.id)}
+              onLike={() => toggleLike(post.id)}
+              onSave={() => toggleSave(post.id)}
+            />
+          );
+        } else if (post.type === 'routine') {
+          return (
+            <RoutinePostCard
+              key={post.id}
+              post={post}
+              liked={likedPosts.has(post.id)}
+              saved={savedPosts.has(post.id)}
+              onLike={() => toggleLike(post.id)}
+              onSave={() => toggleSave(post.id)}
+            />
+          );
+        } else if (post.type === 'success') {
+          return (
+            <SuccessStoryCard
+              key={post.id}
+              post={post}
+              liked={likedPosts.has(post.id)}
+              saved={savedPosts.has(post.id)}
+              onLike={() => toggleLike(post.id)}
+              onSave={() => toggleSave(post.id)}
+            />
+          );
+        }
+        return null;
+      })
+    )}
+  </TabsContent>
+
+  {/* General Tab Content */}
+  <TabsContent value="general" className="mt-6 space-y-6">
+    {isLoading ? (
+      Array(3).fill(0).map((_, index) => (
+        <PostCardSkeleton key={index} />
+      ))
+    ) : (
+      posts
+        .filter(post => post.type === 'general')
+        .map((post) => (
+          <GeneralPostCard
+            key={post.id}
+            post={post}
+            liked={likedPosts.has(post.id)}
+            saved={savedPosts.has(post.id)}
+            onLike={() => toggleLike(post.id)}
+            onSave={() => toggleSave(post.id)}
+          />
+        ))
+    )}
+  </TabsContent>
+
+  {/* Routine Tab Content */}
+  <TabsContent value="routine" className="mt-6 space-y-6">
+    {isLoading ? (
+      Array(3).fill(0).map((_, index) => (
+        <PostCardSkeleton key={index} />
+      ))
+    ) : (
+      posts
+        .filter(post => post.type === 'routine')
+        .map((post) => (
+          <RoutinePostCard
+            key={post.id}
+            post={post}
+            liked={likedPosts.has(post.id)}
+            saved={savedPosts.has(post.id)}
+            onLike={() => toggleLike(post.id)}
+            onSave={() => toggleSave(post.id)}
+          />
+        ))
+    )}
+  </TabsContent>
+
+  {/* Success Stories Tab Content */}
+  <TabsContent value="success" className="mt-6 space-y-6">
+    {isLoading ? (
+      Array(3).fill(0).map((_, index) => (
+        <PostCardSkeleton key={index} />
+      ))
+    ) : (
+      posts
+        .filter(post => post.type === 'success')
+        .map((post) => (
+          <SuccessStoryCard
+            key={post.id}
+            post={post}
+            liked={likedPosts.has(post.id)}
+            saved={savedPosts.has(post.id)}
+            onLike={() => toggleLike(post.id)}
+            onSave={() => toggleSave(post.id)}
+          />
+        ))
+    )}
+  </TabsContent>
+</Tabs>
         </motion.div>
       </main>
       <Footer userType={userType} />

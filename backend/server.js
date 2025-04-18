@@ -137,6 +137,12 @@ app.get("/api/auth/check", (req, res) => {
   });
 });
 
+app.get("/api/user/data", (req, res) => {
+  res.status(200).json({
+    userEmail: req.user.email,
+  });
+});
+
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/auth/user", userEmailPasswordAuth);
 app.use("/api/posts", postRoute);

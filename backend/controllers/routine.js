@@ -1,10 +1,14 @@
 import Expert from "../models/Expert/Expert.js";
 import Routines from "../models/Routines/Routines.js";
+import calculateReadTime from "../utils/calculateReadTime.js";
+import transformRoutine from "../utils/transformRoutinePost.js";
 
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
   const { title, description, routines, filters } = req.body;
   const thumbnail = req.file ? req.file.path : null;
+
+  const readTime = calculateReadTime({ title, description, routines });
 
   const newRoutine = new Routines({
     title,
@@ -12,6 +16,7 @@ export const createRoutine = async (req, res) => {
     routines,
     thumbnail,
     owner: req.user._id,
+    readTime,
     filters: filters, // Optional: Populate dynamically
   });
 
@@ -32,25 +37,32 @@ export const createRoutine = async (req, res) => {
 
 // ------------------------ Get All Routines ------------------------
 export const getAllRoutines = async (req, res) => {
-  const routines = await Routines.find();
+  const routines = await Routines.find().populate("owner");
+
+  const transformedRoutinePosts = routines.map(transformRoutine);
+
   return res.status(200).json({
     message: "Routines fetched successfully",
-    data: routines,
+    success: true,
+    routines: transformedRoutinePosts,
   });
 };
 
 // ------------------------ Get Routine By ID ------------------------
 export const getRoutineById = async (req, res) => {
   const { id } = req.params;
-  const routine = await Routines.findById(id);
+  const routine = await Routines.findById(id).populate("owner");
 
   if (!routine) {
     return res.status(404).json({ message: "Routine not found" });
   }
 
+  const transformedRoutinePost = transformRoutine(routine);
+
   return res.status(200).json({
     message: "Routine fetched successfully",
-    data: routine,
+    success: true,
+    routine: transformedRoutinePost,
   });
 };
 

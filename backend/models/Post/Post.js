@@ -20,6 +20,18 @@ const postSchema = new mongoose.Schema(
       document: { type: String, default: null },
     },
     filters: { type: [String], required: true },
+    readTime: {
+      type: String,
+      required: true,
+    },
+    likesCount: {
+      type: Number,
+      default: 0,
+    },
+    commentsCount: {
+      type: Number,
+      default: 0,
+    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Expert",
