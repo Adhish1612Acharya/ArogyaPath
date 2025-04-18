@@ -11,11 +11,13 @@ const userSchema = new Schema(
     profile: {
       profileImage: { type: String, default: "" },
       fullname: { type: String, default: "" },
-      age: { type: Number,  min: 1, max: 120, default: 0 },
+      age: { type: Number, min: 1, max: 120, default: 1 },
       contact: { type: String, default: 0 },
     },
-    posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
-    bookmarks: [{ type: Schema.Types.ObjectId, ref: "Post" }],
+    successStories: [
+      { type: Schema.Types.ObjectId, ref: "SuccessStory", default: [] },
+    ],
+    bookmarks: [{ type: Schema.Types.ObjectId, ref: "Post", default: [] }],
     completeProfile: {
       type: Boolean,
       default: false,
@@ -25,7 +27,6 @@ const userSchema = new Schema(
       default: "user",
     },
   },
-
   { timestamps: true }
 );
 

@@ -67,6 +67,7 @@ const AddRoutineForm = () => {
   };
 
   const cancelThumbnail = () => {
+    URL.revokeObjectURL(thumbnailPreview!); // Revoke the object URL to free up memory
     form.setValue("thumbnail", null);
     setThumbnailPreview(null);
   };

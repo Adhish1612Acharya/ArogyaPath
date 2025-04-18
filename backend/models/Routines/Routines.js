@@ -25,41 +25,51 @@ const RoutineSchema = new Schema(
       type: [String],
       required: true,
     },
-    // routines: [
-    //   {
-    //     time: {
-    //       type: String,
-    //       required: true,
-    //     },
-    //     content: {
-    //       type: String,
-    //       required: true,
-    //     },
-    //   },
-    // ],
     routines: {
       type: [
         {
           time: {
             type: String,
-            required: [true, "Time is required"],
-            minlength: [1, "Time must be at least 2 characters"],
+            required: true,
+            minlength: 2, // Ensure string length > 1
           },
           content: {
             type: String,
-            required: [true, "Content is required"],
-            minlength: [1, "Content must be at least 2 characters"],
+            required: true,
+            minlength: 2,
           },
         },
       ],
       validate: {
-        validator: function (value) {
-          return Array.isArray(value) && value.length > 0;
+        validator: function (val) {
+          return val.length > 0; // Ensure at least one routine exists
         },
         message: "At least one routine is required.",
       },
-      required: true,
     },
+    // routines: {
+    //   type: [
+    //     {
+    //       time: {
+    //         type: String,
+    //         required: [true, "Time is required"],
+    //         minlength: [1, "Time must be at least 2 characters"],
+    //       },
+    //       content: {
+    //         type: String,
+    //         required: [true, "Content is required"],
+    //         minlength: [1, "Content must be at least 2 characters"],
+    //       },
+    //     },
+    //   ],
+    //   validate: {
+    //     validator: function (value) {
+    //       return Array.isArray(value) && value.length > 0;
+    //     },
+    //     message: "At least one routine is required.",
+    //   },
+    //   required: true,
+    // },
   },
   { timestamps: true }
 );

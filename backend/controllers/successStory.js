@@ -1,25 +1,74 @@
+import Expert from "../models/Expert/Expert.js";
 import SuccessStory from "../models/SuccessStory/SuccessStory.js";
+import User from "../models/User/User.js";
 
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
-  const { title, description,filters,routines, } = req.body;
+  const { title, description, filters, routines, tagged } = req.body;
 
-  if (!title || !description) {
-    return res.status(400).json({ message: "Title and description are required." });
-  }
+  const mediaFiles = req.files; // Cast for type hint
 
-  const newSuccessStory = new SuccessStory({
-    title,
-    description,
-    owner: req.user._id,
-    ownerType: req.user.constructor.modelName,
+  console.log("req.body", req.body);
+  console.log("Media Files:", mediaFiles);
+
+  const media = {
+    images: [],
+    video: null,
+    document: null,
+  };
+
+  // Cloudinary stores file URLs in `path`
+  mediaFiles.forEach((file) => {
+    const mimeType = file.mimetype;
+
+    if (mimeType.startsWith("image/")) {
+      media.images.push(file.path); // Cloudinary gives the URL in `path`
+    } else if (mimeType.startsWith("video/")) {
+      media.video = file.path;
+    } else if (mimeType === "application/pdf") {
+      media.document = file.path;
+    }
   });
 
-  await newSuccessStory.save();
+  console.log("Processed media:", media);
 
-  return res.status(201).json({
-    message: "Success story created successfully",
-    data: newSuccessStory,
+  console.log("NewPost", {
+    title,
+    description,
+    media: media,
+    filters: filters,
+    tagged: tagged,
+    routines: routines,
+    owner: req.user._id,
+  });
+
+  const newSuccessStory = await SuccessStory.create({
+    title,
+    description,
+    media: media,
+    filters: filters,
+    tagged: tagged,
+    routines: routines,
+    owner: req.user._id,
+  });
+
+  if (tagged.length > 0) {
+    await Expert.updateMany(
+      { _id: { $in: tagged } },
+      { $push: { taggedPosts: newSuccessStory._id } }
+    );
+  }
+
+  await User.findByIdAndUpdate(req.user._id, {
+    $push: { taggedPosts: newSuccessStory._id },
+  });
+
+  // Return success message with created post
+  return res.status(200).json({
+    message: "Post created",
+    success: true,
+    postId: newSuccessStory._id,
+    userId: req.user._id,
   });
 };
 
@@ -50,10 +99,14 @@ export const getSingleSuccessStory = async (req, res) => {
 // 4. Update Success Story
 export const updateSuccessStory = async (req, res) => {
   const { id } = req.params;
-  const updatedSuccessStory = await SuccessStory.findByIdAndUpdate(id, req.body, {
-    runValidators: true,
-    new: true,
-  });
+  const updatedSuccessStory = await SuccessStory.findByIdAndUpdate(
+    id,
+    req.body,
+    {
+      runValidators: true,
+      new: true,
+    }
+  );
 
   if (!updatedSuccessStory) {
     return res.status(404).json({ message: "Success story not found" });
@@ -85,7 +138,9 @@ export const verifySuccessStory = async (req, res) => {
   const { id } = req.params;
 
   if (req.user.constructor.modelName !== "Expert") {
-    return res.status(403).json({ message: "Only experts can verify success stories" });
+    return res
+      .status(403)
+      .json({ message: "Only experts can verify success stories" });
   }
 
   const expertId = req.user._id;

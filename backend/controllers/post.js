@@ -20,7 +20,8 @@ const getAllPosts = async (req, res) => {
 
 const createPost = async (req, res) => {
   const { title, description,filters } = req.body;
-  const mediaFiles = req.files; // Cast for type hint
+  
+  const mediaFiles = req.files; 
   console.log("req.body", req.body);
   console.log("Media Files:", mediaFiles);
 

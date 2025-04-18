@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -36,71 +36,44 @@ import {
 } from "@mui/material";
 import { Close as CloseIcon, Add as AddIcon } from "@mui/icons-material";
 import Avatar from "@mui/material/Avatar";
-
-// Define the Doctor type
-interface Doctor {
-  id: string;
-  name: string;
-  avatar: string;
-}
-
-// Define the form schema with zod
-const formSchema = z
-  .object({
-    title: z
-      .string()
-      .min(3, { message: "Title must be at least 3 characters" })
-      .max(100),
-    description: z
-      .string()
-      .min(10, { message: "Description must be at least 10 characters" }),
-    mediaType: z.enum(["images", "video", "document"]).optional(),
-    images: z.array(z.instanceof(File)).optional(),
-    video: z.instanceof(File).optional(),
-    document: z.instanceof(File).optional(),
-    hasRoutines: z.boolean().default(false),
-    routines: z
-      .array(
-        z.object({
-          time: z.string().min(1, { message: "Time is required" }),
-          content: z.string().min(1, { message: "Content is required" }),
-        })
-      )
-      .optional(),
-    doctors: z
-      .array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-          avatar: z.string(),
-        })
-      )
-      .max(5, { message: "You can select up to 5 doctors" }),
-  })
-  .refine(
-    (data) => {
-      if (data.hasRoutines) {
-        return Array.isArray(data.routines) && data.routines.length > 0;
-      }
-      return true;
-    },
-    {
-      message:
-        "At least one routine is required when 'Has Routines' is enabled.",
-      path: ["routines"],
-    }
-  );
+import formSchema from "./AddSuccessStoryFormSchema";
+import { Doctor } from "./AddSuccessStoryFormSchema.types";
+import useApi from "@/hooks/useApi/useApi";
+import usePost from "@/hooks/usePost/usePost";
+import { useNavigate } from "react-router-dom";
 
 type FormValues = z.infer<typeof formSchema>;
 
+export interface ExpertProfile {
+  expertType: "ayurvedic" | "naturopathy" | string; // add other types if needed
+  profileImage: string;
+}
+
+export interface Expert {
+  _id: string;
+  username: string;
+  profile: ExpertProfile;
+}
+
 export default function AddSuccessStoryForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
-  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
-  const [documentPreviewUrl, setDocumentPreviewUrl] = useState<string | null>(
-    null
-  );
-  const [documentName, setDocumentName] = useState<string | null>(null);
+  const { get } = useApi();
+  const { submitSuccessStory } = usePost();
+  const navigate = useNavigate();
+
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const videoInputRef = useRef<HTMLInputElement | null>(null);
+  const docInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [mediaPreview, setMediaPreview] = useState<{
+    images: string[];
+    video: string | null;
+    document: string | null;
+  }>({
+    images: [],
+    video: null,
+    document: null,
+  });
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -112,13 +85,14 @@ export default function AddSuccessStoryForm() {
     defaultValues: {
       title: "",
       description: "",
-      mediaType: undefined,
-      images: [],
-      video: undefined,
-      document: undefined,
+      media: {
+        images: [],
+        video: null,
+        document: null,
+      },
       hasRoutines: false,
       routines: undefined,
-      doctors: [],
+      tagged: [],
     },
   });
 
@@ -133,154 +107,157 @@ export default function AddSuccessStoryForm() {
   });
 
   // Handle form submission
-  const onSubmit = async (data: FormValues) => {
-    setIsSubmitting(true);
-    console.log("Form data:", data);
+  const onSubmit = async (formData: FormValues) => {
+    try {
+      const newPost = {
+        title: formData.title,
+        description: formData.description,
+        media: {
+          images: formData.media?.images,
+          video: formData.media?.video,
+          document: formData.media?.document,
+        },
+        routines: formData.hasRoutines ? formData.routines ?? [] : [],
+        filters: ["ayurveda", "naturopathy"], // Assume this comes from some other part of UI
+        tagged: formData.tagged.map((taggedDoctor) => taggedDoctor.id),
+      };
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsSubmitting(false);
-    alert("Success story submitted successfully!");
-    form.reset();
-    setImagePreviewUrls([]);
-    setVideoPreviewUrl(null);
-    setDocumentPreviewUrl(null);
-    setDocumentName(null);
+      const response = await submitSuccessStory(newPost);
+      if (response?.success) {
+        // form.reset();
+        // navigate(`/expert/posts/${response?.postId}`);
+      }
+    } catch (error: any) {
+      console.error("Post failed:", error.message);
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
+    }
   };
 
-  // Handle image upload
   const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    // Reset other media types
-    form.setValue("video", undefined);
-    form.setValue("document", undefined);
-    form.setValue("mediaType", "images");
-    setVideoPreviewUrl(null);
-    setDocumentPreviewUrl(null);
-    setDocumentName(null);
-
-    // Set images and create preview URLs
-    const fileArray = Array.from(files);
-    form.setValue("images", fileArray);
-
-    // Create preview URLs
-    const previewUrls = fileArray.map((file) => URL.createObjectURL(file));
-    setImagePreviewUrls(previewUrls);
+    const newFiles = Array.from(e.target.files || []);
+    const currentImages = form.getValues("media.images") || [];
+    if (currentImages.length + newFiles.length > 3) {
+      alert("You can only upload up to 3 images in total.");
+      return;
+    }
+    const updatedImages = [...currentImages, ...newFiles];
+    form.setValue("media.images", updatedImages);
+    form.setValue("media.document", null);
+    form.setValue("media.video", null);
+    setMediaPreview((prev) => ({
+      ...prev,
+      images: [
+        ...prev.images,
+        ...newFiles.map((file) => URL.createObjectURL(file)),
+      ],
+    }));
+    imageInputRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
   };
 
-  // Handle video upload
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    // Reset other media types
-    form.setValue("images", []);
-    form.setValue("document", undefined);
-    form.setValue("mediaType", "video");
-    setImagePreviewUrls([]);
-    setDocumentPreviewUrl(null);
-    setDocumentName(null);
-
-    // Set video and create preview URL
-    const file = files[0];
-    form.setValue("video", file);
-    setVideoPreviewUrl(URL.createObjectURL(file));
+    const file = e.target.files?.[0];
+    if (file) {
+      form.setValue("media.images", []);
+      form.setValue("media.document", null);
+      form.setValue("media.video", file);
+      setMediaPreview({
+        images: [],
+        document: null,
+        video: URL.createObjectURL(file),
+      });
+    }
+    videoInputRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
   };
 
-  // Handle document upload
   const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+    const file = e.target.files?.[0];
+    if (file) {
+      form.setValue("media.images", []);
+      form.setValue("media.video", null);
+      form.setValue("media.document", file);
+      setMediaPreview({
+        images: [],
+        video: null,
+        document: URL.createObjectURL(file),
+      });
+    }
+    docInputRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
+  };
 
-    // Reset other media types
-    form.setValue("images", []);
-    form.setValue("video", undefined);
-    form.setValue("mediaType", "document");
-    setImagePreviewUrls([]);
-    setVideoPreviewUrl(null);
+  const handleImagePreviewCancel = (i: number) => {
+    URL.revokeObjectURL(mediaPreview.images[i]);
+    const newImages =
+      mediaPreview.images?.filter((_, index) => index !== i) || [];
+    setMediaPreview((prev) => ({ ...prev, images: newImages }));
+    const currentImages = form.getValues("media.images") || [];
+    const newFiles = currentImages.filter((_, index) => index !== i);
+    form.setValue("media.images", newFiles);
+  };
 
-    // Set document and create preview URL
-    const file = files[0];
-    form.setValue("document", file);
-    setDocumentName(file.name);
-    setDocumentPreviewUrl(URL.createObjectURL(file));
+  const handleVideoPreviewCancel = () => {
+    URL.revokeObjectURL(mediaPreview.video || "");
+    setMediaPreview((prev) => ({ ...prev, video: null }));
+    form.setValue("media.video", null);
+  };
+
+  const handleDocPreviewCancel = () => {
+    URL.revokeObjectURL(mediaPreview.document || "");
+    setMediaPreview((prev) => ({ ...prev, document: null }));
+    form.setValue("media.document", null);
   };
 
   // Fake doctor search
   const searchDoctors = async (query: string) => {
     setIsSearching(true);
+    console.log("Searching for doctors:", query);
 
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Generate fake results
-    const fakeResults: Doctor[] = [
+    const response = await get(
+      `${import.meta.env.VITE_SERVER_URL}/api/experts/search/doctors`,
       {
-        id: "1",
-        name: "Dr. John Smith",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        id: "2",
-        name: "Dr. Sarah Johnson",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        id: "3",
-        name: "Dr. Michael Brown",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        id: "4",
-        name: "Dr. Emily Davis",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        id: "5",
-        name: "Dr. Robert Wilson",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-      {
-        id: "6",
-        name: "Dr. Jennifer Lee",
-        avatar: "/placeholder.svg?height=40&width=40",
-      },
-    ].filter((doctor) =>
-      doctor.name.toLowerCase().includes(query.toLowerCase())
+        params: { q: query },
+      }
     );
 
-    setSearchResults(fakeResults);
+    console.log("Doctor search response:", response);
+
+    const doctors = response.doctors.map((doctor: Expert) => ({
+      id: doctor._id,
+      name: doctor.username,
+      avatar:
+        doctor.profile.profileImage || "/placeholder.svg?height=40&width=40",
+    }));
+
+    setSearchResults(doctors);
     setIsSearching(false);
   };
 
   // Handle doctor selection
   const selectDoctor = (doctor: Doctor) => {
-    const currentDoctors = form.getValues("doctors") || [];
+    const currentDoctors = form.getValues("tagged") || [];
 
     // Check if doctor is already selected
     if (currentDoctors.some((d) => d.id === doctor.id)) return;
 
     // Check if we've reached the maximum number of doctors
     if (currentDoctors.length >= 5) {
-      form.setError("doctors", {
+      form.setError("tagged", {
         type: "manual",
         message: "You can select up to 5 doctors",
       });
       return;
     }
 
-    form.setValue("doctors", [...currentDoctors, doctor]);
-    form.clearErrors("doctors");
+    form.setValue("tagged", [...currentDoctors, doctor]);
+    form.clearErrors("tagged");
   };
 
   // Handle doctor removal
   const removeDoctor = (doctorId: string) => {
-    const currentDoctors = form.getValues("doctors") || [];
+    const currentDoctors = form.getValues("tagged") || [];
     form.setValue(
-      "doctors",
+      "tagged",
       currentDoctors.filter((d) => d.id !== doctorId)
     );
   };
@@ -363,6 +340,7 @@ export default function AddSuccessStoryForm() {
                       <input
                         id="images-upload"
                         type="file"
+                        ref={imageInputRef}
                         multiple
                         accept="image/*"
                         className="hidden"
@@ -388,6 +366,7 @@ export default function AddSuccessStoryForm() {
                       </label>
                       <input
                         id="video-upload"
+                        ref={videoInputRef}
                         type="file"
                         accept="video/*"
                         className="hidden"
@@ -413,6 +392,7 @@ export default function AddSuccessStoryForm() {
                       </label>
                       <input
                         id="document-upload"
+                        ref={docInputRef}
                         type="file"
                         accept=".pdf"
                         className="hidden"
@@ -422,12 +402,11 @@ export default function AddSuccessStoryForm() {
                   </div>
                 </div>
 
-                {/* Media Previews */}
-                {imagePreviewUrls.length > 0 && (
+                {mediaPreview.images?.length > 0 && (
                   <div className="mt-4">
                     <h4 className="text-sm font-medium mb-2">Image Previews</h4>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                      {imagePreviewUrls.map((url, index) => (
+                      {mediaPreview.images?.map((url, index) => (
                         <div
                           key={index}
                           className="relative rounded-md overflow-hidden h-24"
@@ -439,22 +418,18 @@ export default function AddSuccessStoryForm() {
                           />
                           <button
                             type="button"
+                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
+                            onClick={() => {
+                              handleImagePreviewCancel(index);
+                            }}
+                          >
+                            <X size={16} />
+                          </button>
+                          <button
+                            type="button"
                             className="absolute top-1 right-1 bg-black/70 rounded-full p-1"
                             onClick={() => {
-                              const newImages = [
-                                ...(form.getValues("images") || []),
-                              ];
-                              newImages.splice(index, 1);
-                              form.setValue("images", newImages);
-
-                              const newUrls = [...imagePreviewUrls];
-                              URL.revokeObjectURL(newUrls[index]);
-                              newUrls.splice(index, 1);
-                              setImagePreviewUrls(newUrls);
-
-                              if (newUrls.length === 0) {
-                                form.setValue("mediaType", undefined);
-                              }
+                              handleImagePreviewCancel(index);
                             }}
                           >
                             <X className="h-4 w-4 text-white" />
@@ -465,24 +440,19 @@ export default function AddSuccessStoryForm() {
                   </div>
                 )}
 
-                {videoPreviewUrl && (
+                {mediaPreview.video && (
                   <div className="mt-4">
                     <h4 className="text-sm font-medium mb-2">Video Preview</h4>
                     <div className="relative rounded-md overflow-hidden">
                       <video
-                        src={videoPreviewUrl}
+                        src={mediaPreview.video}
                         controls
                         className="w-full max-h-[300px]"
                       />
                       <button
                         type="button"
                         className="absolute top-2 right-2 bg-black/70 rounded-full p-1"
-                        onClick={() => {
-                          form.setValue("video", undefined);
-                          form.setValue("mediaType", undefined);
-                          URL.revokeObjectURL(videoPreviewUrl);
-                          setVideoPreviewUrl(null);
-                        }}
+                        onClick={handleVideoPreviewCancel}
                       >
                         <X className="h-4 w-4 text-white" />
                       </button>
@@ -490,7 +460,7 @@ export default function AddSuccessStoryForm() {
                   </div>
                 )}
 
-                {documentPreviewUrl && documentName && (
+                {mediaPreview.document && (
                   <div className="mt-4">
                     <h4 className="text-sm font-medium mb-2">
                       Document Preview
@@ -498,18 +468,12 @@ export default function AddSuccessStoryForm() {
                     <div className="flex items-center p-3 border rounded-md">
                       <FileText className="h-6 w-6 mr-2 text-muted-foreground" />
                       <span className="text-sm truncate flex-1">
-                        {documentName}
+                        {form.getValues("media.document")?.name || "Document"}
                       </span>
                       <button
                         type="button"
                         className="ml-2 text-muted-foreground hover:text-foreground"
-                        onClick={() => {
-                          form.setValue("document", undefined);
-                          form.setValue("mediaType", undefined);
-                          URL.revokeObjectURL(documentPreviewUrl);
-                          setDocumentPreviewUrl(null);
-                          setDocumentName(null);
-                        }}
+                        onClick={handleDocPreviewCancel}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -542,25 +506,25 @@ export default function AddSuccessStoryForm() {
                               if (!e.target.checked) {
                                 form.setValue("routines", undefined);
                               }
-                              <Checkbox
-                                checked={field.value}
-                                onChange={(e) => {
-                                  const checked = e.target.checked;
-                                  field.onChange(checked);
+                              // <Checkbox
+                              //   checked={field.value}
+                              //   onChange={(e) => {
+                              //     const checked = e.target.checked;
+                              //     field.onChange(checked);
 
-                                  form.setValue(
-                                    "routines",
-                                    checked
-                                      ? [{ time: "", content: "" }]
-                                      : undefined,
-                                    {
-                                      shouldDirty: true,
-                                      shouldTouch: true,
-                                      shouldValidate: true,
-                                    }
-                                  );
-                                }}
-                              />;
+                              //     form.setValue(
+                              //       "routines",
+                              //       checked
+                              //         ? [{ time: "", content: "" }]
+                              //         : undefined,
+                              //       {
+                              //         shouldDirty: true,
+                              //         shouldTouch: true,
+                              //         shouldValidate: true,
+                              //       }
+                              //     );
+                              //   }}
+                              // />;
                             }}
                           />
                         </FormControl>
@@ -694,10 +658,10 @@ export default function AddSuccessStoryForm() {
                         </Button>
                       </div>
 
-                      {form.formState.errors.doctors && (
+                      {form.formState.errors.tagged && (
                         <Alert variant="destructive">
                           <AlertDescription>
-                            {form.formState.errors.doctors.message}
+                            {form.formState.errors.tagged.message}
                           </AlertDescription>
                         </Alert>
                       )}
@@ -728,11 +692,11 @@ export default function AddSuccessStoryForm() {
                                   type="button"
                                   variant="outlined"
                                   disabled={form
-                                    .getValues("doctors")
+                                    .getValues("tagged")
                                     ?.some((d) => d.id === doctor.id)}
                                 >
                                   {form
-                                    .getValues("doctors")
+                                    .getValues("tagged")
                                     ?.some((d) => d.id === doctor.id)
                                     ? "Added"
                                     : "Add"}
@@ -754,9 +718,9 @@ export default function AddSuccessStoryForm() {
                   </DialogContent>
                 </Dialog>
 
-                {form.watch("doctors")?.length > 0 && (
+                {form.watch("tagged")?.length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {form.watch("doctors").map((doctor) => (
+                    {form.watch("tagged").map((doctor) => (
                       <Chip
                         key={doctor.id}
                         avatar={
@@ -781,15 +745,15 @@ export default function AddSuccessStoryForm() {
               <Button
                 type="submit"
                 variant="contained"
-                disabled={isSubmitting}
+                disabled={form.formState.isSubmitting}
                 fullWidth
                 startIcon={
-                  isSubmitting ? (
+                  form.formState.isSubmitting ? (
                     <CircularProgress size={16} color="inherit" />
                   ) : null
                 }
               >
-                {isSubmitting ? (
+                {form.formState.isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Submitting...

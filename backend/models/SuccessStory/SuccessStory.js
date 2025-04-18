@@ -11,9 +11,19 @@ const SuccessStorySchema = new Schema(
       required: true,
     },
     media: {
-      images: [{ path: { type: String }, filename: { type: String } }],
-      videos: [{ path: { type: String }, filename: { type: String } }],
-      documents: [{ path: { type: String }, filename: { type: String } }],
+      images: {
+        type: [String],
+        validate: [
+          {
+            validator: function (val) {
+              return val.length <= 3;
+            },
+            message: "You can upload a maximum of 3 images.",
+          },
+        ],
+      },
+      video: { type: String, default: null },
+      document: { type: String, default: null },
     },
     owner: {
       type: Schema.Types.ObjectId,
@@ -32,7 +42,7 @@ const SuccessStorySchema = new Schema(
         default: [],
       },
     ],
-    verification: [
+    verified: [
       {
         type: Schema.Types.ObjectId,
         ref: "Expert",

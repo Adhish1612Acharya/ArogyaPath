@@ -7,25 +7,26 @@ const postSchema = new mongoose.Schema(
     media: {
       images: {
         type: [String],
-        validate: {
-          validator: function (val) {
-            return val.length <= 3;
+        validate: [
+          {
+            validator: function (val) {
+              return val.length <= 3;
+            },
+            message: "You can upload a maximum of 3 images.",
           },
-          message: 'You can upload a maximum of 3 images.'
-        }
+        ],
       },
-      video: {type:String ,default:null},
-      document: {type:String ,default:null},
+      video: { type: String, default: null },
+      document: { type: String, default: null },
     },
     filters: { type: [String], required: true },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
-      ref:"Expert",
+      ref: "Expert",
       required: true,
     },
   },
   { timestamps: true }
-
 );
 const Post = mongoose.model("Post", postSchema);
 export default Post;

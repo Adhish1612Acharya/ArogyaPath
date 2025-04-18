@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const  HomePage=()=> {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-screen">
       <Navbar userType="patient" />
 
       <main>

@@ -15,9 +15,11 @@ import Button from "@mui/material/Button";
 import { Loader2, LogIn } from "lucide-react";
 import useAuth from "@/hooks/user/useAuth/useAuth";
 import GoogleIcon from "@mui/icons-material/Google";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const UserLoginForm = () => {
-  const { phonePaswordLogin, googleLogin } = useAuth();
+  const { phonePaswordLogin } = useAuth();
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),
@@ -28,7 +30,18 @@ const UserLoginForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
-    await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
+    const response = await axios.post(
+      "http://localhost:3000/api/auth/user/login",
+      {
+        username: data.phoneNumber,
+        password: data.password,
+      },
+      { withCredentials: true }
+    );
+    if (response.status === 200) {
+      toast.success("Logged in successfully");
+    }
+    // await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
   };
 
   return (
@@ -127,8 +140,8 @@ const UserLoginForm = () => {
               borderColor: "#E5E7EB",
               "&:hover": {
                 borderColor: "#D1D5DB",
-                backgroundColor: "#F9FAFB"
-              }
+                backgroundColor: "#F9FAFB",
+              },
             }}
           >
             Continue with Google

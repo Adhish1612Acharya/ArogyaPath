@@ -11,10 +11,18 @@ const ExpertSchema = new Schema({
     qualification: { type: String, default: "" },
     expertType: { type: String, default: "ayurvedic" },
     contact: { type: Number, default: 0 },
+    profileImage: { type: String, default: "" },
   },
   posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],
   routinePosts: [
     { type: mongoose.Schema.Types.ObjectId, ref: "Routine", default: [] },
+  ],
+  taggedPosts: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "SuccessStory",
+      default: [],
+    },
   ],
   verifiedPosts: [
     { type: mongoose.Schema.Types.ObjectId, ref: "SuccessStory", default: [] },
