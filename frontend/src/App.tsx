@@ -29,6 +29,7 @@ import UserProtectedRoute from "./pages/SecuredRoutes/UserProtectedRoute";
 import { AllGeneralPosts } from "./pages/posts/GeneralPosts";
 import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
 import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
+import { VerifiedByVaidya } from "./pages/Expert/VerifiedSuccessStory/VerifiedSuccessStories";
 
 const App = () => {
   const role = useAuth();
@@ -71,6 +72,10 @@ const App = () => {
           </Route>
 
           <Route element={<ExpertProtectedRoute />}>
+            <Route
+              path="/verified/success-stories"
+              element={<VerifiedByVaidya />}
+            />
             <Route path="/expert/posts/create" element={<CreatePost />} />
             <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
             {/* <Route path="/posts/create" element={<CreatePost />} /> */}
