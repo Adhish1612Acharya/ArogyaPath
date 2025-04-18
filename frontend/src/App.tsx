@@ -24,6 +24,7 @@ import { ExpertTaggedPosts } from "./pages/Expert/TaggedView/ViewTagged";
 import { AllGeneralPosts } from "./pages/posts/GeneralPosts";
 import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
 import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
+import { VerifiedByVaidya } from "./pages/Expert/VerifiedSuccessStory/VerifiedSuccessStories";
 
 const App = () => {
   const role = useAuth();
@@ -69,6 +70,7 @@ const App = () => {
           <Route path="/gposts" element={<AllGeneralPosts />} />
           <Route path="/routines" element={<AllRoutinePosts />} />
           <Route path="/success-stories" element={<AllSuccessStoriesPosts />} />
+          <Route path="/verified/success-stories" element={<VerifiedByVaidya />} />
         </Routes>
       </div>
       {/* {nav && <Footer />} */}
