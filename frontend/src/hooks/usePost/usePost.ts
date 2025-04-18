@@ -2,19 +2,25 @@ import { useState } from "react";
 import {
   PostFormSchema,
   PostFormWithRoutineSchema,
+  PostFormWithSuccessStorySchema,
   PostSubmissionData,
 } from "./usePost.types";
 import { toast } from "react-toastify";
 import useApi from "../useApi/useApi";
 import useContentVerification from "../useContentVerification/useContentVerification";
+import convertToBase64 from "@/utils/convertToBase64";
+import axios from "axios";
 
 const usePost = () => {
-  const { post } = useApi<{
-    success: boolean;
-    message: string;
-    userId: string;
-    postId: string;
-  }>();
+  const { post, put } = useApi<
+    | {
+        success: boolean;
+        message: string;
+        userId: string;
+        postId: string;
+      }
+    | {}
+  >();
   const {
     verifyImageContent,
     verifyPdfContent,
@@ -39,6 +45,8 @@ const usePost = () => {
           document: formData.media.document,
         },
       };
+
+      console.log("Post Data : ", postData);
 
       const content = `Title: ${postData.title}\nDescription: ${postData.description}`;
       const isTextApproved = await verifyTextContent(content);
@@ -75,10 +83,34 @@ const usePost = () => {
         }
       }
 
+      const allFiles: any = [
+        ...(formData.media.images || []),
+        formData.media.video,
+        formData.media.document,
+      ].filter(Boolean); // Remove any null/undefined
+
+      const mediaBase64: string[] = await Promise.all(
+        allFiles.map((file: File) => convertToBase64(file))
+      );
+
+      const aiPostData = {
+        title: formData.title,
+        description: formData.description,
+        media: mediaBase64,
+        routines: [],
+      };
+
+      const aiData = await axios.post(
+        "https://gemini-filtering-aakrithi.onrender.com/generate_filters",
+        aiPostData
+      );
+
+      postData.filters = aiData.data;
+
       const requestFormData = new FormData();
       requestFormData.append("title", postData.title);
       requestFormData.append("description", postData.description);
-      requestFormData.append("filters", JSON.stringify(["all", "medicine"]));
+      requestFormData.append("filters", JSON.stringify(postData.filters));
 
       if (formData.media.images.length > 0) {
         formData.media.images.forEach((image) => {
@@ -151,15 +183,42 @@ const usePost = () => {
         }
       }
 
+      const allFiles: any = [formData.thumbnail].filter(Boolean); // Remove any null/undefined
+
+      const mediaBase64: string[] = await Promise.all(
+        allFiles.map((file: File) => convertToBase64(file))
+      );
+
+      const aiPostData = {
+        title: formData.title,
+        description: formData.description,
+        media: mediaBase64,
+        routines: formData.routines,
+      };
+
+      const aiData = await axios.post(
+        "https://gemini-filtering-aakrithi.onrender.com/generate_filters",
+        aiPostData
+      );
+
+      postData.filters = aiData.data;
+
       const requestFormData = new FormData();
       requestFormData.append("title", postData.title);
       requestFormData.append("description", postData.description);
-      requestFormData.append("filters", JSON.stringify(["all", "medicine"]));
-      requestFormData.append("media", postData.thumbnail || "");
+      requestFormData.append("filters", JSON.stringify(postData.filters));
+      if (postData.thumbnail instanceof File) {
+        console.log("Post Thunm nail : ", postData.thumbnail);
+        requestFormData.append("thumbnail", postData.thumbnail);
+      }
       requestFormData.append("routines", JSON.stringify(postData.routines));
 
+      for (let [key, value] of requestFormData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
       const response = await post(
-        `${import.meta.env.VITE_SERVER_URL}/api/posts`,
+        `${import.meta.env.VITE_SERVER_URL}/api/routines`,
         requestFormData,
         {
           headers: {
@@ -192,10 +251,179 @@ const usePost = () => {
     }
   };
 
+  const submitSuccessStory = async (
+    formData: PostFormWithSuccessStorySchema
+  ) => {
+    setIsSubmitting(true);
+
+    try {
+      console.log("Validated Post Data:", formData);
+
+      const postData: PostFormWithSuccessStorySchema = {
+        title: formData.title,
+        description: formData.description,
+        filters: ["Medicinal", "Health"],
+        media: {
+          images: formData.media.images,
+          video: formData.media.video,
+          document: formData.media.document,
+        },
+        tagged: formData.tagged,
+        routines: formData.routines,
+      };
+
+      const content = `Title: ${postData.title}\nDescription: ${postData.description}`;
+      const isTextApproved = await verifyTextContent(content);
+      if (!isTextApproved) {
+        toast.error("Post content does not meet platform guidelines");
+        return;
+      }
+
+      if (formData.media.images.length > 0) {
+        for (const image of formData.media.images) {
+          const isImageApproved = await verifyImageContent(image);
+          if (!isImageApproved) {
+            toast.error("One or more images do not meet platform guidelines");
+            return;
+          }
+        }
+      }
+
+      if (formData.media.video) {
+        const isVideoApproved = await verifyVideoContent(formData.media.video);
+        if (!isVideoApproved) {
+          toast.error("Video content does not meet platform guidelines");
+          return;
+        }
+      }
+
+      if (formData.media.document) {
+        const isDocumentApproved = await verifyPdfContent(
+          formData.media.document
+        );
+        if (!isDocumentApproved) {
+          toast.error("Document content does not meet platform guidelines");
+          return;
+        }
+      }
+
+      const allFiles: any = [
+        ...(formData.media.images || []),
+        formData.media.video,
+        formData.media.document,
+      ].filter(Boolean); // Remove any null/undefined
+
+      const mediaBase64: string[] = await Promise.all(
+        allFiles.map((file: File) => convertToBase64(file))
+      );
+
+      const aiPostData = {
+        title: formData.title,
+        description: formData.description,
+        media: mediaBase64,
+        routines: formData.routines,
+      };
+
+      const aiData = await axios.post(
+        "https://gemini-filtering-aakrithi.onrender.com/generate_filters",
+        aiPostData
+      );
+
+      postData.filters = aiData.data;
+
+      console.log("Posts : ", postData);
+
+      const requestFormData = new FormData();
+      requestFormData.append("title", postData.title);
+      requestFormData.append("description", postData.description);
+      requestFormData.append("filters", JSON.stringify(postData.filters));
+      requestFormData.append("tagged", JSON.stringify(postData.tagged));
+      requestFormData.append("routines", JSON.stringify(postData.routines));
+
+      if (formData.media.images.length > 0) {
+        formData.media.images.forEach((image) => {
+          requestFormData.append("media", image);
+        });
+      } else if (formData.media.video) {
+        requestFormData.append("media", formData.media.video);
+      } else if (formData.media.document) {
+        requestFormData.append("media", formData.media.document);
+      }
+
+      const response = await post(
+        `${import.meta.env.VITE_SERVER_URL}/api/success-stories`,
+        requestFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      toast.success("Success story shared successfully!");
+      return response;
+    } catch (error: any) {
+      if (error.isAxiosError) {
+        if (error.status === 401) {
+          toast.error("You are not authenticated. Please log in.");
+        } else if (error.status === 403) {
+          toast.error("You are not authorized to perform this action.");
+        } else if (error.status === 413) {
+          toast.error("File size too large");
+        } else if (error.status === 429) {
+          toast.error("Too many requests - please slow down");
+        } else {
+          toast.error(error.message);
+        }
+      } else {
+        toast.error(error.message || "Submission failed");
+      }
+      throw error;
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const verifyPost = async (id: string) => {
+    try {
+      const response: any = await put(
+        `${import.meta.env.VITE_SERVER_URL}/api/success-stories/${id}/verify`,
+        {}
+      );
+
+      if (response.success) {
+        toast.success("Post Verified");
+        return response;
+      } else {
+        toast.error(response.message || "Something went wrong while verifying");
+        return response;
+      }
+    } catch (error: any) {
+      if (error.isAxiosError) {
+        if (error.response?.status === 401) {
+          toast.error("You are not authenticated. Please log in.");
+        } else if (error.response?.status === 403) {
+          toast.error("You are not authorized to verify this post.");
+        } else if (error.response?.status === 404) {
+          toast.error("Post not found");
+        } else if (error.response?.status === 429) {
+          toast.error("Too many requests - please slow down");
+        } else {
+          toast.error(error.response?.data?.message || error.message);
+        }
+      } else {
+        toast.error(error.message || "Something went wrong");
+      }
+
+      throw error;
+    }
+  };
+
   return {
     submitPost,
     submitRoutinePost,
-    isSubmitting,
+    submitSuccessStory,
+    verifyPost,
   };
 };
 

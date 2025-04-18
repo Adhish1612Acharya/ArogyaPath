@@ -15,6 +15,14 @@ export const parseFormdata = (req, res, next) => {
       return res.status(400).json({ error: "Invalid routines format" });
     }
   }
+
+  if (req.body.tagged && typeof req.body.tagged === "string") {
+    try {
+      req.body.tagged = JSON.parse(req.body.tagged);
+    } catch (err) {
+      return res.status(400).json({ error: "Invalid routines format" });
+    }
+  }
   // Parse other form data if needed
   if (req.body.data) {
     req.body = JSON.parse(req.body);

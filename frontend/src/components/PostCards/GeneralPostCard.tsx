@@ -1,45 +1,37 @@
-import { Heart, MessageCircle, Share2, Bookmark, BookOpen, Clock,CheckCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card';
-import { motion } from 'framer-motion';
-
-interface Author {
-  name: string;
-  avatar: string;
-  credentials: string;
-  experience: string;
-}
-
-interface Verification {
-  verified: boolean;
-  verifiedBy?: {
-    name: string;
-    avatar: string;
-    credentials: string;
-  }[];
-}
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  Bookmark,
+  BookOpen,
+  Clock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { motion } from "framer-motion";
+import { formatDistanceToNow } from "date-fns";
+import { GeneralPostsType } from "@/pages/posts/GeneralPosts";
 
 interface GeneralPostCardProps {
-  post: {
-    id: string;
-    author: Author;
-    title: string;
-    content: string;
-    image?: string;
-    likes: number;
-    comments: number;
-    readTime: string;
-    tags: string[];
-    verification?: Verification;
-  };
+  post: GeneralPostsType;
   liked: boolean;
   saved: boolean;
   onLike: () => void;
   onSave: () => void;
 }
 
-export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralPostCardProps) {
+export function GeneralPostCard({
+  post,
+  liked,
+  saved,
+  onLike,
+  onSave,
+}: GeneralPostCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -64,8 +56,12 @@ export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralP
                 </Avatar>
                 <div className="space-y-1">
                   <h4 className="text-sm font-semibold">{post.author.name}</h4>
-                  <p className="text-xs text-gray-600">{post.author.credentials}</p>
-                  <p className="text-xs text-gray-600">{post.author.experience}</p>
+                  {/* <p className="text-xs text-gray-600">
+                    {post.author.credentials}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {post.author.experience}
+                  </p> */}
                 </div>
               </div>
             </HoverCardContent>
@@ -76,14 +72,16 @@ export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralP
             </h3>
             <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500">
               <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                2 hours ago
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />{" "}
+                {formatDistanceToNow(new Date(post.createdAt || ""), {
+                  addSuffix: true,
+                })}
               </span>
               <span className="text-gray-300">•</span>
               <span className="flex items-center gap-1">
-  <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-  {post.readTime}
-</span>
+                <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
+                {post.readTime}
+              </span>
             </div>
           </div>
         </div>
@@ -91,26 +89,32 @@ export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralP
         <h3 className="text-xl sm:text-2xl font-semibold my-3 hover:text-green-600 transition-colors">
           {post.title}
         </h3>
-        
-        <p className="text-gray-600 mb-4 text-sm sm:text-base">{post.content}</p>
-        
-        {post.image && (
+
+        <p className="text-gray-600 mb-4 text-sm sm:text-base">
+          {post.content}
+        </p>
+
+        {post.images && (
           <img
-            src={post.image}
+            src={post.images[0]}
             alt={post.title}
             className="rounded-lg w-full h-48 sm:h-64 object-cover hover:opacity-90 transition-opacity mb-4"
           />
         )}
 
-        {post.verification && (
+        {/* {post.verification && (
           <div className="mb-4">
             {post.verification.verified ? (
               <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-1.5 rounded-full w-max">
                 <CheckCircle className="h-4 w-4" />
-                <span>Verified by {post.verification.verifiedBy?.length} doctors</span>
+                <span>
+                  Verified by {post.verification.verifiedBy?.length} doctors
+                </span>
                 <HoverCard>
                   <HoverCardTrigger asChild>
-                    <button className="text-xs text-green-700 underline">View</button>
+                    <button className="text-xs text-green-700 underline">
+                      View
+                    </button>
                   </HoverCardTrigger>
                   <HoverCardContent className="w-64 shadow-lg">
                     <div className="space-y-2">
@@ -123,7 +127,9 @@ export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralP
                           </Avatar>
                           <div>
                             <p className="text-xs font-medium">{doctor.name}</p>
-                            <p className="text-xs text-gray-500">{doctor.credentials}</p>
+                            <p className="text-xs text-gray-500">
+                              {doctor.credentials}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -137,7 +143,7 @@ export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralP
               </div>
             )}
           </div>
-        )}
+        )} */}
 
         <div className="flex flex-wrap gap-2 mb-4">
           {post.tags.map((tag) => (
@@ -158,10 +164,17 @@ export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralP
               variant="ghost"
               size="sm"
               onClick={onLike}
-              className={`h-8 px-2 hover:text-red-500 ${liked ? 'text-red-500' : ''}`}
+              className={`h-8 px-2 hover:text-red-500 ${
+                liked ? "text-red-500" : ""
+              }`}
             >
-              <Heart className="h-4 w-4 mr-1.5" fill={liked ? 'currentColor' : 'none'} />
-              <span className="text-xs sm:text-sm">{post.likes + (liked ? 1 : 0)}</span>
+              <Heart
+                className="h-4 w-4 mr-1.5"
+                fill={liked ? "currentColor" : "none"}
+              />
+              <span className="text-xs sm:text-sm">
+                {post.likes + (liked ? 1 : 0)}
+              </span>
             </Button>
             <Button
               variant="ghost"
@@ -184,10 +197,14 @@ export function GeneralPostCard({ post, liked, saved, onLike, onSave }: GeneralP
             variant="ghost"
             size="sm"
             onClick={onSave}
-            className={`h-8 w-8 p-0 hover:text-yellow-500 ${saved ? 'text-yellow-500' : ''}`}
+            className={`h-8 w-8 p-0 hover:text-yellow-500 ${
+              saved ? "text-yellow-500" : ""
+            }`}
           >
             <Bookmark
-              className={`h-4 w-4 transition-transform ${saved ? 'fill-current' : ''}`}
+              className={`h-4 w-4 transition-transform ${
+                saved ? "fill-current" : ""
+              }`}
             />
           </Button>
         </div>

@@ -1,6 +1,6 @@
 import express from "express";
 import passport from "passport";
-import emailPasswordUserAuthController from "../../controllers/auth/user/emailpasswordAuth.js";
+import emailPasswordUserAuthController from "../../controllers/auth/user/userEmailPasswordLogin.js";
 import wrapAsync from "../../utils/wrapAsync.js";
 
 const router = express.Router();

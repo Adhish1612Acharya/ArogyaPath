@@ -1,62 +1,59 @@
 // src/pages/GeneralPostsPage.tsx
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { Filter } from '@/components/Filter/Filter';
-import { GeneralPostCard } from '@/components/PostCards/GeneralPostCard';
-import { PostCardSkeleton } from '@/components/PostCards/PostCardSkeleton';
-import { motion } from 'framer-motion';
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { Filter } from "@/components/Filter/Filter";
+import { GeneralPostCard } from "@/components/PostCards/GeneralPostCard";
+import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
+import { motion } from "framer-motion";
+import useApi from "@/hooks/useApi/useApi";
+
+interface Author {
+  name: string;
+  avatar: string;
+}
+
+export interface GeneralPostsType {
+  id: string;
+  author: Author;
+  title: string;
+  content: string;
+  images?: string[];
+  video?: string;
+  document?: string;
+  likes: number;
+  comments: number;
+  readTime: string;
+  tags: string[];
+  createdAt: Date;
+}
 
 export function AllGeneralPosts() {
-  const [userType] = useState<'expert' | 'patient'>('patient');
+  const { get } = useApi<{
+    message: string;
+    success: boolean;
+    posts: GeneralPostsType[];
+  }>();
+
+  const [userType] = useState<"expert" | "patient">("patient");
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [generalPosts, setGeneralPosts] = useState<GeneralPostsType[]>([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const posts = [
-    {
-      id: '1',
-      type: 'general',
-      author: {
-        name: 'Dr. Ayush Kumar',
-        avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d',
-        credentials: 'BAMS, MD Ayurveda',
-        experience: '15 years of experience',
-      },
-      title: 'Benefits of Ashwagandha',
-      content: 'Ashwagandha is an ancient medicinal herb with multiple health benefits...',
-      image: 'https://images.unsplash.com/photo-1611241893603-3c359704e0ee',
-      likes: 124,
-      comments: 45,
-      readTime: '5 min read',
-      tags: ['Herbs', 'Wellness', 'Mental Health'],
-    },
-    {
-      id: '5',
-      type: 'general',
-      author: {
-        name: 'Dr. Rajesh Verma',
-        avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d',
-        credentials: 'MD Ayurveda, Panchakarma Specialist',
-        experience: '18 years of experience',
-      },
-      title: 'Detox with Seasonal Panchakarma',
-      content: 'Seasonal Panchakarma is an excellent way to reset your body...',
-      image: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874',
-      likes: 92,
-      comments: 31,
-      readTime: '4 min read',
-      tags: ['Panchakarma', 'Detox', 'Seasonal Care'],
+    async function getGeneratPosts() {
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/posts`
+      );
+      setGeneralPosts(response.posts);
+      setIsLoading(false);
     }
-  ];
+    getGeneratPosts();
+  }, []);
 
   const toggleLike = (postId: string) => {
     setLikedPosts((prev) => {
@@ -103,7 +100,10 @@ export function AllGeneralPosts() {
             </div>
             <div className="flex items-center gap-3">
               <Filter />
-              <Button asChild className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md !text-white">
+              <Button
+                asChild
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md !text-white"
+              >
                 <Link to="/posts/create" className="flex items-center gap-1">
                   <Plus className="h-4 w-4" />
                   <span className="hidden sm:inline">Create Post</span>
@@ -113,22 +113,20 @@ export function AllGeneralPosts() {
           </div>
 
           <div className="mt-6 space-y-6">
-            {isLoading ? (
-              Array(3).fill(0).map((_, index) => (
-                <PostCardSkeleton key={index} />
-              ))
-            ) : (
-              posts.map((post) => (
-                <GeneralPostCard
-                  key={post.id}
-                  post={post}
-                  liked={likedPosts.has(post.id)}
-                  saved={savedPosts.has(post.id)}
-                  onLike={() => toggleLike(post.id)}
-                  onSave={() => toggleSave(post.id)}
-                />
-              ))
-            )}
+            {isLoading
+              ? Array(3)
+                  .fill(0)
+                  .map((_, index) => <PostCardSkeleton key={index} />)
+              : generalPosts.map((generalPost) => (
+                  <GeneralPostCard
+                    key={generalPost.id}
+                    post={generalPost}
+                    liked={likedPosts.has(generalPost.id)}
+                    saved={savedPosts.has(generalPost.id)}
+                    onLike={() => toggleLike(generalPost.id)}
+                    onSave={() => toggleSave(generalPost.id)}
+                  />
+                ))}
           </div>
         </motion.div>
       </main>

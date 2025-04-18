@@ -11,6 +11,7 @@ import { PostsPage } from "./pages/posts";
 import PrakrutiForm from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 import HomePage from "./pages/HomePage";
+import CreateSuccessStory from "./pages/User/CreateSuccessStory/CreateSuccessStory";
 import { PageNotFound } from "./pages/PageNotFound/PageNotFound";
 import EmailVerify from "./pages/AfterRegisterPage/EmailVerify";
 import MobileVerify from "./pages/AfterRegisterPage/MobileVerify";
@@ -21,6 +22,10 @@ import { RoutinePost } from "./pages/posts/PostPage/RoutinePost";
 import { SuccessStoryPost } from "./pages/posts/PostPage/SuccessStoryPost";
 import AISearchPage from "./pages/AIquery/AIQuery";
 import { ExpertTaggedPosts } from "./pages/Expert/TaggedView/ViewTagged";
+import GuestProtectedRoute from "./pages/SecuredRoutes/GuestProtectedRoute";
+import ProtectedRoute from "./pages/SecuredRoutes/ProtectedRoute";
+import ExpertProtectedRoute from "./pages/SecuredRoutes/ExpertProtectedRoute";
+import UserProtectedRoute from "./pages/SecuredRoutes/UserProtectedRoute";
 import { AllGeneralPosts } from "./pages/posts/GeneralPosts";
 import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
 import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
@@ -47,30 +52,58 @@ const App = () => {
       />
       <div className="main-container">
         <Routes>
-          <Route path="/expert/login" element={<LoginExpert />} />
-          <Route path="/expert/register" element={<RegisterExpert />} />
-          <Route path="/user/login" element={<LoginUser />} />
-          <Route path="/user/register" element={<RegisterUser />} />
-          <Route path="/auth" element={<RoleSelection />} />
           <Route path="/" element={<HomePage />} />
-          <Route path="/posts" element={<PostsPage />} />
-          <Route path="/posts/create" element={<CreatePost />} />
+          <Route element={<GuestProtectedRoute />}>
+            <Route path="/verify-email" element={<EmailVerify />} />
+            <Route path="/verify-mobile" element={<MobileVerify />} />
+            <Route path="/expert/login" element={<LoginExpert />} />
+            <Route path="/expert/register" element={<RegisterExpert />} />
+            <Route path="/user/login" element={<LoginUser />} />
+            <Route path="/user/register" element={<RegisterUser />} />
+            <Route path="/auth" element={<RoleSelection />} />
+          </Route>
 
-          <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
-          <Route path="/not-found" element={<PageNotFound  />} />
-          <Route path="/verify-email" element={<EmailVerify />} />
-          <Route path="/verify-mobile" element={<MobileVerify />} />
-          <Route path="/complete-profile/expert" element={<ExpertCompleteProfile />} />
-          <Route path="/complete-profile/user" element={<UserCompleteProfile />} />
-          <Route path="/gposts/:id" element={<GeneralPost />} />
-          <Route path="/routines/:id" element={<RoutinePost />} />
-          <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
-          <Route path="/ai-query" element={<AISearchPage />} />
-          <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
-          <Route path="/gposts" element={<AllGeneralPosts />} />
-          <Route path="/routines" element={<AllRoutinePosts />} />
-          <Route path="/success-stories" element={<AllSuccessStoriesPosts />} />
-          <Route path="/verified/success-stories" element={<VerifiedByVaidya />} />
+          <Route element={<UserProtectedRoute />}>
+            <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
+            <Route
+              path="/user/success-stories/create"
+              element={<CreateSuccessStory />}
+            />
+          </Route>
+
+          <Route element={<ExpertProtectedRoute />}>
+            <Route
+              path="/verified/success-stories"
+              element={<VerifiedByVaidya />}
+            />
+            <Route path="/expert/posts/create" element={<CreatePost />} />
+            <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
+            {/* <Route path="/posts/create" element={<CreatePost />} /> */}
+          </Route>
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/posts/:id" element={<GeneralPost />} />
+            <Route path="/routines/:id" element={<RoutinePost />} />
+            <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+            <Route path="/ai-query" element={<AISearchPage />} />
+            {/* <Route path="/posts" element={<PostsPage />} /> */}
+            <Route path="/gposts" element={<AllGeneralPosts />} />
+            <Route path="/routines" element={<AllRoutinePosts />} />
+            <Route
+              path="/success-stories"
+              element={<AllSuccessStoriesPosts />}
+            />
+          </Route>
+
+          <Route
+            path="/complete-profile/expert"
+            element={<ExpertCompleteProfile />}
+          />
+          <Route
+            path="/complete-profile/user"
+            element={<UserCompleteProfile />}
+          />
+          <Route path="*" element={<PageNotFound />} />
         </Routes>
       </div>
       {/* {nav && <Footer />} */}

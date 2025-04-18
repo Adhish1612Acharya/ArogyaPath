@@ -36,7 +36,8 @@ const CreatePost = () => {
               Share Your <span className="text-green-600">Wisdom</span>
             </h1>
             <p className="text-xl text-gray-600 mx-auto max-w-3xl">
-              Contribute to our community by sharing your expertise and healing knowledge
+              Contribute to our community by sharing your expertise and healing
+              knowledge
             </p>
           </div>
 
@@ -49,13 +50,13 @@ const CreatePost = () => {
                     Create New Post
                   </CardTitle>
                   <CardDescription className="mt-2 text-green-100">
-                    {postType === "general" 
-                      ? "Share insights, articles, or media" 
+                    {postType === "general"
+                      ? "Share insights, articles, or media"
                       : "Create a wellness routine"}
                   </CardDescription>
                 </div>
               </CardHeader>
-              
+
               <CardContent className="w-full p-8">
                 {/* Post Type Selector - full width */}
                 <div className="w-full mb-8">
@@ -74,8 +75,8 @@ const CreatePost = () => {
                           <SelectValue placeholder="Select post type" />
                         </SelectTrigger>
                         <SelectContent className="border-0 shadow-lg rounded-lg">
-                          <SelectItem 
-                            value="general" 
+                          <SelectItem
+                            value="general"
                             className="hover:bg-green-50 focus:bg-green-50"
                           >
                             <div className="flex items-center gap-2">
@@ -83,12 +84,12 @@ const CreatePost = () => {
                               General Post
                             </div>
                           </SelectItem>
-                          <SelectItem 
-                            value="routine" 
+                          <SelectItem
+                            value="routine"
                             className="hover:bg-green-50 focus:bg-green-50"
                           >
                             <div className="flex items-center gap-2">
-                              <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
+                              <Plus className="w-4 h-4 text-green-600" />
                               Wellness Routine
                             </div>
                           </SelectItem>

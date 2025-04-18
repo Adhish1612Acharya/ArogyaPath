@@ -13,8 +13,8 @@ router.get("/logout",
 
 router.post(
   "/signUp",
-//   isAlreadyLoggedIn,
-//   checkSignUpForm,
+  // isAlreadyLoggedIn,
+  // checkSignUpForm,
   wrapAsync(   emailPasswordExpertAuthController.signUp)
 );
 

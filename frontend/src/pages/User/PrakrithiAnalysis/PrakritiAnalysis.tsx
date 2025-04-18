@@ -7,11 +7,13 @@ import { useState } from "react";
 import FORM_FIELDS from "@/constants/prakrithiFormFields";
 import PrakrithiForm from "@/components/Forms/User/PrakrithiForm/PrakrithiForm";
 import { ApiResponse } from "./PrakrithiAnalysis.types";
+import useApi from "@/hooks/useApi/useApi";
 
 // Calculate total sections from form fields
 const TOTAL_SECTIONS = Math.max(...FORM_FIELDS.map((field) => field.section));
 
 export default function PrakritiForm() {
+
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
 
@@ -76,25 +78,39 @@ export default function PrakritiForm() {
 
       // Dietary Guidelines
       drawText("  - Dietary Guidelines:");
-      responseData.Recommendations.Dietary_Guidelines.forEach((item: string) => {
-        drawText(`    • ${item}`);
-      });
+      responseData.Recommendations.Dietary_Guidelines.forEach(
+        (item: string) => {
+          drawText(`    • ${item}`);
+        }
+      );
 
       // Lifestyle Suggestions
       drawText("  - Lifestyle Suggestions:");
-      responseData.Recommendations.Lifestyle_Suggestions.forEach((item: string) => {
-        drawText(`    • ${item}`);
-      });
+      responseData.Recommendations.Lifestyle_Suggestions.forEach(
+        (item: string) => {
+          drawText(`    • ${item}`);
+        }
+      );
 
       // Ayurvedic Herbs & Remedies
       drawText("  - Ayurvedic Herbs & Remedies:");
-      if (Array.isArray(responseData.Recommendations.Ayurvedic_Herbs_Remedies)) {
-        responseData.Recommendations.Ayurvedic_Herbs_Remedies.forEach((item: string) => {
-          drawText(`    • ${item}`);
-        });
+      if (
+        Array.isArray(responseData.Recommendations.Ayurvedic_Herbs_Remedies)
+      ) {
+        responseData.Recommendations.Ayurvedic_Herbs_Remedies.forEach(
+          (item: string) => {
+            drawText(`    • ${item}`);
+          }
+        );
       } else {
-        Object.entries(responseData.Recommendations.Ayurvedic_Herbs_Remedies).forEach(([key, values]) => {
-          drawText(`    • ${key.replace(/_/g, " ")}: ${(values as string[]).join(", ")}`);
+        Object.entries(
+          responseData.Recommendations.Ayurvedic_Herbs_Remedies
+        ).forEach(([key, values]) => {
+          drawText(
+            `    • ${key.replace(/_/g, " ")}: ${(values as string[]).join(
+              ", "
+            )}`
+          );
         });
       }
 
@@ -138,7 +154,8 @@ export default function PrakritiForm() {
             Discover Your Ayurvedic Constitution
           </h1>
           <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Complete this assessment to understand your unique Prakriti and receive personalized health recommendations.
+            Complete this assessment to understand your unique Prakriti and
+            receive personalized health recommendations.
           </p>
         </div>
 
@@ -154,7 +171,8 @@ export default function PrakritiForm() {
               />
               <div className="flex justify-between mt-3 text-sm">
                 <span className="text-green-700 dark:text-green-300 font-medium">
-                  Progress: {Math.round((currentSection / TOTAL_SECTIONS) * 100)}%
+                  Progress:{" "}
+                  {Math.round((currentSection / TOTAL_SECTIONS) * 100)}%
                 </span>
                 <span className="text-gray-600 dark:text-gray-300">
                   Section {currentSection} of {TOTAL_SECTIONS}
@@ -175,7 +193,9 @@ export default function PrakritiForm() {
         </Card>
 
         <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>Your responses will help us provide accurate Ayurvedic insights.</p>
+          <p>
+            Your responses will help us provide accurate Ayurvedic insights.
+          </p>
           <p className="mt-1">All information is kept confidential.</p>
         </div>
       </div>

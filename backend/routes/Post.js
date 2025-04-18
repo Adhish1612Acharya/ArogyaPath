@@ -1,5 +1,5 @@
 import express from "express";
-import { validatePost } from "../middlewares/validationMiddleware/validationSchema.js";
+import { validatePost } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import wrapAsync from "../utils/wrapAsync.js";
 import postController from "../controllers/post.js";
 import { isLoggedIn } from "../middlewares/commonAuth.js";

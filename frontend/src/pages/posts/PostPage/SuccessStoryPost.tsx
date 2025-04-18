@@ -110,7 +110,7 @@ export function SuccessStoryPost() {
     return (
       <div className="flex items-center justify-center w-screen w-full bg-gray-50">
         <div className="w-full w-screen max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
-          <SuccessStoryCardSkeleton className="w-full" />
+          <SuccessStoryCardSkeleton  />
         </div>
       </div>
     );
