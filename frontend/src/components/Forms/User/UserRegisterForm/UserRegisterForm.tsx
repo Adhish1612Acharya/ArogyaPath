@@ -24,9 +24,11 @@ import {
 } from "@/components/ui/select";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export const UserRegisterForm = () => {
   const { userSignUp } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof userRegisterSchema>>({
     resolver: zodResolver(userRegisterSchema),
@@ -58,15 +60,22 @@ export const UserRegisterForm = () => {
       "http://localhost:3000/api/auth/user/signUp",
       {
         username: data.name,
-        email: data.phoneNumber,
+        email: data.phoneNumber, //email
         password: data.password,
       },
-      {withCredentials:true}
+      { withCredentials: true }
     );
 
-    if (response.status === 201) {
+    if (response.data.success) {
       toast.success("Registered successfully!");
+      navigate("/gposts");
+    } else {
+      toast.error("Username already exists");
     }
+
+    // if (response.status === 201) {
+    //   toast.success("Registered successfully!");
+    // }
   };
 
   return (
@@ -96,11 +105,11 @@ export const UserRegisterForm = () => {
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Phone Number</FormLabel>
+                <FormLabel className="text-gray-700">Email</FormLabel>
                 <FormControl>
                   <Input
-                    type="tel"
-                    placeholder="1234567890"
+                    // type="tel"
+                    placeholder="you@gmail.com"
                     {...field}
                     className="focus:ring-green-500 focus:border-green-500"
                   />

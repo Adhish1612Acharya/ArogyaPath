@@ -12,7 +12,7 @@ const RoleSelection = () => {
 
   const handleContinue = () => {
     if (selectedRole === "farmer") {
-      navigate("/farmer/login");
+      navigate("/user/login");
     } else if (selectedRole === "expert") {
       navigate("/expert/login");
     }
@@ -58,7 +58,10 @@ const RoleSelection = () => {
               className="w-full sm:w-auto px-10 py-6 text-base sm:text-lg bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={handleContinue}
             >
-              Continue as {selectedRole === "farmer" ? "Ayurveda Seeker" : "Ayurvedic Expert"}
+              Continue as{" "}
+              {selectedRole === "farmer"
+                ? "Ayurveda Seeker"
+                : "Ayurvedic Expert"}
             </Button>
           </div>
         )}

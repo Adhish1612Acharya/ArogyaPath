@@ -17,9 +17,11 @@ import useAuth from "@/hooks/user/useAuth/useAuth";
 import GoogleIcon from "@mui/icons-material/Google";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const UserLoginForm = () => {
   const { phonePaswordLogin } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),
@@ -38,8 +40,10 @@ const UserLoginForm = () => {
       },
       { withCredentials: true }
     );
-    if (response.status === 200) {
-      toast.success("Logged in successfully");
+    if (response.data.success) {
+      navigate("/gposts");
+    } else {
+      toast.error("Either username or password is incorrect");
     }
     // await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
   };
@@ -52,10 +56,10 @@ const UserLoginForm = () => {
           name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700">Phone Number</FormLabel>
+              <FormLabel className="text-gray-700">Username</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="123-456-7890"
+                  placeholder="user"
                   {...field}
                   className="focus:ring-green-500 focus:border-green-500"
                 />
