@@ -84,7 +84,7 @@ const AddRoutineForm = () => {
 
       if (response?.success) {
         form.reset();
-        navigate(`/expert/posts/${response?.postId}`);
+        navigate(`/routines/${response?.postId}`);
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);

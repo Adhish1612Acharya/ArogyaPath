@@ -82,7 +82,7 @@ const App = () => {
           </Route>
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/posts/:id" element={<GeneralPost />} />
+            <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
             <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
             <Route path="/ai-query" element={<AISearchPage />} />

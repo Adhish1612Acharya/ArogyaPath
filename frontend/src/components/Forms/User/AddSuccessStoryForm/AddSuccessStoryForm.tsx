@@ -124,8 +124,8 @@ export default function AddSuccessStoryForm() {
 
       const response = await submitSuccessStory(newPost);
       if (response?.success) {
-        // form.reset();
-        // navigate(`/expert/posts/${response?.postId}`);
+        form.reset();
+        navigate(`/success-stories/${response?.postId}`);
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);

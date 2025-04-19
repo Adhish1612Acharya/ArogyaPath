@@ -38,7 +38,6 @@ router.get("/", isLoggedIn, wrapAsync(getAllSuccessStories));
 router.get(
   "/:id",
   isLoggedIn,
-  checkUserLogin,
   wrapAsync(getSingleSuccessStory)
 );
 
