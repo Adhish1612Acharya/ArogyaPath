@@ -17,6 +17,7 @@ import { z } from "zod";
 import axios from "axios";
 import { toast } from "react-toastify";
 import GoogleIcon from "@mui/icons-material/Google";
+import { useNavigate } from "react-router-dom";
 
 // Schema
 const registerSchema = z
@@ -37,6 +38,8 @@ const userTypeOptions = [
 ];
 
 const RegisterExpert: FC = () => {
+  const navigate = useNavigate();
+
   const [userType, setUserType] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -60,8 +63,11 @@ const RegisterExpert: FC = () => {
         }
       );
 
-      if (response.status === 201) {
+      if (response.data.success) {
         toast.success("Registered successfully!");
+        navigate("/gposts");
+      }else{
+         toast.error("Username already exists");
       }
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Registration failed.");

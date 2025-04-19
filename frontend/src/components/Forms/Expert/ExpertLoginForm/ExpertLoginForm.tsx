@@ -6,7 +6,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import Button from "@mui/material/Button"; 
+import Button from "@mui/material/Button";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, LogIn } from "lucide-react";
@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 // import { Button } from "@/components/ui/button";
 
 const ExpertLoginForm: FC = () => {
+  const navigate = useNavigate();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -35,13 +36,16 @@ const ExpertLoginForm: FC = () => {
       const response = await axios.post(
         "http://localhost:3000/api/auth/expert/login",
         {
-          username: data.email,
+          username: data.email, //username
           password: data.password,
         },
-        {withCredentials:true}
+        { withCredentials: true }
       );
-      if (response.status === 200) {
-        toast.success("Logged in successfully");
+      if (response.data.success) {
+        toast.success("Registered successfully!");
+        navigate("/gposts");
+      } else {
+        toast.error("Either username or password is incorrect");
       }
     } catch (err: any) {
       if (err.response.status === 401) {
@@ -84,10 +88,10 @@ const ExpertLoginForm: FC = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Email Address</FormLabel>
+                <FormLabel className="text-gray-700">Username</FormLabel>
                 <FormControl>
                   <Input
-                    placeholder="vaidya@example.com"
+                    placeholder="vaidya"
                     {...field}
                     className="focus:ring-amber-500 focus:border-amber-500"
                   />
@@ -125,46 +129,45 @@ const ExpertLoginForm: FC = () => {
           />
 
           <div className="space-y-4">
-          <Button
-  type="submit"
-  variant="contained"
-  color="warning"
-  fullWidth
-  disabled={form.formState.isSubmitting}
-  startIcon={
-    form.formState.isSubmitting ? (
-      <Loader2 className="animate-spin w-5 h-5" />
-    ) : (
-      <LogIn className="w-5 h-5" />
-    )
-  }
-  sx={{ textTransform: "none", py: 1.5 }}
->
-  Sign in
-</Button>
+            <Button
+              type="submit"
+              variant="contained"
+              color="warning"
+              fullWidth
+              disabled={form.formState.isSubmitting}
+              startIcon={
+                form.formState.isSubmitting ? (
+                  <Loader2 className="animate-spin w-5 h-5" />
+                ) : (
+                  <LogIn className="w-5 h-5" />
+                )
+              }
+              sx={{ textTransform: "none", py: 1.5 }}
+            >
+              Sign in
+            </Button>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-5 py-2 text-gray-500 rounded-md">
-  Or
-</span>
+                <span className="bg-white px-5 py-2 text-gray-500 rounded-md">
+                  Or
+                </span>
               </div>
             </div>
 
             <Button
-  type="button"
-  variant="outlined"
-  fullWidth
-  onClick={() => googleLogin()}
-  startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
-  sx={{ textTransform: "none", py: 1.5 }}
->
-  Continue with Google
-</Button>
-
+              type="button"
+              variant="outlined"
+              fullWidth
+              // onClick={() => googleLogin()}
+              startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
+              sx={{ textTransform: "none", py: 1.5 }}
+            >
+              Continue with Google
+            </Button>
           </div>
         </form>
       </Form>
