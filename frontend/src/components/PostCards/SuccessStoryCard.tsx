@@ -44,6 +44,7 @@ export function SuccessStoryCard({
 }: SuccessStoryCardProps) {
   const { verifyPost } = usePost();
 
+  console.log("Post Data : ", post);
   const [verifyLoad, setVerifyLoad] = useState<boolean>(false);
   const [verified, setVerified] = useState<boolean>(false);
 
