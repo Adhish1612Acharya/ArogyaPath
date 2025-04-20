@@ -263,7 +263,7 @@ export default function AddSuccessStoryForm() {
   };
 
   return (
-    <div className="container max-w-3xl mx-auto py-8 px-4">
+    <div className="container  w-screen mx-auto py-8 px-4">
       <h1 className="text-2xl font-bold mb-6">Add Success Story</h1>
 
       <Card className="shadow-md">

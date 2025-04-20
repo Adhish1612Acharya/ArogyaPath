@@ -30,12 +30,13 @@ import { AllGeneralPosts } from "./pages/posts/GeneralPosts";
 import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
 import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
 import { VerifiedByVaidya } from "./pages/Expert/VerifiedSuccessStory/VerifiedSuccessStories";
+import { Navbar } from "./components/layout/navbar";
 
 const App = () => {
-  const role = useAuth();
+  // const { role, isLoggedIn } = useAuth();
   return (
     <>
-      {/* {nav && <NavBar />} */}
+      {/* {<Navbar />} */}
 
       <ToastContainer
         position="top-right"
