@@ -1,4 +1,4 @@
-import { userSchemaZod, expertSchemaZod, postSchemaZod } from "./validationmiddleware.js"
+import { userSchemaZod, expertSchemaZod, postSchemaZod,prakrathiSchema } from "./validationmiddleware.js"
 
 export const validateUser = (req, res, next) => {
   const result = userSchemaZod.safeParse(req.body);
@@ -32,4 +32,11 @@ export const validateComment = (req, res, next) => {
   next();
 };
 
-export default { validateUser, validateExpert, validatePost, validateComment};
+ function validatePrakrathi(req, res,next) {
+  const result = prakrathiSchema.safeParse(req.body);
+
+  if (!result.success) return res.status(400).json({ errors: result.error.format() });
+  next();
+}
+
+export default { validateUser, validateExpert, validatePost, validateComment,validatePrakrathi};
