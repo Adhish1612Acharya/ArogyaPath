@@ -27,7 +27,8 @@ router.put(
       { new: true, runValidators: true }
     );
 
-    if (!updatedUser) return res.status(404).json({ message: "User not found" });
+    if (!updatedUser)
+      return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({ message: "Profile updated", user: updatedUser });
   })
@@ -38,7 +39,8 @@ router.delete(
   "/:userId",
   wrapAsync(async (req, res) => {
     const deletedUser = await User.findByIdAndDelete(req.params.userId);
-    if (!deletedUser) return res.status(404).json({ message: "User not found" });
+    if (!deletedUser)
+      return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({ message: "Profile deleted" });
   })
@@ -61,7 +63,9 @@ router.post(
     user.bookmarks.push(postId);
     await user.save();
 
-    res.status(200).json({ message: "Post bookmarked", bookmarks: user.bookmarks });
+    res
+      .status(200)
+      .json({ message: "Post bookmarked", bookmarks: user.bookmarks });
   })
 );
 
@@ -69,7 +73,6 @@ const express = require("express");
 const User = require("../models/User");
 const Post = require("../models/Post");
 const wrapAsync = require("../utils/wrapAsync");
-
 
 // Remove bookmark
 router.delete(
@@ -85,24 +88,15 @@ router.delete(
 
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.status(200).json({ message: "Post removed from bookmarks", bookmarks: user.bookmarks });
+    res
+      .status(200)
+      .json({
+        message: "Post removed from bookmarks",
+        bookmarks: user.bookmarks,
+      });
   })
 );
 
-//search users
-app.get("/search-users", wrapAsync(async (req, res) => {
-  const { q: searchQuery } = req.query;
-  
-  if (!searchQuery) {
-      return res.status(400).json({ error: "Search query is required" });
-  }
-
-  const users = await User.find({ name: new RegExp(searchQuery, "i") }); // Case-insensitive search
-
-  res.json(users);
-}));
 
 
 module.exports = router;
-
-

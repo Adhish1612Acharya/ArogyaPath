@@ -15,9 +15,13 @@ import Button from "@mui/material/Button";
 import { Loader2, LogIn } from "lucide-react";
 import useAuth from "@/hooks/user/useAuth/useAuth";
 import GoogleIcon from "@mui/icons-material/Google";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const UserLoginForm = () => {
-  const { phonePaswordLogin, googleLogin } = useAuth();
+  const { phonePaswordLogin } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),
@@ -28,7 +32,20 @@ const UserLoginForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
-    await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
+    const response = await axios.post(
+      "http://localhost:3000/api/auth/user/login",
+      {
+        username: data.phoneNumber,
+        password: data.password,
+      },
+      { withCredentials: true }
+    );
+    if (response.data.success) {
+      navigate("/gposts");
+    } else {
+      toast.error("Either username or password is incorrect");
+    }
+    // await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
   };
 
   return (
@@ -39,10 +56,10 @@ const UserLoginForm = () => {
           name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700">Phone Number</FormLabel>
+              <FormLabel className="text-gray-700">Username</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="123-456-7890"
+                  placeholder="user"
                   {...field}
                   className="focus:ring-green-500 focus:border-green-500"
                 />
@@ -118,7 +135,7 @@ const UserLoginForm = () => {
             type="button"
             variant="outlined"
             fullWidth
-            onClick={googleLogin}
+            // onClick={googleLogin}
             startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
             sx={{
               textTransform: "none",
@@ -127,8 +144,8 @@ const UserLoginForm = () => {
               borderColor: "#E5E7EB",
               "&:hover": {
                 borderColor: "#D1D5DB",
-                backgroundColor: "#F9FAFB"
-              }
+                backgroundColor: "#F9FAFB",
+              },
             }}
           >
             Continue with Google

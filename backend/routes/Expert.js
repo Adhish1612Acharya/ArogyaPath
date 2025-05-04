@@ -1,9 +1,14 @@
 import express from "express";
 import Expert from "../models/Expert/Expert.js";
-import { validateExpert } from "../middlewares/routemiddlewares.js";
+
 import wrapAsync from "../utils/wrapAsync.js";
+import { isLoggedIn } from "../middlewares/commonAuth.js";
+import { searchDoctors } from "../controllers/expert.js";
 
 const router = express.Router();
+
+//search doctors
+router.get("/search/doctors", isLoggedIn, wrapAsync(searchDoctors));
 
 // Get all experts
 router.get(
@@ -17,7 +22,7 @@ router.get(
 // Create a new expert
 router.post(
   "/",
-  validateExpert,
+  // validateExpert,
   wrapAsync(async (req, res) => {
     const expert = new Expert(req.body);
     await expert.save();
@@ -50,7 +55,7 @@ router.delete(
 // Update an expert by ID
 router.put(
   "/:id",
-  validateExpert,
+  // validateExpert,
   wrapAsync(async (req, res) => {
     const updatedExpert = await Expert.findByIdAndUpdate(
       req.params.id,

@@ -15,11 +15,21 @@ import useAuth from "@/hooks/user/useAuth/useAuth";
 import { Loader2, UserPlus } from "lucide-react";
 import Button from "@mui/material/Button";
 import GoogleIcon from "@mui/icons-material/Google";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export const UserRegisterForm = () => {
-  const { userSignUp, googleLogin } = useAuth();
-  
+  const { userSignUp } = useAuth();
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof userRegisterSchema>>({
     resolver: zodResolver(userRegisterSchema),
     defaultValues: {
@@ -30,7 +40,7 @@ export const UserRegisterForm = () => {
       city: "",
       experience: "",
       password: "",
-      confirmPassword: ""
+      // confirmPassword: "",
     },
   });
 
@@ -44,7 +54,28 @@ export const UserRegisterForm = () => {
       experience: data.experience,
       password: data.password,
     };
-    await userSignUp(newData);
+    // await userSignUp(newData);
+
+    const response = await axios.post(
+      "http://localhost:3000/api/auth/user/signUp",
+      {
+        username: data.name,
+        email: data.phoneNumber, //email
+        password: data.password,
+      },
+      { withCredentials: true }
+    );
+
+    if (response.data.success) {
+      toast.success("Registered successfully!");
+      navigate("/gposts");
+    } else {
+      toast.error("Username already exists");
+    }
+
+    // if (response.status === 201) {
+    //   toast.success("Registered successfully!");
+    // }
   };
 
   return (
@@ -74,11 +105,11 @@ export const UserRegisterForm = () => {
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Phone Number</FormLabel>
+                <FormLabel className="text-gray-700">Email</FormLabel>
                 <FormControl>
                   <Input
-                    type="tel"
-                    placeholder="1234567890"
+                    // type="tel"
+                    placeholder="you@gmail.com"
                     {...field}
                     className="focus:ring-green-500 focus:border-green-500"
                   />
@@ -94,7 +125,10 @@ export const UserRegisterForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-700">Language</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="focus:ring-green-500 focus:border-green-500">
                       <SelectValue placeholder="Select language" />
@@ -152,7 +186,9 @@ export const UserRegisterForm = () => {
             name="experience"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Experience (Optional)</FormLabel>
+                <FormLabel className="text-gray-700">
+                  Experience (Optional)
+                </FormLabel>
                 <FormControl>
                   <Input
                     placeholder="5 years"
@@ -184,12 +220,14 @@ export const UserRegisterForm = () => {
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name="confirmPassword"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Confirm Password</FormLabel>
+                <FormLabel className="text-gray-700">
+                  Confirm Password
+                </FormLabel>
                 <FormControl>
                   <Input
                     type="password"
@@ -201,11 +239,11 @@ export const UserRegisterForm = () => {
                 <FormMessage className="text-xs text-rose-600" />
               </FormItem>
             )}
-          />
+          /> */}
         </div>
 
         <div className="space-y-4">
-        <Button
+          <Button
             type="submit"
             variant="contained"
             color="success"
@@ -239,7 +277,7 @@ export const UserRegisterForm = () => {
             </div>
           </div>
 
-          <Button
+          {/* <Button
             type="button"
             variant="outline"
             className="w-full"
@@ -247,7 +285,7 @@ export const UserRegisterForm = () => {
           >
             <GoogleIcon className="mr-2 h-4 w-4 text-[#EA4335]" />
             Continue with Google
-          </Button>
+          </Button> */}
         </div>
 
         <div className="text-center text-sm text-gray-600">

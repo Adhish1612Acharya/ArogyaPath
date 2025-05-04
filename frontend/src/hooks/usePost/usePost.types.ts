@@ -23,6 +23,15 @@ export interface PostFormWithRoutineSchema {
   filters: string[];
 }
 
+export interface PostFormWithSuccessStorySchema {
+  title: string;
+  description: string;
+  media: MediaUploads;
+  routines: Routine[];
+  filters: string[];
+  tagged: string[];
+}
+
 export interface PostSubmissionData {
   title: string;
   description: string;
@@ -33,3 +42,4 @@ export interface PostSubmissionData {
     document: File | null;
   };
 }
+

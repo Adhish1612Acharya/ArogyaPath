@@ -1,7 +1,14 @@
 import { FC, useState } from "react";
 import { Heart, Loader2, UserPlus } from "lucide-react";
 import AuthLayoutExpert from "@/components/AuthLayoutExpert/AuthLayoutExpert";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Button from "@mui/material/Button";
 import { useForm } from "react-hook-form";
@@ -10,6 +17,7 @@ import { z } from "zod";
 import axios from "axios";
 import { toast } from "react-toastify";
 import GoogleIcon from "@mui/icons-material/Google";
+import { useNavigate } from "react-router-dom";
 
 // Schema
 const registerSchema = z
@@ -30,6 +38,8 @@ const userTypeOptions = [
 ];
 
 const RegisterExpert: FC = () => {
+  const navigate = useNavigate();
+
   const [userType, setUserType] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -44,14 +54,20 @@ const RegisterExpert: FC = () => {
 
   const onRegisterSubmit = async (data: z.infer<typeof registerSchema>) => {
     try {
-      const response = await axios.post("http://localhost:3000/api/auth/expert/register", {
-        name: data.name,
-        email: data.email,
-        password: data.password,
-      });
+      const response = await axios.post(
+        "http://localhost:3000/api/auth/expert/signUp",
+        {
+          username: data.name,
+          email: data.email,
+          password: data.password,
+        }
+      );
 
-      if (response.status === 201) {
+      if (response.data.success) {
         toast.success("Registered successfully!");
+        navigate("/gposts");
+      }else{
+         toast.error("Username already exists");
       }
     } catch (error: any) {
       toast.error(error?.response?.data?.message || "Registration failed.");
@@ -70,7 +86,9 @@ const RegisterExpert: FC = () => {
     >
       {!userType ? (
         <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">Select your role</h3>
+          <h3 className="text-lg font-medium text-gray-900">
+            Select your role
+          </h3>
           <div className="grid grid-cols-1 gap-4">
             {userTypeOptions.map(({ type, label, icon: Icon }) => (
               <button
@@ -79,7 +97,9 @@ const RegisterExpert: FC = () => {
                 className="p-4 border-2 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200"
               >
                 <Icon className="w-8 h-8 mx-auto mb-2 text-indigo-600" />
-                <span className="block text-sm font-medium text-gray-900">{label}</span>
+                <span className="block text-sm font-medium text-gray-900">
+                  {label}
+                </span>
               </button>
             ))}
           </div>
@@ -91,15 +111,21 @@ const RegisterExpert: FC = () => {
               <div className="mx-auto w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-4">
                 <UserPlus className="w-10 h-10 text-amber-600" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900">Expert Registration</h2>
+              <h2 className="text-2xl font-bold text-gray-900">
+                Expert Registration
+              </h2>
               <p className="mt-2 text-sm text-gray-600">
                 Join ArogyaPath as a certified{" "}
-                {userType === "ayurvedic" ? "Ayurvedic" : "Naturopathy"} practitioner
+                {userType === "ayurvedic" ? "Ayurvedic" : "Naturopathy"}{" "}
+                practitioner
               </p>
             </div>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onRegisterSubmit)} className="space-y-6">
+              <form
+                onSubmit={form.handleSubmit(onRegisterSubmit)}
+                className="space-y-6"
+              >
                 <FormField
                   control={form.control}
                   name="name"
@@ -119,7 +145,9 @@ const RegisterExpert: FC = () => {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Email Address</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Email Address
+                      </FormLabel>
                       <FormControl>
                         <Input placeholder="vaidya@example.com" {...field} />
                       </FormControl>
@@ -135,7 +163,11 @@ const RegisterExpert: FC = () => {
                     <FormItem>
                       <FormLabel className="text-gray-700">Password</FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage className="text-xs text-rose-600" />
                     </FormItem>
@@ -147,9 +179,15 @@ const RegisterExpert: FC = () => {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-700">Confirm Password</FormLabel>
+                      <FormLabel className="text-gray-700">
+                        Confirm Password
+                      </FormLabel>
                       <FormControl>
-                        <Input type="password" placeholder="••••••••" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="••••••••"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage className="text-xs text-rose-600" />
                     </FormItem>
@@ -180,7 +218,9 @@ const RegisterExpert: FC = () => {
                     <div className="w-full border-t border-gray-300" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-5 py-2 text-gray-500 rounded-md">Or</span>
+                    <span className="bg-white px-5 py-2 text-gray-500 rounded-md">
+                      Or
+                    </span>
                   </div>
                 </div>
 

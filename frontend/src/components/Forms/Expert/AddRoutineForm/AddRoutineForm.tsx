@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Loader2 } from "lucide-react";
 
 // ShadCN components
 import {
@@ -26,6 +26,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 // Custom logic
 import usePost from "@/hooks/usePost/usePost";
 import addRoutineFormSchema from "./AddRoutineFormSchema";
+import dayjs from "dayjs";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
 type RoutineFormSchema = z.infer<typeof addRoutineFormSchema>;
 
@@ -61,9 +63,11 @@ const AddRoutineForm = () => {
       form.setValue("thumbnail", file);
       setThumbnailPreview(URL.createObjectURL(file));
     }
+    thumbnailRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
   };
 
   const cancelThumbnail = () => {
+    URL.revokeObjectURL(thumbnailPreview!); // Revoke the object URL to free up memory
     form.setValue("thumbnail", null);
     setThumbnailPreview(null);
   };
@@ -74,11 +78,13 @@ const AddRoutineForm = () => {
         ...newPostData,
         filters: ["all", "ayurveda"],
       };
+
+      console.log("New Post : ", newPost);
       const response = await submitRoutinePost(newPost);
 
       if (response?.success) {
         form.reset();
-        navigate(`/expert/posts/${response?.postId}`);
+        navigate(`/routines/${response?.postId}`);
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);
@@ -102,7 +108,9 @@ const AddRoutineForm = () => {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-semibold">Routine Title</FormLabel>
+              <FormLabel className="text-base font-semibold">
+                Routine Title
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Enter routine title" {...field} />
               </FormControl>
@@ -117,7 +125,9 @@ const AddRoutineForm = () => {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-base font-semibold">Description</FormLabel>
+              <FormLabel className="text-base font-semibold">
+                Description
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Describe the purpose of this routine..."
@@ -157,7 +167,7 @@ const AddRoutineForm = () => {
               className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1"
               onClick={cancelThumbnail}
             >
-             <X size={16} className="text-black" />
+              <X size={16} className="text-black" />
             </button>
           </div>
         )}
@@ -182,19 +192,36 @@ const AddRoutineForm = () => {
               className="p-4 border rounded-md bg-muted/10 relative space-y-4"
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* TIME PICKER */}
                 <FormField
                   control={form.control}
                   name={`routines.${index}.time`}
-                  render={({ field }) => (
+                  render={({ field, fieldState }) => (
                     <FormItem>
                       <FormLabel>Time</FormLabel>
-                      <FormControl>
-                        <Input type="time" {...field} />
-                      </FormControl>
-                      <FormMessage />
+                      <TimePicker
+                        ampm
+                        value={
+                          field.value ? dayjs(field.value, "hh:mm A") : null
+                        }
+                        onChange={(val) =>
+                          field.onChange(val ? val.format("hh:mm A") : null)
+                        }
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            variant: "outlined",
+                            placeholder: "e.g. 08:00 AM",
+                            error: !!fieldState.error,
+                            helperText: fieldState.error?.message,
+                          },
+                        }}
+                      />
                     </FormItem>
                   )}
                 />
+
+                {/* CONTENT FIELD */}
                 <FormField
                   control={form.control}
                   name={`routines.${index}.content`}
@@ -204,6 +231,7 @@ const AddRoutineForm = () => {
                       <FormControl>
                         <Textarea
                           placeholder="What should be done at this time?"
+                          className="min-h-[80px]"
                           {...field}
                         />
                       </FormControl>
@@ -212,10 +240,12 @@ const AddRoutineForm = () => {
                   )}
                 />
               </div>
+
+              {/* REMOVE BUTTON */}
               {routineFields.length > 1 && (
                 <button
                   type="button"
-                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1"
+                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 hover:bg-red-700 transition text-white rounded-full-full p-1.5 shadow"
                   onClick={() => remove(index)}
                 >
                   <DeleteIcon fontSize="small" />
@@ -234,7 +264,7 @@ const AddRoutineForm = () => {
           size="large"
           style={{ marginTop: "20px" }}
         >
-          Post Routine
+          {form.formState.isSubmitting ? <Loader2 /> : "Post Routine"}
         </MuiButton>
       </form>
     </Form>
