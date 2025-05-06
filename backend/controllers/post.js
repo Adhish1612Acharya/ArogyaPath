@@ -36,7 +36,7 @@ const getPostById = async (req, res) => {
 const createPost = async (req, res) => {
   const { title, description, filters } = req.body;
 
-  const mediaFiles = req.files;
+  const mediaFiles = req.cloudinaryFiles;
   console.log("req.body", req.body);
   console.log("Media Files:", mediaFiles);
 
@@ -46,16 +46,15 @@ const createPost = async (req, res) => {
     document: null,
   };
 
-  // Cloudinary stores file URLs in `path`
+  //Cloudinary stores file URLs in `path`
   mediaFiles.forEach((file) => {
-    const mimeType = file.mimetype;
-
-    if (mimeType.startsWith("image/")) {
-      media.images.push(file.path); // Cloudinary gives the URL in `path`
-    } else if (mimeType.startsWith("video/")) {
-      media.video = file.path;
-    } else if (mimeType === "application/pdf") {
-      media.document = file.path;
+    // Determine file type from Cloudinary response
+    if (file.resource_type === "image") {
+      media.images.push(file.secure_url);
+    } else if (file.resource_type === "video") {
+      media.video = file.secure_url;
+    } else if (file.format === "pdf") {
+      media.document = file.secure_url;
     }
   });
 
@@ -91,7 +90,7 @@ const createPost = async (req, res) => {
   return res.status(200).json({
     message: "Post created",
     success: true,
-    postId: post._id,
+    postId: " post._id",
     userId: req.user._id,
   });
 };
