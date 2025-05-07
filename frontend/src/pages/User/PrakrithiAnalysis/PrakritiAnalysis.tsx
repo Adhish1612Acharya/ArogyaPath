@@ -1,21 +1,209 @@
-import { Progress } from "@/components/ui/progress";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader } from "lucide-react";
+import { useState, useEffect } from "react";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Typography,
+  LinearProgress,
+  CircularProgress,
+  Box,
+  Container,
+  Divider,
+  Paper,
+  useTheme,
+  ThemeProvider,
+  createTheme,
+  CssBaseline,
+  IconButton
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
+import DescriptionIcon from "@mui/icons-material/Description";
+import HealingIcon from "@mui/icons-material/Healing";
+import SpaIcon from "@mui/icons-material/Spa";
+import SelfImprovementIcon from "@mui/icons-material/SelfImprovement";
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
 
 import FORM_FIELDS from "@/constants/prakrithiFormFields";
 import PrakrithiForm from "@/components/Forms/User/PrakrithiForm/PrakrithiForm";
 import { ApiResponse } from "./PrakrithiAnalysis.types";
-import useApi from "@/hooks/useApi/useApi";
 
 // Calculate total sections from form fields
 const TOTAL_SECTIONS = Math.max(...FORM_FIELDS.map((field) => field.section));
 
-export default function PrakritiForm() {
+const sectionVariants = {
+  hidden: { opacity: 0, x: -50 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.5, ease: "easeOut" }
+  },
+  exit: { 
+    opacity: 0, 
+    x: 50,
+    transition: { duration: 0.3, ease: "easeIn" }
+  }
+};
 
+const pulseAnimation = {
+  scale: [1, 1.05, 1],
+  transition: {
+    duration: 2,
+    repeat: Infinity,
+    ease: "easeInOut"
+  }
+};
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: {
+      main: '#81c784',
+      dark: '#4caf50',
+      light: '#a5d6a7'
+    },
+    secondary: {
+      main: '#ffb74d'
+    },
+    background: {
+      default: '#121212',
+      paper: '#1e1e1e'
+    },
+    text: {
+      primary: '#e0e0e0',
+      secondary: '#b0b0b0'
+    }
+  },
+  components: {
+    MuiSelect: {
+      styleOverrides: {
+        select: {
+          backgroundColor: '#2d2d2d',
+          color: '#e0e0e0',
+          '&:focus': {
+            backgroundColor: '#2d2d2d'
+          }
+        },
+        icon: {
+          color: '#b0b0b0'
+        }
+      }
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: '#b0b0b0',
+          '&.Mui-focused': {
+            color: '#81c784'
+          }
+        }
+      }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          color: '#e0e0e0',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#424242'
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#81c784'
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#81c784'
+          }
+        }
+      }
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#2d2d2d',
+          color: '#e0e0e0',
+          '&:hover': {
+            backgroundColor: '#424242'
+          },
+          '&.Mui-selected': {
+            backgroundColor: '#4caf50'
+          }
+        }
+      }
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: '#b0b0b0',
+          '&.Mui-checked': {
+            color: '#81c784'
+          }
+        }
+      }
+    },
+    MuiRadio: {
+      styleOverrides: {
+        root: {
+          color: '#b0b0b0',
+          '&.Mui-checked': {
+            color: '#81c784'
+          }
+        }
+      }
+    },
+    MuiSwitch: {
+      styleOverrides: {
+        switchBase: {
+          color: '#b0b0b0',
+          '&.Mui-checked': {
+            color: '#81c784'
+          },
+          '&.Mui-checked + .MuiSwitch-track': {
+            backgroundColor: '#81c784'
+          }
+        },
+        track: {
+          backgroundColor: '#424242'
+        }
+      }
+    }
+  }
+});
+
+const lightTheme = createTheme({
+  palette: {
+    mode: 'light',
+    primary: {
+      main: '#2e7d32',
+      light: '#4caf50',
+      dark: '#1b5e20'
+    },
+    secondary: {
+      main: '#ff9800'
+    },
+    background: {
+      default: '#f5f5f5',
+      paper: '#ffffff'
+    }
+  }
+});
+
+export default function PrakritiForm() {
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const theme = useTheme();
+
+  // Detect system dark mode preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    setDarkMode(mediaQuery.matches);
+    
+    const handler = (e: MediaQueryListEvent) => setDarkMode(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
 
   const generatePDF = async (responseData: ApiResponse) => {
     setLoading(true);
@@ -25,7 +213,7 @@ export default function PrakritiForm() {
       const { width, height } = page.getSize();
       const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
       const fontSize = 12;
-      let y = height - 50; // Start position for text
+      let y = height - 50;
 
       const drawText = (text: string) => {
         page.drawText(text, {
@@ -35,7 +223,7 @@ export default function PrakritiForm() {
           font,
           color: rgb(0, 0, 0),
         });
-        y -= 20; // Move to next line
+        y -= 20;
       };
 
       // Header
@@ -129,76 +317,227 @@ export default function PrakritiForm() {
       console.error("Error generating PDF:", error);
     } finally {
       setLoading(false);
-      setCurrentSection(1); // Reset to first section after PDF generation
+      setCurrentSection(1);
     }
   };
 
-  // Loading state
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen w-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 text-green-600 dark:text-green-400">
-        <Loader className="animate-spin h-12 w-12" />
-        <p className="mt-4 text-xl font-medium">Analyzing your Prakriti...</p>
-        <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-          This may take a moment
-        </p>
-      </div>
+      <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+        <CssBaseline />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100vh",
+            width: "100vw",
+            background: darkMode
+              ? "linear-gradient(135deg, #121212 0%, #1e1e1e 100%)"
+              : "linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%)",
+            color: theme.palette.primary.main
+          }}
+        >
+          <motion.div
+            animate={pulseAnimation}
+            style={{ textAlign: "center" }}
+          >
+            <SpaIcon sx={{ fontSize: 60, mb: 2 }} />
+            <Typography variant="h4" component="h1" gutterBottom>
+              Analyzing Your Prakriti
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              We're carefully analyzing your responses to provide personalized Ayurvedic insights
+            </Typography>
+            <CircularProgress size={60} thickness={4} sx={{ mt: 4 }} />
+          </motion.div>
+        </Box>
+      </ThemeProvider>
     );
   }
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
-      <div className="w-full max-w-5xl space-y-6">
-        <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-bold text-green-800 dark:text-green-300 mb-2">
-            Discover Your Ayurvedic Constitution
-          </h1>
-          <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Complete this assessment to understand your unique Prakriti and
-            receive personalized health recommendations.
-          </p>
-        </div>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
+      <CssBaseline />
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        style={{
+          minHeight: "100vh",
+          width: "100vw",
+          background: darkMode 
+            ? "linear-gradient(135deg, #121212 0%, #1e1e1e 100%)"
+            : "linear-gradient(135deg, #f5f5f5 0%, #e8f5e9 100%)",
+          padding: theme.spacing(4),
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          position: 'relative'
+        }}
+      >
+        <IconButton 
+          onClick={() => setDarkMode(!darkMode)} 
+          color="inherit"
+          sx={{ 
+            position: 'absolute', 
+            top: 16, 
+            right: 16,
+            zIndex: 1000
+          }}
+        >
+          {darkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+        </IconButton>
 
-        <Card className="w-full shadow-xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl overflow-hidden">
-          <CardHeader className="text-center p-6 border-b border-green-100 dark:border-gray-700 bg-green-50 dark:bg-gray-700">
-            <CardTitle className="text-2xl md:text-3xl font-bold text-green-700 dark:text-green-300">
-              Prakriti Analysis
-            </CardTitle>
-            <div className="mt-6 px-4">
-              <Progress
-                value={(currentSection / TOTAL_SECTIONS) * 100}
-                className="h-3 bg-green-100 dark:bg-gray-600"
+        <Container maxWidth="lg">
+          <motion.div 
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <Box sx={{ textAlign: "center", mb: 6 }}>
+              <motion.div whileHover={{ scale: 1.05 }}>
+                <Typography
+                  variant="h2"
+                  component="h1"
+                  sx={{
+                    fontWeight: 700,
+                    color: theme.palette.primary.dark,
+                    mb: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 2
+                  }}
+                >
+                  <HealingIcon fontSize="large" />
+                  Discover Your Ayurvedic Constitution
+                </Typography>
+              </motion.div>
+              <Typography
+                variant="h6"
+                component="p"
+                color="text.secondary"
+                sx={{ maxWidth: 800, mx: "auto" }}
+              >
+                Complete this assessment to understand your unique Prakriti and
+                receive personalized health recommendations based on 5,000 years of
+                Ayurvedic wisdom.
+              </Typography>
+            </Box>
+
+            <Card
+              sx={{
+                width: "100%",
+                boxShadow: 6,
+                border: "none",
+                background: darkMode ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)',
+                borderRadius: 3,
+                overflow: "hidden",
+                backdropFilter: "blur(10px)"
+              }}
+            >
+              <CardHeader
+                sx={{
+                  textAlign: "center",
+                  p: 4,
+                  borderBottom: `1px solid ${theme.palette.divider}`,
+                  background: darkMode
+                    ? "linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%)"
+                    : "linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%)"
+                }}
+                title={
+                  <Typography
+                    variant="h3"
+                    component="h2"
+                    sx={{
+                      fontWeight: 700,
+                      color: theme.palette.primary.dark,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 2
+                    }}
+                  >
+                    <SelfImprovementIcon fontSize="large" />
+                    Prakriti Analysis
+                  </Typography>
+                }
               />
-              <div className="flex justify-between mt-3 text-sm">
-                <span className="text-green-700 dark:text-green-300 font-medium">
-                  Progress:{" "}
-                  {Math.round((currentSection / TOTAL_SECTIONS) * 100)}%
-                </span>
-                <span className="text-gray-600 dark:text-gray-300">
-                  Section {currentSection} of {TOTAL_SECTIONS}
-                </span>
-              </div>
-            </div>
-          </CardHeader>
 
-          <CardContent className="p-4 md:p-8">
-            <PrakrithiForm
-              generatePDF={generatePDF}
-              currentSection={currentSection}
-              setCurrentSection={setCurrentSection}
-              TOTAL_SECTIONS={TOTAL_SECTIONS}
-              setLoading={setLoading}
-            />
-          </CardContent>
-        </Card>
+              <Box sx={{ px: 4, pt: 3, pb: 1 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
+                  <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                    Section {currentSection} of {TOTAL_SECTIONS}
+                  </Typography>
+                  <Typography variant="body2" fontWeight="medium">
+                    {Math.round((currentSection / TOTAL_SECTIONS) * 100)}% Complete
+                  </Typography>
+                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={(currentSection / TOTAL_SECTIONS) * 100}
+                  sx={{
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: theme.palette.grey[200],
+                    "& .MuiLinearProgress-bar": {
+                      borderRadius: 5,
+                      background: darkMode
+                        ? "linear-gradient(90deg, #81c784 0%, #4caf50 100%)"
+                        : "linear-gradient(90deg, #4caf50 0%, #2e7d32 100%)"
+                    }
+                  }}
+                />
+              </Box>
 
-        <div className="text-center text-sm text-gray-500 dark:text-gray-400">
-          <p>
-            Your responses will help us provide accurate Ayurvedic insights.
-          </p>
-          <p className="mt-1">All information is kept confidential.</p>
-        </div>
-      </div>
-    </div>
+              <CardContent sx={{ p: { xs: 2, md: 4 } }}>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSection}
+                    variants={sectionVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                  >
+                    <PrakrithiForm
+                      generatePDF={generatePDF}
+                      currentSection={currentSection}
+                      setCurrentSection={setCurrentSection}
+                      TOTAL_SECTIONS={TOTAL_SECTIONS}
+                      setLoading={setLoading}
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </CardContent>
+            </Card>
+
+            <Paper
+              elevation={0}
+              sx={{
+                mt: 4,
+                p: 3,
+                textAlign: "center",
+                backgroundColor: "transparent",
+                backgroundImage: "none"
+              }}
+            >
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 1 }}
+              >
+                <DescriptionIcon fontSize="small" />
+                Your responses will help us provide accurate Ayurvedic insights.
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                All information is kept confidential and secure.
+              </Typography>
+            </Paper>
+          </motion.div>
+        </Container>
+      </motion.div>
+    </ThemeProvider>
   );
 }

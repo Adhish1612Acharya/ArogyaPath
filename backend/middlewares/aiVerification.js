@@ -1,4 +1,4 @@
-import PdfParse from "pdf-parse";
+// import PdfParse from "pdf-parse";
 import { verifyMediaContent } from "../utils/geminiApiCalls/verifyMediaContent.js";
 import { verifyTextContent } from "../utils/geminiApiCalls/verifyTextContent.js";
 
