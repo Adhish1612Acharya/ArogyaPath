@@ -107,7 +107,6 @@ Ensure only authentic, context-rich, and Ayurvedic-relevant visuals are marked v
 export const verifyMediaContent = async (base64, mediaType) => {
   try {
     console.log("Verifying media content...");
-    console.log("Base64 length:", base64);
     console.log("Media type:", mediaType);
     const result = await geminiFlashModel.generateContent({
       contents: [

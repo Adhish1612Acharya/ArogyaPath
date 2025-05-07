@@ -1,4 +1,13 @@
-const filtersPrompt=`You are an AI content classifier for ArogyaPath. Analyze posts and return structured data with confidence scoring.
+import { geminiFlashModel } from "../../lib/geminiModel.js";
+import parseAiJsonResponse from "../parseAiResponse.js";
+
+const filtersPrompt = `You are an AI content classifier for ArogyaPath. Analyze posts and return structured data with confidence scoring.
+
+## INPUT SOURCE & ANALYSIS SCOPE:
+You must analyze **all of the following fields** to determine categories:
+- \`title\`: The post's heading or main topic.
+- \`description\`: Main content body containing detailed context or narrative.
+- \`routines\`: An array of objects (e.g., remedies, steps, practices). Each routine can include  timing, content instructions.
 
 ## OUTPUT FORMAT:
 {
@@ -20,43 +29,43 @@ const filtersPrompt=`You are an AI content classifier for ArogyaPath. Analyze po
 ## CLASSIFICATION RULES:
 
 ### 1. DISEASE DETECTION
-🔍 Criteria:
+ Criteria:
 - Explicit mentions only (no inferred conditions)
 - Must include symptoms/conditions (not just wellness terms)
 - Multi-word terms space-separated ("high blood pressure")
 
-📊 Confidence Factors:
+ Confidence Factors:
 +0.3: Direct noun phrase match ("treating diabetes")
 +0.1: Contextual mention ("helps with arthritis pain")
 -0.2: Ambiguous references ("good for heart health")
 
 ### 2. MEDICINE IDENTIFICATION
-🌿 Criteria:
+ Criteria:
 - Classical Ayurvedic names only
 - Standardized spelling (use "ashwagandha" not "ashwagandha root")
 - Exclude non-therapeutic mentions ("turmeric color")
 
-📊 Confidence Factors:
+ Confidence Factors:
 +0.4: Exact match with therapeutic context
 +0.2: Partial match with preparation details
 -0.3: Branded product mentions
 
 ### 3. FILTER ASSIGNMENT
-🏷️ Approved Filters:
+ Approved Filters:
 "herbs", "routines", "wellnessTips", 
 "diet", "yoga", "detox", "seasonal"
 
-✅ Assignment Rules:
+ Assignment Rules:
 - "herbs": ≥2 medicine mentions OR remedy preparation
 - "diet": Food protocols with >50 words description
 - "yoga": Asanas + breathwork + therapeutic intent
 
-📊 Confidence Factors:
+ Confidence Factors:
 +0.25 per qualifying evidence unit
 -0.15 per borderline case
 
 ## TAGS FIELD
-📦 Build the tags array as a **flattened list**:
+ Build the tags array as a **flattened list**:
 - tags = diseases + medicines + filters.assigned
 - Keep all items lowercase
 - Do not include duplicates
@@ -82,28 +91,37 @@ const filtersPrompt=`You are an AI content classifier for ArogyaPath. Analyze po
 - Use empty arrays for missing categories
 - Confidence ≤ 0.5 should flag for manual review
 - Explain rejections clearly in reasoning
-`
+`;
 
-const generateCategories = async (req, res) => {
+const generateFilters = async (title, description, routines) => {
   try {
-    const { content, media, existingFilters } = req.body;
+    // Combine the input fields into a single string
+    const textContent = `
+        Title: ${title}
+        Description: ${description}
+        Routines: ${JSON.stringify(routines, null, 2)}
+        `;
 
-    if (!content || !existingFilters) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-
-    const result = await model.generateContent([filtersPrompt]);
+    const result = await geminiFlashModel.generateContent({
+      contents: [
+        {
+          role: "user",
+          parts: [{ text: filtersPrompt + "\n" + textContent }],
+        },
+      ],
+    });
 
     const response = result.response;
-    const filters = response.text();
+    const responseText = response.text();
 
-    console.log("Classified Filters:", filters);
-    return res.json({ filters: JSON.parse(filters) });
+    const parsedAiResponse = parseAiJsonResponse(responseText);
+
+    console.log("Classified Filters:", parsedAiResponse);
+    return parsedAiResponse.tags;
   } catch (error) {
     console.error("Error generating content:", error);
-    res.status(500).json({ error: "Failed to classify content" });
+    return []; // Return an empty array in case of error
   }
 };
 
-export default generateCategories;
+export default generateFilters;

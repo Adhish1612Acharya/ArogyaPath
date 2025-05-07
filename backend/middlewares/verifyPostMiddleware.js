@@ -1,3 +1,4 @@
+import extractPdfText from "../utils/extractTextFromPdf.js";
 import { verifyMediaContent } from "../utils/geminiApiCalls/verifyMediaContent.js";
 import { verifyTextContent } from "../utils/geminiApiCalls/verifyTextContent.js";
 

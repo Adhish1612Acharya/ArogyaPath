@@ -2,6 +2,7 @@ import Post from "../models/Post/Post.js";
 import Expert from "../models/Expert/Expert.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
 import transformPost from "../utils/transformPost.js";
+import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
@@ -63,7 +64,7 @@ const createPost = async (req, res) => {
   console.log("Processed media:", media);
 
   //Generate categories using ONLY the description
-   const filters = await generateCategories(description);
+  const filters = await generateFilters(title, description, []);
 
   console.log("NewPost", {
     title,
