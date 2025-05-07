@@ -56,8 +56,8 @@ const filtersPrompt=`You are an AI content classifier for ArogyaPath. Analyze po
 -0.15 per borderline case
 
 ## TAGS FIELD
-📦 Build the `tags` array as a **flattened list**:
-- `tags = diseases + medicines + filters.assigned`
+📦 Build the tags array as a **flattened list**:
+- tags = diseases + medicines + filters.assigned
 - Keep all items lowercase
 - Do not include duplicates
 
