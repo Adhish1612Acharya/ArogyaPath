@@ -93,13 +93,11 @@ passport.use("expert", new localStrategy(Expert.authenticate()));
 passport.use("user", new localStrategy(User.authenticate()));
 
 passport.serializeUser((entity, done) => {
-  console.log("Serializing", entity);
 
   done(null, { id: entity._id, type: entity.role });
 });
 
 passport.deserializeUser((obj, done) => {
-  console.log("Deserializing", obj);
   switch (obj.type) {
     case "expert":
       Expert.findById(obj.id).then((user) => {

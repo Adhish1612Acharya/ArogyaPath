@@ -11,7 +11,7 @@ import {
   parseFormdata,
 } from "../middlewares/cloudinaryMiddleware.js";
 import { handleCloudinaryUpload } from "../middlewares/cloudinary/handleCloudinaryUpload.js";
-import { verifyPostData } from "../middlewares/aiVerification.js";
+import { verifyPostData } from "../middlewares/verifyPostMiddleware.js";
 const memoryUpload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
@@ -21,13 +21,12 @@ router.get("/", isLoggedIn, wrapAsync(postController.getAllPosts));
 router.post(
   "/",
   checkExpertLogin,
-  //upload.array("media", 5), // Handle up to 5 files (max 5 images or 1 video/doc),
   memoryUpload.array("media", 5),
   parseFormdata,
   validatePost,
+  verifyPostData,
   handleCloudinaryUpload,
   cloudinaryErrorHandler,
-  verifyPostData,
   wrapAsync(postController.createPost)
 );
 

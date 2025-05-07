@@ -34,7 +34,7 @@ const getPostById = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-  const { title, description, filters } = req.body;
+  const { title, description } = req.body;
 
   const mediaFiles = req.cloudinaryFiles;
   console.log("req.body", req.body);
@@ -62,6 +62,9 @@ const createPost = async (req, res) => {
 
   console.log("Processed media:", media);
 
+  //Generate categories using ONLY the description
+   const filters = await generateCategories(description);
+
   console.log("NewPost", {
     title,
     description,
@@ -70,9 +73,6 @@ const createPost = async (req, res) => {
     owner: req.user._id,
     readTime,
   });
-
-  //Generate categories using ONLY the description
-  // const categories = await generateCategories(description);
 
   //Create a new post with the categories and other details
   const post = await Post.create({

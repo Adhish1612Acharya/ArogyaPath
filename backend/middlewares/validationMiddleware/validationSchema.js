@@ -1,16 +1,25 @@
 import { z } from "zod";
 
 // Utility for MongoDB ObjectId
-const objectIdSchema = z.string().regex(/^[a-f\d]{24}$/i, "Invalid MongoDB ObjectId");
+const objectIdSchema = z
+  .string()
+  .regex(/^[a-f\d]{24}$/i, "Invalid MongoDB ObjectId");
 
 // -------------------- User Schema --------------------
 export const userSchemaZod = z.object({
   fullname: z.string().min(1, "Full name is required").max(50),
   email: z.string().email("Invalid email format"),
-  age: z.number().int().min(1, "Age must be at least 1").max(120, "Age cannot exceed 120"),
+  age: z
+    .number()
+    .int()
+    .min(1, "Age must be at least 1")
+    .max(120, "Age cannot exceed 120"),
   contact: z.string().regex(/^[0-9]{10}$/, "Contact must be exactly 10 digits"),
   username: z.string().min(3).max(20).optional(),
-  password: z.string().min(8, "Password must be at least 8 characters").optional(),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .optional(),
 });
 
 // -------------------- Expert Schema --------------------
@@ -31,7 +40,6 @@ export const expertSchemaZod = z.object({
 export const postSchemaZod = z.object({
   title: z.string().trim().min(1, "Title is required"),
   description: z.string().trim().min(1, "Description is required"),
-  filters: z.array(z.string()).min(1, "At least one filter is required"),
 });
 
 // -------------------- Routine Schema --------------------
@@ -44,10 +52,12 @@ export const routineSchemaZod = z.object({
   title: z.string(),
   description: z.string(),
   filters: z.array(z.string()),
-  routines: z.array(z.object({
-    time: z.string().min(1, "Time is required"),
-    content: z.string().min(1, "Content is required"),
-  }))
+  routines: z.array(
+    z.object({
+      time: z.string().min(1, "Time is required"),
+      content: z.string().min(1, "Content is required"),
+    })
+  ),
 });
 
 // -------------------- SuccessStory Schema --------------------
@@ -56,10 +66,12 @@ export const successStorySchemaZod = z.object({
   description: z.string().min(1, "Description is required"),
   filters: z.array(z.string()).min(1, "At least one filter is required"),
   tagged: z.array(objectIdSchema).max(5, "Cannot exceed 5 tagged experts"),
-  routines: z.array(z.object({
-    time: z.string().min(1, "Time is required"),
-    content: z.string().min(1, "Content is required"),
-  })),
+  routines: z.array(
+    z.object({
+      time: z.string().min(1, "Time is required"),
+      content: z.string().min(1, "Content is required"),
+    })
+  ),
 });
 
 // -------------------- Comment Schema --------------------

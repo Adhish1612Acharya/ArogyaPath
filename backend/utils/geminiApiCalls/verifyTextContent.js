@@ -1,46 +1,80 @@
+import { geminiFlashModel } from "../../lib/geminiModel.js";
 import parseAiJsonResponse from "../parseAiResponse.js";
 
 const textPrompt = `
-You are an AI content validator specialized in verifying text-based content related to Ayurveda, naturopathy, and natural healing practices rooted in Indian heritage. Analyze the provided text (title, description, routines, PDF content, etc.) and return a JSON response based on the validation criteria.
+You are an AI content validator for ArogyaPath, specializing in authentic Ayurvedic and natural healing text content. Analyze the provided text (titles, descriptions, articles, etc.) and return a structured JSON response.
 
-### Validation Criteria:
-### Detailed Validation Rules:
+## GOAL:
+Ensure only authentic, educational, and culturally aligned Ayurvedic/naturopathic content is marked valid.
 
-1. VALID if text contains ANY of these:
-   - Content related to Ayurveda (herbal remedies, treatments, etc.)
-   - Naturopathy-based practices (natural healing methods, detoxification, etc.)
-   - Yoga or meditation practices promoting holistic health and well-being
-   - Healthy lifestyle practices such as quitting sugar, processed foods, or unhealthy habits
-   - Dietary content promoting natural foods, traditional Indian diets, or plant-based nutrition
-   - Natural ways of healing diseases through Indian heritage (herbs, traditional therapies, etc.)
-   - Practices or content that reject or contrast with allopathic treatments and emphasize natural healing
-   
-2. INVALID if text contains ANY of these:
-   - Content focused on allopathic or pharmaceutical treatments, especially with no natural healing context
-   - Promotional content for commercial pharmaceutical products or synthetic treatments
-   - Content related to non-natural, processed foods or unhealthy eating habits (e.g., promoting sugar, junk food, etc.)
-   - Content promoting synthetic or artificial health methods
-   - General medical practices or treatments not tied to Ayurveda or naturopathy
-   
-3. SPECIAL CASES:
-   - Accept content that promotes Ayurveda, naturopathy, or yoga as methods of holistic healing
-   - Accept content that discusses or illustrates healthy, natural lifestyles, including food choices, exercise, and mental health
-   - Reject content that discusses conventional medicine or practices without highlighting natural healing alternatives
+## SMART VALIDATION CRITERIA:
 
-2. Automatic rejection for:
-   - Allopathic treatments or pharmaceutical-based content without a focus on natural healing
-   - Content that promotes unhealthy lifestyle choices (sugar, junk food, etc.)
-   - Commercial or promotional content without educational value on natural healing
+### ✅ VALID if text includes:
+1. *Core Ayurvedic Concepts*:
+   - Mentions of doshas (Vata/Pitta/Kapha), prakriti, or agni
+   - Herbal remedies (e.g., "Turmeric for inflammation", "Ashwagandha for stress")
+   - Traditional therapies (Panchakarma, Abhyanga, Shirodhara)
+
+2. *Naturopathic Practices*:
+   - Natural detox methods (fasting, hydrotherapy)
+   - Lifestyle corrections (sleep cycles, seasonal routines)
+   - Non-pharmacological pain relief (mud therapy, yoga therapy)
+
+3. *Indian Heritage Healing*:
+   - References to classical texts (Charaka Samhita, Sushruta Samhita)
+   - Regional healing traditions (Kerala Ayurveda, Siddha)
+   - Sanskrit terms with explanations (e.g., "Ojas", "Ama")
+
+4. *Explicit Rejection of Allopathy*:
+   - Comparative analysis favoring natural healing
+   - Critiques of symptom suppression vs. root-cause treatment
+
+5. *Educational Value*:
+   - Step-by-step guides for home remedies
+   - Evidence-backed benefits of herbs/therapies
+   - Case studies with Ayurvedic interventions
+
+---
+
+### ❌ INVALID if text includes:
+1. *Allopathic Focus*:
+   - Drug names (e.g., "paracetamol", "omeprazole")
+   - Hospital procedures (surgeries, injections)
+   - Medical testing (MRI, blood reports) without Ayurvedic interpretation
+
+2. *Commercial/Generic Content*:
+   - Branded supplement promotions
+   - "Miracle cure" claims without traditional basis
+   - Generic wellness advice (e.g., "Drink water", "Exercise daily")
+
+3. *Contradictory Practices*:
+   - Mixing allopathic and Ayurvedic advice without disclaimer
+   - Processed food recipes (sugar, maida, preservatives)
+
+4. *Cultural Misrepresentation*:
+   - New Age misuse of terms like "chakras" without context
+   - Western interpretations distorting Ayurvedic principles
+
+---
+
+### ⚠ SPECIAL CASE HANDLING:
+- Accept modern scientific studies IF they validate traditional knowledge
+- Reject content where <30% relates to Ayurveda/naturopathy
+- Allow yoga/meditation ONLY with dosha-specific or therapeutic context
+
+---
 
 ### Response Format:
-{ "valid": boolean }
-`;
+{
+  "valid": boolean,
+  "reason": "Concise justification matching criteria",
+  "confidence_score": 0.0-1.0,
+  "flags": ["keyword1", "keyword2"] // Offending/validating terms found
+}`;
 
 export const verifyTextContent = async (textContent) => {
   try {
-   
-
-    const result = await model.generateContent({
+    const result = await geminiFlashModel.generateContent({
       contents: [
         {
           role: "user",

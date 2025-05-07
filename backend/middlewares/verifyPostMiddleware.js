@@ -1,16 +1,5 @@
-// import PdfParse from "pdf-parse";
 import { verifyMediaContent } from "../utils/geminiApiCalls/verifyMediaContent.js";
 import { verifyTextContent } from "../utils/geminiApiCalls/verifyTextContent.js";
-
-const parsePdfText = async (buffer) => {
-  try {
-    const { text } = await PdfParse(buffer);
-    return text;
-  } catch (error) {
-    console.error("Error parsing PDF:", error);
-    throw new Error("PDF parsing failed");
-  }
-};
 
 /**
  * Middleware to verify uploaded media and text using AI models.
@@ -29,7 +18,8 @@ export const verifyPostData = async (req, res, next) => {
 
       // Handle images and videos using Gemini's media content verifier
       if (mimetype.startsWith("image/") || mimetype.startsWith("video/")) {
-        const isValidMedia = await verifyMediaContent(buffer, mimetype);
+        const base64Content = buffer.toString("base64");
+        const isValidMedia = await verifyMediaContent(base64Content, mimetype);
         if (!isValidMedia) {
           return res.status(400).json({
             success: false,
@@ -43,7 +33,8 @@ export const verifyPostData = async (req, res, next) => {
       // Handle PDFs by extracting text and verifying it
       else if (mimetype === "application/pdf") {
         try {
-          const text = await parsePdfText(buffer);
+          const text = await extractPdfText(buffer);
+          console.log("Text : ", text);
           const isValidPdfText = await verifyTextContent(text);
 
           if (!isValidPdfText) {

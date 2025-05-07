@@ -1,44 +1,88 @@
-// const axios = require("axios");
+const filtersPrompt=`You are an AI content classifier for ArogyaPath. Analyze posts and return structured data with confidence scoring.
 
-// const API_KEY = process.env.GEMINI_API_KEY;
+## OUTPUT FORMAT:
+{
+  "diseases": string[],       // Lowercase disease names (empty if none)
+  "medicines": string[],      // Lowercase Ayurvedic terms (empty if none)
+  "filters": {
+    "assigned": string[],     // Valid filter keys from approved list
+    "rejected": string[]      // Proposed but invalid filters
+  },
+  "tags": string[],           // Combined list: diseases + medicines + assigned filters
+  "reasoning": {
+    "disease": string,        // Explanation for disease detection
+    "medicine": string,       // Explanation for herb detection
+    "filters": string         // Justification for filter assignments
+  },
+  "confidence_score": number  // 0.0-1.0 overall accuracy estimate
+}
 
-// const generateCategories = async (description) => {
-//   try {
-//     const response = await axios.post(
-//       "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent",
-//       {
-//         contents: [
-//           {
-//             parts: [
-//               {
-//                 text: `Generate relevant categories for this description: ${description}`,
-//               },
-//             ],
-//           },
-//         ],
-//       },
-//       {
-//         headers: { "Content-Type": "application/json" },
-//         params: { key: API_KEY },
-//       }
-//     );
+## CLASSIFICATION RULES:
 
-//     // 🔹 Extract categories from response
-//     const categories =
-//       response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "[]";
-//     return JSON.parse(categories); // Convert text to array
-//   } catch (err) {
-//     console.error("Gemini AI Error:", err);
-//     return [];
-//   }
-// };
+### 1. DISEASE DETECTION
+🔍 Criteria:
+- Explicit mentions only (no inferred conditions)
+- Must include symptoms/conditions (not just wellness terms)
+- Multi-word terms space-separated ("high blood pressure")
 
-// export default generateCategories;
+📊 Confidence Factors:
++0.3: Direct noun phrase match ("treating diabetes")
++0.1: Contextual mention ("helps with arthritis pain")
+-0.2: Ambiguous references ("good for heart health")
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+### 2. MEDICINE IDENTIFICATION
+🌿 Criteria:
+- Classical Ayurvedic names only
+- Standardized spelling (use "ashwagandha" not "ashwagandha root")
+- Exclude non-therapeutic mentions ("turmeric color")
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+📊 Confidence Factors:
++0.4: Exact match with therapeutic context
++0.2: Partial match with preparation details
+-0.3: Branded product mentions
+
+### 3. FILTER ASSIGNMENT
+🏷️ Approved Filters:
+"herbs", "routines", "wellnessTips", 
+"diet", "yoga", "detox", "seasonal"
+
+✅ Assignment Rules:
+- "herbs": ≥2 medicine mentions OR remedy preparation
+- "diet": Food protocols with >50 words description
+- "yoga": Asanas + breathwork + therapeutic intent
+
+📊 Confidence Factors:
++0.25 per qualifying evidence unit
+-0.15 per borderline case
+
+## TAGS FIELD
+📦 Build the `tags` array as a **flattened list**:
+- `tags = diseases + medicines + filters.assigned`
+- Keep all items lowercase
+- Do not include duplicates
+
+## EXAMPLE OUTPUT:
+{
+  "diseases": ["viral fever"],
+  "medicines": ["tulsi", "ginger"],
+  "filters": {
+    "assigned": ["herbs", "wellnessTips"],
+    "rejected": ["detox"]
+  },
+  "tags": ["viral fever", "tulsi", "ginger", "herbs", "wellnessTips"],
+  "reasoning": {
+    "disease": "Direct mention of 'viral fever' in symptoms list",
+    "medicine": "Tulsi referenced as kadha ingredient, ginger in dosage instructions",
+    "filters": "Herbs assigned for multiple remedies, wellnessTips for prevention focus"
+  },
+  "confidence_score": 0.87
+}
+
+## Edge Case Handling:
+- Use empty arrays for missing categories
+- Confidence ≤ 0.5 should flag for manual review
+- Explain rejections clearly in reasoning
+`
 
 const generateCategories = async (req, res) => {
   try {
@@ -48,38 +92,10 @@ const generateCategories = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const prompt = `
-    You are an AI assistant specializing in content classification.  
-    Your task is to categorize a given post into one or more **predefined filters**.
-    
-    ### **Input Data**
-    - Post Description: "${content}"
-    - Media (image, document, or video): "${media}" 
-    - Available Filters: ${JSON.stringify(existingFilters)}
-    
-    ### **Task Requirements**
-    1. **Select Only from Existing Filters**:  
-       - The response **must include at least one filter** from the predefined filters.
-       - **Do not create or suggest new filters.**
-       - Match the post content **only** to the most relevant existing sub-filters.
-    
-    2. **Strictly Return Valid JSON**:  
-       - The response must be a **pure JSON object** with no markdown, explanations, or extra formatting.  
-       - The JSON output **must be parsable** without backticks or surrounding text.
-    
-    ### **Expected JSON Response Format**
-    {
-      "filters": ["At least one relevant existing sub-filter"]
-    }
-    
-    - The **"filters" array must never be empty**.
-    - **Only return predefined sub-filters**—do not generate new ones.
-    - Ensure accuracy—**false positives are worse than false negatives**.
-    `;
 
-    const result = await model.generateContent([prompt]);
+    const result = await model.generateContent([filtersPrompt]);
 
-    const response = await result.response;
+    const response = result.response;
     const filters = response.text();
 
     console.log("Classified Filters:", filters);
