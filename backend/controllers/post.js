@@ -2,6 +2,7 @@ import Post from "../models/Post/Post.js";
 import Expert from "../models/Expert/Expert.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
 import transformPost from "../utils/transformPost.js";
+import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
@@ -34,9 +35,9 @@ const getPostById = async (req, res) => {
 };
 
 const createPost = async (req, res) => {
-  const { title, description, filters } = req.body;
+  const { title, description } = req.body;
 
-  const mediaFiles = req.files;
+  const mediaFiles = req.cloudinaryFiles;
   console.log("req.body", req.body);
   console.log("Media Files:", mediaFiles);
 
@@ -46,22 +47,24 @@ const createPost = async (req, res) => {
     document: null,
   };
 
-  // Cloudinary stores file URLs in `path`
+  //Cloudinary stores file URLs in `path`
   mediaFiles.forEach((file) => {
-    const mimeType = file.mimetype;
-
-    if (mimeType.startsWith("image/")) {
-      media.images.push(file.path); // Cloudinary gives the URL in `path`
-    } else if (mimeType.startsWith("video/")) {
-      media.video = file.path;
-    } else if (mimeType === "application/pdf") {
-      media.document = file.path;
+    // Determine file type from Cloudinary response
+    if (file.resource_type === "image") {
+      media.images.push(file.secure_url);
+    } else if (file.resource_type === "video") {
+      media.video = file.secure_url;
+    } else if (file.format === "pdf") {
+      media.document = file.secure_url;
     }
   });
 
   const readTime = calculateReadTime({ title, description, routines: [] });
 
   console.log("Processed media:", media);
+
+  //Generate categories using ONLY the description
+  const filters = await generateFilters(title, description, []);
 
   console.log("NewPost", {
     title,
@@ -71,9 +74,6 @@ const createPost = async (req, res) => {
     owner: req.user._id,
     readTime,
   });
-
-  //Generate categories using ONLY the description
-  // const categories = await generateCategories(description);
 
   //Create a new post with the categories and other details
   const post = await Post.create({
@@ -91,7 +91,7 @@ const createPost = async (req, res) => {
   return res.status(200).json({
     message: "Post created",
     success: true,
-    postId: post._id,
+    postId: " post._id",
     userId: req.user._id,
   });
 };
