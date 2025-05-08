@@ -1,30 +1,48 @@
-// models/UserProfile.js
-import mongoose from 'mongoose';
+const mongoose = require("mongoose");
 
-const BodyConstituentsSchema = new mongoose.Schema({
-  Body_Type: { type: String },
-  Skin_Type: { type: String },
-  Hair_Type: { type: String },
-  Thirst_Level: { type: String },
-  Sleep_Pattern: { type: String }
-}, { _id: false });
-
-const RecommendationsSchema = new mongoose.Schema({
-  Dietary_Guidelines: [{ type: String }],
-  Lifestyle_Suggestions: [{ type: String }],
-  Ayurvedic_Herbs_Remedies: [{ type: String }]
-}, { _id: false });
-
-const prakrathiSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+const prakrithiSchema = new mongoose.Schema({
+  // User Inputs
   Name: { type: String, required: true },
-  Age: { type: Number, required: true },
+  Age: { type: Number, required: true, min: 0 },
   Gender: { type: String, required: true },
-  Dominant_Prakrithi: { type: String, enum: ['Vata', 'Pitta', 'Kapha'], required: true },
-  Body_Constituents: { type: BodyConstituentsSchema, required: true },
-  Recommendations: { type: RecommendationsSchema },
-  Potential_Health_Concerns: [{ type: String }]
-});
+  Height: { type: Number, required: true, min: 0 },
+  Weight: { type: Number, required: true, min: 0 },
+  Body_Type: { type: String, required: true },
+  Skin_Type: { type: String, required: true },
+  Hair_Type: { type: String, required: true },
+  Facial_Structure: { type: String, required: true },
+  Complexion: { type: String, required: true },
+  Eyes: { type: String, required: true },
+  Food_Preference: { type: String, required: true },
+  Bowel_Movement: { type: String, required: true },
+  Thirst_Level: { type: String, required: true },
+  Sleep_Duration: { type: Number, required: true, min: 0, max: 24 },
+  Sleep_Quality: { type: String, required: true },
+  Energy_Levels: { type: String, required: true },
+  Daily_Activity_Level: { type: String, required: true },
+  Exercise_Routine: { type: String, required: true },
+  Food_Habit: { type: String, required: true },
+  Water_Intake: { type: String, required: true },
+  Health_Issues: { type: String, required: true },
+  Hormonal_Imbalance: { type: String, required: true },
+  Skin_Hair_Problems: { type: String, required: true },
+  Ayurvedic_Treatment: { type: String, required: true },
 
-const Prakarthi = mongoose.model('Prakrathi', prakrathiSchema);
-export default Prakarthi;
+  // ML Model Response
+  Dominant_Prakrithi: { type: String, required: true },
+  Body_Constituents: {
+    Body_Type: { type: String, required: true },
+    Skin_Type: { type: String, required: true },
+    Hair_Type: { type: String, required: true },
+    Thirst_Level: { type: String, required: true },
+    Sleep_Pattern: { type: String, required: true },
+  },
+  Recommendations: {
+    Dietary_Guidelines: { type: [String], required: true },
+    Lifestyle_Suggestions: { type: [String], required: true },
+    Ayurvedic_Herbs_Remedies: { type: [String], required: true },
+  },
+  Potential_Health_Concerns: { type: [String], required: true },
+}, { timestamps: true });
+
+module.exports = mongoose.model("Prakrithi", prakrithiSchema);
