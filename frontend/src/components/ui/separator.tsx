@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+import { FC } from "react";
+
+export const Separator: FC<{ className?: string }> = ({ className }) => (
+  <hr className={`separator ${className}`} />
+);
+=======
 import * as React from "react"
 import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
@@ -24,3 +31,4 @@ function Separator({
 }
 
 export { Separator }
+>>>>>>> 2dd9d80d970fa5242884bf336f035f4f84347d40

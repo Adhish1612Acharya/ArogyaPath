@@ -18,6 +18,24 @@ export const isLoggedIn = (req, res, next) => {
     });
   }
 };
+export const isExpert=(req,res,next)=>{
+  if(req.user.role=="expert"){
+   return next();
+  }else{
+    return res.status(400).json({
+      message: "you have no authorization",
+    });
+  }
+}
+export const isUser=(req,res,next)=>{
+  if(req.user.role=="user"){
+   return next();
+  }else{
+    return res.status(400).json({
+      message: "you have no authorization",
+    });
+  }
+}
 
 export default{
   isAlreadyLoggedIn,

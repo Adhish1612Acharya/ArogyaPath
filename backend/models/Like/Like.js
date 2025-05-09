@@ -10,7 +10,6 @@ const likeSchema = new mongoose.Schema(
       ref: "Post",
     },
   },
-
   { timestamps: true }
 );
 
