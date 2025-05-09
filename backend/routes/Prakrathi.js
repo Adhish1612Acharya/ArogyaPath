@@ -35,29 +35,29 @@ router.post(
 
 
 
-router.get(
-    '/prakrathi/similar_users',
-    wrapAsync(async (req, res) => {
-      const userId = req.user._id;
+// router.get(
+//     '/prakrathi/similar_users',
+//     wrapAsync(async (req, res) => {
+//       const userId = req.user._id;
   
-      // Get current user's prakrithi
-      const currentUserEntry = await Prakrathi.findOne({ user: userId });
+//       // Get current user's prakrithi
+//       const currentUserEntry = await Prakrathi.findOne({ user: userId });
   
-      if (!currentUserEntry) {
-        return res.status(404).json({ success: false, message: 'Prakrathi data not found for this user.' });
-      }
+//       if (!currentUserEntry) {
+//         return res.status(404).json({ success: false, message: 'Prakrathi data not found for this user.' });
+//       }
   
-      const dominant = currentUserEntry.Dominant_Prakrithi;
+//       const dominant = currentUserEntry.Dominant_Prakrithi;
   
-      // Find users with the same dominant prakrithi, excluding current user
-      const similarUsers = await Prakrathi.find({
-        Dominant_Prakrithi: dominant,
-        user: { $ne: userId }   
-      });
+//       // Find users with the same dominant prakrithi, excluding current user
+//       const similarUsers = await Prakrathi.find({
+//         Dominant_Prakrithi: dominant,
+//         user: { $ne: userId }   
+//       });
   
-      res.json({ success: true, similarUsers });
-    })
-  );
+//       res.json({ success: true, similarUsers });
+//     })
+//   );
   
   router.get(
     "/prakrathi/similar_users",

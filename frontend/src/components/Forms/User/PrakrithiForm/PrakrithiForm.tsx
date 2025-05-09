@@ -1,28 +1,25 @@
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
+  TextField,
+  Button,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  MenuItem,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+  Grow,
+  Fade,
+  Zoom,
+  Slide
+} from "@mui/material";
 import FORM_FIELDS from "@/constants/prakrithiFormFields";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FC } from "react";
-import { useForm } from "react-hook-form";
+import { FC, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import prakrithiFormSchema from "./PrakrithiFromSchema";
 import axios from "axios";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { PrakrithiAnalysisFormProps } from "./PrakrithiForm.types";
+import { motion, AnimatePresence } from "framer-motion";
 
 const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   currentSection,
@@ -31,7 +28,7 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   generatePDF,
   TOTAL_SECTIONS,
 }) => {
-  const form = useForm<z.infer<typeof prakrithiFormSchema>>({
+  const { control, handleSubmit, trigger, formState: { isValid } } = useForm<z.infer<typeof prakrithiFormSchema>>({
     resolver: zodResolver(prakrithiFormSchema),
     mode: "onChange",
     defaultValues: {
@@ -72,6 +69,20 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
     },
   });
 
+  // Animation variants
+  const fieldVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: i * 0.1,
+        duration: 0.5,
+        ease: "easeOut"
+      }
+    })
+  };
+
   /**
    * Filters form fields for the current section
    */
@@ -83,12 +94,12 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
    * Handles moving to the next section with validation
    */
   const handleNext = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault(); // prevent accidental form submission
-    // Validate current section fields
+    e.preventDefault();
     const currentFields = getCurrentSectionFields();
-    const isValid = await form.trigger(currentFields.map((f) => f.name));
+    const isValid = await trigger(currentFields.map((f) => f.name));
 
     if (isValid && currentSection < TOTAL_SECTIONS) {
+      // Animate section change
       setCurrentSection(currentSection + 1);
     }
   };
@@ -99,7 +110,6 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   const onSubmit = async (data: z.infer<typeof prakrithiFormSchema>) => {
     setLoading(true);
     try {
-      // Convert numeric fields to proper types
       const processedData = {
         ...data,
         Age: Number(data.Age),
@@ -113,8 +123,6 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
         processedData
       );
 
-      console.log("Response : ", response.data);
-
       await generatePDF(response.data);
     } catch (error) {
       console.error("Submission failed", error);
@@ -124,84 +132,230 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {getCurrentSectionFields().map((field) => (
-            <FormField
-              key={field.name}
-              control={form.control}
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <motion.div 
+        key={`section-${currentSection}`}
+        initial={{ opacity: 0, x: currentSection > 1 ? 20 : -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        exit={{ opacity: 0, x: currentSection > 1 ? -20 : 20 }}
+        transition={{ duration: 0.3 }}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        {getCurrentSectionFields().map((field, index) => (
+          <motion.div
+            key={field.name}
+            custom={index}
+            initial="hidden"
+            animate="visible"
+            variants={fieldVariants}
+          >
+            <Controller
               name={field.name}
-              render={({ field: formField }) => (
-                <FormItem>
-                  <FormLabel>{field.label}</FormLabel>
+              control={control}
+              render={({ field: controllerField, fieldState: { error } }) => (
+                <FormControl fullWidth className="mb-4">
                   {field.type === "select" ? (
-                    <Select
-                      onValueChange={formField.onChange}
-                      value={formField.value as string}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={`Select ${field.label}`} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
+                    <>
+                      <InputLabel className="text-gray-600 dark:text-gray-300">
+                        {field.label}
+                      </InputLabel>
+                      <Select
+                        {...controllerField}
+                        label={field.label}
+                        error={!!error}
+                        className="bg-white/80 dark:bg-gray-700/80 rounded-lg backdrop-blur-sm"
+                        MenuProps={{
+                          PaperProps: {
+                            sx: {
+                              borderRadius: '12px',
+                              marginTop: '8px',
+                              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                              '& .MuiMenuItem-root': {
+                                padding: '12px 16px',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(13, 148, 136, 0.1)'
+                                }
+                              }
+                            }
+                          }
+                        }}
+                      >
                         {field.options?.map((option) => (
-                          <SelectItem key={option} value={option}>
+                          <MenuItem 
+                            key={option} 
+                            value={option}
+                            sx={{
+                              '&.Mui-selected': {
+                                backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                                '&:hover': {
+                                  backgroundColor: 'rgba(13, 148, 136, 0.3)'
+                                }
+                              }
+                            }}
+                          >
                             {option}
-                          </SelectItem>
+                          </MenuItem>
                         ))}
-                      </SelectContent>
-                    </Select>
+                      </Select>
+                    </>
                   ) : (
-                    <FormControl>
-                      <Input
-                        type={field.type}
-                        placeholder={`Enter your ${field.label.toLowerCase()}`}
-                        {...formField}
-                      />
-                    </FormControl>
+                    <TextField
+                      {...controllerField}
+                      label={field.label}
+                      type={field.type}
+                      error={!!error}
+                      helperText={error?.message}
+                      variant="outlined"
+                      className="bg-white/80 dark:bg-gray-700/80 rounded-lg backdrop-blur-sm"
+                      InputProps={{
+                        className: "text-gray-800 dark:text-gray-200",
+                        sx: {
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#0d9488 !important',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#0d9488 !important',
+                            borderWidth: '2px',
+                          },
+                        }
+                      }}
+                      InputLabelProps={{
+                        sx: {
+                          '&.Mui-focused': {
+                            color: '#0d9488',
+                          },
+                        }
+                      }}
+                    />
                   )}
-                  <FormMessage />
-                </FormItem>
+                  {error && field.type === "select" && (
+                    <FormHelperText error>{error.message}</FormHelperText>
+                  )}
+                </FormControl>
               )}
             />
-          ))}
-        </div>
+          </motion.div>
+        ))}
+      </motion.div>
 
-        <div className="flex justify-between gap-4 pt-4">
+      <div className="flex justify-between gap-4 pt-4">
+        <AnimatePresence mode="wait">
           {currentSection > 1 && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCurrentSection(currentSection - 1)}
-              className="w-full sm:w-auto"
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
             >
-              Previous
-            </Button>
+              <Button
+                type="button"
+                variant="outlined"
+                onClick={() => setCurrentSection(currentSection - 1)}
+                className="w-full sm:w-auto px-6 py-3 text-indigo-600 border-indigo-600 hover:bg-indigo-50 hover:border-indigo-700 rounded-lg"
+                sx={{
+                  '&:hover': {
+                    boxShadow: '0 4px 14px rgba(79, 70, 229, 0.2)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Previous
+              </Button>
+            </motion.div>
           )}
-          <div className="flex-1" /> {/* Spacer */}
+        </AnimatePresence>
+
+        <div className="flex-1" />
+
+        <AnimatePresence mode="wait">
           {currentSection < TOTAL_SECTIONS ? (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={(e) => handleNext(e)}
-              className="w-full sm:w-auto"
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
             >
-              Next
-            </Button>
+              <Button
+                type="button"
+                variant="contained"
+                onClick={(e) => handleNext(e)}
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white rounded-lg"
+                sx={{
+                  '&:hover': {
+                    boxShadow: '0 4px 20px rgba(79, 70, 229, 0.4)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Continue
+                <motion.span 
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 1.5,
+                    ease: "easeInOut"
+                  }}
+                  className="ml-2"
+                >
+                  →
+                </motion.span>
+              </Button>
+            </motion.div>
           ) : (
-            <Button
-              type="submit"
-              variant={"secondary"}
-              className="w-full sm:w-auto"
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
             >
-              Submit
-            </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white rounded-lg"
+                sx={{
+                  '&:hover': {
+                    boxShadow: '0 4px 20px rgba(5, 150, 105, 0.4)',
+                    transform: 'translateY(-2px)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+                disabled={!isValid}
+              >
+                <motion.span
+                  animate={isValid ? { 
+                    scale: [1, 1.05, 1],
+                    transition: { 
+                      duration: 1.5,
+                      repeat: Infinity
+                    } 
+                  } : {}}
+                >
+                  Complete Analysis
+                </motion.span>
+                {isValid && (
+                  <motion.div 
+                    className="ml-2"
+                    animate={{ 
+                      rotate: 360,
+                      transition: { 
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear"
+                      } 
+                    }}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                  </motion.div>
+                )}
+              </Button>
+            </motion.div>
           )}
-        </div>
-      </form>
-    </Form>
+        </AnimatePresence>
+      </div>
+    </form>
   );
 };
 
