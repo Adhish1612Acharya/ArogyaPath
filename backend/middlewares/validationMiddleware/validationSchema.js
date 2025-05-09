@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 
 // Utility for MongoDB ObjectId
@@ -85,6 +84,37 @@ export const commentSchemaZod = z.object({
     .optional(),
 });
 
+const prakrithiSchema = z.object({
+  Name: z.string(),
+  Age: z.number().int().min(0),
+  Gender: z.string(), // You can use z.enum(["Male", "Female", "Other"]) if values are limited
+  Height: z.number().min(0),
+  Weight: z.number().min(0),
+  Body_Type: z.string(),
+  Skin_Type: z.string(),
+  Hair_Type: z.string(),
+  Facial_Structure: z.string(),
+  Complexion: z.string(),
+  Eyes: z.string(),
+  Food_Preference: z.string(),
+  Bowel_Movement: z.string(),
+  Thirst_Level: z.string(),
+  Sleep_Duration: z.number().min(0).max(24),
+  Sleep_Quality: z.string(),
+  Energy_Levels: z.string(),
+  Daily_Activity_Level: z.string(),
+  Exercise_Routine: z.string(),
+  Food_Habit: z.string(),
+  Water_Intake: z.string(),
+  Health_Issues: z.string(),
+  Hormonal_Imbalance: z.string(),
+  Skin_Hair_Problems: z.string(),
+  Ayurvedic_Treatment: z.string(), // use z.enum(["Yes", "No"]) if values are limited
+});
 
-export default { userSchemaZod, expertSchemaZod, postSchemaZod };
-
+export default {
+  userSchemaZod,
+  expertSchemaZod,
+  postSchemaZod,
+  prakrithiSchema,
+};
