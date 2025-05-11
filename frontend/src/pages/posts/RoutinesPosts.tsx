@@ -416,7 +416,7 @@ export function AllRoutinePosts() {
   };
 
   return (
-    <Box className="min-h-screen bg-gray-50 flex flex-col">
+    <Box className="w-screen bg-gray-50 flex flex-col">
       <Navbar userType={userType} />
       <Container maxWidth="xl" className="flex-1 py-12 px-4 sm:px-6">
         <motion.div
@@ -469,6 +469,7 @@ export function AllRoutinePosts() {
                     onShare={() => handleShare(post)}
                     onComment={(comment) => handleAddComment(post.id, comment)}
                     onReply={(commentId, reply) => handleAddReply(post.id, commentId, reply)}
+                    onMediaClick={(media) => { /* handle media click if needed */ }}
                     menuItems={[
                       ...(isPostAuthor(post) ? [
                         { 

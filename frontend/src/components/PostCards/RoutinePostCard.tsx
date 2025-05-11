@@ -34,7 +34,11 @@ import {
   Box,
   Grid,
   Paper,
-  Popover
+  Popover,
+  Badge,
+  List,
+  ListItem,
+  ListItemButton,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -86,7 +90,7 @@ interface RoutinePostCardProps {
   currentUserId: string;
   onLike: () => void;
   onSave: () => void;
-  onShare: () => void;
+  onShare: (platform: string) => void;
   onComment: (comment: string) => void;
   onReply: (commentId: string, reply: string) => void;
   onMediaClick: (media: string) => void;
@@ -128,6 +132,15 @@ const ActivityLine = styled('div')(({ theme }) => ({
   transition: theme.transitions.create('background-color'),
 }));
 
+const shareOptions = [
+  { platform: 'Facebook', icon: <i className="fab fa-facebook" />, color: '#3b5998' },
+  { platform: 'Twitter', icon: <i className="fab fa-twitter" />, color: '#1da1f2' },
+  { platform: 'LinkedIn', icon: <i className="fab fa-linkedin" />, color: '#0077b5' },
+  { platform: 'WhatsApp', icon: <i className="fab fa-whatsapp" />, color: '#25d366' },
+  { platform: 'Email', icon: <i className="fas fa-envelope" />, color: '#dd4b39' },
+  { platform: 'Copy Link', icon: <i className="fas fa-link" />, color: '#6c757d' },
+];
+
 export function RoutinePostCard({
   post,
   isLiked,
@@ -146,6 +159,7 @@ export function RoutinePostCard({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const [shareAnchorEl, setShareAnchorEl] = useState<HTMLElement | null>(null);
   const commentInputRef = useRef<HTMLInputElement>(null);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -162,6 +176,14 @@ export function RoutinePostCard({
 
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
+  };
+
+  const handleShareOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setShareAnchorEl(event.currentTarget);
+  };
+
+  const handleShareClose = () => {
+    setShareAnchorEl(null);
   };
 
   const handleCommentClick = () => {
@@ -205,11 +227,11 @@ export function RoutinePostCard({
                 alt={post.title}
                 sx={{
                   width: '100%',
-                  height: 320,
+                  height: 400,
                   objectFit: 'cover',
                   transition: 'transform 0.3s',
                   '&:hover': {
-                    transform: 'scale(1.05)',
+                    transform: 'scale(1.02)',
                   },
                 }}
               />
@@ -222,7 +244,7 @@ export function RoutinePostCard({
                 bgcolor="rgba(0,0,0,0)"
                 sx={{
                   '&:hover': {
-                    bgcolor: 'rgba(0,0,0,0.1)',
+                    bgcolor: 'rgba(0,0,0,0.05)',
                   },
                   transition: 'background-color 0.3s',
                   display: 'flex',
@@ -249,10 +271,10 @@ export function RoutinePostCard({
                 <Grid 
                   item 
                   key={index}
-                  xs={index === 0 ? 12 : 6}
+                  xs={post.images.length === 2 ? 6 : index === 0 ? 12 : 6}
                   sx={{
                     position: 'relative',
-                    height: index === 0 ? 320 : 160,
+                    height: post.images.length === 2 ? 200 : index === 0 ? 400 : 200,
                     cursor: 'pointer',
                   }}
                   onClick={() => handleMediaClick(index)}
@@ -267,7 +289,7 @@ export function RoutinePostCard({
                       objectFit: 'cover',
                       transition: 'transform 0.3s',
                       '&:hover': {
-                        transform: 'scale(1.05)',
+                        transform: 'scale(1.02)',
                       },
                     }}
                   />
@@ -319,7 +341,7 @@ export function RoutinePostCard({
             alt="Video thumbnail"
             sx={{
               width: '100%',
-              height: 320,
+              height: 400,
               objectFit: 'cover',
             }}
           />
@@ -405,6 +427,7 @@ export function RoutinePostCard({
 
   const openPopover = Boolean(anchorEl);
   const openMenu = Boolean(menuAnchorEl);
+  const openShare = Boolean(shareAnchorEl);
 
   return (
     <motion.div
@@ -643,7 +666,7 @@ export function RoutinePostCard({
             <Button
               size="small"
               startIcon={<Share />}
-              onClick={onShare}
+              onClick={handleShareOpen}
               sx={{
                 color: 'text.secondary',
                 '&:hover': {
@@ -666,6 +689,46 @@ export function RoutinePostCard({
             <Bookmark sx={{ fill: isSaved ? 'currentColor' : 'none' }} />
           </IconButton>
         </CardActions>
+
+        {/* Share Menu */}
+        <Menu
+          anchorEl={shareAnchorEl}
+          open={openShare}
+          onClose={handleShareClose}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'left',
+          }}
+          transformOrigin={{
+            vertical: 'bottom',
+            horizontal: 'left',
+          }}
+        >
+          <Box sx={{ width: 200, p: 1 }}>
+            <Typography variant="subtitle2" sx={{ p: 1, fontWeight: 'bold' }}>
+              Share via
+            </Typography>
+            <List dense>
+              {shareOptions.map((option) => (
+                <ListItem 
+                  key={option.platform} 
+                  disablePadding
+                  onClick={() => {
+                    onShare(option.platform);
+                    handleShareClose();
+                  }}
+                >
+                  <ListItemButton sx={{ borderRadius: 1 }}>
+                    <ListItemIcon sx={{ minWidth: 36, color: option.color }}>
+                      {option.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={option.platform} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
+        </Menu>
 
         {/* Comment Section */}
         {commentOpen && (

@@ -123,6 +123,7 @@ export function SuccessStoryCard({
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
   const commentInputRef = useRef<HTMLInputElement | null>(null);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -170,6 +171,65 @@ export function SuccessStoryCard({
     setVerifiersDialogOpen(true);
   };
 
+  const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
+    setShareAnchorEl(event.currentTarget);
+  };
+
+  const handleShareClose = () => {
+    setShareAnchorEl(null);
+  };
+
+  const shareOptions = [
+    {
+      name: "Copy Link",
+      icon: <InsertDriveFile />,
+      action: () => {
+        navigator.clipboard.writeText(window.location.href);
+        handleShareClose();
+      }
+    },
+    {
+      name: "Twitter",
+      icon: <i className="fab fa-twitter" style={{ color: "#1DA1F2" }} />,
+      action: () => {
+        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`, '_blank');
+        handleShareClose();
+      }
+    },
+    {
+      name: "Facebook",
+      icon: <i className="fab fa-facebook" style={{ color: "#1877F2" }} />,
+      action: () => {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+        handleShareClose();
+      }
+    },
+    {
+      name: "LinkedIn",
+      icon: <i className="fab fa-linkedin" style={{ color: "#0077B5" }} />,
+      action: () => {
+        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
+        handleShareClose();
+      }
+    },
+    {
+      name: "WhatsApp",
+      icon: <i className="fab fa-whatsapp" style={{ color: "#25D366" }} />,
+      action: () => {
+        window.open(`https://wa.me/?text=${encodeURIComponent(`${post.title} - ${window.location.href}`)}`, '_blank');
+        handleShareClose();
+      }
+    },
+    {
+      name: "Email",
+      icon: <i className="fas fa-envelope" style={{ color: "#EA4335" }} />,
+      action: () => {
+        window.open(`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(window.location.href)}`, '_blank');
+        handleShareClose();
+      }
+    }
+  ];
+
   const renderMediaContent = () => {
     if (post.images && post.images.length > 0) {
       return (
@@ -190,24 +250,84 @@ export function SuccessStoryCard({
             </Box>
           ) : (
             <Box className="grid grid-cols-2 gap-1">
-              {post.images.slice(0, 4).map((img, index) => (
-                <Box 
-                  key={index}
-                  className={`relative ${index === 0 ? 'row-span-2' : ''} ${index === 3 && post.images.length > 4 ? 'bg-black' : ''}`}
-                  onClick={() => handleMediaClick(index)}
-                >
-                  <img
-                    src={img}
-                    alt={`${post.title} ${index + 1}`}
-                    className={`w-full h-full object-cover ${index === 0 ? 'h-full' : 'h-40'} transition-transform duration-300 hover:scale-105`}
-                  />
-                  {index === 3 && post.images.length > 4 && (
-                    <Box className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white font-bold text-xl cursor-pointer">
-                      +{post.images.length - 4}
+              {post.images.length === 2 ? (
+                <>
+                  <Box 
+                    className="relative h-80 cursor-pointer"
+                    onClick={() => handleMediaClick(0)}
+                  >
+                    <img
+                      src={post.images[0]}
+                      alt={`${post.title} 1`}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </Box>
+                  <Box 
+                    className="relative h-80 cursor-pointer"
+                    onClick={() => handleMediaClick(1)}
+                  >
+                    <img
+                      src={post.images[1]}
+                      alt={`${post.title} 2`}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </Box>
+                </>
+              ) : post.images.length === 3 ? (
+                <>
+                  <Box 
+                    className="relative row-span-2 h-full cursor-pointer"
+                    onClick={() => handleMediaClick(0)}
+                  >
+                    <img
+                      src={post.images[0]}
+                      alt={`${post.title} 1`}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </Box>
+                  <Box 
+                    className="relative h-40 cursor-pointer"
+                    onClick={() => handleMediaClick(1)}
+                  >
+                    <img
+                      src={post.images[1]}
+                      alt={`${post.title} 2`}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </Box>
+                  <Box 
+                    className="relative h-40 cursor-pointer"
+                    onClick={() => handleMediaClick(2)}
+                  >
+                    <img
+                      src={post.images[2]}
+                      alt={`${post.title} 3`}
+                      className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    />
+                  </Box>
+                </>
+              ) : (
+                <>
+                  {post.images.slice(0, 4).map((img, index) => (
+                    <Box 
+                      key={index}
+                      className={`relative ${index === 0 ? 'row-span-2 col-span-1' : ''} ${index === 3 && post.images.length > 4 ? 'bg-black' : ''}`}
+                      onClick={() => handleMediaClick(index)}
+                    >
+                      <img
+                        src={img}
+                        alt={`${post.title} ${index + 1}`}
+                        className={`w-full h-full object-cover ${index === 0 ? 'h-full' : 'h-40'} transition-transform duration-300 hover:scale-105`}
+                      />
+                      {index === 3 && post.images.length > 4 && (
+                        <Box className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white font-bold text-xl cursor-pointer">
+                          +{post.images.length - 4}
+                        </Box>
+                      )}
                     </Box>
-                  )}
-                </Box>
-              ))}
+                  ))}
+                </>
+              )}
             </Box>
           )}
         </Box>
@@ -277,6 +397,7 @@ export function SuccessStoryCard({
 
   const open = Boolean(anchorEl);
   const menuOpen = Boolean(menuAnchorEl);
+  const shareOpen = Boolean(shareAnchorEl);
 
   return (
     <motion.div
@@ -446,7 +567,7 @@ export function SuccessStoryCard({
               </Button>
               <Button
                 size="small"
-                onClick={onShare}
+                onClick={handleShareClick}
                 className="h-8 px-2 text-gray-500 hover:text-green-500"
                 startIcon={<Share />}
               >
@@ -565,6 +686,27 @@ export function SuccessStoryCard({
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Share Menu */}
+      <Menu
+        anchorEl={shareAnchorEl}
+        open={shareOpen}
+        onClose={handleShareClose}
+        onClick={handleShareClose}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        {shareOptions.map((option, index) => (
+          <MenuItem key={index} onClick={option.action}>
+            <ListItemIcon>
+              {option.icon}
+            </ListItemIcon>
+            <ListItemText>{option.name}</ListItemText>
+          </MenuItem>
+        ))}
+      </Menu>
     </motion.div>
   );
 }

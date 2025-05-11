@@ -79,7 +79,7 @@ const App = () => {
             />
             <Route path="/expert/posts/create" element={<CreatePost />} />
             <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
-            <Route path="/posts/create" element={<CreatePost />} />
+            {/* <Route path="/posts/create" element={<CreatePost />} /> */}
           </Route>
 
           <Route element={<ProtectedRoute />}>
