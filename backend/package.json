@@ -31,6 +31,7 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^8.0.0",
     "pdf2json": "^3.1.5",
+    "socket.io": "^4.8.1",
     "streamifier": "^0.1.1",
     "zod": "^3.24.2"
   }
