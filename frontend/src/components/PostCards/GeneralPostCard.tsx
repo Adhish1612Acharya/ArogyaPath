@@ -10,6 +10,12 @@ import {
   InsertDriveFile,
   Close,
   Collections,
+  Facebook,
+  Twitter,
+  LinkedIn,
+  Link,
+  Email,
+  WhatsApp,
 } from "@mui/icons-material";
 import {
   Button,
@@ -32,6 +38,8 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -74,6 +82,8 @@ export function GeneralPostCard({
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   const commentInputRef = useRef<HTMLInputElement>(null);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -90,6 +100,14 @@ export function GeneralPostCard({
 
   const handleMenuClose = () => {
     setMenuAnchorEl(null);
+  };
+
+  const handleShareClick = (event: React.MouseEvent<HTMLElement>) => {
+    setShareAnchorEl(event.currentTarget);
+  };
+
+  const handleShareClose = () => {
+    setShareAnchorEl(null);
   };
 
   const handleCommentClick = () => {
@@ -115,6 +133,42 @@ export function GeneralPostCard({
     if (post.images) {
       setSelectedImageIndex((prev) => (prev - 1 + post.images.length) % post.images.length);
     }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 3000);
+    handleShareClose();
+  };
+
+  const shareOnSocialMedia = (platform: string) => {
+    const url = encodeURIComponent(window.location.href);
+    const title = encodeURIComponent(post.title);
+    let shareUrl = '';
+    
+    switch (platform) {
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+        break;
+      case 'linkedin':
+        shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${url}`;
+        break;
+      case 'whatsapp':
+        shareUrl = `https://wa.me/?text=${title}%20${url}`;
+        break;
+      case 'email':
+        shareUrl = `mailto:?subject=${title}&body=Check%20this%20out:%20${url}`;
+        break;
+      default:
+        break;
+    }
+    
+    window.open(shareUrl, '_blank');
+    handleShareClose();
   };
 
   const renderMediaContent = () => {
@@ -224,6 +278,7 @@ export function GeneralPostCard({
 
   const open = Boolean(anchorEl);
   const menuOpen = Boolean(menuAnchorEl);
+  const shareOpen = Boolean(shareAnchorEl);
 
   return (
     <motion.div
@@ -380,7 +435,7 @@ export function GeneralPostCard({
               </Button>
               <Button
                 size="small"
-                onClick={onShare}
+                onClick={handleShareClick}
                 className="h-8 px-2 text-gray-500 hover:text-green-500"
                 startIcon={<Share />}
               >
@@ -398,6 +453,56 @@ export function GeneralPostCard({
             </Button>
           </div>
         </CardActions>
+
+        {/* Share Menu */}
+        <Menu
+          anchorEl={shareAnchorEl}
+          open={shareOpen}
+          onClose={handleShareClose}
+          onClick={handleShareClose}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <MenuItem onClick={() => shareOnSocialMedia('facebook')}>
+            <ListItemIcon>
+              <Facebook color="primary" />
+            </ListItemIcon>
+            <ListItemText>Share on Facebook</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={() => shareOnSocialMedia('twitter')}>
+            <ListItemIcon>
+              <Twitter color="info" />
+            </ListItemIcon>
+            <ListItemText>Share on Twitter</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={() => shareOnSocialMedia('linkedin')}>
+            <ListItemIcon>
+              <LinkedIn color="primary" />
+            </ListItemIcon>
+            <ListItemText>Share on LinkedIn</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={() => shareOnSocialMedia('whatsapp')}>
+            <ListItemIcon>
+              <WhatsApp color="success" />
+            </ListItemIcon>
+            <ListItemText>Share on WhatsApp</ListItemText>
+          </MenuItem>
+          <MenuItem onClick={() => shareOnSocialMedia('email')}>
+            <ListItemIcon>
+              <Email color="action" />
+            </ListItemIcon>
+            <ListItemText>Share via Email</ListItemText>
+          </MenuItem>
+          <Divider />
+          <MenuItem onClick={copyToClipboard}>
+            <ListItemIcon>
+              <Link color="action" />
+            </ListItemIcon>
+            <ListItemText>Copy Link</ListItemText>
+          </MenuItem>
+        </Menu>
 
         {/* Comment Section */}
         {commentOpen && (
@@ -459,6 +564,18 @@ export function GeneralPostCard({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Copy success notification */}
+      <Snackbar
+        open={copySuccess}
+        autoHideDuration={3000}
+        onClose={() => setCopySuccess(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert onClose={() => setCopySuccess(false)} severity="success" sx={{ width: '100%' }}>
+          Link copied to clipboard!
+        </Alert>
+      </Snackbar>
     </motion.div>
   );
 }
