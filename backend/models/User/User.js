@@ -7,11 +7,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    googleId: { type: String, unique: true, default: null },
     email: { type: String, required: true, unique: true },
     profile: {
       profileImage: { type: String, default: "" },
       fullname: { type: String, default: "" },
-      age: { type: Number, min: 1, max: 120, default: 1 },
+      age: { type: Number, default: null },
       contact: { type: String, default: 0 },
     },
     successStories: [
@@ -26,7 +27,10 @@ const userSchema = new Schema(
       type: String,
       default: "user",
     },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
   },
+
   { timestamps: true }
 );
 

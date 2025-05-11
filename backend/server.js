@@ -16,10 +16,10 @@ import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert.js";
 import User from "./models/User/User.js";
 
-// import expertGoogleAuth from "./routes/auth/googleExpertAuth.js";
-// import userGoogleAuth from "./routes/auth/googleUserAuth.js";
+import userGoogleAuth from "./routes/auth/googleUserAuth.js";
+import expertGoogleAuth from "./routes/auth/googleExpertAuth.js";
 import expertEmailPasswordAuth from "./routes/auth/expertEmailPassowrdAuth.js";
-import userEmailPasswordAuth from "./routes/auth/userEmailPassowrdAuth.js";
+import userEmailPasswordAuth from "./routes/auth/userEmailPasswordAuth.js";
 import postRoute from "./routes/Post.js";
 import routinesRoute from "./routes/Routines.js";
 import expertRoute from "./routes/Expert.js";
@@ -93,7 +93,6 @@ passport.use("expert", new localStrategy(Expert.authenticate()));
 passport.use("user", new localStrategy(User.authenticate()));
 
 passport.serializeUser((entity, done) => {
-
   done(null, { id: entity._id, type: entity.role });
 });
 
@@ -148,8 +147,8 @@ app.use("/api/success-stories", successStoryRoute);
 app.use("/api/routines", routinesRoute);
 app.use("/api/experts", expertRoute);
 
-// app.use("/auth/google", expertGoogleAuth);
-// app.use("/api/auth/google/user", userGoogleAuth);
+app.use("/api/auth/google/expert", expertGoogleAuth);
+app.use("/api/auth/google/user", userGoogleAuth);
 
 // app.get("/check", (req, res) => {
 //   console.log("Logged IN : ", req.isAuthenticated());

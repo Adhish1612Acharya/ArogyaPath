@@ -2,34 +2,44 @@ import mongoose, { Schema, Document } from "mongoose";
 import passportLocalMongoose from "passport-local-mongoose";
 
 // Define the schema
-const ExpertSchema = new Schema({
-  username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  profile: {
-    fullname: { type: String, default: "" },
-    experience: { type: Number, default: 0 },
-    qualification: { type: String, default: "" },
-    expertType: { type: String, default: "ayurvedic" },
-    contact: { type: Number, default: 0 },
-    profileImage: { type: String, default: "" },
-  },
-  posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],
-  routinePosts: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "Routine", default: [] },
-  ],
-  taggedPosts: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "SuccessStory",
-      default: [],
+const ExpertSchema = new Schema(
+  {
+    username: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true },
+    googleId: { type: String, unique: true, default: null },
+    profile: {
+      fullname: { type: String, default: "" },
+      experience: { type: Number, default: 0 },
+      qualification: { type: String, default: "" },
+      expertType: { type: String, default: "ayurvedic" },
+      contact: { type: Number, default: 0 },
+      profileImage: { type: String, default: "" },
     },
-  ],
-  verifiedPosts: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "SuccessStory", default: [] },
-  ],
-  completeProfile: { type: Boolean, default: false },
-  role: { type: String, enum: ["expert"], default: "expert" },
-});
+    posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],
+    routinePosts: [
+      { type: mongoose.Schema.Types.ObjectId, ref: "Routine", default: [] },
+    ],
+    taggedPosts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "SuccessStory",
+        default: [],
+      },
+    ],
+    verifiedPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SuccessStory",
+        default: [],
+      },
+    ],
+    completeProfile: { type: Boolean, default: false },
+    role: { type: String, enum: ["expert"], default: "expert" },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+  },
+  { timestamps: true }
+);
 
 // Attach Passport-Local Mongoose Plugin
 ExpertSchema.plugin(passportLocalMongoose);

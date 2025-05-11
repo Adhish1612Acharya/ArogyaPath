@@ -58,6 +58,10 @@ const ExpertLoginForm: FC = () => {
     }
   };
 
+  const googleLogin = async () => {
+    window.open("http://localhost:3000/api/auth/google/expert", "_self");
+  };
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -162,7 +166,7 @@ const ExpertLoginForm: FC = () => {
               type="button"
               variant="outlined"
               fullWidth
-              // onClick={() => googleLogin()}
+              onClick={() => googleLogin()}
               startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
               sx={{ textTransform: "none", py: 1.5 }}
             >

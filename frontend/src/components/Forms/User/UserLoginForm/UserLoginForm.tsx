@@ -48,6 +48,10 @@ const UserLoginForm = () => {
     // await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
   };
 
+  const googleLogin = async () => {
+    window.open("http://localhost:3000/api/auth/google/user", "_self");
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -135,7 +139,7 @@ const UserLoginForm = () => {
             type="button"
             variant="outlined"
             fullWidth
-            // onClick={googleLogin}
+            onClick={googleLogin}
             startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
             sx={{
               textTransform: "none",

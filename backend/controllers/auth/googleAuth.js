@@ -2,12 +2,7 @@ import Expert from "../../models/Expert/Expert.js";
 import expressError from "../../utils/expressError.js";
 import User from "../../models/User/User.js";
 
-export const handleGoogleAuthError = (
-  err,
-  req,
-  res,
-  next
-) => {
+export const handleGoogleAuthError = (err, req, res, next) => {
   if (err) {
     console.error(`Error during Google authentication: ${err.message}`);
     next(err);
@@ -36,6 +31,7 @@ export const googleCallBackFunctionForExpert = async (
     if (user) {
       done(null, user);
     } else {
+      const { expertType } = req.query;
       const email =
         profile.emails && profile.emails.length > 0
           ? profile.emails[0].value
@@ -50,6 +46,7 @@ export const googleCallBackFunctionForExpert = async (
         profile: {
           profileImage: profileImage,
           fullname: profile.displayName,
+          expertType: expertType,
         },
       });
       done(null, newUser);
@@ -88,8 +85,6 @@ export const googleCallBackFunctionForUser = async (
         profile: {
           profileImage: profileImage,
           fullname: profile.displayName,
-          age: 0,
-          contact: -1,
         },
       });
       done(null, newUser);
