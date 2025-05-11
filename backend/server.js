@@ -10,6 +10,14 @@ import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
 // import { Server } from 'socket.io';
+import http from "http";
+import { Server } from "socket.io";
+import chatRoutes from "./routes/Chat.js";
+import initSocket from "./socket.js";
+
+
+
+
 import successStoryRoute from "./routes/SuccessStory.js";
 
 import { Strategy as localStrategy } from "passport-local";
@@ -23,12 +31,30 @@ import userEmailPasswordAuth from "./routes/auth/userEmailPassowrdAuth.js";
 import postRoute from "./routes/Post.js";
 import routinesRoute from "./routes/Routines.js";
 import expertRoute from "./routes/Expert.js";
+import userRoutes from "./routes/User.js";
+import prakrathiRoutes from "./routes/Prakrathi.js";
+import healthChallenge from "./routes/healthChallenge.js"
+
+
 
 import passport from "passport";
 import MongoStore from "connect-mongo";
 
 // dotenv.config();
 const app = express();
+
+//socket connection
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//   },
+// });
+
+// Initialize Socket.IO
+// initSocket(io);
+
 
 main()
   .then(() => {
@@ -147,6 +173,11 @@ app.use("/api/posts", postRoute);
 app.use("/api/success-stories", successStoryRoute);
 app.use("/api/routines", routinesRoute);
 app.use("/api/experts", expertRoute);
+app.use("/api/user", userRoutes);
+app.use("/api/prakrathi", prakrathiRoutes);
+app.use("/api/healthChallenge", healthChallenge);
+app.use("/api/chat", chatRoutes);
+
 
 // app.use("/auth/google", expertGoogleAuth);
 // app.use("/api/auth/google/user", userGoogleAuth);
@@ -204,3 +235,8 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log("Server listening on port: ", port);
 });
+
+//SOCKET CONNECTION
+
+// // Start the server
+// server.listen(8080, () => console.log("Server running on http://localhost:8080"));
