@@ -1,21 +1,20 @@
-<<<<<<< HEAD
-import { FC } from "react";
+import * as React from "react";
+import * as SeparatorPrimitive from "@radix-ui/react-separator";
 
-export const Separator: FC<{ className?: string }> = ({ className }) => (
-  <hr className={`separator ${className}`} />
-);
-=======
-import * as React from "react"
-import * as SeparatorPrimitive from "@radix-ui/react-separator"
+import { cn } from "@/lib/utils";
 
-import { cn } from "@/lib/utils"
+interface SeparatorProps extends React.ComponentProps<typeof SeparatorPrimitive.Root> {
+  className?: string;
+  orientation?: "horizontal" | "vertical";
+  decorative?: boolean;
+}
 
-function Separator({
+const Separator: React.FC<SeparatorProps> = ({
   className,
   orientation = "horizontal",
   decorative = true,
   ...props
-}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
+}) => {
   return (
     <SeparatorPrimitive.Root
       data-slot="separator-root"
@@ -27,8 +26,7 @@ function Separator({
       )}
       {...props}
     />
-  )
-}
+  );
+};
 
-export { Separator }
->>>>>>> 2dd9d80d970fa5242884bf336f035f4f84347d40
+export { Separator };

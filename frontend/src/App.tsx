@@ -54,7 +54,7 @@ const App = () => {
       <div className="main-container">
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route element={<GuestProtectedRoute />}>
+          {/* <Route element={<GuestProtectedRoute />}> */}
             <Route path="/verify-email" element={<EmailVerify />} />
             <Route path="/verify-mobile" element={<MobileVerify />} />
             <Route path="/expert/login" element={<LoginExpert />} />
@@ -62,17 +62,17 @@ const App = () => {
             <Route path="/user/login" element={<LoginUser />} />
             <Route path="/user/register" element={<RegisterUser />} />
             <Route path="/auth" element={<RoleSelection />} />
-          </Route>
+          {/* </Route> */}
 
-          <Route element={<UserProtectedRoute />}>
+          {/* <Route element={<UserProtectedRoute />}> */}
             <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
             <Route
               path="/user/success-stories/create"
               element={<CreateSuccessStory />}
             />
-          </Route>
+          {/* </Route> */}
 
-          <Route element={<ExpertProtectedRoute />}>
+          {/* <Route element={<ExpertProtectedRoute />}> */}
             <Route
               path="/verified/success-stories"
               element={<VerifiedByVaidya />}
@@ -80,9 +80,9 @@ const App = () => {
             <Route path="/expert/posts/create" element={<CreatePost />} />
             <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
             {/* <Route path="/posts/create" element={<CreatePost />} /> */}
-          </Route>
+          {/* </Route> */}
 
-          <Route element={<ProtectedRoute />}>
+          {/* <Route element={<ProtectedRoute />}> */}
             <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
             <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
@@ -94,7 +94,7 @@ const App = () => {
               path="/success-stories"
               element={<AllSuccessStoriesPosts />}
             />
-          </Route>
+          {/* </Route> */}
 
           <Route
             path="/complete-profile/expert"

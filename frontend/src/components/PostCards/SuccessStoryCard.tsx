@@ -1,316 +1,570 @@
+// src/components/PostCards/SuccessStoryCard.tsx
 import {
-  Heart,
-  MessageCircle,
-  Share2,
+  Favorite,
+  ChatBubbleOutline,
+  Share,
   Bookmark,
+  MenuBook,
+  AccessTime,
+  MoreVert,
+  PlayCircleOutline,
+  InsertDriveFile,
+  Close,
+  Collections,
+  Verified,
   CheckCircle,
-  AlertCircle,
-  BookOpen,
-  Clock,
-} from "lucide-react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from "@mui/icons-material";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+  Button,
+  Avatar,
+  Card,
+  CardContent,
+  CardActions,
+  Chip,
+  Typography,
+  Popover,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText as MuiListItemText,
+} from "@mui/material";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { SuccessStoryType } from "@/pages/posts/SuccessStoryPosts";
-import usePost from "@/hooks/usePost/usePost";
-import { useState } from "react";
-import { Button as MUIButton, CircularProgress } from "@mui/material";
-import { Button } from "../ui/button";
+import { useState, useRef } from "react";
+import { CommentSection } from "@/components/PostCards/CommentSection";
 
-export interface SuccessStoryCardProps {
+interface Author {
+  id: string;
+  name: string;
+  avatar: string;
+}
+
+interface Doctor {
+  id: string;
+  name: string;
+  avatar: string;
+  credentials: string;
+}
+
+interface Comment {
+  id: string;
+  author: Author;
+  text: string;
+  createdAt: Date;
+  likes: number;
+  replies?: Comment[];
+}
+
+export interface SuccessStoryType {
+  id: string;
+  author: Author;
+  title: string;
+  content: string;
+  images?: string[];
+  video?: string;
+  document?: string;
+  likes: number;
+  likedBy: string[];
+  comments: number;
+  commentsList?: Comment[];
+  readTime: string;
+  tags: string[];
+  verification: {
+    verified: boolean;
+    verifiedBy: Doctor[];
+  };
+  createdAt: Date;
+}
+
+interface SuccessStoryCardProps {
   post: SuccessStoryType;
-  liked: boolean;
-  saved: boolean;
+  isLiked: boolean;
+  isSaved: boolean;
+  currentUserId: string;
   onLike: () => void;
   onSave: () => void;
-  setPost: any;
-  index: number;
+  onShare: () => void;
+  onComment: (comment: string) => void;
+  onReply: (commentId: string, reply: string) => void;
+  onMediaClick: (media: string) => void;
+  menuItems: Array<{
+    label: string;
+    icon: React.ReactNode;
+    action: () => void;
+  }>;
 }
 
 export function SuccessStoryCard({
   post,
-  liked,
-  saved,
+  isLiked,
+  isSaved,
+  currentUserId,
   onLike,
   onSave,
-  setPost,
-  index,
+  onShare,
+  onComment,
+  onReply,
+  onMediaClick,
+  menuItems,
 }: SuccessStoryCardProps) {
-  const { verifyPost } = usePost();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [commentOpen, setCommentOpen] = useState(false);
+  const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
+  const commentInputRef = useRef<HTMLInputElement | null>(null);
 
-  console.log("Post Data : ", post);
-  const [verifyLoad, setVerifyLoad] = useState<boolean>(false);
-  const [verified, setVerified] = useState<boolean>(false);
-
-  const verify = async () => {
-    setVerifyLoad(true);
-    const response = await verifyPost(post.id);
-
-    if (response.success) {
-      setVerified(true);
-    }
-    setPost((prev: SuccessStoryType[]) => {
-      const updatedPosts = [...prev];
-      const currentPost = { ...updatedPosts[index] };
-
-      // Assuming req.user (the logged-in expert) is returned in the response or globally accessible
-      const expertDetails = {
-        name: response.data.expertDetails.name || "", // fallback
-        avatar: response.data.expertDetails?.avatar || "", // fallback
-      };
-
-      const updatedVerification = {
-        ...currentPost.verification,
-        verifyAuthorization: false,
-        alreadyVerified: true,
-        verified: true,
-        verifiedBy: [
-          ...(currentPost.verification?.verifiedBy || []),
-          expertDetails,
-        ],
-      };
-
-      updatedPosts[index] = {
-        ...currentPost,
-        verification: updatedVerification,
-      };
-
-      return updatedPosts;
-    });
-    setVerifyLoad(false);
+  const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
   };
+
+  const handlePopoverClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleCommentClick = () => {
+    setCommentOpen(!commentOpen);
+    if (!commentOpen && commentInputRef.current) {
+      setTimeout(() => commentInputRef.current?.focus(), 100);
+    }
+  };
+
+  const handleMediaClick = (index: number) => {
+    setSelectedImageIndex(index);
+    onMediaClick(post.images?.[index] || '');
+    setMediaDialogOpen(true);
+  };
+
+  const handleNextImage = () => {
+    if (post.images) {
+      setSelectedImageIndex((prev) => (prev + 1) % post.images.length);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (post.images) {
+      setSelectedImageIndex((prev) => (prev - 1 + post.images.length) % post.images.length);
+    }
+  };
+
+  const handleVerifiersClick = () => {
+    setVerifiersDialogOpen(true);
+  };
+
+  const renderMediaContent = () => {
+    if (post.images && post.images.length > 0) {
+      return (
+        <Box className="mb-4 rounded-lg overflow-hidden border border-gray-200">
+          {post.images.length === 1 ? (
+            <Box 
+              className="relative cursor-pointer group"
+              onClick={() => handleMediaClick(0)}
+            >
+              <img
+                src={post.images[0]}
+                alt={post.title}
+                className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <Box className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
+                <Collections className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fontSize="large" />
+              </Box>
+            </Box>
+          ) : (
+            <Box className="grid grid-cols-2 gap-1">
+              {post.images.slice(0, 4).map((img, index) => (
+                <Box 
+                  key={index}
+                  className={`relative ${index === 0 ? 'row-span-2' : ''} ${index === 3 && post.images.length > 4 ? 'bg-black' : ''}`}
+                  onClick={() => handleMediaClick(index)}
+                >
+                  <img
+                    src={img}
+                    alt={`${post.title} ${index + 1}`}
+                    className={`w-full h-full object-cover ${index === 0 ? 'h-full' : 'h-40'} transition-transform duration-300 hover:scale-105`}
+                  />
+                  {index === 3 && post.images.length > 4 && (
+                    <Box className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white font-bold text-xl cursor-pointer">
+                      +{post.images.length - 4}
+                    </Box>
+                  )}
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      );
+    }
+
+    if (post.video) {
+      const videoId = post.video.includes('youtube.com') 
+        ? new URL(post.video).searchParams.get('v') 
+        : post.video.split('/').pop();
+      
+      return (
+        <Box 
+          className="mb-4 relative rounded-lg overflow-hidden border border-gray-200 cursor-pointer"
+          onClick={() => onMediaClick(post.video || '')}
+        >
+          <img
+            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+            alt="Video thumbnail"
+            className="w-full h-80 object-cover"
+          />
+          <Box className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+            <PlayCircleOutline className="text-white text-6xl hover:text-green-400 transition-colors" />
+          </Box>
+          <Box className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+            <Typography variant="body2" className="text-white font-medium">
+              Watch Video
+            </Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (post.document) {
+      const fileName = post.document.split('/').pop() || 'Document';
+      const fileExtension = fileName.split('.').pop()?.toUpperCase();
+      
+      return (
+        <Box 
+          className="mb-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-4"
+          onClick={() => window.open(post.document, '_blank')}
+        >
+          <Box className="bg-gray-100 p-3 rounded-lg">
+            <InsertDriveFile className="text-gray-600 text-3xl" />
+          </Box>
+          <Box className="flex-1">
+            <Typography variant="subtitle1" className="font-medium">
+              {fileName}
+            </Typography>
+            <Typography variant="body2" className="text-gray-500">
+              {fileExtension} Document
+            </Typography>
+          </Box>
+          <Button 
+            variant="outlined" 
+            size="small"
+            className="border-green-600 text-green-600 hover:border-green-700 hover:text-green-700"
+          >
+            Download
+          </Button>
+        </Box>
+      );
+    }
+
+    return null;
+  };
+
+  const open = Boolean(anchorEl);
+  const menuOpen = Boolean(menuAnchorEl);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-0 shadow-sm bg-white rounded-lg relative"
     >
-      {/* Verification badge moved to top-right */}
-      <div className="absolute top-4 right-4 z-10">
-        {post.verification.verified ? (
-          <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 px-3 py-1.5 rounded-full shadow-sm">
-            <CheckCircle className="h-4 w-4" />
-            <span>Verified</span>
-            <HoverCard>
-              <HoverCardTrigger asChild>
-                <button className="text-xs text-green-700 underline">
-                  Details
-                </button>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-64 shadow-lg">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm">Verified by:</h4>
-                  {post.verification.verifiedBy?.map((doctor, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={doctor.avatar} />
-                        <AvatarFallback>{doctor.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-xs font-medium">{doctor.name}</p>
-                        {/* <p className="text-xs text-gray-500">{doctor.credentials}</p> */}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </HoverCardContent>
-            </HoverCard>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 px-3 py-1.5 rounded-full shadow-sm">
-            <AlertCircle className="h-4 w-4" />
-            <span>Under Verification</span>
-          </div>
-        )}
-
-        {post.verifyAuthorization && !post.alreadyVerified && !verified && (
-          <MUIButton onClick={() => verify()}>
-            {verifyLoad ? <CircularProgress /> : "Click to verify"}
-          </MUIButton>
-        )}
-        {(post.alreadyVerified || verified) && (
-          <MUIButton disabled={true}>Verified by you</MUIButton>
-        )}
-      </div>
-
-      <div className="p-4">
-        <div className="flex items-start space-x-4">
-          <Avatar className="h-10 w-10 sm:h-12 sm:w-12 border-2 border-green-100">
-            <AvatarImage src={post.author.avatar} alt={post.author.name} />
-            <AvatarFallback>{post.author.name[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <h3 className="text-base sm:text-lg font-semibold hover:text-green-600 transition-colors">
-              {post.author.name}
-            </h3>
-            <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-gray-500">
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                {formatDistanceToNow(new Date(post.createdAt || ""), {
-                  addSuffix: true,
-                })}
-              </span>
-              <span className="text-gray-300">•</span>
-              <span className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3 sm:h-4 sm:w-4" />
-                {post.readTime}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <h3 className="text-xl sm:text-2xl font-semibold my-3 hover:text-green-600 transition-colors">
-          {post.title}
-        </h3>
-
-        <p className="text-gray-600 mb-4 text-sm sm:text-base">
-          {post.content}
-        </p>
-
-        {post.images.length > 0 && (
-          <img
-            src={post.images[0]}
-            alt={post.title}
-            className="rounded-lg w-full h-48 sm:h-64 object-cover hover:opacity-90 transition-opacity mb-4"
-          />
-        )}
-
-        <div className="space-y-4 mt-4">
-          <h4>
-            <b>My routine</b>
-          </h4>
-          {post.activities.map((activity, index) => (
-            <div
-              key={index}
-              className="flex items-start space-x-4 relative group"
+      <Card className="hover:shadow-lg transition-shadow duration-300 rounded-lg overflow-hidden max-w-2xl mx-auto">
+        <CardContent className="p-4">
+          {/* Author section */}
+          <Box className="flex items-start space-x-4">
+            <Box
+              aria-owns={open ? 'mouse-over-popover' : undefined}
+              aria-haspopup="true"
+              onMouseEnter={handlePopoverOpen}
+              onMouseLeave={handlePopoverClose}
             >
-              <div className="flex flex-col items-center pt-1">
-                <div className="h-3 w-3 rounded-full bg-green-500 group-hover:bg-green-600 transition-colors" />
-                {index < post.activities.length - 1 && (
-                  <div className="h-full w-0.5 bg-green-200 group-hover:bg-green-300 transition-colors" />
-                )}
-              </div>
-              <div className="flex-1 p-3 rounded-lg hover:bg-green-50 transition-colors">
-                <p className="font-medium text-sm text-green-700">
-                  {activity.time}
-                </p>
-                <p className="text-gray-600 text-sm">{activity.content}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+              <Avatar
+                className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer border-2 border-green-100"
+                src={post.author.avatar}
+                alt={post.author.name}
+              >
+                {post.author.name[0]}
+              </Avatar>
+            </Box>
 
-        {post.taggedDoctors && post.taggedDoctors.length > 0 && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">
-              Tagged Doctors:
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {post.taggedDoctors.map((doctor, index) => (
-                <HoverCard key={index}>
-                  <HoverCardTrigger asChild>
-                    <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full cursor-pointer hover:bg-gray-100 transition-colors">
-                      <Avatar className="h-6 w-6">
-                        <AvatarImage src={doctor.avatar} />
-                        <AvatarFallback>{doctor.name[0]}</AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs font-medium">{doctor.name}</span>
-                    </div>
-                  </HoverCardTrigger>
-                  <HoverCardContent className="w-64 shadow-lg">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-8 w-8">
-                          <AvatarImage src={doctor.avatar} />
-                          <AvatarFallback>{doctor.name[0]}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{doctor.name}</p>
-                          {/* <p className="text-xs text-gray-500">
-                            {doctor.credentials}
-                          </p> */}
-                        </div>
-                      </div>
-                    </div>
-                  </HoverCardContent>
-                </HoverCard>
-              ))}
-            </div>
-          </div>
-        )}
+            <Popover
+              id="mouse-over-popover"
+              open={open}
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'left',
+              }}
+              onClose={handlePopoverClose}
+              disableRestoreFocus
+              className="shadow-xl"
+            >
+              <Box className="p-4 flex space-x-4 w-80">
+                <Avatar className="h-12 w-12" src={post.author.avatar}>
+                  {post.author.name[0]}
+                </Avatar>
+                <Box className="space-y-1">
+                  <Typography variant="subtitle1" className="font-semibold">
+                    {post.author.name}
+                  </Typography>
+                </Box>
+              </Box>
+            </Popover>
 
-        <div className="flex flex-wrap gap-2 mb-4">
-          {post.tags.map((tag) => (
-            <span
-              key={tag}
-              className="px-2.5 py-0.5 bg-green-50 text-green-700 rounded-full text-xs sm:text-sm hover:bg-green-100 transition-colors cursor-pointer"
-            >
-              #{tag}
-            </span>
-          ))}
-        </div>
-      </div>
+            <Box className="flex-1">
+              <Box className="flex justify-between items-start">
+                <Box>
+                  <Typography variant="h6" className="font-semibold hover:text-green-600 transition-colors">
+                    {post.author.name}
+                  </Typography>
+                  <Box className="flex flex-wrap items-center gap-2 text-gray-500">
+                    <Typography variant="caption" className="flex items-center gap-1">
+                      <AccessTime className="text-sm" />
+                      {formatDistanceToNow(new Date(post.createdAt || ""), {
+                        addSuffix: true,
+                      })}
+                    </Typography>
+                    <Typography variant="caption" className="text-gray-300">•</Typography>
+                    <Typography variant="caption" className="flex items-center gap-1">
+                      <MenuBook className="text-sm" />
+                      {post.readTime}
+                    </Typography>
+                    {post.verification.verified && (
+                      <>
+                        <Typography variant="caption" className="text-gray-300">•</Typography>
+                        <Typography 
+                          variant="caption" 
+                          className="flex items-center gap-1 text-green-600 cursor-pointer"
+                          onClick={handleVerifiersClick}
+                        >
+                          <Verified className="text-sm" />
+                          Verified
+                        </Typography>
+                      </>
+                    )}
+                  </Box>
+                </Box>
+                <IconButton
+                  size="small"
+                  onClick={handleMenuOpen}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <MoreVert />
+                </IconButton>
+              </Box>
+            </Box>
+          </Box>
 
-      <div className="border-t bg-gray-50 px-4 py-3">
-        <div className="flex justify-between items-center w-full">
-          <div className="flex space-x-4 sm:space-x-6 text-gray-500">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onLike}
-              className={`h-8 px-2 hover:text-red-500 ${
-                liked ? "text-red-500" : ""
-              }`}
-            >
-              <Heart
-                className="h-4 w-4 mr-1.5"
-                fill={liked ? "currentColor" : "none"}
-              />
-              <span className="text-xs sm:text-sm">
-                {post.likes + (liked ? 1 : 0)}
-              </span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 hover:text-blue-500"
-            >
-              <MessageCircle className="h-4 w-4 mr-1.5" />
-              <span className="text-xs sm:text-sm">{post.comments}</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 hover:text-green-500"
-            >
-              <Share2 className="h-4 w-4 mr-1.5" />
-              <span className="text-xs sm:text-sm">Share</span>
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onSave}
-            className={`h-8 w-8 p-0 hover:text-yellow-500 ${
-              saved ? "text-yellow-500" : ""
-            }`}
+          <Menu
+            anchorEl={menuAnchorEl}
+            open={menuOpen}
+            onClose={handleMenuClose}
+            onClick={handleMenuClose}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
           >
-            <Bookmark
-              className={`h-4 w-4 transition-transform ${
-                saved ? "fill-current" : ""
+            {menuItems.map((item, index) => (
+              <MenuItem key={index} onClick={item.action}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText>{item.label}</ListItemText>
+              </MenuItem>
+            ))}
+          </Menu>
+
+          {/* Post content */}
+          <Typography variant="h5" className="my-3 font-semibold hover:text-green-600 transition-colors">
+            {post.title}
+          </Typography>
+
+          <Typography variant="body1" className="text-gray-600 mb-4 whitespace-pre-line">
+            {post.content}
+          </Typography>
+
+          {/* Media display */}
+          {renderMediaContent()}
+
+          {/* Tags */}
+          <Box className="flex flex-wrap gap-2 mb-4">
+            {post.tags.map((tag) => (
+              <Chip
+                key={tag}
+                label={`#${tag}`}
+                className="bg-green-50 text-green-700 hover:bg-green-100 transition-colors cursor-pointer"
+                size="small"
+              />
+            ))}
+          </Box>
+        </CardContent>
+
+        {/* Actions */}
+        <CardActions className="bg-gray-50 px-4 py-3 border-t">
+          <Box className="flex justify-between items-center w-full">
+            <Box className="flex space-x-4 sm:space-x-6">
+              <Button
+                size="small"
+                onClick={onLike}
+                className={`h-8 px-2 hover:text-red-500 ${
+                  isLiked ? "text-red-500" : "text-gray-500"
+                }`}
+                startIcon={
+                  <Favorite className={isLiked ? "text-inherit" : "text-gray-500"} />
+                }
+              >
+                <Typography variant="caption">
+                  {post.likes}
+                </Typography>
+              </Button>
+              <Button
+                size="small"
+                onClick={handleCommentClick}
+                className="h-8 px-2 text-gray-500 hover:text-blue-500"
+                startIcon={<ChatBubbleOutline />}
+              >
+                <Typography variant="caption">{post.comments}</Typography>
+              </Button>
+              <Button
+                size="small"
+                onClick={onShare}
+                className="h-8 px-2 text-gray-500 hover:text-green-500"
+                startIcon={<Share />}
+              >
+                <Typography variant="caption">Share</Typography>
+              </Button>
+            </Box>
+            <IconButton
+              size="small"
+              onClick={onSave}
+              className={`h-8 w-8 p-0 hover:text-yellow-500 ${
+                isSaved ? "text-yellow-500" : "text-gray-500"
               }`}
+            >
+              <Bookmark className={isSaved ? "text-inherit" : "text-gray-500"} />
+            </IconButton>
+          </Box>
+        </CardActions>
+
+        {/* Comment Section */}
+        {commentOpen && (
+          <Box className="border-t">
+            <CommentSection
+              comments={post.commentsList || []}
+              currentUserId={currentUserId}
+              onComment={onComment}
+              onReply={onReply}
+              inputRef={commentInputRef}
             />
+          </Box>
+        )}
+      </Card>
+
+      {/* Media Viewer Dialog */}
+      {post.images && post.images.length > 0 && (
+        <Dialog
+          open={mediaDialogOpen}
+          onClose={() => setMediaDialogOpen(false)}
+          fullWidth
+          maxWidth="md"
+          className="relative"
+        >
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">
+                {selectedImageIndex + 1} / {post.images.length}
+              </Typography>
+              <IconButton onClick={() => setMediaDialogOpen(false)}>
+                <Close />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers className="relative">
+            <Box className="relative h-96 flex items-center justify-center">
+              <img
+                src={post.images[selectedImageIndex]}
+                alt={`${post.title} ${selectedImageIndex + 1}`}
+                className="max-h-full max-w-full object-contain"
+              />
+              {post.images.length > 1 && (
+                <>
+                  <IconButton
+                    onClick={handlePrevImage}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+                  >
+                    <Close className="transform rotate-180" />
+                  </IconButton>
+                  <IconButton
+                    onClick={handleNextImage}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+                  >
+                    <Close />
+                  </IconButton>
+                </>
+              )}
+            </Box>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Verifiers Dialog */}
+      <Dialog
+        open={verifiersDialogOpen}
+        onClose={() => setVerifiersDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">Verified By</Typography>
+            <IconButton onClick={() => setVerifiersDialogOpen(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          <List>
+            {post.verification.verifiedBy.map((doctor, index) => (
+              <ListItem key={doctor.id} divider={index !== post.verification.verifiedBy.length - 1}>
+                <ListItemAvatar>
+                  <Avatar src={doctor.avatar} alt={doctor.name}>
+                    {doctor.name[0]}
+                  </Avatar>
+                </ListItemAvatar>
+                <MuiListItemText
+                  primary={doctor.name}
+                  secondary={doctor.credentials}
+                />
+                <CheckCircle color="primary" />
+              </ListItem>
+            ))}
+          </List>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setVerifiersDialogOpen(false)} color="primary">
+            Close
           </Button>
-        </div>
-      </div>
+        </DialogActions>
+      </Dialog>
     </motion.div>
   );
 }

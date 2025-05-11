@@ -5,29 +5,76 @@ import {
   Bookmark,
   MenuBook,
   AccessTime,
+  MoreVert,
+  PlayCircleOutline,
+  InsertDriveFile,
+  Close,
+  Collections,
 } from "@mui/icons-material";
-import { Button, Avatar, Card, CardContent, CardActions, Chip, Typography, Popover } from "@mui/material";
+import {
+  Button,
+  Avatar,
+  Card,
+  CardContent,
+  CardActions,
+  Chip,
+  Typography,
+  Popover,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Box,
+  Divider,
+  Badge,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+} from "@mui/material";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
-import { GeneralPostsType } from "@/pages/posts/GeneralPosts";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { CommentSection } from "@/components/PostCards/CommentSection";
 
 interface GeneralPostCardProps {
   post: GeneralPostsType;
-  liked: boolean;
-  saved: boolean;
+  isLiked: boolean;
+  isSaved: boolean;
+  currentUserId: string;
   onLike: () => void;
   onSave: () => void;
+  onShare: () => void;
+  onComment: (comment: string) => void;
+  onReply: (commentId: string, reply: string) => void;
+  onMediaClick: (media: string) => void;
+  menuItems: Array<{
+    label: string;
+    icon: React.ReactNode;
+    action: () => void;
+  }>;
 }
 
 export function GeneralPostCard({
   post,
-  liked,
-  saved,
+  isLiked,
+  isSaved,
+  currentUserId,
   onLike,
   onSave,
+  onShare,
+  onComment,
+  onReply,
+  onMediaClick,
+  menuItems,
 }: GeneralPostCardProps) {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [commentOpen, setCommentOpen] = useState(false);
+  const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const commentInputRef = useRef<HTMLInputElement>(null);
 
   const handlePopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -37,7 +84,146 @@ export function GeneralPostCard({
     setAnchorEl(null);
   };
 
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setMenuAnchorEl(null);
+  };
+
+  const handleCommentClick = () => {
+    setCommentOpen(!commentOpen);
+    if (!commentOpen && commentInputRef.current) {
+      setTimeout(() => commentInputRef.current?.focus(), 100);
+    }
+  };
+
+  const handleMediaClick = (index: number) => {
+    setSelectedImageIndex(index);
+    onMediaClick(post.images?.[index] || '');
+    setMediaDialogOpen(true);
+  };
+
+  const handleNextImage = () => {
+    if (post.images) {
+      setSelectedImageIndex((prev) => (prev + 1) % post.images.length);
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (post.images) {
+      setSelectedImageIndex((prev) => (prev - 1 + post.images.length) % post.images.length);
+    }
+  };
+
+  const renderMediaContent = () => {
+    if (post.images && post.images.length > 0) {
+      return (
+        <div className="mb-4 rounded-lg overflow-hidden border border-gray-200">
+          {post.images.length === 1 ? (
+            <div 
+              className="relative cursor-pointer group"
+              onClick={() => handleMediaClick(0)}
+            >
+              <img
+                src={post.images[0]}
+                alt={post.title}
+                className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
+                <Collections className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fontSize="large" />
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-1">
+              {post.images.slice(0, 4).map((img, index) => (
+                <div 
+                  key={index}
+                  className={`relative ${index === 0 ? 'row-span-2' : ''} ${index === 3 && post.images.length > 4 ? 'bg-black' : ''}`}
+                  onClick={() => handleMediaClick(index)}
+                >
+                  <img
+                    src={img}
+                    alt={`${post.title} ${index + 1}`}
+                    className={`w-full h-full object-cover ${index === 0 ? 'h-full' : 'h-40'} transition-transform duration-300 hover:scale-105`}
+                  />
+                  {index === 3 && post.images.length > 4 && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white font-bold text-xl cursor-pointer">
+                      +{post.images.length - 4}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    if (post.video) {
+      const videoId = post.video.includes('youtube.com') 
+        ? new URL(post.video).searchParams.get('v') 
+        : post.video.split('/').pop();
+      
+      return (
+        <div 
+          className="mb-4 relative rounded-lg overflow-hidden border border-gray-200 cursor-pointer"
+          onClick={() => onMediaClick(post.video || '')}
+        >
+          <img
+            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+            alt="Video thumbnail"
+            className="w-full h-80 object-cover"
+          />
+          <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center">
+            <PlayCircleOutline className="text-white text-6xl hover:text-green-400 transition-colors" />
+          </div>
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-4">
+            <Typography variant="body2" className="text-white font-medium">
+              Watch Video
+            </Typography>
+          </div>
+        </div>
+      );
+    }
+
+    if (post.document) {
+      const fileName = post.document.split('/').pop() || 'Document';
+      const fileExtension = fileName.split('.').pop()?.toUpperCase();
+      
+      return (
+        <div 
+          className="mb-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-4"
+          onClick={() => window.open(post.document, '_blank')}
+        >
+          <div className="bg-gray-100 p-3 rounded-lg">
+            <InsertDriveFile className="text-gray-600 text-3xl" />
+          </div>
+          <div className="flex-1">
+            <Typography variant="subtitle1" className="font-medium">
+              {fileName}
+            </Typography>
+            <Typography variant="body2" className="text-gray-500">
+              {fileExtension} Document
+            </Typography>
+          </div>
+          <Button 
+            variant="outlined" 
+            size="small"
+            className="border-green-600 text-green-600 hover:border-green-700 hover:text-green-700"
+          >
+            Download
+          </Button>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   const open = Boolean(anchorEl);
+  const menuOpen = Boolean(menuAnchorEl);
 
   return (
     <motion.div
@@ -45,16 +231,17 @@ export function GeneralPostCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
-      <Card className="hover:shadow-lg transition-shadow duration-300 rounded-lg">
+      <Card className="hover:shadow-lg transition-shadow duration-300 rounded-lg overflow-hidden max-w-2xl mx-auto">
         <CardContent className="p-4">
+          {/* Author section */}
           <div className="flex items-start space-x-4">
-            <div 
+            <div
               aria-owns={open ? 'mouse-over-popover' : undefined}
               aria-haspopup="true"
               onMouseEnter={handlePopoverOpen}
               onMouseLeave={handlePopoverClose}
             >
-              <Avatar 
+              <Avatar
                 className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer border-2 border-green-100"
                 src={post.author.avatar}
                 alt={post.author.name}
@@ -62,7 +249,7 @@ export function GeneralPostCard({
                 {post.author.name[0]}
               </Avatar>
             </div>
-            
+
             <Popover
               id="mouse-over-popover"
               open={open}
@@ -92,41 +279,67 @@ export function GeneralPostCard({
             </Popover>
 
             <div className="flex-1">
-              <Typography variant="h6" className="font-semibold hover:text-green-600 transition-colors">
-                {post.author.name}
-              </Typography>
-              <div className="flex flex-wrap items-center gap-2 text-gray-500">
-                <span className="flex items-center gap-1 text-sm">
-                  <AccessTime className="text-sm" />
-                  {formatDistanceToNow(new Date(post.createdAt || ""), {
-                    addSuffix: true,
-                  })}
-                </span>
-                <span className="text-gray-300">•</span>
-                <span className="flex items-center gap-1 text-sm">
-                  <MenuBook className="text-sm" />
-                  {post.readTime}
-                </span>
+              <div className="flex justify-between items-start">
+                <div>
+                  <Typography variant="h6" className="font-semibold hover:text-green-600 transition-colors">
+                    {post.author.name}
+                  </Typography>
+                  <div className="flex flex-wrap items-center gap-2 text-gray-500">
+                    <span className="flex items-center gap-1 text-sm">
+                      <AccessTime className="text-sm" />
+                      {formatDistanceToNow(new Date(post.createdAt || ""), {
+                        addSuffix: true,
+                      })}
+                    </span>
+                    <span className="text-gray-300">•</span>
+                    <span className="flex items-center gap-1 text-sm">
+                      <MenuBook className="text-sm" />
+                      {post.readTime}
+                    </span>
+                  </div>
+                </div>
+                <IconButton
+                  size="small"
+                  onClick={handleMenuOpen}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <MoreVert />
+                </IconButton>
               </div>
             </div>
           </div>
 
+          <Menu
+            anchorEl={menuAnchorEl}
+            open={menuOpen}
+            onClose={handleMenuClose}
+            onClick={handleMenuClose}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            {menuItems.map((item, index) => (
+              <MenuItem key={index} onClick={item.action}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText>{item.label}</ListItemText>
+              </MenuItem>
+            ))}
+          </Menu>
+
+          {/* Post content */}
           <Typography variant="h5" className="my-3 font-semibold hover:text-green-600 transition-colors">
             {post.title}
           </Typography>
 
-          <Typography variant="body1" className="text-gray-600 mb-4">
+          <Typography variant="body1" className="text-gray-600 mb-4 whitespace-pre-line">
             {post.content}
           </Typography>
 
-          {post.images && (
-            <img
-              src={post.images[0]}
-              alt={post.title}
-              className="rounded-lg w-full h-48 sm:h-64 object-cover hover:opacity-90 transition-opacity mb-4"
-            />
-          )}
+          {/* Media display */}
+          {renderMediaContent()}
 
+          {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
             {post.tags.map((tag) => (
               <Chip
@@ -139,6 +352,7 @@ export function GeneralPostCard({
           </div>
         </CardContent>
 
+        {/* Actions */}
         <CardActions className="bg-gray-50 px-4 py-3 border-t">
           <div className="flex justify-between items-center w-full">
             <div className="flex space-x-4 sm:space-x-6">
@@ -146,18 +360,19 @@ export function GeneralPostCard({
                 size="small"
                 onClick={onLike}
                 className={`h-8 px-2 hover:text-red-500 ${
-                  liked ? "text-red-500" : "text-gray-500"
+                  isLiked ? "text-red-500" : "text-gray-500"
                 }`}
                 startIcon={
-                  <Favorite className={liked ? "text-inherit" : "text-gray-500"} />
+                  <Favorite className={isLiked ? "text-inherit" : "text-gray-500"} />
                 }
               >
                 <span className="text-xs sm:text-sm">
-                  {post.likes + (liked ? 1 : 0)}
+                  {post.likes}
                 </span>
               </Button>
               <Button
                 size="small"
+                onClick={handleCommentClick}
                 className="h-8 px-2 text-gray-500 hover:text-blue-500"
                 startIcon={<ChatBubbleOutline />}
               >
@@ -165,6 +380,7 @@ export function GeneralPostCard({
               </Button>
               <Button
                 size="small"
+                onClick={onShare}
                 className="h-8 px-2 text-gray-500 hover:text-green-500"
                 startIcon={<Share />}
               >
@@ -175,14 +391,74 @@ export function GeneralPostCard({
               size="small"
               onClick={onSave}
               className={`h-8 w-8 p-0 hover:text-yellow-500 ${
-                saved ? "text-yellow-500" : "text-gray-500"
+                isSaved ? "text-yellow-500" : "text-gray-500"
               }`}
             >
-              <Bookmark className={saved ? "text-inherit" : "text-gray-500"} />
+              <Bookmark className={isSaved ? "text-inherit" : "text-gray-500"} />
             </Button>
           </div>
         </CardActions>
+
+        {/* Comment Section */}
+        {commentOpen && (
+          <div className="border-t">
+            <CommentSection
+              comments={post.commentsList || []}
+              currentUserId={currentUserId}
+              onComment={onComment}
+              onReply={onReply}
+              inputRef={commentInputRef}
+            />
+          </div>
+        )}
       </Card>
+
+      {/* Media Viewer Dialog */}
+      {post.images && post.images.length > 0 && (
+        <Dialog
+          open={mediaDialogOpen}
+          onClose={() => setMediaDialogOpen(false)}
+          fullWidth
+          maxWidth="md"
+          className="relative"
+        >
+          <DialogTitle>
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+              <Typography variant="h6">
+                {selectedImageIndex + 1} / {post.images.length}
+              </Typography>
+              <IconButton onClick={() => setMediaDialogOpen(false)}>
+                <Close />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers className="relative">
+            <div className="relative h-96 flex items-center justify-center">
+              <img
+                src={post.images[selectedImageIndex]}
+                alt={`${post.title} ${selectedImageIndex + 1}`}
+                className="max-h-full max-w-full object-contain"
+              />
+              {post.images.length > 1 && (
+                <>
+                  <IconButton
+                    onClick={handlePrevImage}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+                  >
+                    <Close className="transform rotate-180" />
+                  </IconButton>
+                  <IconButton
+                    onClick={handleNextImage}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-70 hover:bg-opacity-100"
+                  >
+                    <Close />
+                  </IconButton>
+                </>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </motion.div>
   );
 }
