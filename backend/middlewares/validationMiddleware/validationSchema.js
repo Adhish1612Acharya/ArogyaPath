@@ -84,7 +84,7 @@ export const commentSchemaZod = z.object({
     .optional(),
 });
 
-const prakrithiSchema = z.object({
+export const prakrithiSchema = z.object({
   Name: z.string(),
   Age: z.number().int().min(0),
   Gender: z.string(), // You can use z.enum(["Male", "Female", "Other"]) if values are limited
@@ -112,9 +112,57 @@ const prakrithiSchema = z.object({
   Ayurvedic_Treatment: z.string(), // use z.enum(["Yes", "No"]) if values are limited
 });
 
+// -------------------- forgot Password Schema --------------------
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  role: z.enum(["user", "expert"]),
+});
+
+// -------------------- reset password Schema --------------------
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  role: z.enum(["user", "expert"]),
+});
+
+// -------------------- expertProfileSchema --------------------
+export const expertProfileSchema = z.object({
+  contactNo: z
+    .number()
+    .min(1000000000, "Contact number must be at least 10 digits")
+    .max(9999999999, "Contact number must be at most 10 digits"),
+  // expertType: z.enum(["ayurvedic", "naturopathy"]),
+  // profileImage: z.string().url().optional().or(z.literal("")),
+  experience: z.number().min(0, "Experience must be a non-negative number"),
+  // qualification: z.string().optional().or(z.literal("")),
+  clinicAdress: z.string().optional().or(z.literal("")),
+  specialization: z.string().optional().or(z.literal("")),
+  bio: z.string().optional().or(z.literal("")),
+});
+
+// -------------------- userProfileSchema --------------------
+export const userProfileSchema = z.object({
+  contactNo: z
+    .number()
+    .min(1000000000, "Contact number must be at least 10 digits")
+    .max(9999999999, "Contact number must be at most 10 digits"),
+  // profileImage: z.string().url().optional().or(z.literal("")),
+  age: z
+    .number()
+    .int()
+    .min(1, "Age must be at least 1")
+    .max(120, "Age cannot exceed 120"),
+  healthGoal: z.string().optional().or(z.literal("")),
+  // bio: z.string().optional().or(z.literal("")),
+});
+
 export default {
   userSchemaZod,
   expertSchemaZod,
   postSchemaZod,
   prakrithiSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  expertProfileSchema,
+  userProfileSchema
 };

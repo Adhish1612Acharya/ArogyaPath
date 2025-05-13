@@ -2,25 +2,32 @@ import useApi from "@/hooks/useApi/useApi";
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export function ResetPasswordPage() {
+  const { token, role } = useParams<{
+    token: string;
+    role: "user" | "expert";
+  }>();
+  const navigate = useNavigate();
+  const { post } = useApi();
+
   const [password, setPassword] = useState<string>("");
   const [confirm, setConfirm] = useState<string>("");
   const [message, setMessage] = useState<string>("");
-  const { token } = useParams<{ token: string }>();
-  const navigate = useNavigate();
-  const { post } = useApi();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirm) return setMessage("Passwords do not match");
 
     try {
-      //   const res = await axios.post(`/api/auth/reset-password/${token}`, {
-      //     password,
-      //   });
-      const res = await post(`/api/auth/reset-password/${token}`, password);
-      if (res.status === 200) {
+      const res = await post(
+        `${import.meta.env.VITE_SERVER_URL}/api/auth/reset-password`,
+        { newPassword: password, token, role }
+      );
+      console.log(res);
+      if (res.success) {
+        toast.success("Password reset successfully.");
         navigate("/login");
       } else {
         setMessage(res.data.error || "Something went wrong");

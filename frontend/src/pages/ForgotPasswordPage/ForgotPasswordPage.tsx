@@ -1,16 +1,27 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import { useParams } from "react-router-dom";
+import useApi from "@/hooks/useApi/useApi";
+import { toast } from "react-toastify";
 
 export function ForgotPasswordPage() {
+  const { role } = useParams<{
+    role: "user" | "expert";
+  }>();
+  const { post } = useApi();
   const [email, setEmail] = useState<string>("");
   const [message, setMessage] = useState<string>("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/auth/forgot-password", { email });
-      setMessage(res.data.message || "Check your email for the reset link.");
+      const res = await post(
+        `${import.meta.env.VITE_SERVER_URL}/api/auth/forgot-password`,
+        { email, role }
+      );
+      console.log(res);
+      if (res.success) {
+        toast.success("Reset link sent to your email.");
+      }
     } catch (err: any) {
       setMessage(err.response?.data?.error || "Failed to send reset link.");
     }

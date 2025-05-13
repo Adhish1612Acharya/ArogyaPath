@@ -10,7 +10,17 @@ export const handleGoogleAuthError = (err, req, res, next) => {
 };
 
 export const handleGoogleCallback = (req, res) => {
-  res.redirect(`${process.env.VITE_API_URL}/posts`);
+  const role = req.user.role;
+  console.log("User Role: ", role);
+  const completeProfile = req.user.completeProfile;
+
+  if (role === "expert" && !completeProfile) {
+    res.redirect(`${process.env.VITE_API_URL}/complete-profile/expert`);
+  } else if (role === "user" && !completeProfile) {
+    res.redirect(`${process.env.VITE_API_URL}/complete-profile/user`);
+  } else {
+    res.redirect(`${process.env.VITE_API_URL}/gposts`);
+  }
 };
 
 export const handleGoogleAuthFailiure = (req, res) => {

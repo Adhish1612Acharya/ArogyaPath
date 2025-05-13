@@ -7,13 +7,19 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    googleId: { type: String, unique: true, default: null },
+    googleId: { type: String, unique: true, sparse: true, default: null },
     email: { type: String, required: true, unique: true },
     profile: {
+      fullName: { type: String, default: "" },
       profileImage: { type: String, default: "" },
-      fullname: { type: String, default: "" },
       age: { type: Number, default: null },
-      contact: { type: String, default: 0 },
+      contactNo: { type: String, default: 0 },
+      healthGoal: { type: String, default: "" },
+      bio: { type: String, default: "" },
+      gender: {
+        type: String,
+        enum: ["male", "female", "other"],
+      },
     },
     successStories: [
       { type: Schema.Types.ObjectId, ref: "SuccessStory", default: [] },
@@ -34,7 +40,7 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
 // Define the model with TypeScript type
 const User = mongoose.model("User", userSchema);

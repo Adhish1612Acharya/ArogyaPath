@@ -12,33 +12,21 @@ router.get("/logout", emailPasswordUserAuthController.logout);
 
 router.post(
   "/signUp",
-    isAlreadyLoggedIn,
-    // checkSignUpForm,
+  isAlreadyLoggedIn,
+  // checkSignUpForm,
   wrapAsync(emailPasswordUserAuthController.signUp)
 );
 
 router.post(
   "/login",
-    isAlreadyLoggedIn,
+  isAlreadyLoggedIn,
   passport.authenticate("user", {
-    failureRedirect: "/api/auth/failureLogin",
+    failureRedirect: "/api/auth/user/failureLogin",
   }),
   emailPasswordUserAuthController.login
 );
 
-router.get(
-  "/check",
-   isAlreadyLoggedIn,
-  emailPasswordUserAuthController.login
-);
-
-router.post(
-  "/forgot-password",
-  isAlreadyLoggedIn,
-  wrapAsync(emailPasswordUserAuthController.setForgotPasswordToken)
-);
-
-router.post("/reset-password",  isAlreadyLoggedIn, wrapAsync(emailPasswordUserAuthController.resetPassword));
+router.get("/check", isAlreadyLoggedIn, emailPasswordUserAuthController.login);
 
 // router.put(
 //   "/complete-profile",

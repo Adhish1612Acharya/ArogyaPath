@@ -24,8 +24,8 @@ router.post(
   memoryUpload.array("media", 5),
   parseFormdata,
   validatePost,
-  verifyPostData,
-  handleCloudinaryUpload,
+  wrapAsync(verifyPostData),
+  wrapAsync(handleCloudinaryUpload),
   cloudinaryErrorHandler,
   wrapAsync(postController.createPost)
 );

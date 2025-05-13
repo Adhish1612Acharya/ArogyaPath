@@ -19,10 +19,12 @@ import useAuth from "@/hooks/expert/useAuth/useAuth";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
 // import { Button } from "@/components/ui/button";
 
 const ExpertLoginForm: FC = () => {
   const navigate = useNavigate();
+  const { expertLogin } = useExpertAuth();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -32,30 +34,10 @@ const ExpertLoginForm: FC = () => {
   });
 
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/expert/login",
-        {
-          username: data.email, //username
-          password: data.password,
-        },
-        { withCredentials: true }
-      );
-      if (response.data.success) {
-        toast.success("Registered successfully!");
-        navigate("/gposts");
-      } else {
-        toast.error("Either username or password is incorrect");
-      }
-    } catch (err: any) {
-      if (err.response.status === 401) {
-        throw new Error("You need to Login");
-      } else if (err.response.status === 400) {
-        throw new Error("Bad request : 400");
-      } else {
-        throw new Error(err.message || "Something went wrong");
-      }
-    }
+    const response = await expertLogin(data.email, data.password);
+    if (response.success) {
+      navigate("/gposts");
+    } 
   };
 
   const googleLogin = async () => {

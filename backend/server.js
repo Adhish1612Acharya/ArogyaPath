@@ -9,7 +9,12 @@ import mongoose from "mongoose";
 import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
+import chatRoutes from "./routes/Chat.js";
 // import { Server } from 'socket.io';
+// import http from "http";
+// import { Server } from "socket.io";
+// import initSocket from "./socket.js";
+
 import successStoryRoute from "./routes/SuccessStory.js";
 
 import { Strategy as localStrategy } from "passport-local";
@@ -23,12 +28,28 @@ import userEmailPasswordAuth from "./routes/auth/userEmailPasswordAuth.js";
 import postRoute from "./routes/Post.js";
 import routinesRoute from "./routes/Routines.js";
 import expertRoute from "./routes/Expert.js";
+import userRoutes from "./routes/User.js";
+import prakrathiRoutes from "./routes/Prakrathi.js";
+import healthChallenge from "./routes/healthChallenge.js";
+import commonAuthRouter from "./routes/auth/commonAuth.js";
 
 import passport from "passport";
 import MongoStore from "connect-mongo";
 
 // dotenv.config();
 const app = express();
+
+//socket connection
+// const server = http.createServer(app);
+// const io = new Server(server, {
+//   cors: {
+//     origin: "*",
+//     methods: ["GET", "POST"],
+//   },
+// });
+
+// Initialize Socket.IO
+// initSocket(io);
 
 main()
   .then(() => {
@@ -65,7 +86,7 @@ const sessionOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production", // ✅ False for local dev
-    sameSite: "lax", // ✅ Prevents cross-origin issues
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
 };
 // const server = http.createServer(app);
@@ -88,9 +109,15 @@ app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use("expert", new localStrategy(Expert.authenticate()));
+passport.use(
+  "expert",
+  new localStrategy({ usernameField: "email" }, Expert.authenticate())
+);
 
-passport.use("user", new localStrategy(User.authenticate()));
+passport.use(
+  "user",
+  new localStrategy({ usernameField: "email" }, User.authenticate())
+);
 
 passport.serializeUser((entity, done) => {
   done(null, { id: entity._id, type: entity.role });
@@ -122,30 +149,24 @@ passport.deserializeUser((obj, done) => {
   }
 });
 
-app.get("/api/auth/check", (req, res) => {
-  const loggedIn = req.isAuthenticated();
-  const userRole = req.user?.role || null;
-
-  res.status(200).json({
-    success: true,
-    message: "Auth Status",
-    loggedIn,
-    userRole,
-  });
-});
-
 app.get("/api/user/data", (req, res) => {
   res.status(200).json({
     userEmail: req.user.email,
   });
 });
 
+app.use("/api/auth", commonAuthRouter);
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/auth/user", userEmailPasswordAuth);
+
 app.use("/api/posts", postRoute);
 app.use("/api/success-stories", successStoryRoute);
 app.use("/api/routines", routinesRoute);
 app.use("/api/experts", expertRoute);
+app.use("/api/users", userRoutes);
+app.use("/api/prakrathi", prakrathiRoutes);
+app.use("/api/healthChallenge", healthChallenge);
+app.use("/api/chat", chatRoutes);
 
 app.use("/api/auth/google/expert", expertGoogleAuth);
 app.use("/api/auth/google/user", userGoogleAuth);
@@ -203,3 +224,8 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log("Server listening on port: ", port);
 });
+
+//SOCKET CONNECTION
+
+// // Start the server
+// server.listen(8080, () => console.log("Server running on http://localhost:8080"));

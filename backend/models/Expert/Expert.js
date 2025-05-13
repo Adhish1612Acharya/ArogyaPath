@@ -6,14 +6,26 @@ const ExpertSchema = new Schema(
   {
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
-    googleId: { type: String, unique: true, default: null },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      default: null,
+    },
     profile: {
-      fullname: { type: String, default: "" },
+      fullName: { type: String, default: "" },
+      contactNo: { type: Number, default: 0 },
+      expertType: {
+        type: String,
+        enum: ["ayurvedic", "naturopathy"],
+        default: "ayurvedic",
+      },
+      profileImage: { type: String, default: "" },
       experience: { type: Number, default: 0 },
       qualification: { type: String, default: "" },
-      expertType: { type: String, default: "ayurvedic" },
-      contact: { type: Number, default: 0 },
-      profileImage: { type: String, default: "" },
+      clinicAdress: { type: String, default: "" },
+      specialization: { type: String, default: "" },
+      bio: { type: String, default: "" },
     },
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],
     routinePosts: [
@@ -35,14 +47,14 @@ const ExpertSchema = new Schema(
     ],
     completeProfile: { type: Boolean, default: false },
     role: { type: String, enum: ["expert"], default: "expert" },
-    resetPasswordToken: { type: String },
-    resetPasswordExpires: { type: Date },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
   },
   { timestamps: true }
 );
 
 // Attach Passport-Local Mongoose Plugin
-ExpertSchema.plugin(passportLocalMongoose);
+ExpertSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
 // Export the model
 const Expert = mongoose.model("Expert", ExpertSchema);

@@ -13,39 +13,29 @@ import userLoginSchema from "./UserLoginSchema";
 import { Input } from "@/components/ui/input";
 import Button from "@mui/material/Button";
 import { Loader2, LogIn } from "lucide-react";
-import useAuth from "@/hooks/user/useAuth/useAuth";
 import GoogleIcon from "@mui/icons-material/Google";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
 
 const UserLoginForm = () => {
-  const { phonePaswordLogin } = useAuth();
+  const { userLogin } = useUserAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),
     defaultValues: {
-      phoneNumber: "",
+      email: "",
       password: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
-    const response = await axios.post(
-      "http://localhost:3000/api/auth/user/login",
-      {
-        username: data.phoneNumber,
-        password: data.password,
-      },
-      { withCredentials: true }
-    );
-    if (response.data.success) {
+    const response = await userLogin(data.email, data.password);
+
+    if (response.success) {
       navigate("/gposts");
-    } else {
-      toast.error("Either username or password is incorrect");
     }
-    // await phonePaswordLogin(data.phoneNumber + "@gmail.com", data.password);
   };
 
   const googleLogin = async () => {
@@ -57,7 +47,7 @@ const UserLoginForm = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         <FormField
           control={form.control}
-          name="phoneNumber"
+          name="email"
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-gray-700">Username</FormLabel>

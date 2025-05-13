@@ -31,6 +31,8 @@ import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
 import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
 import { VerifiedByVaidya } from "./pages/Expert/VerifiedSuccessStory/VerifiedSuccessStories";
 import { Navbar } from "./components/layout/navbar";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage/ResetPasswordPage";
 
 const App = () => {
   // const { role, isLoggedIn } = useAuth();
@@ -62,9 +64,21 @@ const App = () => {
             <Route path="/user/login" element={<LoginUser />} />
             <Route path="/user/register" element={<RegisterUser />} />
             <Route path="/auth" element={<RoleSelection />} />
+            <Route
+              path="/:role/forgot-password"
+              element={<ForgotPasswordPage />}
+            />
+            <Route
+              path="/:role/reset-password/:token"
+              element={<ResetPasswordPage />}
+            />
           </Route>
 
           <Route element={<UserProtectedRoute />}>
+            <Route
+              path="/complete-profile/user"
+              element={<UserCompleteProfile />}
+            />
             <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
             <Route
               path="/user/success-stories/create"
@@ -73,6 +87,10 @@ const App = () => {
           </Route>
 
           <Route element={<ExpertProtectedRoute />}>
+            <Route
+              path="/complete-profile/expert"
+              element={<ExpertCompleteProfile />}
+            />
             <Route
               path="/verified/success-stories"
               element={<VerifiedByVaidya />}
@@ -96,14 +114,6 @@ const App = () => {
             />
           </Route>
 
-          <Route
-            path="/complete-profile/expert"
-            element={<ExpertCompleteProfile />}
-          />
-          <Route
-            path="/complete-profile/user"
-            element={<UserCompleteProfile />}
-          />
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </div>

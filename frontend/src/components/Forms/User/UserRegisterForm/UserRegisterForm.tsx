@@ -11,71 +11,41 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import userRegisterSchema from "./UserRegisterSchema";
-import useAuth from "@/hooks/user/useAuth/useAuth";
 import { Loader2, UserPlus } from "lucide-react";
 import Button from "@mui/material/Button";
-import GoogleIcon from "@mui/icons-material/Google";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import axios from "axios";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import GoogleIcon from "@mui/icons-material/Google";
+import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
 
 export const UserRegisterForm = () => {
-  const { userSignUp } = useAuth();
+  const { userSignUp } = useUserAuth();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof userRegisterSchema>>({
     resolver: zodResolver(userRegisterSchema),
     defaultValues: {
-      phoneNumber: "",
-      language: "English", // Default value
-      name: "",
-      state: "",
-      city: "",
-      experience: "",
+      fullName: "",
       password: "",
-      // confirmPassword: "",
+      email: "",
     },
   });
 
   const onSubmit = async (data: z.infer<typeof userRegisterSchema>) => {
     const newData = {
-      phoneNumber: Number(data.phoneNumber),
-      language: data.language,
-      name: data.name,
-      state: data.state,
-      city: data.city,
-      experience: data.experience,
+      fullName: data.fullName,
+      email: data.email,
       password: data.password,
     };
-    // await userSignUp(newData);
 
-    const response = await axios.post(
-      "http://localhost:3000/api/auth/user/signUp",
-      {
-        username: data.name,
-        email: data.phoneNumber, //email
-        password: data.password,
-      },
-      { withCredentials: true }
-    );
+    const response = await userSignUp(newData);
 
-    if (response.data.success) {
-      toast.success("Registered successfully!");
-      navigate("/gposts");
-    } else {
-      toast.error("Username already exists");
+    if (response.success) {
+      navigate("/user/complete-profile");
     }
+  };
 
-    // if (response.status === 201) {
-    //   toast.success("Registered successfully!");
-    // }
+  const googleSignUp = async () => {
+    window.open("http://localhost:3000/api/auth/google/user", "_self");
   };
 
   return (
@@ -84,7 +54,7 @@ export const UserRegisterForm = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="name"
+            name="fullName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-700">Full Name</FormLabel>
@@ -102,96 +72,14 @@ export const UserRegisterForm = () => {
 
           <FormField
             control={form.control}
-            name="phoneNumber"
+            name="email"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="text-gray-700">Email</FormLabel>
                 <FormControl>
                   <Input
-                    // type="tel"
+                    type="email"
                     placeholder="you@gmail.com"
-                    {...field}
-                    className="focus:ring-green-500 focus:border-green-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="language"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">Language</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger className="focus:ring-green-500 focus:border-green-500">
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Hindi">Hindi</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">State</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="California"
-                    {...field}
-                    className="focus:ring-green-500 focus:border-green-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">City</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Los Angeles"
-                    {...field}
-                    className="focus:ring-green-500 focus:border-green-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="experience"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">
-                  Experience (Optional)
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="5 years"
                     {...field}
                     className="focus:ring-green-500 focus:border-green-500"
                   />
@@ -219,27 +107,6 @@ export const UserRegisterForm = () => {
               </FormItem>
             )}
           />
-
-          {/* <FormField
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">
-                  Confirm Password
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    {...field}
-                    className="focus:ring-green-500 focus:border-green-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          /> */}
         </div>
 
         <div className="space-y-4">
@@ -277,15 +144,10 @@ export const UserRegisterForm = () => {
             </div>
           </div>
 
-          {/* <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={googleLogin}
-          >
-            <GoogleIcon className="mr-2 h-4 w-4 text-[#EA4335]" />
-            Continue with Google
-          </Button> */}
+          <Button type="button" className="w-full" onClick={googleSignUp}>
+            <GoogleIcon fontSize="large" />
+            SignUp with Google
+          </Button>
         </div>
 
         <div className="text-center text-sm text-gray-600">
