@@ -6,10 +6,7 @@ export const checkIsTaggedAndVerified = async (req, res, next) => {
   const successPost = await SuccessStory.findById(id);
 
   if (!successPost) {
-    return res.status(404).json({
-      message: "Post not found",
-      success: false,
-    });
+    throw new ExpressError(404, "Post not found");
   }
 
   const isTagged = successPost.tagged.some((expertId) =>
@@ -33,29 +30,20 @@ export const checkIsTaggedAndVerified = async (req, res, next) => {
 
   //  Case 2: Tagging enabled, current expert is tagged and not already verified
   if (isTagged && !isAlreadyVerified) {
-    console.log("Is tagged")
+    console.log("Is tagged");
     return next();
   }
 
   //  Edge Case: Tagging enabled, expert is NOT tagged
   if (isTaggingEnabled && !isTagged) {
-    return res.status(403).json({
-      message: "You are not tagged to verify this post",
-      success: false,
-    });
+    throw new ExpressError(403, "You are not tagged to verify this post");
   }
 
-  //  Already verified
+  // Already verified
   if (isAlreadyVerified) {
-    return res.status(403).json({
-      message: "You have already verified this post",
-      success: false,
-    });
+    throw new ExpressError(403, "You have already verified this post");
   }
 
   // Fallback denial
-  return res.status(403).json({
-    message: "Access denied",
-    success: false,
-  });
+  throw new ExpressError(403, "Access denied");
 };

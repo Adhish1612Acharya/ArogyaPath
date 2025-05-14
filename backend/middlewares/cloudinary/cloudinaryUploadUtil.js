@@ -1,12 +1,14 @@
 import { v2 as cloudinary } from "cloudinary";
+import "../../cloudConfig.js";
 import streamifier from "streamifier";
+import ExpressError from "../../utils/expressError.js";
 
 // Make sure cloudinary is already configured somewhere globally, or configure it here if needed
-cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET,
-});
+// cloudinary.config({
+//   cloud_name: process.env.CLOUD_NAME,
+//   api_key: process.env.CLOUD_API_KEY,
+//   api_secret: process.env.CLOUD_API_SECRET,
+// });
 
 /**
  * Uploads a file buffer to Cloudinary using a stream.
@@ -23,7 +25,8 @@ export const uploadToCloudinary = (buffer, folder = "arogyaPath_DEV") => {
       },
       (error, result) => {
         if (error) {
-          reject(error);
+          // Throw an ExpressError instead of rejecting the promise
+          reject(new ExpressError(500, "Cloudinary upload failed"));
         } else {
           resolve(result); // Contains secure_url, public_id, etc.
         }

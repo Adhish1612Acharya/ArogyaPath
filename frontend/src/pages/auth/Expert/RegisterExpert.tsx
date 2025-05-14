@@ -14,23 +14,23 @@ import Button from "@mui/material/Button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import axios from "axios";
+
 import { toast } from "react-toastify";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate } from "react-router-dom";
+import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
 
 // Schema
-const registerSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    email: z.string().email("Invalid email"),
-    password: z.string().min(6, "Minimum 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords must match",
-    path: ["confirmPassword"],
-  });
+const registerSchema = z.object({
+  fullName: z.string().min(1, "Full Name is required"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(6, "Minimum 6 characters"),
+  // confirmPassword: z.string(),
+});
+// .refine((data) => data.password === data.confirmPassword, {
+//   message: "Passwords must match",
+//   path: ["confirmPassword"],
+// });
 
 const userTypeOptions = [
   { type: "ayurvedic", label: "Ayurvedic Doctor", icon: Heart },
@@ -39,44 +39,34 @@ const userTypeOptions = [
 
 const RegisterExpert: FC = () => {
   const navigate = useNavigate();
+  const { expertSignUp } = useExpertAuth();
 
   const [userType, setUserType] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: "",
+      fullName: "",
       email: "",
       password: "",
-      confirmPassword: "",
+      // confirmPassword: "",
     },
   });
 
   const onRegisterSubmit = async (data: z.infer<typeof registerSchema>) => {
-    try {
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/expert/signUp",
-        {
-          username: data.name,
-          email: data.email,
-          password: data.password,
-        }
-      );
+    const response = await expertSignUp({
+      fullName: data.fullName,
+      email: data.email,
+      password: data.password,
+    });
 
-      if (response.data.success) {
-        toast.success("Registered successfully!");
-        navigate("/gposts");
-      }else{
-         toast.error("Username already exists");
-      }
-    } catch (error: any) {
-      toast.error(error?.response?.data?.message || "Registration failed.");
+    if (response.success) {
+      navigate("/expert/complete-profile");
     }
   };
 
   const googleRegister = () => {
-    toast.info("Google Registration coming soon!");
-    // You can plug in your Google OAuth flow here.
+    window.open("http://localhost:3000/api/auth/google/expert", "_self");
   };
 
   return (
@@ -128,7 +118,7 @@ const RegisterExpert: FC = () => {
               >
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="fullName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-700">Full Name</FormLabel>
@@ -174,7 +164,7 @@ const RegisterExpert: FC = () => {
                   )}
                 />
 
-                <FormField
+                {/* <FormField
                   control={form.control}
                   name="confirmPassword"
                   render={({ field }) => (
@@ -192,7 +182,7 @@ const RegisterExpert: FC = () => {
                       <FormMessage className="text-xs text-rose-600" />
                     </FormItem>
                   )}
-                />
+                /> */}
 
                 <Button
                   type="submit"

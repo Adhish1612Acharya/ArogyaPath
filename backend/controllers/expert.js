@@ -19,3 +19,22 @@ export const searchDoctors = async (req, res) => {
     userId: req.user._id,
   });
 };
+
+export const completeProfile = async (req, res) => {
+  const profileData = req.body;
+
+  await Expert.findByIdAndUpdate(req.user?._id, {
+    profile: profileData,
+    completeProfile: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "profileComplete",
+  });
+};
+
+export default {
+  searchDoctors,
+  completeProfile,
+};

@@ -1,6 +1,6 @@
 export const isAlreadyLoggedIn = (req, res, next) => {
-  console.log("Logged IN : ", req.isAuthenticated());
   if (!req.isAuthenticated()) {
+    console.log("Req body : ", req.body);
     return next();
   } else {
     return res.status(400).json({
@@ -18,26 +18,26 @@ export const isLoggedIn = (req, res, next) => {
     });
   }
 };
-export const isExpert=(req,res,next)=>{
-  if(req.user.role=="expert"){
-   return next();
-  }else{
+export const isExpert = (req, res, next) => {
+  if (req.user.role == "expert") {
+    return next();
+  } else {
     return res.status(400).json({
       message: "you have no authorization",
     });
   }
-}
-export const isUser=(req,res,next)=>{
-  if(req.user.role=="user"){
-   return next();
-  }else{
+};
+export const isUser = (req, res, next) => {
+  if (req.user.role == "user") {
+    return next();
+  } else {
     return res.status(400).json({
       message: "you have no authorization",
     });
   }
-}
+};
 
-export default{
+export default {
   isAlreadyLoggedIn,
   isLoggedIn,
-}
+};

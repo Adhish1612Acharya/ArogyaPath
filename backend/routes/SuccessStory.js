@@ -1,63 +1,64 @@
 import express from "express";
-import {
-  createSuccessStory,
-  getAllSuccessStories,
-  getSingleSuccessStory,
-  updateSuccessStory,
-  deleteSuccessStory,
-  verifySuccessStory,
-} from "../controllers/successStory.js";
+import successStoryControllers from "../controllers/successStory.js";
 import { checkUserLogin } from "../middlewares/users/auth.js";
 import { isLoggedIn } from "../middlewares/commonAuth.js";
 import wrapAsync from "../utils/wrapAsync.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { validateSuccessStory } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import multer from "multer";
-import { storage } from "../cloudConfig.js";
 import {
   cloudinaryErrorHandler,
   parseFormdata,
 } from "../middlewares/cloudinaryMiddleware.js";
 import { checkIsTaggedAndVerified } from "../middlewares/experts/postTagged.js";
-const upload = multer({ storage });
+import { handleCloudinaryUpload } from "../middlewares/cloudinary/handleCloudinaryUpload.js";
+import { verifyPostData } from "../middlewares/verifyPostMiddleware.js";
+const memoryUpload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
 router.post(
   "/",
   checkUserLogin,
-  upload.array("media", 5),
-  cloudinaryErrorHandler,
+  memoryUpload.array("media", 5),
   parseFormdata,
   validateSuccessStory,
-  wrapAsync(createSuccessStory)
+  wrapAsync(verifyPostData),
+  wrapAsync(handleCloudinaryUpload),
+  cloudinaryErrorHandler,
+  wrapAsync(successStoryControllers.createSuccessStory)
 );
 
-router.get("/", isLoggedIn, wrapAsync(getAllSuccessStories));
+router.get(
+  "/",
+  isLoggedIn,
+  wrapAsync(successStoryControllers.getAllSuccessStories)
+);
 
 router.get(
   "/:id",
   isLoggedIn,
-  wrapAsync(getSingleSuccessStory)
+  wrapAsync(successStoryControllers.getSingleSuccessStory)
 );
 
 router.put(
   "/:id",
   checkUserLogin,
-  upload.array("media", 5),
-  cloudinaryErrorHandler,
-  parseFormdata,
   validateSuccessStory,
-  wrapAsync(updateSuccessStory)
+  wrapAsync(successStoryControllers.updateSuccessStory)
 );
 
-router.delete("/:id", checkUserLogin, wrapAsync(deleteSuccessStory));
+router.delete(
+  "/:id",
+  checkUserLogin,
+  wrapAsync(successStoryControllers.deleteSuccessStory)
+);
 
 router.put(
   "/:id/verify",
   checkExpertLogin,
-  checkIsTaggedAndVerified,
-  wrapAsync(verifySuccessStory)
+  wrapAsync(checkIsTaggedAndVerified),
+  wrapAsync(successStoryControllers.verifySuccessStory)
 );
 
 export default router;

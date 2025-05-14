@@ -11,19 +11,14 @@ import {
   RoutinePostCardSkeleton,
   SuccessStoryCardSkeleton,
 } from "@/components/PostCards/PostCardSkeletons";
-import useGetPost from "@/hooks/useGetPost/useGetPost";
-import axios from "axios";
-
-type PostType = "posts" | "routines" | "successstories";
-
-type CategoryKeyMap = {
-  posts: "generalPosts";
-  routines: "routines";
-  successstories: "successStories";
-};
+import useApi from "@/hooks/useApi/useApi";
+import { handleAxiosError } from "@/utils/handleAxiosError";
+import { useNavigate } from "react-router-dom";
+import { CategoryKeyMap, PostType } from "./AiQuery.types";
 
 const AISearchPage = () => {
-  const { getAllTypesOfPosts } = useGetPost();
+  const { get } = useApi();
+  const navigate = useNavigate();
 
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,66 +34,60 @@ const AISearchPage = () => {
   } | null>(null);
 
   const handleSearch = async () => {
-    if (!query.trim()) return;
+    try {
+      if (!query.trim()) return;
 
-    setIsLoading(true);
-    setResults(null);
+      setIsLoading(true);
+      setResults(null);
 
-    const resp = await getAllTypesOfPosts();
+      // STEP 3: Filter matching posts from original allPosts
+      const filteredResults: {
+        generalPosts: any[];
+        routines: any[];
+        successStories: any[];
+      } = {
+        generalPosts: [],
+        routines: [],
+        successStories: [],
+      };
 
-    setAllPosts(resp.allPosts);
+      const aiResponse = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/ai/search`,
+        { params: { prompt: query } }
+      );
+      console.log("AI Response : ", aiResponse);
+      aiResponse.posts.forEach(
+        ({ data, type }: { data: any; type: PostType }) => {
+          const categoryKeyMap: CategoryKeyMap = {
+            post: "generalPosts",
+            routine: "routines",
+            successstory: "successStories",
+          };
 
-    const unifiedPosts = resp.unifiedPosts;
+          const category = categoryKeyMap[type];
 
-    const aiBody = {
-      prompt: query,
-      posts: unifiedPosts,
-    };
+          const matchedPost = allPosts?.[category]?.find(
+            (post) =>
+              post._id?.toString() === data._id ||
+              post.id?.toString() === data._id
+          );
 
-    //  API call to Gemini
-    const aiResponse: any = await axios.post(
-      "https://pranavpai0309-ai-query-search.hf.space/search",
-      aiBody
-    );
-
-    console.log("Ai Reponse : ", aiResponse);
-
-    // STEP 3: Filter matching posts from original allPosts
-    const filteredResults: {
-      generalPosts: any[];
-      routines: any[];
-      successStories: any[];
-    } = {
-      generalPosts: [],
-      routines: [],
-      successStories: [],
-    };
-
-    aiResponse.data.results.forEach(
-      ({ postId, type }: { postId: string; type: PostType }) => {
-        const categoryKeyMap: CategoryKeyMap = {
-          posts: "generalPosts",
-          routines: "routines",
-          successstories: "successStories",
-        };
-
-        const category = categoryKeyMap[type];
-
-        const matchedPost = allPosts?.[category]?.find(
-          (post) =>
-            post._id?.toString() === postId || post.id?.toString() === postId
-        );
-
-        if (matchedPost) {
-          filteredResults[category].push(matchedPost);
+          if (matchedPost) {
+            filteredResults[category].push(matchedPost);
+          }
         }
-      }
-    );
+      );
 
-    console.log("Filtered Results : ", filteredResults);
+      console.log("Filtered Results : ", filteredResults);
 
-    setResults(filteredResults);
-    setIsLoading(false);
+      setResults(filteredResults);
+    } catch (error: any) {
+      handleAxiosError(error);
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -8,8 +8,8 @@ import { Filter } from "@/components/Filter/Filter";
 import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
 import { motion } from "framer-motion";
-import { useFormik } from "formik";
-import * as yup from 'yup';
+// import { useFormik } from "formik";
+// import * as yup from 'yup';
 
 interface Author {
   id: string;
@@ -47,11 +47,11 @@ export interface RoutinePostType {
   createdAt: Date;
 }
 
-const validationSchema = yup.object({
-  title: yup.string().required('Title is required').max(100, 'Title too long'),
-  content: yup.string().required('Content is required').max(2000, 'Content too long'),
-  tags: yup.string(),
-});
+// const validationSchema = yup.object({
+//   title: yup.string().required('Title is required').max(100, 'Title too long'),
+//   content: yup.string().required('Content is required').max(2000, 'Content too long'),
+//   tags: yup.string(),
+// });
 
 export function AllRoutinePosts() {
   const [userType] = useState<"expert" | "patient">("patient");
@@ -238,32 +238,32 @@ export function AllRoutinePosts() {
     }
   ]);
 
-  const formik = useFormik({
-    initialValues: {
-      title: '',
-      content: '',
-      tags: ''
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      if (currentPost) {
-        const updatedPosts = routinePosts.map(post => {
-          if (post.id === currentPost.id) {
-            return {
-              ...post,
-              title: values.title,
-              content: values.content,
-              tags: values.tags.split(',').map(tag => tag.trim())
-            };
-          }
-          return post;
-        });
-        setRoutinePosts(updatedPosts);
-        setOpenEditDialog(false);
-        showSnackbar('Routine updated successfully!', 'success');
-      }
-    },
-  });
+  // const formik = useFormik({
+  //   initialValues: {
+  //     title: '',
+  //     content: '',
+  //     tags: ''
+  //   },
+  //   validationSchema: validationSchema,
+  //   onSubmit: (values) => {
+  //     if (currentPost) {
+  //       const updatedPosts = routinePosts.map(post => {
+  //         if (post.id === currentPost.id) {
+  //           return {
+  //             ...post,
+  //             title: values.title,
+  //             content: values.content,
+  //             tags: values.tags.split(',').map(tag => tag.trim())
+  //           };
+  //         }
+  //         return post;
+  //       });
+  //       setRoutinePosts(updatedPosts);
+  //       setOpenEditDialog(false);
+  //       showSnackbar('Routine updated successfully!', 'success');
+  //     }
+  //   },
+  // });
 
   useEffect(() => {
     async function getRoutinePosts() {
@@ -282,13 +282,13 @@ export function AllRoutinePosts() {
   }, []);
 
   useEffect(() => {
-    if (currentPost) {
-      formik.setValues({
-        title: currentPost.title,
-        content: currentPost.content,
-        tags: currentPost.tags.join(', ')
-      });
-    }
+    // if (currentPost) {
+    //   formik.setValues({
+    //     title: currentPost.title,
+    //     content: currentPost.content,
+    //     tags: currentPost.tags.join(', ')
+    //   });
+    // }
   }, [currentPost]);
 
   const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
@@ -412,7 +412,8 @@ export function AllRoutinePosts() {
   };
 
   const isPostAuthor = (post: RoutinePostType) => {
-    return post.author.id === userId;
+    // return post.author.id === userId;
+    return true;
   };
 
   return (
@@ -500,16 +501,18 @@ export function AllRoutinePosts() {
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
         <DialogTitle>Edit Routine</DialogTitle>
         <DialogContent dividers>
-          <form onSubmit={formik.handleSubmit}>
+          <form 
+          // onSubmit={formik.handleSubmit}
+          >
             <TextField
               fullWidth
               id="title"
               name="title"
               label="Title"
-              value={formik.values.title}
-              onChange={formik.handleChange}
-              error={formik.touched.title && Boolean(formik.errors.title)}
-              helperText={formik.touched.title && formik.errors.title}
+              // value={formik.values.title}
+              // onChange={formik.handleChange}
+              // error={formik.touched.title && Boolean(formik.errors.title)}
+              // helperText={formik.touched.title && formik.errors.title}
               margin="normal"
             />
             <TextField
@@ -519,10 +522,10 @@ export function AllRoutinePosts() {
               label="Content"
               multiline
               rows={6}
-              value={formik.values.content}
-              onChange={formik.handleChange}
-              error={formik.touched.content && Boolean(formik.errors.content)}
-              helperText={formik.touched.content && formik.errors.content}
+              // value={formik.values.content}
+              // onChange={formik.handleChange}
+              // error={formik.touched.content && Boolean(formik.errors.content)}
+              // helperText={formik.touched.content && formik.errors.content}
               margin="normal"
             />
             <TextField
@@ -530,10 +533,10 @@ export function AllRoutinePosts() {
               id="tags"
               name="tags"
               label="Tags (comma separated)"
-              value={formik.values.tags}
-              onChange={formik.handleChange}
-              error={formik.touched.tags && Boolean(formik.errors.tags)}
-              helperText={formik.touched.tags && formik.errors.tags}
+              // value={formik.values.tags}
+              // onChange={formik.handleChange}
+              // error={formik.touched.tags && Boolean(formik.errors.tags)}
+              // helperText={formik.touched.tags && formik.errors.tags}
               margin="normal"
             />
           </form>
@@ -541,7 +544,9 @@ export function AllRoutinePosts() {
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
           <Button 
-            onClick={() => formik.handleSubmit()} 
+            // onClick={() => 
+            //   // formik.handleSubmit()
+            // } 
             color="primary"
             variant="contained"
           >

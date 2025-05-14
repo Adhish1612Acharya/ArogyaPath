@@ -1,4 +1,3 @@
-import axios from "axios";
 import Expert from "../models/Expert/Expert.js";
 import SuccessStory from "../models/SuccessStory/SuccessStory.js";
 import User from "../models/User/User.js";
@@ -7,11 +6,9 @@ import transformSuccessStory from "../utils/transformSuccessStory.js";
 
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
-  const { title, description, filters, routines = [], tagged = [] } = req.body;
-  const mediaFiles = req.files;
+  const { title, description, routines, tagged } = req.body;
+  const mediaFiles = req.cloudinaryFiles;
   const readTime = calculateReadTime({ title, description, routines });
-
-  console.log("Success stories filter : ", filters);
 
   const media = {
     images: [],
@@ -19,18 +16,20 @@ export const createSuccessStory = async (req, res) => {
     document: null,
   };
 
-  // Process media files
+  //Cloudinary stores file URLs in `path`
   mediaFiles.forEach((file) => {
-    const mimeType = file.mimetype;
-
-    if (mimeType.startsWith("image/")) {
-      media.images.push(file.path); // Cloudinary URL
-    } else if (mimeType.startsWith("video/")) {
-      media.video = file.path;
-    } else if (mimeType === "application/pdf") {
-      media.document = file.path;
+    // Determine file type from Cloudinary response
+    if (file.resource_type === "image") {
+      media.images.push(file.secure_url);
+    } else if (file.resource_type === "video") {
+      media.video = file.secure_url;
+    } else if (file.format === "pdf") {
+      media.document = file.secure_url;
     }
   });
+
+  //Generate categories using ONLY the description
+  const filters = await generateFilters(title, description, routines);
 
   const newSuccessStory = await SuccessStory.create({
     title,
@@ -53,36 +52,38 @@ export const createSuccessStory = async (req, res) => {
 
   // Update current user
   await User.findByIdAndUpdate(req.user._id, {
-    $push: { taggedPosts: newSuccessStory._id },
+    $push: { successStories: newSuccessStory._id },
   });
 
   // Notify each expert via email
   const expertsData = await Expert.find({ _id: { $in: tagged } });
 
   for (const [index, eachExpert] of expertsData.entries()) {
-    try {
-      const formData = new FormData();
-      formData.append("recipient_name", eachExpert.username);
-      formData.append("recipient_email", eachExpert.email);
-      formData.append(
-        "post_link",
-        `${process.env.VITE_API_URL}/success-stories/${newSuccessStory._id}`
-      );
+    const emailSubject = "You've Been Tagged - Please Verify a Success Story";
 
-      const email_response = await axios.post(
-        "https://post-tagging-email-automation-aakrithi.onrender.com/send_email",
-        formData
-      );
-      console.log(
-        `✅ Email sent to ${eachExpert.username}:`,
-        email_response.data
-      );
-    } catch (emailErr) {
-      console.error(
-        `❌ Failed to send email to ${eachExpert.username}:`,
-        emailErr.message
-      );
-    }
+    const emailContent = `
+  <h3>Hello Dr. ${eachExpert.profile?.fullName || eachExpert.username},</h3>
+  <p>
+    You've been <strong>tagged</strong> in a user's success story on <strong>ArogyaPath</strong>.
+  </p>
+  <p>
+    We value your expertise and kindly request you to <strong>review and verify</strong> the story by visiting the link below:
+  </p>
+  <p>
+    <a href="${process.env.VITE_API_URL}/success-stories/${
+      newSuccessStory._id
+    }" target="_blank">
+      View and Verify the Story
+    </a>
+  </p>
+  <p>
+    If you believe this was an error or do not wish to be tagged, you may ignore this email.
+  </p>
+  <br />
+  <p>Thank you,<br/>ArogyaPath Team</p>
+`;
+
+    await sendResetEmail(eachExpert.email, emailSubject, emailContent);
   }
 
   // Success response
@@ -97,10 +98,16 @@ export const createSuccessStory = async (req, res) => {
 // 2. Get All Success Stories
 export const getAllSuccessStories = async (req, res) => {
   const stories = await SuccessStory.find()
-    .populate("owner")
-    .populate("verified")
-    .populate("tagged");
-
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage")
+    .populate(
+      "tagged",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    )
+    .populate(
+      "verified",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    );
   const userId = req.user._id.toString();
 
   const transformedSuccessStories = stories.map((story) => {
@@ -137,9 +144,16 @@ export const getSingleSuccessStory = async (req, res) => {
   const { id } = req.params;
 
   const successStory = await SuccessStory.findById(id)
-    .populate("owner")
-    .populate("verified")
-    .populate("tagged");
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage")
+    .populate(
+      "tagged",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    )
+    .populate(
+      "verified",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    );
 
   if (!successStory) {
     return res.status(404).json({ message: "Success story not found" });
@@ -252,4 +266,13 @@ export const verifySuccessStory = async (req, res) => {
       },
     },
   });
+};
+
+export default {
+  createSuccessStory,
+  getAllSuccessStories,
+  getSingleSuccessStory,
+  updateSuccessStory,
+  deleteSuccessStory,
+  verifySuccessStory,
 };

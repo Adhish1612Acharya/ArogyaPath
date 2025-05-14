@@ -8,8 +8,8 @@ import { Filter } from "@/components/Filter/Filter";
 import { GeneralPostCard } from "@/components/PostCards/GeneralPostCard";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
 import { motion } from "framer-motion";
-import { useFormik } from "formik";
-import * as yup from 'yup';
+// import { useFormik } from "formik";
+// import * as yup from 'yup';
 
 interface Author {
   id: string;
@@ -42,11 +42,11 @@ export interface GeneralPostsType {
   createdAt: Date;
 }
 
-const validationSchema = yup.object({
-  title: yup.string().required('Title is required').max(100, 'Title too long'),
-  content: yup.string().required('Content is required').max(2000, 'Content too long'),
-  tags: yup.string(),
-});
+// const validationSchema = yup.object({
+//   title: yup.string().required('Title is required').max(100, 'Title too long'),
+//   content: yup.string().required('Content is required').max(2000, 'Content too long'),
+//   tags: yup.string(),
+// });
 
 export function AllGeneralPosts() {
   const [userType] = useState<"expert" | "patient">("patient");
@@ -130,32 +130,32 @@ export function AllGeneralPosts() {
     }
   ]);
 
-  const formik = useFormik({
-    initialValues: {
-      title: '',
-      content: '',
-      tags: ''
-    },
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      if (currentPost) {
-        const updatedPosts = generalPosts.map(post => {
-          if (post.id === currentPost.id) {
-            return {
-              ...post,
-              title: values.title,
-              content: values.content,
-              tags: values.tags.split(',').map(tag => tag.trim())
-            };
-          }
-          return post;
-        });
-        setGeneralPosts(updatedPosts);
-        setOpenEditDialog(false);
-        showSnackbar('Post updated successfully!', 'success');
-      }
-    },
-  });
+  // const formik = useFormik({
+  //   initialValues: {
+  //     title: '',
+  //     content: '',
+  //     tags: ''
+  //   },
+  //   validationSchema: validationSchema,
+  //   onSubmit: (values) => {
+  //     if (currentPost) {
+  //       const updatedPosts = generalPosts.map(post => {
+  //         if (post.id === currentPost.id) {
+  //           return {
+  //             ...post,
+  //             title: values.title,
+  //             content: values.content,
+  //             tags: values.tags.split(',').map(tag => tag.trim())
+  //           };
+  //         }
+  //         return post;
+  //       });
+  //       setGeneralPosts(updatedPosts);
+  //       setOpenEditDialog(false);
+  //       showSnackbar('Post updated successfully!', 'success');
+  //     }
+  //   },
+  // });
 
   useEffect(() => {
     if (currentPost) {
@@ -380,16 +380,18 @@ export function AllGeneralPosts() {
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
         <DialogTitle>Edit Post</DialogTitle>
         <DialogContent dividers>
-          <form onSubmit={formik.handleSubmit}>
+          <form 
+          // onSubmit={formik.handleSubmit}
+          >
             <TextField
               fullWidth
               id="title"
               name="title"
               label="Title"
-              value={formik.values.title}
-              onChange={formik.handleChange}
-              error={formik.touched.title && Boolean(formik.errors.title)}
-              helperText={formik.touched.title && formik.errors.title}
+              // value={formik.values.title}
+              // onChange={formik.handleChange}
+              // error={formik.touched.title && Boolean(formik.errors.title)}
+              // helperText={formik.touched.title && formik.errors.title}
               margin="normal"
             />
             <TextField
@@ -399,10 +401,10 @@ export function AllGeneralPosts() {
               label="Content"
               multiline
               rows={6}
-              value={formik.values.content}
-              onChange={formik.handleChange}
-              error={formik.touched.content && Boolean(formik.errors.content)}
-              helperText={formik.touched.content && formik.errors.content}
+              // value={formik.values.content}
+              // onChange={formik.handleChange}
+              // error={formik.touched.content && Boolean(formik.errors.content)}
+              // helperText={formik.touched.content && formik.errors.content}
               margin="normal"
             />
             <TextField
@@ -410,10 +412,10 @@ export function AllGeneralPosts() {
               id="tags"
               name="tags"
               label="Tags (comma separated)"
-              value={formik.values.tags}
-              onChange={formik.handleChange}
-              error={formik.touched.tags && Boolean(formik.errors.tags)}
-              helperText={formik.touched.tags && formik.errors.tags}
+              // value={formik.values.tags}
+              // onChange={formik.handleChange}
+              // error={formik.touched.tags && Boolean(formik.errors.tags)}
+              // helperText={formik.touched.tags && formik.errors.tags}
               margin="normal"
             />
           </form>
@@ -421,7 +423,7 @@ export function AllGeneralPosts() {
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
           <Button 
-            onClick={() => formik.handleSubmit()} 
+            // onClick={() => formik.handleSubmit()} 
             color="primary"
             variant="contained"
           >
@@ -431,7 +433,7 @@ export function AllGeneralPosts() {
       </Dialog>
 
       {/* Media Viewer Dialog */}
-      <Dialog 
+      {/* <Dialog 
         open={openMediaDialog} 
         onClose={() => setOpenMediaDialog(false)} 
         fullWidth 
@@ -466,7 +468,7 @@ export function AllGeneralPosts() {
             )
           )}
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
 
       {/* Snackbar for notifications */}
       <Snackbar

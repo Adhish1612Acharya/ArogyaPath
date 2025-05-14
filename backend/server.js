@@ -9,14 +9,11 @@ import mongoose from "mongoose";
 import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
-// import { Server } from 'socket.io';
-import http from "http";
-import { Server } from "socket.io";
 import chatRoutes from "./routes/Chat.js";
-import initSocket from "./socket.js";
-
-
-
+// import { Server } from 'socket.io';
+// import http from "http";
+// import { Server } from "socket.io";
+// import initSocket from "./socket.js";
 
 import successStoryRoute from "./routes/SuccessStory.js";
 
@@ -24,21 +21,22 @@ import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert.js";
 import User from "./models/User/User.js";
 
-// import expertGoogleAuth from "./routes/auth/googleExpertAuth.js";
-// import userGoogleAuth from "./routes/auth/googleUserAuth.js";
+import userGoogleAuth from "./routes/auth/googleUserAuth.js";
+import expertGoogleAuth from "./routes/auth/googleExpertAuth.js";
 import expertEmailPasswordAuth from "./routes/auth/expertEmailPassowrdAuth.js";
-import userEmailPasswordAuth from "./routes/auth/userEmailPassowrdAuth.js";
+import userEmailPasswordAuth from "./routes/auth/userEmailPasswordAuth.js";
 import postRoute from "./routes/Post.js";
 import routinesRoute from "./routes/Routines.js";
 import expertRoute from "./routes/Expert.js";
 import userRoutes from "./routes/User.js";
 import prakrathiRoutes from "./routes/Prakrathi.js";
-import healthChallenge from "./routes/healthChallenge.js"
-
-
+import healthChallenge from "./routes/healthChallenge.js";
+import commonAuthRouter from "./routes/auth/commonAuth.js";
 
 import passport from "passport";
 import MongoStore from "connect-mongo";
+
+import aiFeaturesRoute from "./routes/aiFeature.js";
 
 // dotenv.config();
 const app = express();
@@ -54,7 +52,6 @@ const app = express();
 
 // Initialize Socket.IO
 // initSocket(io);
-
 
 main()
   .then(() => {
@@ -91,7 +88,7 @@ const sessionOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: process.env.NODE_ENV === "production", // ✅ False for local dev
-    sameSite: "lax", // ✅ Prevents cross-origin issues
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
 };
 // const server = http.createServer(app);
@@ -114,12 +111,17 @@ app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use("expert", new localStrategy(Expert.authenticate()));
+passport.use(
+  "expert",
+  new localStrategy({ usernameField: "email" }, Expert.authenticate())
+);
 
-passport.use("user", new localStrategy(User.authenticate()));
+passport.use(
+  "user",
+  new localStrategy({ usernameField: "email" }, User.authenticate())
+);
 
 passport.serializeUser((entity, done) => {
-
   done(null, { id: entity._id, type: entity.role });
 });
 
@@ -149,38 +151,29 @@ passport.deserializeUser((obj, done) => {
   }
 });
 
-app.get("/api/auth/check", (req, res) => {
-  const loggedIn = req.isAuthenticated();
-  const userRole = req.user?.role || null;
-
-  res.status(200).json({
-    success: true,
-    message: "Auth Status",
-    loggedIn,
-    userRole,
-  });
-});
-
 app.get("/api/user/data", (req, res) => {
   res.status(200).json({
     userEmail: req.user.email,
   });
 });
 
+app.use("/api/ai", aiFeaturesRoute);
+
+app.use("/api/auth", commonAuthRouter);
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/auth/user", userEmailPasswordAuth);
+
 app.use("/api/posts", postRoute);
 app.use("/api/success-stories", successStoryRoute);
 app.use("/api/routines", routinesRoute);
 app.use("/api/experts", expertRoute);
-app.use("/api/user", userRoutes);
-app.use("/api/prakrathi", prakrathiRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/prakrithi", prakrathiRoutes);
 app.use("/api/healthChallenge", healthChallenge);
 app.use("/api/chat", chatRoutes);
 
-
-// app.use("/auth/google", expertGoogleAuth);
-// app.use("/api/auth/google/user", userGoogleAuth);
+app.use("/api/auth/google/expert", expertGoogleAuth);
+app.use("/api/auth/google/user", userGoogleAuth);
 
 // app.get("/check", (req, res) => {
 //   console.log("Logged IN : ", req.isAuthenticated());
