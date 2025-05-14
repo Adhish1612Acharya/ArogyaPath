@@ -6,20 +6,18 @@ import {
   FormControl,
   InputLabel,
   FormHelperText,
-  Grow,
-  Fade,
-  Zoom,
-  Slide
 } from "@mui/material";
 import FORM_FIELDS from "@/constants/prakrithiFormFields";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FC, useEffect } from "react";
+import { FC } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import prakrithiFormSchema from "./PrakrithiFromSchema";
-import axios from "axios";
 import { PrakrithiAnalysisFormProps } from "./PrakrithiForm.types";
 import { motion, AnimatePresence } from "framer-motion";
+import usePrakrithi from "@/hooks/usePrakrithi/usePrakrithi";
+import { useNavigate } from "react-router-dom";
+import { handleAxiosError } from "@/utils/handleAxiosError";
 
 const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   currentSection,
@@ -28,7 +26,14 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   generatePDF,
   TOTAL_SECTIONS,
 }) => {
-  const { control, handleSubmit, trigger, formState: { isValid } } = useForm<z.infer<typeof prakrithiFormSchema>>({
+  const { findPrakrithi } = usePrakrithi();
+  const navigate = useNavigate();
+  const {
+    control,
+    handleSubmit,
+    trigger,
+    formState: { isValid },
+  } = useForm<z.infer<typeof prakrithiFormSchema>>({
     resolver: zodResolver(prakrithiFormSchema),
     mode: "onChange",
     defaultValues: {
@@ -78,9 +83,9 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
       transition: {
         delay: i * 0.1,
         duration: 0.5,
-        ease: "easeOut"
-      }
-    })
+        ease: "easeOut",
+      },
+    }),
   };
 
   /**
@@ -118,14 +123,13 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
         Sleep_Duration: Number(data.Sleep_Duration),
       };
 
-      const response = await axios.post(
-        "https://prakritianalysis.onrender.com/generate_pdf/",
-        processedData
-      );
+      const response = await findPrakrithi(processedData);
 
       await generatePDF(response.data);
-    } catch (error) {
-      console.error("Submission failed", error);
+    } catch (error: any) {
+      handleAxiosError(error);
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
     } finally {
       setLoading(false);
     }
@@ -133,7 +137,7 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <motion.div 
+      <motion.div
         key={`section-${currentSection}`}
         initial={{ opacity: 0, x: currentSection > 1 ? 20 : -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -167,30 +171,30 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
                         MenuProps={{
                           PaperProps: {
                             sx: {
-                              borderRadius: '12px',
-                              marginTop: '8px',
-                              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-                              '& .MuiMenuItem-root': {
-                                padding: '12px 16px',
-                                '&:hover': {
-                                  backgroundColor: 'rgba(13, 148, 136, 0.1)'
-                                }
-                              }
-                            }
-                          }
+                              borderRadius: "12px",
+                              marginTop: "8px",
+                              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+                              "& .MuiMenuItem-root": {
+                                padding: "12px 16px",
+                                "&:hover": {
+                                  backgroundColor: "rgba(13, 148, 136, 0.1)",
+                                },
+                              },
+                            },
+                          },
                         }}
                       >
                         {field.options?.map((option) => (
-                          <MenuItem 
-                            key={option} 
+                          <MenuItem
+                            key={option}
                             value={option}
                             sx={{
-                              '&.Mui-selected': {
-                                backgroundColor: 'rgba(13, 148, 136, 0.2)',
-                                '&:hover': {
-                                  backgroundColor: 'rgba(13, 148, 136, 0.3)'
-                                }
-                              }
+                              "&.Mui-selected": {
+                                backgroundColor: "rgba(13, 148, 136, 0.2)",
+                                "&:hover": {
+                                  backgroundColor: "rgba(13, 148, 136, 0.3)",
+                                },
+                              },
                             }}
                           >
                             {option}
@@ -210,21 +214,21 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
                       InputProps={{
                         className: "text-gray-800 dark:text-gray-200",
                         sx: {
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#0d9488 !important',
+                          "&:hover .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#0d9488 !important",
                           },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#0d9488 !important',
-                            borderWidth: '2px',
+                          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                            borderColor: "#0d9488 !important",
+                            borderWidth: "2px",
                           },
-                        }
+                        },
                       }}
                       InputLabelProps={{
                         sx: {
-                          '&.Mui-focused': {
-                            color: '#0d9488',
+                          "&.Mui-focused": {
+                            color: "#0d9488",
                           },
-                        }
+                        },
                       }}
                     />
                   )}
@@ -253,11 +257,11 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
                 onClick={() => setCurrentSection(currentSection - 1)}
                 className="w-full sm:w-auto px-6 py-3 text-indigo-600 border-indigo-600 hover:bg-indigo-50 hover:border-indigo-700 rounded-lg"
                 sx={{
-                  '&:hover': {
-                    boxShadow: '0 4px 14px rgba(79, 70, 229, 0.2)',
-                    transform: 'translateY(-2px)',
+                  "&:hover": {
+                    boxShadow: "0 4px 14px rgba(79, 70, 229, 0.2)",
+                    transform: "translateY(-2px)",
                   },
-                  transition: 'all 0.3s ease',
+                  transition: "all 0.3s ease",
                 }}
               >
                 Previous
@@ -282,20 +286,20 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
                 onClick={(e) => handleNext(e)}
                 className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-indigo-600 to-teal-600 hover:from-indigo-700 hover:to-teal-700 text-white rounded-lg"
                 sx={{
-                  '&:hover': {
-                    boxShadow: '0 4px 20px rgba(79, 70, 229, 0.4)',
-                    transform: 'translateY(-2px)',
+                  "&:hover": {
+                    boxShadow: "0 4px 20px rgba(79, 70, 229, 0.4)",
+                    transform: "translateY(-2px)",
                   },
-                  transition: 'all 0.3s ease',
+                  transition: "all 0.3s ease",
                 }}
               >
                 Continue
-                <motion.span 
+                <motion.span
                   animate={{ x: [0, 5, 0] }}
-                  transition={{ 
-                    repeat: Infinity, 
+                  transition={{
+                    repeat: Infinity,
                     duration: 1.5,
-                    ease: "easeInOut"
+                    ease: "easeInOut",
                   }}
                   className="ml-2"
                 >
@@ -314,38 +318,52 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
                 variant="contained"
                 className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white rounded-lg"
                 sx={{
-                  '&:hover': {
-                    boxShadow: '0 4px 20px rgba(5, 150, 105, 0.4)',
-                    transform: 'translateY(-2px)',
+                  "&:hover": {
+                    boxShadow: "0 4px 20px rgba(5, 150, 105, 0.4)",
+                    transform: "translateY(-2px)",
                   },
-                  transition: 'all 0.3s ease',
+                  transition: "all 0.3s ease",
                 }}
                 disabled={!isValid}
               >
                 <motion.span
-                  animate={isValid ? { 
-                    scale: [1, 1.05, 1],
-                    transition: { 
-                      duration: 1.5,
-                      repeat: Infinity
-                    } 
-                  } : {}}
+                  animate={
+                    isValid
+                      ? {
+                          scale: [1, 1.05, 1],
+                          transition: {
+                            duration: 1.5,
+                            repeat: Infinity,
+                          },
+                        }
+                      : {}
+                  }
                 >
                   Complete Analysis
                 </motion.span>
                 {isValid && (
-                  <motion.div 
+                  <motion.div
                     className="ml-2"
-                    animate={{ 
+                    animate={{
                       rotate: 360,
-                      transition: { 
+                      transition: {
                         duration: 2,
                         repeat: Infinity,
-                        ease: "linear"
-                      } 
+                        ease: "linear",
+                      },
                     }}
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
                       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
                   </motion.div>

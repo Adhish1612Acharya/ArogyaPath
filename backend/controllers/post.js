@@ -6,7 +6,9 @@ import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
-  const rawPosts = await Post.find().populate("owner");
+  const rawPosts = await Post.find()
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   const transformedPosts = rawPosts.map((post) => transformPost(post));
 
@@ -19,7 +21,9 @@ const getAllPosts = async (req, res) => {
 
 const getPostById = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId).populate("owner");
+  const post = await Post.findById(postId)
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   if (!post) {
     return res.status(404).json({ message: "Post not found", success: false });
@@ -114,17 +118,15 @@ const updatePost = async (req, res) => {
 
 const filterPosts = async (req, res) => {
   const { categories } = req.query;
-  if (!categories)
-    return res
-      .status(400)
-      .json({ message: "Provide categories" })
-      .populate("owner")
-      .populate("tags")
-      .populate("verified");
+  if (!categories) {
+    return res.status(400).json({ message: "Provide categories" });
+  }
+
   const categoryArray = categories.split(",").map((cat) => cat.trim());
   const posts = await Post.find({ category: { $in: categoryArray } });
   res.json({ message: "Filtered posts", posts });
 };
+
 const verifyPost = async (req, res) => {
   const { id } = req.params; // Post ID
   const doctorId = req.user._id; // Doctor's (Expert's) ID from the authenticated user

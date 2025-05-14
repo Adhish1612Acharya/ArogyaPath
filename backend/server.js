@@ -36,6 +36,8 @@ import commonAuthRouter from "./routes/auth/commonAuth.js";
 import passport from "passport";
 import MongoStore from "connect-mongo";
 
+import aiFeaturesRoute from "./routes/aiFeature.js";
+
 // dotenv.config();
 const app = express();
 
@@ -155,6 +157,8 @@ app.get("/api/user/data", (req, res) => {
   });
 });
 
+app.use("/api/ai", aiFeaturesRoute);
+
 app.use("/api/auth", commonAuthRouter);
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/auth/user", userEmailPasswordAuth);
@@ -164,7 +168,7 @@ app.use("/api/success-stories", successStoryRoute);
 app.use("/api/routines", routinesRoute);
 app.use("/api/experts", expertRoute);
 app.use("/api/users", userRoutes);
-app.use("/api/prakrathi", prakrathiRoutes);
+app.use("/api/prakrithi", prakrathiRoutes);
 app.use("/api/healthChallenge", healthChallenge);
 app.use("/api/chat", chatRoutes);
 

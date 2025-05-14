@@ -42,29 +42,21 @@ export const postSchemaZod = z.object({
   description: z.string().trim().min(1, "Description is required"),
 });
 
-// -------------------- Routine Schema --------------------
-const fileSchema = z.object({
-  path: z.string().optional(),
-  filename: z.string().optional(),
-});
-
 export const routineSchemaZod = z.object({
   title: z.string(),
   description: z.string(),
-  filters: z.array(z.string()),
   routines: z.array(
     z.object({
       time: z.string().min(1, "Time is required"),
       content: z.string().min(1, "Content is required"),
     })
-  ),
+  ).min(1, "At least one routine is required"),
 });
 
 // -------------------- SuccessStory Schema --------------------
 export const successStorySchemaZod = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().min(1, "Description is required"),
-  filters: z.array(z.string()).min(1, "At least one filter is required"),
   tagged: z.array(objectIdSchema).max(5, "Cannot exceed 5 tagged experts"),
   routines: z.array(
     z.object({
@@ -164,5 +156,5 @@ export default {
   forgotPasswordSchema,
   resetPasswordSchema,
   expertProfileSchema,
-  userProfileSchema
+  userProfileSchema,
 };

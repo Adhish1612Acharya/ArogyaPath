@@ -9,6 +9,8 @@ import {
   resetPasswordSchema,
   expertProfileSchema,
   userProfileSchema,
+  commentSchemaZod,
+  prakrithiSchema,
 } from "./validationSchema.js";
 
 export const validateUser = (req, res, next) => {
@@ -57,7 +59,7 @@ export const validateComment = (req, res, next) => {
 };
 
 export const validatePrakrathi = (req, res, next) => {
-  const result = prakrathiSchema.safeParse(req.body);
+  const result = prakrithiSchema.safeParse(req.body);
 
   if (!result.success) throw new ExpressError(400, result.error.format());
   next();

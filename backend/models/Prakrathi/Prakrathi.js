@@ -1,4 +1,4 @@
-import  mongoose from "mongoose";
+import mongoose from "mongoose";
 
 const prakrithiSchema = new mongoose.Schema(
   {
@@ -44,6 +44,11 @@ const prakrithiSchema = new mongoose.Schema(
       Ayurvedic_Herbs_Remedies: { type: [String], required: true },
     },
     Potential_Health_Concerns: { type: [String], required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
   },
   { timestamps: true }
 );

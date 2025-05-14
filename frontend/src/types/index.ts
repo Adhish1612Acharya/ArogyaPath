@@ -1,8 +1,19 @@
+export interface Routine {
+  time: string;
+  content: string;
+}
+
+export interface MediaUploads {
+  images: File[];
+  video: File | null;
+  document: File | null;
+}
+
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'expert' | 'patient';
+  role: "expert" | "patient";
   profileImage?: string;
 }
 
@@ -24,7 +35,7 @@ export interface Post {
   images?: string[];
   videos?: string[];
   createdAt: Date;
-  type: 'general' | 'routine';
+  type: "general" | "routine";
 }
 
 export interface RoutineActivity {

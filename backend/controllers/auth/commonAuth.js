@@ -23,7 +23,16 @@ export const setForgotPasswordToken = async (req, res) => {
 
   const resetLink = `${process.env.VITE_API_URL}/${role}/reset-password/${token}`;
 
-  await sendResetEmail(user.email, resetLink);
+  const emailSubject = "Password Reset - ArogyaPath";
+
+  const emailContent = `
+        <h3>Reset Your Password</h3>
+        <p>Click the link below to reset your password. This link is valid for 15 minutes:</p>
+        <a href="${resetLink}">${resetLink}</a>
+        <p>If you did not request this, you can ignore this email.</p>
+      `;
+
+  await sendResetEmail(user.email, emailSubject, emailContent);
 
   res.json({ success: true, message: "Reset link sent to email" });
 };

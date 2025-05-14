@@ -26,7 +26,11 @@ export const handleAxiosError = (error: any) => {
         toast.error(error.response?.data?.message || error.message);
     }
   } else {
-    toast.error(error.message || "An unknown error occurred");
+    toast.error(
+      error.message ||
+        error.response?.data?.message ||
+        "An unknown error occurred"
+    );
   }
 
   throw error;

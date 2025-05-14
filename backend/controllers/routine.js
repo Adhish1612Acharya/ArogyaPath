@@ -5,10 +5,18 @@ import transformRoutine from "../utils/transformRoutinePost.js";
 
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
-  const { title, description, routines, filters } = req.body;
-  const thumbnail = req.file ? req.file.path : null;
+  const { title, description, routines } = req.body;
+  const mediaFiles = req.cloudinaryFiles;
+  console.log("req.body", req.body);
+  console.log("Media Files:", mediaFiles);
+
+  const thumbnail =
+    mediaFiles[0]?.resource_type === "image" ? mediaFiles[0].secure_url : null;
 
   const readTime = calculateReadTime({ title, description, routines });
+
+  //Generate categories using ONLY the description
+  const filters = await generateFilters(title, description, routines || []);
 
   const newRoutine = new Routines({
     title,
@@ -17,7 +25,7 @@ export const createRoutine = async (req, res) => {
     thumbnail,
     owner: req.user._id,
     readTime,
-    filters: filters, // Optional: Populate dynamically
+    filters: filters,
   });
 
   await newRoutine.save();
@@ -37,7 +45,9 @@ export const createRoutine = async (req, res) => {
 
 // ------------------------ Get All Routines ------------------------
 export const getAllRoutines = async (req, res) => {
-  const routines = await Routines.find().populate("owner");
+  const routines = await Routines.find()
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   const transformedRoutinePosts = routines.map(transformRoutine);
 
@@ -51,7 +61,9 @@ export const getAllRoutines = async (req, res) => {
 // ------------------------ Get Routine By ID ------------------------
 export const getRoutineById = async (req, res) => {
   const { id } = req.params;
-  const routine = await Routines.findById(id).populate("owner");
+  const routine = await Routines.findById(id)
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   if (!routine) {
     return res.status(404).json({ message: "Routine not found" });

@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
+import ExpressError from "../utils/ExpressError.js";
 
-export const sendResetEmail = async (toEmail, resetLink) => {
+export const sendResetEmail = async (toEmail, subject, emailBody) => {
   try {
     // Configure transporter
     const transporter = nodemailer.createTransport({
@@ -15,13 +16,8 @@ export const sendResetEmail = async (toEmail, resetLink) => {
     const mailOptions = {
       from: `"ArogyaPath" <${process.env.EMAIL_USER}>`,
       to: toEmail,
-      subject: "Password Reset - ArogyaPath",
-      html: `
-        <h3>Reset Your Password</h3>
-        <p>Click the link below to reset your password. This link is valid for 15 minutes:</p>
-        <a href="${resetLink}">${resetLink}</a>
-        <p>If you did not request this, you can ignore this email.</p>
-      `,
+      subject: subject,
+      html: emailBody,
     };
 
     // Send email
@@ -29,6 +25,6 @@ export const sendResetEmail = async (toEmail, resetLink) => {
     console.log("Email sent:", info.messageId);
   } catch (error) {
     console.error("Failed to send reset email:", error);
-    throw new Error("Could not send reset email");
+    throw new ExpressError("Could not send reset email");
   }
 };
