@@ -7,7 +7,7 @@ import {
 } from "./useUserAuth.types";
 
 const useUserAuth = () => {
-  const { post, get } = useApi();
+  const { post, get, patch } = useApi();
 
   const userLogin = async (email: string, password: string) => {
     try {
@@ -60,7 +60,7 @@ const useUserAuth = () => {
     try {
       profileData.contactNo = Number(profileData.contactNo);
       profileData.age = Number(profileData.age);
-      const response = await post(
+      const response = await patch(
         `${import.meta.env.VITE_SERVER_URL}/api/users/complete-profile`,
         profileData
       );

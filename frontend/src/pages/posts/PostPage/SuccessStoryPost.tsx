@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard";
 import { SuccessStoryCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
 import usePost from "@/hooks/usePost/usePost";
-import useGetPost from "@/hooks/useGetPost/useGetPost";
 import { SuccessStoryType } from "../SuccessStoryPosts";
 
 // interface Author {

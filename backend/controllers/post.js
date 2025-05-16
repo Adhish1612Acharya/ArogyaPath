@@ -3,19 +3,19 @@ import Expert from "../models/Expert/Expert.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
 import transformPost from "../utils/transformPost.js";
 import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
+import ExpressError from "../utils/expressError.js";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
-  const rawPosts = await Post.find()
+  const posts = await Post.find()
     .select("-updatedAt")
     .populate("owner", "_id profile.fullName profile.profileImage");
-
-  const transformedPosts = rawPosts.map((post) => transformPost(post));
 
   res.status(200).json({
     message: "All posts retrieved",
     success: true,
-    posts: transformedPosts,
+    posts: posts,
+    userId: req.user._id,
   });
 };
 
@@ -26,7 +26,7 @@ const getPostById = async (req, res) => {
     .populate("owner", "_id profile.fullName profile.profileImage");
 
   if (!post) {
-    return res.status(404).json({ message: "Post not found", success: false });
+    throw new ExpressError(404, "Post not found");
   }
 
   const transformedPost = transformPost(post);
@@ -35,6 +35,7 @@ const getPostById = async (req, res) => {
     message: "Post retrieved",
     success: true,
     post: transformedPost,
+    userId: req.user._id,
   });
 };
 
@@ -51,15 +52,17 @@ const createPost = async (req, res) => {
     document: null,
   };
 
-  //Cloudinary stores file URLs in `path`
-  mediaFiles.forEach((file) => {
-    // Determine file type from Cloudinary response
-    if (file.resource_type === "image") {
-      media.images.push(file.secure_url);
-    } else if (file.resource_type === "video") {
-      media.video = file.secure_url;
-    } else if (file.format === "pdf") {
+  // Cloudinary stores file URLs in `secure_url`
+  mediaFiles?.forEach((file) => {
+    const resourceType = file.resource_type.toLowerCase();
+
+    if (resourceType === "raw") {
+      // PDFs and other non-image/video files are uploaded as "raw"
       media.document = file.secure_url;
+    } else if (resourceType === "video") {
+      media.video = file.secure_url;
+    } else if (resourceType === "image") {
+      media.images.push(file.secure_url);
     }
   });
 
@@ -95,7 +98,7 @@ const createPost = async (req, res) => {
   return res.status(200).json({
     message: "Post created",
     success: true,
-    postId: " post._id",
+    postId: post._id,
     userId: req.user._id,
   });
 };

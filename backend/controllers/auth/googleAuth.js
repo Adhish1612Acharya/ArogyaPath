@@ -55,7 +55,7 @@ export const googleCallBackFunctionForExpert = async (
         googleId,
         profile: {
           profileImage: profileImage,
-          fullname: profile.displayName,
+          fullName: profile.displayName,
           expertType: expertType,
         },
       });
@@ -94,7 +94,7 @@ export const googleCallBackFunctionForUser = async (
         googleId,
         profile: {
           profileImage: profileImage,
-          fullname: profile.displayName,
+          fullName: profile.displayName,
         },
       });
       done(null, newUser);

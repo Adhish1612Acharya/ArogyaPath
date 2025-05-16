@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 
 export const handleAxiosError = (error: any) => {
   if (error.isAxiosError) {
-    const status = error.response?.status;
+
+    const status =  error.status;
 
     switch (status) {
       case 401:
@@ -23,12 +24,11 @@ export const handleAxiosError = (error: any) => {
         toast.error("Too many requests - please slow down.");
         break;
       default:
-        toast.error(error.response?.data?.message || error.message);
+        toast.error(error.message);
     }
   } else {
     toast.error(
       error.message ||
-        error.response?.data?.message ||
         "An unknown error occurred"
     );
   }

@@ -41,7 +41,7 @@ import {
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useRef } from "react";
-import { CommentSection } from "@/components/PostCards/CommentSection";
+import { CommentSection } from "@/components/PostCards/CommentSection/CommentSection";
 
 interface Author {
   id: string;
@@ -151,7 +151,7 @@ export function SuccessStoryCard({
 
   const handleMediaClick = (index: number) => {
     setSelectedImageIndex(index);
-    onMediaClick(post.images?.[index] || '');
+    onMediaClick(post.images?.[index] || "");
     setMediaDialogOpen(true);
   };
 
@@ -163,7 +163,9 @@ export function SuccessStoryCard({
 
   const handlePrevImage = () => {
     if (post.images) {
-      setSelectedImageIndex((prev) => (prev - 1 + post.images.length) % post.images.length);
+      setSelectedImageIndex(
+        (prev) => (prev - 1 + post.images.length) % post.images.length
+      );
     }
   };
 
@@ -186,48 +188,73 @@ export function SuccessStoryCard({
       action: () => {
         navigator.clipboard.writeText(window.location.href);
         handleShareClose();
-      }
+      },
     },
     {
       name: "Twitter",
       icon: <i className="fab fa-twitter" style={{ color: "#1DA1F2" }} />,
       action: () => {
-        window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(post.title)}`, '_blank');
+        window.open(
+          `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+            window.location.href
+          )}&text=${encodeURIComponent(post.title)}`,
+          "_blank"
+        );
         handleShareClose();
-      }
+      },
     },
     {
       name: "Facebook",
       icon: <i className="fab fa-facebook" style={{ color: "#1877F2" }} />,
       action: () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank');
+        window.open(
+          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+            window.location.href
+          )}`,
+          "_blank"
+        );
         handleShareClose();
-      }
+      },
     },
     {
       name: "LinkedIn",
       icon: <i className="fab fa-linkedin" style={{ color: "#0077B5" }} />,
       action: () => {
-        window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank');
+        window.open(
+          `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+            window.location.href
+          )}`,
+          "_blank"
+        );
         handleShareClose();
-      }
+      },
     },
     {
       name: "WhatsApp",
       icon: <i className="fab fa-whatsapp" style={{ color: "#25D366" }} />,
       action: () => {
-        window.open(`https://wa.me/?text=${encodeURIComponent(`${post.title} - ${window.location.href}`)}`, '_blank');
+        window.open(
+          `https://wa.me/?text=${encodeURIComponent(
+            `${post.title} - ${window.location.href}`
+          )}`,
+          "_blank"
+        );
         handleShareClose();
-      }
+      },
     },
     {
       name: "Email",
       icon: <i className="fas fa-envelope" style={{ color: "#EA4335" }} />,
       action: () => {
-        window.open(`mailto:?subject=${encodeURIComponent(post.title)}&body=${encodeURIComponent(window.location.href)}`, '_blank');
+        window.open(
+          `mailto:?subject=${encodeURIComponent(
+            post.title
+          )}&body=${encodeURIComponent(window.location.href)}`,
+          "_blank"
+        );
         handleShareClose();
-      }
-    }
+      },
+    },
   ];
 
   const renderMediaContent = () => {
@@ -235,7 +262,7 @@ export function SuccessStoryCard({
       return (
         <Box className="mb-4 rounded-lg overflow-hidden border border-gray-200">
           {post.images.length === 1 ? (
-            <Box 
+            <Box
               className="relative cursor-pointer group"
               onClick={() => handleMediaClick(0)}
             >
@@ -245,14 +272,17 @@ export function SuccessStoryCard({
                 className="w-full h-80 object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <Box className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300 flex items-center justify-center">
-                <Collections className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fontSize="large" />
+                <Collections
+                  className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  fontSize="large"
+                />
               </Box>
             </Box>
           ) : (
             <Box className="grid grid-cols-2 gap-1">
               {post.images.length === 2 ? (
                 <>
-                  <Box 
+                  <Box
                     className="relative h-80 cursor-pointer"
                     onClick={() => handleMediaClick(0)}
                   >
@@ -262,7 +292,7 @@ export function SuccessStoryCard({
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     />
                   </Box>
-                  <Box 
+                  <Box
                     className="relative h-80 cursor-pointer"
                     onClick={() => handleMediaClick(1)}
                   >
@@ -275,7 +305,7 @@ export function SuccessStoryCard({
                 </>
               ) : post.images.length === 3 ? (
                 <>
-                  <Box 
+                  <Box
                     className="relative row-span-2 h-full cursor-pointer"
                     onClick={() => handleMediaClick(0)}
                   >
@@ -285,7 +315,7 @@ export function SuccessStoryCard({
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     />
                   </Box>
-                  <Box 
+                  <Box
                     className="relative h-40 cursor-pointer"
                     onClick={() => handleMediaClick(1)}
                   >
@@ -295,7 +325,7 @@ export function SuccessStoryCard({
                       className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                     />
                   </Box>
-                  <Box 
+                  <Box
                     className="relative h-40 cursor-pointer"
                     onClick={() => handleMediaClick(2)}
                   >
@@ -309,15 +339,21 @@ export function SuccessStoryCard({
               ) : (
                 <>
                   {post.images.slice(0, 4).map((img, index) => (
-                    <Box 
+                    <Box
                       key={index}
-                      className={`relative ${index === 0 ? 'row-span-2 col-span-1' : ''} ${index === 3 && post.images.length > 4 ? 'bg-black' : ''}`}
+                      className={`relative ${
+                        index === 0 ? "row-span-2 col-span-1" : ""
+                      } ${
+                        index === 3 && post.images.length > 4 ? "bg-black" : ""
+                      }`}
                       onClick={() => handleMediaClick(index)}
                     >
                       <img
                         src={img}
                         alt={`${post.title} ${index + 1}`}
-                        className={`w-full h-full object-cover ${index === 0 ? 'h-full' : 'h-40'} transition-transform duration-300 hover:scale-105`}
+                        className={`w-full h-full object-cover ${
+                          index === 0 ? "h-full" : "h-40"
+                        } transition-transform duration-300 hover:scale-105`}
                       />
                       {index === 3 && post.images.length > 4 && (
                         <Box className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 text-white font-bold text-xl cursor-pointer">
@@ -335,14 +371,14 @@ export function SuccessStoryCard({
     }
 
     if (post.video) {
-      const videoId = post.video.includes('youtube.com') 
-        ? new URL(post.video).searchParams.get('v') 
-        : post.video.split('/').pop();
-      
+      const videoId = post.video.includes("youtube.com")
+        ? new URL(post.video).searchParams.get("v")
+        : post.video.split("/").pop();
+
       return (
-        <Box 
+        <Box
           className="mb-4 relative rounded-lg overflow-hidden border border-gray-200 cursor-pointer"
-          onClick={() => onMediaClick(post.video || '')}
+          onClick={() => onMediaClick(post.video || "")}
         >
           <img
             src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
@@ -362,13 +398,13 @@ export function SuccessStoryCard({
     }
 
     if (post.document) {
-      const fileName = post.document.split('/').pop() || 'Document';
-      const fileExtension = fileName.split('.').pop()?.toUpperCase();
-      
+      const fileName = post.document.split("/").pop() || "Document";
+      const fileExtension = fileName.split(".").pop()?.toUpperCase();
+
       return (
-        <Box 
+        <Box
           className="mb-4 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer flex items-center gap-4"
-          onClick={() => window.open(post.document, '_blank')}
+          onClick={() => window.open(post.document, "_blank")}
         >
           <Box className="bg-gray-100 p-3 rounded-lg">
             <InsertDriveFile className="text-gray-600 text-3xl" />
@@ -381,8 +417,8 @@ export function SuccessStoryCard({
               {fileExtension} Document
             </Typography>
           </Box>
-          <Button 
-            variant="outlined" 
+          <Button
+            variant="outlined"
             size="small"
             className="border-green-600 text-green-600 hover:border-green-700 hover:text-green-700"
           >
@@ -410,7 +446,7 @@ export function SuccessStoryCard({
           {/* Author section */}
           <Box className="flex items-start space-x-4">
             <Box
-              aria-owns={open ? 'mouse-over-popover' : undefined}
+              aria-owns={open ? "mouse-over-popover" : undefined}
               aria-haspopup="true"
               onMouseEnter={handlePopoverOpen}
               onMouseLeave={handlePopoverClose}
@@ -429,12 +465,12 @@ export function SuccessStoryCard({
               open={open}
               anchorEl={anchorEl}
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'left',
+                vertical: "bottom",
+                horizontal: "left",
               }}
               transformOrigin={{
-                vertical: 'top',
-                horizontal: 'left',
+                vertical: "top",
+                horizontal: "left",
               }}
               onClose={handlePopoverClose}
               disableRestoreFocus
@@ -455,26 +491,39 @@ export function SuccessStoryCard({
             <Box className="flex-1">
               <Box className="flex justify-between items-start">
                 <Box>
-                  <Typography variant="h6" className="font-semibold hover:text-green-600 transition-colors">
+                  <Typography
+                    variant="h6"
+                    className="font-semibold hover:text-green-600 transition-colors"
+                  >
                     {post.author.name}
                   </Typography>
                   <Box className="flex flex-wrap items-center gap-2 text-gray-500">
-                    <Typography variant="caption" className="flex items-center gap-1">
+                    <Typography
+                      variant="caption"
+                      className="flex items-center gap-1"
+                    >
                       <AccessTime className="text-sm" />
                       {formatDistanceToNow(new Date(post.createdAt || ""), {
                         addSuffix: true,
                       })}
                     </Typography>
-                    <Typography variant="caption" className="text-gray-300">•</Typography>
-                    <Typography variant="caption" className="flex items-center gap-1">
+                    <Typography variant="caption" className="text-gray-300">
+                      •
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      className="flex items-center gap-1"
+                    >
                       <MenuBook className="text-sm" />
                       {post.readTime}
                     </Typography>
                     {post.verification.verified && (
                       <>
-                        <Typography variant="caption" className="text-gray-300">•</Typography>
-                        <Typography 
-                          variant="caption" 
+                        <Typography variant="caption" className="text-gray-300">
+                          •
+                        </Typography>
+                        <Typography
+                          variant="caption"
                           className="flex items-center gap-1 text-green-600 cursor-pointer"
                           onClick={handleVerifiersClick}
                         >
@@ -502,8 +551,8 @@ export function SuccessStoryCard({
             onClose={handleMenuClose}
             onClick={handleMenuClose}
             transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
+              vertical: "top",
+              horizontal: "right",
             }}
           >
             {menuItems.map((item, index) => (
@@ -515,11 +564,17 @@ export function SuccessStoryCard({
           </Menu>
 
           {/* Post content */}
-          <Typography variant="h5" className="my-3 font-semibold hover:text-green-600 transition-colors">
+          <Typography
+            variant="h5"
+            className="my-3 font-semibold hover:text-green-600 transition-colors"
+          >
             {post.title}
           </Typography>
 
-          <Typography variant="body1" className="text-gray-600 mb-4 whitespace-pre-line">
+          <Typography
+            variant="body1"
+            className="text-gray-600 mb-4 whitespace-pre-line"
+          >
             {post.content}
           </Typography>
 
@@ -550,12 +605,12 @@ export function SuccessStoryCard({
                   isLiked ? "text-red-500" : "text-gray-500"
                 }`}
                 startIcon={
-                  <Favorite className={isLiked ? "text-inherit" : "text-gray-500"} />
+                  <Favorite
+                    className={isLiked ? "text-inherit" : "text-gray-500"}
+                  />
                 }
               >
-                <Typography variant="caption">
-                  {post.likes}
-                </Typography>
+                <Typography variant="caption">{post.likes}</Typography>
               </Button>
               <Button
                 size="small"
@@ -581,7 +636,9 @@ export function SuccessStoryCard({
                 isSaved ? "text-yellow-500" : "text-gray-500"
               }`}
             >
-              <Bookmark className={isSaved ? "text-inherit" : "text-gray-500"} />
+              <Bookmark
+                className={isSaved ? "text-inherit" : "text-gray-500"}
+              />
             </IconButton>
           </Box>
         </CardActions>
@@ -610,7 +667,11 @@ export function SuccessStoryCard({
           className="relative"
         >
           <DialogTitle>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Typography variant="h6">
                 {selectedImageIndex + 1} / {post.images.length}
               </Typography>
@@ -655,7 +716,11 @@ export function SuccessStoryCard({
         fullWidth
       >
         <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h6">Verified By</Typography>
             <IconButton onClick={() => setVerifiersDialogOpen(false)}>
               <Close />
@@ -665,7 +730,10 @@ export function SuccessStoryCard({
         <DialogContent dividers>
           <List>
             {post.verification.verifiedBy.map((doctor, index) => (
-              <ListItem key={doctor.id} divider={index !== post.verification.verifiedBy.length - 1}>
+              <ListItem
+                key={doctor.id}
+                divider={index !== post.verification.verifiedBy.length - 1}
+              >
                 <ListItemAvatar>
                   <Avatar src={doctor.avatar} alt={doctor.name}>
                     {doctor.name[0]}
@@ -694,15 +762,13 @@ export function SuccessStoryCard({
         onClose={handleShareClose}
         onClick={handleShareClose}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
+          vertical: "top",
+          horizontal: "right",
         }}
       >
         {shareOptions.map((option, index) => (
           <MenuItem key={index} onClick={option.action}>
-            <ListItemIcon>
-              {option.icon}
-            </ListItemIcon>
+            <ListItemIcon>{option.icon}</ListItemIcon>
             <ListItemText>{option.name}</ListItemText>
           </MenuItem>
         ))}

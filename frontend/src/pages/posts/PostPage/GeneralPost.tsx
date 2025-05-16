@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { GeneralPostCard } from "@/components/PostCards/GeneralPostCard";
+
 import { GeneralPostCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
-import useGetPost from "@/hooks/useGetPost/useGetPost";
 import { GeneralPostsType } from "../GeneralPosts";
+import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
 
 export function GeneralPost() {
   const { getGPostById } = useGetPost();
@@ -31,7 +31,7 @@ export function GeneralPost() {
     return (
       <div className="flex items-center w-screen justify-center min-h-screen w-full bg-gray-50">
         <div className="w-full w-screen max-w-6xl px-4 sm:px-6 lg:px-8 py-12">
-          <GeneralPostCardSkeleton  />
+          <GeneralPostCardSkeleton />
         </div>
       </div>
     );

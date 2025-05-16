@@ -22,11 +22,16 @@ export const searchUsers = async (req, res) => {
 export const completeProfile = async (req, res) => {
   const profileData = req.body;
 
-  await User.findByIdAndUpdate(req.user?._id, {
-    profile: profileData,
-    completeProfile: true,
-  });
+  const updates = {};
+  for (const key in profileData) {
+    updates[`profile.${key}`] = profileData[key];
+  }
 
+  updates.completeProfile = true;
+
+  await User.findByIdAndUpdate(req.user?._id, {
+    $set: updates,
+  });
   res.status(200).json({
     success: true,
     message: "profileComplete",

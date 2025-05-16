@@ -23,9 +23,15 @@ export const searchDoctors = async (req, res) => {
 export const completeProfile = async (req, res) => {
   const profileData = req.body;
 
+  const updates = {};
+  for (const key in profileData) {
+    updates[`profile.${key}`] = profileData[key];
+  }
+
+  updates.completeProfile = true;
+
   await Expert.findByIdAndUpdate(req.user?._id, {
-    profile: profileData,
-    completeProfile: true,
+    $set: updates,
   });
 
   res.status(200).json({
