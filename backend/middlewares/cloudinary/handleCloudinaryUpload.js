@@ -9,7 +9,7 @@ export const handleCloudinaryUpload = async (req, res, next) => {
     console.log("Files to upload:", req.files);
 
     const uploads = await Promise.all(
-      req.files.map((file) => uploadToCloudinary(file.buffer))
+      req.files.map((file) => uploadToCloudinary(file.buffer, file.mimetype))
     );
 
     req.cloudinaryFiles = uploads;

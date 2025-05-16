@@ -74,7 +74,7 @@ import { checkExpertLogin } from "../middlewares/experts/auth.js";
 
 const router = express.Router();
 
-router.post(
+router.patch(
   "/complete-profile",
   checkExpertLogin,
   validateExpertCompleteProfile,

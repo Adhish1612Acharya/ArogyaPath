@@ -33,6 +33,7 @@ import { VerifiedByVaidya } from "./pages/Expert/VerifiedSuccessStory/VerifiedSu
 import { Navbar } from "./components/layout/navbar";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage/ResetPasswordPage";
+import CopySnackbar from "./components/CopySnackBar/CopySnackBar";
 
 const App = () => {
   // const { role, isLoggedIn } = useAuth();
@@ -117,6 +118,7 @@ const App = () => {
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </div>
+      <CopySnackbar />
       {/* {nav && <Footer />} */}
     </>
   );

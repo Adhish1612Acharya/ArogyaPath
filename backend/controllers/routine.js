@@ -55,6 +55,7 @@ export const getAllRoutines = async (req, res) => {
     message: "Routines fetched successfully",
     success: true,
     routines: transformedRoutinePosts,
+     userId: req.user._id,
   });
 };
 
@@ -75,6 +76,7 @@ export const getRoutineById = async (req, res) => {
     message: "Routine fetched successfully",
     success: true,
     routine: transformedRoutinePost,
+     userId: req.user._id,
   });
 };
 

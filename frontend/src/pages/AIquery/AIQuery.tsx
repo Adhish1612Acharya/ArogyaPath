@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { GeneralPostCard } from "@/components/PostCards/GeneralPostCard";
 import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
 import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard";
 import {
@@ -15,6 +14,7 @@ import useApi from "@/hooks/useApi/useApi";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import { useNavigate } from "react-router-dom";
 import { CategoryKeyMap, PostType } from "./AiQuery.types";
+import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
 
 const AISearchPage = () => {
   const { get } = useApi();

@@ -7,7 +7,7 @@ import {
 } from "./useExpertAuth.types";
 
 const useExpertAuth = () => {
-  const { post, get } = useApi();
+  const { post, get, patch } = useApi();
 
   const expertLogin = async (email: string, password: string) => {
     try {
@@ -62,7 +62,7 @@ const useExpertAuth = () => {
     try {
       profileData.contactNo = Number(profileData.contactNo);
       profileData.experience = Number(profileData.experience);
-      const response = await post(
+      const response = await patch(
         `${import.meta.env.VITE_SERVER_URL}/api/experts/complete-profile`,
         profileData
       );

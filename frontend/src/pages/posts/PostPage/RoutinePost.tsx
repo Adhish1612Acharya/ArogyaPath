@@ -5,7 +5,6 @@ import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
 import { RoutinePostCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
-import useGetPost from "@/hooks/useGetPost/useGetPost";
 import { RoutinePostType } from "../RoutinesPosts";
 
 export function RoutinePost() {

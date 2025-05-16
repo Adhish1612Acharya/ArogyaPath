@@ -34,7 +34,7 @@ const usePost = () => {
       postData.append("title", formData.title);
       postData.append("description", formData.description);
       if (formData.media.images.length > 0) {
-        formData.media.images.forEach((image) => {
+        formData.media.images.forEach((image: File) => {
           postData.append("media", image);
         });
       } else if (formData.media.video) {

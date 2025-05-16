@@ -126,15 +126,14 @@ const PostForm = () => {
     form.setValue("media.document", null);
   };
 
-
   const onSubmit = async (newPostData: PostFormSchema) => {
     try {
       console.log("New Post : ", newPostData);
-        const response = await submitPost(newPostData);
-        if (response?.success) {
-          form.reset();
-          navigate(`/gposts/${response?.postId}`);
-        }
+      const response = await submitPost(newPostData);
+      if (response?.success) {
+        form.reset();
+        navigate(`/gposts/${response?.postId}`);
+      }
     } catch (error: any) {
       console.error("Post failed:", error.message);
       if (error.status === 401) navigate("/auth");
