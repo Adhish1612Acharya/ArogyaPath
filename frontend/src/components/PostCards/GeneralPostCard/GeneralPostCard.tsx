@@ -24,28 +24,29 @@ import {
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useRef, FC } from "react";
-import { CommentSection } from "@/components/PostCards/CommentSection";
 import MediaPreview from "../../MediaPreview/MediaPreview";
 import { MediaUpload } from "../../MediaPreview/MediaPreview.types";
 import ShareMenu from "../../ShareMenu/ShareMenu";
 import { GeneralPostCardProps } from "./GeneralPostCard.types";
+import CommentSection from "../CommentSection/CommentSection";
+import { Comment } from "@/types/Comment.types";
 
 const GeneralPostCard: FC<GeneralPostCardProps> = ({
   post,
   isLiked,
   isSaved,
   currentUserId,
+  menuItems,
   onLike,
   onSave,
-  onComment,
-  onReply,
   onMediaClick,
-  menuItems,
 }: GeneralPostCardProps) => {
+  const commentInputRef = useRef<HTMLInputElement | null>(null);
+
   const [commentOpen, setCommentOpen] = useState(false);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
-  const commentInputRef = useRef<HTMLInputElement>(null);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -65,6 +66,9 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
 
   const handleCommentClick = () => {
     setCommentOpen(!commentOpen);
+    // Api call for fetching all comments
+    // const respons = {};
+    // setComments(response.data);
     if (!commentOpen && commentInputRef.current) {
       setTimeout(() => commentInputRef.current?.focus(), 100);
     }
@@ -230,10 +234,10 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
         {commentOpen && (
           <div className="border-t">
             <CommentSection
-              comments={[]}
+              comments={comments}
+              setComments={setComments}
+              postId={post._id}
               currentUserId={currentUserId}
-              onComment={onComment}
-              onReply={onReply}
               inputRef={commentInputRef}
             />
           </div>

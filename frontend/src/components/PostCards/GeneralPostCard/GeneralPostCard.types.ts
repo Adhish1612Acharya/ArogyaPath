@@ -7,8 +7,6 @@ export interface GeneralPostCardProps {
   currentUserId: string;
   onLike: () => void;
   onSave: () => void;
-  onComment: (comment: string) => void;
-  onReply: (commentId: string, reply: string) => void;
   onMediaClick: (mediaIndex: number, images: string[]) => void;
   menuItems: Array<{
     label: string;

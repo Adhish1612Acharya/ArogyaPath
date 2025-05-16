@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
   Avatar,
   Box,
@@ -8,28 +7,64 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Send, Favorite, Reply, MoreVert } from "@mui/icons-material";
-import { useState, useRef } from "react";
+import { Send, Reply} from "@mui/icons-material";
+import { useState, FC } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
+import { CommentSectionProps } from "./CommentSection.types";
 
-export function CommentSection({
+
+const CommentSection: FC<CommentSectionProps> = ({
   comments,
+  setComments,
   currentUserId,
-  onComment,
-  onReply,
+  postId,
+  // onComment,
+  // onReply,
   inputRef,
-}) {
+}) => {
+
+
   const [newComment, setNewComment] = useState("");
-  const [replyingTo, setReplyingTo] = useState(null);
+  const [replyingTo, setReplyingTo] = useState<{
+    commentId: string;
+    ownerName: string;
+  } | null>(null);
   const [expandedReplies, setExpandedReplies] = useState(new Set());
 
-  const handleCommentSubmit = (e) => {
+  const onComment = (text: string) => {
+    // Add comment api call
+    // const response = {};//{success:true, message :"Comment Added" , data:{Comment},userId:id}
+    // const newComment = response.data;
+    // newComment.replies = [];
+    // setComments((prev: Comment[]) => {
+    //   return [ ...prev, newComment ];
+    // });
+  };
+
+  const onReply = (text: string, commentId: string) => {
+    // Add comment api call
+    // const response = {};//{success:true, message :"Comment Added" , data:{Comment as Reply},userId:id}
+    // const newReply = response.data;
+    // newReply.replies = [];
+    // setComments((prev: Comment[]) => {
+    //prev.forEach((comment)=>{
+    //  if(comment._id ===newReply.repliedTo._id )
+    // {
+    //  comment.replies.push(newReply);
+    // comment.repliedCount+=1
+    // }
+    //})
+    //   return [...prev];
+    // });
+  };
+
+  const handleCommentSubmit = (e: any) => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
     if (replyingTo) {
-      onReply(replyingTo.commentId, newComment);
+      onReply(newComment, replyingTo.commentId);
       setReplyingTo(null);
     } else {
       onComment(newComment);
@@ -37,18 +72,18 @@ export function CommentSection({
     setNewComment("");
   };
 
-  const toggleReply = (commentId, authorName) => {
+  const toggleReply = (commentId: string, ownerName: string) => {
     if (replyingTo?.commentId === commentId) {
       setReplyingTo(null);
     } else {
-      setReplyingTo({ commentId, authorName });
+      setReplyingTo({ commentId, ownerName });
       setTimeout(() => {
         inputRef?.current?.focus();
       }, 100);
     }
   };
 
-  const toggleExpandReplies = (commentId) => {
+  const toggleExpandReplies = (commentId: string) => {
     setExpandedReplies((prev) => {
       const newSet = new Set(prev);
       newSet.has(commentId) ? newSet.delete(commentId) : newSet.add(commentId);
@@ -56,13 +91,13 @@ export function CommentSection({
     });
   };
 
-  const handleLikeComment = (commentId) => {
-    console.log("Liked comment:", commentId);
-  };
+  // const handleLikeComment = (commentId) => {
+  //   console.log("Liked comment:", commentId);
+  // };
 
-  const isCommentLiked = (comment) => {
-    return comment.likedBy?.includes(currentUserId) || false;
-  };
+  // const isCommentLiked = (comment) => {
+  //   return comment.likedBy?.includes(currentUserId) || false;
+  // };
 
   return (
     <Box className="p-4 bg-gray-50">
@@ -80,7 +115,7 @@ export function CommentSection({
             size="small"
             placeholder={
               replyingTo
-                ? `Reply to ${replyingTo.authorName}...`
+                ? `Reply to ${replyingTo.ownerName}...`
                 : "Add a comment..."
             }
             value={newComment}
@@ -115,13 +150,16 @@ export function CommentSection({
       {/* Comments list */}
       <Box className="space-y-4">
         {comments.length === 0 ? (
-          <Typography variant="body2" className="text-gray-500 text-center py-4">
+          <Typography
+            variant="body2"
+            className="text-gray-500 text-center py-4"
+          >
             No comments yet. Be the first to comment!
           </Typography>
         ) : (
           comments.map((comment) => (
             <motion.div
-              key={comment.id}
+              key={comment._id}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.2 }}
@@ -129,49 +167,45 @@ export function CommentSection({
               <Box className="flex gap-3">
                 <Avatar
                   className="h-8 w-8 mt-1"
-                  src={comment.author.avatar}
-                  alt={comment.author.name}
+                  src={comment.owner.profile.profileImage}
+                  alt={comment.owner.profile.fullName}
                 />
                 <Box className="flex-1">
                   <Box className="bg-white p-3 rounded-lg shadow-sm">
                     <Box className="flex justify-between items-start">
-                      <Typography
-                        variant="subtitle2"
-                        className="font-semibold"
-                      >
-                        {comment.author.name}
+                      <Typography variant="subtitle2" className="font-semibold">
+                        {comment.owner.profile.fullName}
                       </Typography>
-                      <Typography
-                        variant="caption"
-                        className="text-gray-500"
-                      >
+                      <Typography variant="caption" className="text-gray-500">
                         {formatDistanceToNow(new Date(comment.createdAt), {
                           addSuffix: true,
                         })}
                       </Typography>
                     </Box>
                     <Typography variant="body2" className="mt-1">
-                      {comment.text}
+                      {comment.content}
                     </Typography>
                   </Box>
 
                   <Box className="flex items-center gap-2 mt-1 ml-2">
-                    <IconButton
+                    {/* <IconButton
                       size="small"
                       onClick={() => handleLikeComment(comment.id)}
                       className={`p-0 text-xs ${
-                        isCommentLiked(comment) ? "text-red-500" : "text-gray-500"
+                        isCommentLiked(comment)
+                          ? "text-red-500"
+                          : "text-gray-500"
                       }`}
                     >
                       <Favorite fontSize="small" />
-                    </IconButton>
-                    <Typography variant="caption" className="text-gray-500">
+                    </IconButton> */}
+                    {/* <Typography variant="caption" className="text-gray-500">
                       {comment.likes + (isCommentLiked(comment) ? 1 : 0)}
-                    </Typography>
+                    </Typography> */}
                     <Button
                       size="small"
                       onClick={() =>
-                        toggleReply(comment.id, comment.author.name)
+                        toggleReply(comment._id, comment.owner.profile.fullName)
                       }
                       className="text-gray-500 text-xs"
                       startIcon={<Reply fontSize="small" />}
@@ -181,23 +215,23 @@ export function CommentSection({
                   </Box>
 
                   {/* Replies */}
-                  {comment.replies && comment.replies.length > 0 && (
+                  {comment.repliesCount > 0 && (
                     <Box className="mt-2 ml-4">
-                      {!expandedReplies.has(comment.id) ? (
+                      {!expandedReplies.has(comment._id) ? (
                         <Button
                           size="small"
-                          onClick={() => toggleExpandReplies(comment.id)}
+                          onClick={() => toggleExpandReplies(comment._id)}
                           className="text-gray-500 text-xs"
                         >
-                          {`View ${comment.replies.length} ${
-                            comment.replies.length === 1 ? "reply" : "replies"
+                          {`View ${comment.repliesCount} ${
+                            comment.repliesCount === 1 ? "reply" : "replies"
                           }`}
                         </Button>
                       ) : (
                         <>
                           <Button
                             size="small"
-                            onClick={() => toggleExpandReplies(comment.id)}
+                            onClick={() => toggleExpandReplies(comment._id)}
                             className="text-gray-500 text-xs"
                           >
                             Hide replies
@@ -205,7 +239,7 @@ export function CommentSection({
                           <Box className="space-y-3 mt-2">
                             {comment.replies.map((reply) => (
                               <motion.div
-                                key={reply.id}
+                                key={reply._id}
                                 initial={{ opacity: 0, x: -10 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.2 }}
@@ -213,8 +247,8 @@ export function CommentSection({
                                 <Box className="flex gap-2">
                                   <Avatar
                                     className="h-7 w-7 mt-1"
-                                    src={reply.author.avatar}
-                                    alt={reply.author.name}
+                                    src={reply.owner.profile.profileImage}
+                                    alt={reply.owner.profile.fullName}
                                   />
                                   <Box className="flex-1">
                                     <Box className="bg-white p-2 rounded-lg shadow-sm">
@@ -223,7 +257,7 @@ export function CommentSection({
                                           variant="subtitle2"
                                           className="font-semibold text-sm"
                                         >
-                                          {reply.author.name}
+                                          {reply.owner.profile.fullName}
                                         </Typography>
                                         <Typography
                                           variant="caption"
@@ -239,11 +273,11 @@ export function CommentSection({
                                         variant="body2"
                                         className="mt-1 text-sm"
                                       >
-                                        {reply.text}
+                                        {reply.content}
                                       </Typography>
                                     </Box>
-                                    <Box className="flex items-center gap-2 mt-1 ml-2">
-                                      <IconButton
+                                    {/* <Box className="flex items-center gap-2 mt-1 ml-2"> */}
+                                      {/* <IconButton
                                         size="small"
                                         onClick={() =>
                                           handleLikeComment(reply.id)
@@ -255,15 +289,15 @@ export function CommentSection({
                                         }`}
                                       >
                                         <Favorite fontSize="small" />
-                                      </IconButton>
-                                      <Typography
+                                      </IconButton> */}
+                                      {/* <Typography
                                         variant="caption"
                                         className="text-gray-500"
                                       >
                                         {reply.likes +
                                           (isCommentLiked(reply) ? 1 : 0)}
-                                      </Typography>
-                                    </Box>
+                                      </Typography> */}
+                                   {/* </Box> */}
                                   </Box>
                                 </Box>
                               </motion.div>
@@ -282,26 +316,6 @@ export function CommentSection({
       </Box>
     </Box>
   );
-}
-
-CommentSection.propTypes = {
-  comments: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      author: PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        avatar: PropTypes.string.isRequired,
-      }).isRequired,
-      text: PropTypes.string.isRequired,
-      createdAt: PropTypes.instanceOf(Date).isRequired,
-      likes: PropTypes.number.isRequired,
-      likedBy: PropTypes.arrayOf(PropTypes.string),
-      replies: PropTypes.array,
-    })
-  ).isRequired,
-  currentUserId: PropTypes.string.isRequired,
-  onComment: PropTypes.func.isRequired,
-  onReply: PropTypes.func.isRequired,
-  inputRef: PropTypes.object,
 };
+
+export default CommentSection;

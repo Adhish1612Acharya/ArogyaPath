@@ -18,10 +18,13 @@ const commentSchema = new mongoose.Schema(
       type: Schema.Types.ObjectId,
       refPath: postType,
     },
-    repliedTo:{
-      type:Schema.Types.ObjectId,
-      ref:"Comment"
-    }
+    repliedTo: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+    repliesCount: {
+      type: Number,
+    },
   },
 
   { timestamps: true } // Adds createdAt and updatedAt automatically

@@ -18,7 +18,6 @@ import { Filter } from "@/components/Filter/Filter";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
 import { motion } from "framer-motion";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
-import useGetPost from "@/hooks/useGetPost/useGetPost";
 import usePost from "@/hooks/usePost/usePost";
 import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
 import { GeneralPostType } from "@/types/GeneralPost.types";
@@ -26,42 +25,6 @@ import { set } from "date-fns";
 // import { useFormik } from "formik";
 // import * as yup from 'yup';
 
-interface Author {
-  id: string;
-  name: string;
-  avatar: string;
-}
-
-interface Comment {
-  id: string;
-  author: Author;
-  text: string;
-  createdAt: Date;
-  replies?: Comment[];
-}
-
-export interface GeneralPostsType {
-  id: string;
-  author: Author;
-  title: string;
-  content: string;
-  images?: string[];
-  video?: string;
-  document?: string;
-  likes: number;
-  likedBy: string[];
-  comments: number;
-  commentsList?: Comment[];
-  readTime: string;
-  tags: string[];
-  createdAt: Date;
-}
-
-// const validationSchema = yup.object({
-//   title: yup.string().required('Title is required').max(100, 'Title too long'),
-//   content: yup.string().required('Content is required').max(2000, 'Content too long'),
-//   tags: yup.string(),
-// });
 
 export function AllGeneralPosts() {
   const { getAllPosts } = usePost();
@@ -225,77 +188,6 @@ export function AllGeneralPosts() {
     // });
   };
 
-  const handleAddComment = (postId: string, commentText: string) => {
-    if (!commentText.trim()) return;
-
-    setGeneralPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          const newComment = {
-            id: `comment-${Date.now()}`,
-            author: {
-              id: userId,
-              name: userId === "user-2" ? "Vaidya Patel" : "Current User",
-              avatar: "https://i.pravatar.cc/150?img=15",
-            },
-            text: commentText,
-            createdAt: new Date(),
-            replies: [],
-          };
-
-          return {
-            ...post,
-            comments: post.comments + 1,
-            commentsList: [...(post.commentsList || []), newComment],
-          };
-        }
-        return post;
-      })
-    );
-  };
-
-  const handleAddReply = (
-    postId: string,
-    commentId: string,
-    replyText: string
-  ) => {
-    if (!replyText.trim()) return;
-
-    setGeneralPosts((prevPosts) =>
-      prevPosts.map((post) => {
-        if (post.id === postId) {
-          const updatedComments = post.commentsList?.map((comment) => {
-            if (comment.id === commentId) {
-              const newReply = {
-                id: `reply-${Date.now()}`,
-                author: {
-                  id: userId,
-                  name: userId === "user-2" ? "Vaidya Patel" : "Current User",
-                  avatar: "https://i.pravatar.cc/150?img=15",
-                },
-                text: replyText,
-                createdAt: new Date(),
-              };
-
-              return {
-                ...comment,
-                replies: [...(comment.replies || []), newReply],
-              };
-            }
-            return comment;
-          });
-
-          return {
-            ...post,
-            comments: post.comments + 1,
-            commentsList: updatedComments,
-          };
-        }
-        return post;
-      })
-    );
-  };
-
   const handleEdit = (post: GeneralPostType) => {
     setCurrentPost(post);
     setOpenEditDialog(true);
@@ -303,7 +195,7 @@ export function AllGeneralPosts() {
 
   const handleDelete = (postId: string) => {
     setGeneralPosts((prevPosts) =>
-      prevPosts.filter((post) => post.id !== postId)
+      prevPosts.filter((post) => post._id !== postId)
     );
   };
 
@@ -392,12 +284,6 @@ export function AllGeneralPosts() {
                     currentUserId={userId}
                     onLike={() => toggleLike(post._id)}
                     onSave={() => toggleSave(post._id)}
-                    onComment={(comment: string) =>
-                      handleAddComment(post._id, comment)
-                    }
-                    onReply={(commentId: string, reply: string) =>
-                      handleAddReply(post._id, commentId, reply)
-                    }
                     onMediaClick={openMediaViewer}
                     menuItems={[
                       ...(isPostAuthor(post)
@@ -414,11 +300,6 @@ export function AllGeneralPosts() {
                             },
                           ]
                         : []),
-                      {
-                        label: "Share",
-                        icon: <Share fontSize="small" />,
-                        action: () => handleShare(post._id),
-                      },
                     ]}
                   />
                 ))}

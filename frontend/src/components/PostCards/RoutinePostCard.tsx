@@ -43,7 +43,7 @@ import {
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useRef } from "react";
-import { CommentSection } from "@/components/PostCards/CommentSection";
+import { CommentSection } from "@/components/PostCards/CommentSection/CommentSection";
 import { styled } from "@mui/material/styles";
 
 interface Author {
@@ -102,43 +102,67 @@ interface RoutinePostCardProps {
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  maxWidth: '800px',
-  margin: '0 auto',
-  overflow: 'hidden',
-  '&:hover': {
+  maxWidth: "800px",
+  margin: "0 auto",
+  overflow: "hidden",
+  "&:hover": {
     boxShadow: theme.shadows[4],
   },
-  transition: theme.transitions.create('box-shadow'),
+  transition: theme.transitions.create("box-shadow"),
 }));
 
-const ActivityDot = styled('div')(({ theme }) => ({
+const ActivityDot = styled("div")(({ theme }) => ({
   width: 12,
   height: 12,
-  borderRadius: '50%',
+  borderRadius: "50%",
   backgroundColor: theme.palette.success.main,
-  '&:hover': {
+  "&:hover": {
     backgroundColor: theme.palette.success.dark,
   },
-  transition: theme.transitions.create('background-color'),
+  transition: theme.transitions.create("background-color"),
 }));
 
-const ActivityLine = styled('div')(({ theme }) => ({
+const ActivityLine = styled("div")(({ theme }) => ({
   width: 2,
   flex: 1,
   backgroundColor: theme.palette.success.light,
-  '&:hover': {
+  "&:hover": {
     backgroundColor: theme.palette.success.main,
   },
-  transition: theme.transitions.create('background-color'),
+  transition: theme.transitions.create("background-color"),
 }));
 
 const shareOptions = [
-  { platform: 'Facebook', icon: <i className="fab fa-facebook" />, color: '#3b5998' },
-  { platform: 'Twitter', icon: <i className="fab fa-twitter" />, color: '#1da1f2' },
-  { platform: 'LinkedIn', icon: <i className="fab fa-linkedin" />, color: '#0077b5' },
-  { platform: 'WhatsApp', icon: <i className="fab fa-whatsapp" />, color: '#25d366' },
-  { platform: 'Email', icon: <i className="fas fa-envelope" />, color: '#dd4b39' },
-  { platform: 'Copy Link', icon: <i className="fas fa-link" />, color: '#6c757d' },
+  {
+    platform: "Facebook",
+    icon: <i className="fab fa-facebook" />,
+    color: "#3b5998",
+  },
+  {
+    platform: "Twitter",
+    icon: <i className="fab fa-twitter" />,
+    color: "#1da1f2",
+  },
+  {
+    platform: "LinkedIn",
+    icon: <i className="fab fa-linkedin" />,
+    color: "#0077b5",
+  },
+  {
+    platform: "WhatsApp",
+    icon: <i className="fab fa-whatsapp" />,
+    color: "#25d366",
+  },
+  {
+    platform: "Email",
+    icon: <i className="fas fa-envelope" />,
+    color: "#dd4b39",
+  },
+  {
+    platform: "Copy Link",
+    icon: <i className="fas fa-link" />,
+    color: "#6c757d",
+  },
 ];
 
 export function RoutinePostCard({
@@ -195,7 +219,7 @@ export function RoutinePostCard({
 
   const handleMediaClick = (index: number) => {
     setSelectedImageIndex(index);
-    onMediaClick(post.images?.[index] || '');
+    onMediaClick(post.images?.[index] || "");
     setMediaDialogOpen(true);
   };
 
@@ -207,18 +231,26 @@ export function RoutinePostCard({
 
   const handlePrevImage = () => {
     if (post.images) {
-      setSelectedImageIndex((prev) => (prev - 1 + post.images.length) % post.images.length);
+      setSelectedImageIndex(
+        (prev) => (prev - 1 + post.images.length) % post.images.length
+      );
     }
   };
 
   const renderMediaContent = () => {
     if (post.images && post.images.length > 0) {
       return (
-        <Box mb={2} borderRadius={1} overflow="hidden" border="1px solid" borderColor="divider">
+        <Box
+          mb={2}
+          borderRadius={1}
+          overflow="hidden"
+          border="1px solid"
+          borderColor="divider"
+        >
           {post.images.length === 1 ? (
-            <Box 
-              position="relative" 
-              sx={{ cursor: 'pointer' }}
+            <Box
+              position="relative"
+              sx={{ cursor: "pointer" }}
               onClick={() => handleMediaClick(0)}
             >
               <Box
@@ -226,12 +258,12 @@ export function RoutinePostCard({
                 src={post.images[0]}
                 alt={post.title}
                 sx={{
-                  width: '100%',
+                  width: "100%",
                   height: 400,
-                  objectFit: 'cover',
-                  transition: 'transform 0.3s',
-                  '&:hover': {
-                    transform: 'scale(1.02)',
+                  objectFit: "cover",
+                  transition: "transform 0.3s",
+                  "&:hover": {
+                    transform: "scale(1.02)",
                   },
                 }}
               />
@@ -243,39 +275,40 @@ export function RoutinePostCard({
                 bottom={0}
                 bgcolor="rgba(0,0,0,0)"
                 sx={{
-                  '&:hover': {
-                    bgcolor: 'rgba(0,0,0,0.05)',
+                  "&:hover": {
+                    bgcolor: "rgba(0,0,0,0.05)",
                   },
-                  transition: 'background-color 0.3s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  transition: "background-color 0.3s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <Collections 
-                  sx={{ 
-                    color: 'white', 
+                <Collections
+                  sx={{
+                    color: "white",
                     opacity: 0,
-                    '&:hover': {
+                    "&:hover": {
                       opacity: 1,
                     },
-                    transition: 'opacity 0.3s',
+                    transition: "opacity 0.3s",
                     fontSize: 32,
-                  }} 
+                  }}
                 />
               </Box>
             </Box>
           ) : (
             <Grid container spacing={0.5}>
               {post.images.slice(0, 4).map((img, index) => (
-                <Grid 
-                  item 
+                <Grid
+                  item
                   key={index}
                   xs={post.images.length === 2 ? 6 : index === 0 ? 12 : 6}
                   sx={{
-                    position: 'relative',
-                    height: post.images.length === 2 ? 200 : index === 0 ? 400 : 200,
-                    cursor: 'pointer',
+                    position: "relative",
+                    height:
+                      post.images.length === 2 ? 200 : index === 0 ? 400 : 200,
+                    cursor: "pointer",
                   }}
                   onClick={() => handleMediaClick(index)}
                 >
@@ -284,12 +317,12 @@ export function RoutinePostCard({
                     src={img}
                     alt={`${post.title} ${index + 1}`}
                     sx={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      transition: 'transform 0.3s',
-                      '&:hover': {
-                        transform: 'scale(1.02)',
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      transition: "transform 0.3s",
+                      "&:hover": {
+                        transform: "scale(1.02)",
                       },
                     }}
                   />
@@ -320,29 +353,29 @@ export function RoutinePostCard({
     }
 
     if (post.video) {
-      const videoId = post.video.includes('youtube.com') 
-        ? new URL(post.video).searchParams.get('v') 
-        : post.video.split('/').pop();
-      
+      const videoId = post.video.includes("youtube.com")
+        ? new URL(post.video).searchParams.get("v")
+        : post.video.split("/").pop();
+
       return (
-        <Box 
-          mb={2} 
-          position="relative" 
-          borderRadius={1} 
-          overflow="hidden" 
-          border="1px solid" 
+        <Box
+          mb={2}
+          position="relative"
+          borderRadius={1}
+          overflow="hidden"
+          border="1px solid"
           borderColor="divider"
-          sx={{ cursor: 'pointer' }}
-          onClick={() => onMediaClick(post.video || '')}
+          sx={{ cursor: "pointer" }}
+          onClick={() => onMediaClick(post.video || "")}
         >
           <Box
             component="img"
             src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
             alt="Video thumbnail"
             sx={{
-              width: '100%',
+              width: "100%",
               height: 400,
-              objectFit: 'cover',
+              objectFit: "cover",
             }}
           />
           <Box
@@ -356,7 +389,13 @@ export function RoutinePostCard({
             alignItems="center"
             justifyContent="center"
           >
-            <PlayCircleOutline sx={{ color: 'white', fontSize: 64, '&:hover': { color: 'success.main' } }} />
+            <PlayCircleOutline
+              sx={{
+                color: "white",
+                fontSize: 64,
+                "&:hover": { color: "success.main" },
+              }}
+            />
           </Box>
           <Box
             position="absolute"
@@ -375,33 +414,29 @@ export function RoutinePostCard({
     }
 
     if (post.document) {
-      const fileName = post.document.split('/').pop() || 'Document';
-      const fileExtension = fileName.split('.').pop()?.toUpperCase();
-      
+      const fileName = post.document.split("/").pop() || "Document";
+      const fileExtension = fileName.split(".").pop()?.toUpperCase();
+
       return (
-        <Paper 
+        <Paper
           elevation={0}
           variant="outlined"
           sx={{
             mb: 2,
             p: 2,
-            display: 'flex',
-            alignItems: 'center',
+            display: "flex",
+            alignItems: "center",
             gap: 2,
-            cursor: 'pointer',
-            '&:hover': {
-              bgcolor: 'action.hover',
+            cursor: "pointer",
+            "&:hover": {
+              bgcolor: "action.hover",
             },
-            transition: 'background-color 0.3s',
+            transition: "background-color 0.3s",
           }}
-          onClick={() => window.open(post.document, '_blank')}
+          onClick={() => window.open(post.document, "_blank")}
         >
-          <Box
-            bgcolor="grey.100"
-            p={2}
-            borderRadius={1}
-          >
-            <InsertDriveFile sx={{ color: 'grey.600', fontSize: 32 }} />
+          <Box bgcolor="grey.100" p={2} borderRadius={1}>
+            <InsertDriveFile sx={{ color: "grey.600", fontSize: 32 }} />
           </Box>
           <Box flex={1}>
             <Typography variant="subtitle1" fontWeight="medium">
@@ -411,11 +446,7 @@ export function RoutinePostCard({
               {fileExtension} Document
             </Typography>
           </Box>
-          <Button 
-            variant="outlined" 
-            size="small"
-            color="success"
-          >
+          <Button variant="outlined" size="small" color="success">
             Download
           </Button>
         </Paper>
@@ -439,20 +470,20 @@ export function RoutinePostCard({
         <CardHeader
           avatar={
             <div
-              aria-owns={openPopover ? 'mouse-over-popover' : undefined}
+              aria-owns={openPopover ? "mouse-over-popover" : undefined}
               aria-haspopup="true"
               onMouseEnter={handlePopoverOpen}
               onMouseLeave={handlePopoverClose}
             >
-              <Avatar 
-                src={post.author.avatar} 
+              <Avatar
+                src={post.author.avatar}
                 alt={post.author.name}
-                sx={{ 
-                  width: 48, 
+                sx={{
+                  width: 48,
                   height: 48,
-                  border: '2px solid',
-                  borderColor: 'success.light',
-                  cursor: 'pointer',
+                  border: "2px solid",
+                  borderColor: "success.light",
+                  cursor: "pointer",
                 }}
               >
                 {post.author.name[0]}
@@ -469,12 +500,12 @@ export function RoutinePostCard({
                 open={openMenu}
                 onClose={handleMenuClose}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'right',
+                  vertical: "bottom",
+                  horizontal: "right",
                 }}
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'right',
+                  vertical: "top",
+                  horizontal: "right",
                 }}
               >
                 {menuItems.map((item, index) => (
@@ -495,31 +526,43 @@ export function RoutinePostCard({
           title={post.author.name}
           subheader={
             <Box display="flex" alignItems="center" gap={1} flexWrap="wrap">
-              <Typography variant="caption" display="flex" alignItems="center" gap={0.5}>
+              <Typography
+                variant="caption"
+                display="flex"
+                alignItems="center"
+                gap={0.5}
+              >
                 <AccessTime fontSize="small" />
                 {formatDistanceToNow(new Date(post.createdAt), {
                   addSuffix: true,
                 })}
               </Typography>
-              <Typography variant="caption" color="text.secondary">•</Typography>
-              <Typography variant="caption" display="flex" alignItems="center" gap={0.5}>
+              <Typography variant="caption" color="text.secondary">
+                •
+              </Typography>
+              <Typography
+                variant="caption"
+                display="flex"
+                alignItems="center"
+                gap={0.5}
+              >
                 <MenuBook fontSize="small" />
                 {post.readTime}
               </Typography>
             </Box>
           }
           sx={{
-            '& .MuiCardHeader-title': {
-              fontWeight: 'bold',
-              '&:hover': {
-                color: 'success.main',
+            "& .MuiCardHeader-title": {
+              fontWeight: "bold",
+              "&:hover": {
+                color: "success.main",
               },
-              transition: 'color 0.3s',
+              transition: "color 0.3s",
             },
-            '& .MuiCardHeader-subheader': {
-              display: 'flex',
-              alignItems: 'center',
-              flexWrap: 'wrap',
+            "& .MuiCardHeader-subheader": {
+              display: "flex",
+              alignItems: "center",
+              flexWrap: "wrap",
             },
           }}
         />
@@ -529,12 +572,12 @@ export function RoutinePostCard({
           open={openPopover}
           anchorEl={anchorEl}
           anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
+            vertical: "bottom",
+            horizontal: "left",
           }}
           transformOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
+            vertical: "top",
+            horizontal: "left",
           }}
           onClose={handlePopoverClose}
           disableRestoreFocus
@@ -543,10 +586,7 @@ export function RoutinePostCard({
           }}
         >
           <Box p={2} display="flex" gap={2} width={320}>
-            <Avatar 
-              src={post.author.avatar}
-              sx={{ width: 48, height: 48 }}
-            >
+            <Avatar src={post.author.avatar} sx={{ width: 48, height: 48 }}>
               {post.author.name[0]}
             </Avatar>
             <Box>
@@ -558,18 +598,27 @@ export function RoutinePostCard({
         </Popover>
 
         <CardContent>
-          <Typography variant="h5" gutterBottom sx={{ 
-            fontWeight: 'bold',
-            '&:hover': { 
-              color: 'success.main',
-              cursor: 'pointer'
-            },
-            transition: 'color 0.3s',
-          }}>
+          <Typography
+            variant="h5"
+            gutterBottom
+            sx={{
+              fontWeight: "bold",
+              "&:hover": {
+                color: "success.main",
+                cursor: "pointer",
+              },
+              transition: "color 0.3s",
+            }}
+          >
             {post.title}
           </Typography>
 
-          <Typography variant="body1" color="text.secondary" paragraph whiteSpace="pre-line">
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            paragraph
+            whiteSpace="pre-line"
+          >
             {post.content}
           </Typography>
 
@@ -580,19 +629,24 @@ export function RoutinePostCard({
           <Box mt={2}>
             {post.activities.map((activity, index) => (
               <Box key={index} display="flex" gap={2} position="relative">
-                <Box display="flex" flexDirection="column" alignItems="center" pt={0.5}>
+                <Box
+                  display="flex"
+                  flexDirection="column"
+                  alignItems="center"
+                  pt={0.5}
+                >
                   <ActivityDot />
                   {index < post.activities.length - 1 && <ActivityLine />}
                 </Box>
-                <Paper 
-                  elevation={0} 
+                <Paper
+                  elevation={0}
                   sx={{
                     p: 2,
                     flex: 1,
-                    '&:hover': {
-                      bgcolor: 'success.light',
+                    "&:hover": {
+                      bgcolor: "success.light",
                     },
-                    transition: 'background-color 0.3s',
+                    transition: "background-color 0.3s",
                     borderRadius: 1,
                   }}
                 >
@@ -614,14 +668,14 @@ export function RoutinePostCard({
                 label={`#${tag}`}
                 size="small"
                 sx={{
-                  bgcolor: 'success.light',
-                  color: 'success.dark',
-                  '&:hover': {
-                    bgcolor: 'success.main',
-                    color: 'white',
+                  bgcolor: "success.light",
+                  color: "success.dark",
+                  "&:hover": {
+                    bgcolor: "success.main",
+                    color: "white",
                   },
-                  transition: 'all 0.3s',
-                  cursor: 'pointer',
+                  transition: "all 0.3s",
+                  cursor: "pointer",
                 }}
               />
             ))}
@@ -630,21 +684,23 @@ export function RoutinePostCard({
 
         <Divider />
 
-        <CardActions sx={{ bgcolor: 'grey.50', justifyContent: 'space-between' }}>
+        <CardActions
+          sx={{ bgcolor: "grey.50", justifyContent: "space-between" }}
+        >
           <Box display="flex" gap={1}>
             <Button
               size="small"
               startIcon={
-                <Favorite 
-                  color={isLiked ? 'error' : 'inherit'} 
-                  sx={{ fill: isLiked ? 'currentColor' : 'none' }} 
+                <Favorite
+                  color={isLiked ? "error" : "inherit"}
+                  sx={{ fill: isLiked ? "currentColor" : "none" }}
                 />
               }
               onClick={onLike}
               sx={{
-                color: isLiked ? 'error.main' : 'text.secondary',
-                '&:hover': {
-                  color: 'error.main',
+                color: isLiked ? "error.main" : "text.secondary",
+                "&:hover": {
+                  color: "error.main",
                 },
               }}
             >
@@ -655,9 +711,9 @@ export function RoutinePostCard({
               startIcon={<ChatBubbleOutline />}
               onClick={handleCommentClick}
               sx={{
-                color: 'text.secondary',
-                '&:hover': {
-                  color: 'primary.main',
+                color: "text.secondary",
+                "&:hover": {
+                  color: "primary.main",
                 },
               }}
             >
@@ -668,9 +724,9 @@ export function RoutinePostCard({
               startIcon={<Share />}
               onClick={handleShareOpen}
               sx={{
-                color: 'text.secondary',
-                '&:hover': {
-                  color: 'success.main',
+                color: "text.secondary",
+                "&:hover": {
+                  color: "success.main",
                 },
               }}
             >
@@ -680,13 +736,13 @@ export function RoutinePostCard({
           <IconButton
             onClick={onSave}
             sx={{
-              color: isSaved ? 'warning.main' : 'text.secondary',
-              '&:hover': {
-                color: 'warning.main',
+              color: isSaved ? "warning.main" : "text.secondary",
+              "&:hover": {
+                color: "warning.main",
               },
             }}
           >
-            <Bookmark sx={{ fill: isSaved ? 'currentColor' : 'none' }} />
+            <Bookmark sx={{ fill: isSaved ? "currentColor" : "none" }} />
           </IconButton>
         </CardActions>
 
@@ -696,22 +752,22 @@ export function RoutinePostCard({
           open={openShare}
           onClose={handleShareClose}
           anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
+            vertical: "top",
+            horizontal: "left",
           }}
           transformOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
+            vertical: "bottom",
+            horizontal: "left",
           }}
         >
           <Box sx={{ width: 200, p: 1 }}>
-            <Typography variant="subtitle2" sx={{ p: 1, fontWeight: 'bold' }}>
+            <Typography variant="subtitle2" sx={{ p: 1, fontWeight: "bold" }}>
               Share via
             </Typography>
             <List dense>
               {shareOptions.map((option) => (
-                <ListItem 
-                  key={option.platform} 
+                <ListItem
+                  key={option.platform}
                   disablePadding
                   onClick={() => {
                     onShare(option.platform);
@@ -749,19 +805,23 @@ export function RoutinePostCard({
 
       {/* Media Viewer Dialog */}
       {post.images && post.images.length > 0 && (
-        <Dialog 
-          open={mediaDialogOpen} 
+        <Dialog
+          open={mediaDialogOpen}
           onClose={() => setMediaDialogOpen(false)}
           maxWidth="md"
           fullWidth
           sx={{
-            '& .MuiDialog-paper': {
-              maxHeight: 'calc(100% - 64px)',
+            "& .MuiDialog-paper": {
+              maxHeight: "calc(100% - 64px)",
             },
           }}
         >
           <DialogTitle>
-            <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Typography variant="h6">
                 {selectedImageIndex + 1} / {post.images.length}
               </Typography>
@@ -771,10 +831,10 @@ export function RoutinePostCard({
             </Box>
           </DialogTitle>
           <DialogContent dividers>
-            <Box 
-              height="60vh" 
-              display="flex" 
-              alignItems="center" 
+            <Box
+              height="60vh"
+              display="flex"
+              alignItems="center"
               justifyContent="center"
               position="relative"
             >
@@ -783,9 +843,9 @@ export function RoutinePostCard({
                 src={post.images[selectedImageIndex]}
                 alt={`${post.title} ${selectedImageIndex + 1}`}
                 sx={{
-                  maxHeight: '100%',
-                  maxWidth: '100%',
-                  objectFit: 'contain',
+                  maxHeight: "100%",
+                  maxWidth: "100%",
+                  objectFit: "contain",
                 }}
               />
               {post.images.length > 1 && (
@@ -793,13 +853,13 @@ export function RoutinePostCard({
                   <IconButton
                     onClick={handlePrevImage}
                     sx={{
-                      position: 'absolute',
+                      position: "absolute",
                       left: 16,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      bgcolor: 'background.paper',
-                      '&:hover': {
-                        bgcolor: 'background.default',
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      bgcolor: "background.paper",
+                      "&:hover": {
+                        bgcolor: "background.default",
                       },
                       height: 48,
                       width: 48,
@@ -810,13 +870,13 @@ export function RoutinePostCard({
                   <IconButton
                     onClick={handleNextImage}
                     sx={{
-                      position: 'absolute',
+                      position: "absolute",
                       right: 16,
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      bgcolor: 'background.paper',
-                      '&:hover': {
-                        bgcolor: 'background.default',
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      bgcolor: "background.paper",
+                      "&:hover": {
+                        bgcolor: "background.default",
                       },
                       height: 48,
                       width: 48,
