@@ -1,4 +1,3 @@
-// src/components/PostCards/SuccessStoryCard.tsx
 import {
   Favorite,
   ChatBubbleOutline,
@@ -41,7 +40,17 @@ import {
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useRef } from "react";
-import { CommentSection } from "@/components/PostCards/CommentSection/CommentSection";
+import { useNavigate } from "react-router-dom";
+import CommentSection from "./CommentSection/CommentSection";
+
+import {
+  Twitter,
+  Facebook,
+  LinkedIn,
+  WhatsApp,
+  Email,
+  Link,
+} from "@mui/icons-material";
 
 interface Author {
   id: string;
@@ -117,6 +126,7 @@ export function SuccessStoryCard({
   onMediaClick,
   menuItems,
 }: SuccessStoryCardProps) {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [commentOpen, setCommentOpen] = useState(false);
   const [mediaDialogOpen, setMediaDialogOpen] = useState(false);
@@ -169,7 +179,9 @@ export function SuccessStoryCard({
     }
   };
 
-  const handleVerifiersClick = () => {
+  const handleVerifiersClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
     setVerifiersDialogOpen(true);
   };
 
@@ -181,10 +193,17 @@ export function SuccessStoryCard({
     setShareAnchorEl(null);
   };
 
+  const navigateToDoctorProfile = (doctorId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    navigate(`/doctor-profile/${doctorId}`);
+    setVerifiersDialogOpen(false);
+  };
+
   const shareOptions = [
     {
       name: "Copy Link",
-      icon: <InsertDriveFile />,
+      icon: <Link color="primary" />,
       action: () => {
         navigator.clipboard.writeText(window.location.href);
         handleShareClose();
@@ -192,7 +211,7 @@ export function SuccessStoryCard({
     },
     {
       name: "Twitter",
-      icon: <i className="fab fa-twitter" style={{ color: "#1DA1F2" }} />,
+      icon: <Twitter style={{ color: "#1DA1F2" }} />,
       action: () => {
         window.open(
           `https://twitter.com/intent/tweet?url=${encodeURIComponent(
@@ -205,7 +224,7 @@ export function SuccessStoryCard({
     },
     {
       name: "Facebook",
-      icon: <i className="fab fa-facebook" style={{ color: "#1877F2" }} />,
+      icon: <Facebook style={{ color: "#1877F2" }} />,
       action: () => {
         window.open(
           `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
@@ -218,7 +237,7 @@ export function SuccessStoryCard({
     },
     {
       name: "LinkedIn",
-      icon: <i className="fab fa-linkedin" style={{ color: "#0077B5" }} />,
+      icon: <LinkedIn style={{ color: "#0077B5" }} />,
       action: () => {
         window.open(
           `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
@@ -231,7 +250,7 @@ export function SuccessStoryCard({
     },
     {
       name: "WhatsApp",
-      icon: <i className="fab fa-whatsapp" style={{ color: "#25D366" }} />,
+      icon: <WhatsApp style={{ color: "#25D366" }} />,
       action: () => {
         window.open(
           `https://wa.me/?text=${encodeURIComponent(
@@ -244,7 +263,7 @@ export function SuccessStoryCard({
     },
     {
       name: "Email",
-      icon: <i className="fas fa-envelope" style={{ color: "#EA4335" }} />,
+      icon: <Email style={{ color: "#EA4335" }} />,
       action: () => {
         window.open(
           `mailto:?subject=${encodeURIComponent(
@@ -733,6 +752,8 @@ export function SuccessStoryCard({
               <ListItem
                 key={doctor.id}
                 divider={index !== post.verification.verifiedBy.length - 1}
+                button
+                onClick={(e) => navigateToDoctorProfile(doctor.id, e)}
               >
                 <ListItemAvatar>
                   <Avatar src={doctor.avatar} alt={doctor.name}>

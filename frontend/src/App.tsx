@@ -34,6 +34,7 @@ import { Navbar } from "./components/layout/navbar";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage/ResetPasswordPage";
 import CopySnackbar from "./components/CopySnackBar/CopySnackBar";
+import DoctorProfile from "./pages/DoctorProfile/DoctorProfile";
 
 const App = () => {
   // const { role, isLoggedIn } = useAuth();
@@ -105,6 +106,7 @@ const App = () => {
             <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
             <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+            <Route path="/doctor-profile/:id" element={<DoctorProfile />} />
             <Route path="/ai-query" element={<AISearchPage />} />
             {/* <Route path="/posts" element={<PostsPage />} /> */}
             <Route path="/gposts" element={<AllGeneralPosts />} />
@@ -125,3 +127,4 @@ const App = () => {
 };
 
 export default App;
+            
