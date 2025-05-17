@@ -1,12 +1,6 @@
 import express from "express";
 import wrapAsync from "../utils/wrapAsync.js";
-import {
-  createRoutine,
-  getAllRoutines,
-  getRoutineById,
-  updateRoutine,
-  deleteRoutine,
-} from "../controllers/routine.js";
+import routineController from "../controllers/routine.js";
 import { validateRoutine } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { storage } from "../cloudConfig.js";
@@ -31,15 +25,24 @@ router.post(
   wrapAsync(verifyPostData),
   wrapAsync(handleCloudinaryUpload),
   cloudinaryErrorHandler,
-  wrapAsync(createRoutine)
+  wrapAsync(routineController.createRoutine)
 );
 
-router.get("/", isLoggedIn, wrapAsync(getAllRoutines));
+router.get("/", isLoggedIn, wrapAsync(routineController.getAllRoutines));
 
-router.get("/:id", isLoggedIn, wrapAsync(getRoutineById));
+router.get("/:id", isLoggedIn, wrapAsync(routineController.getRoutineById));
 
-router.put("/:id", checkExpertLogin, validateRoutine, wrapAsync(updateRoutine));
+router.put(
+  "/:id",
+  checkExpertLogin,
+  validateRoutine,
+  wrapAsync(routineController.updateRoutine)
+);
 
-router.delete("/:id", checkExpertLogin, wrapAsync(deleteRoutine));
+router.delete(
+  "/:id",
+  checkExpertLogin,
+  wrapAsync(routineController.deleteRoutine)
+);
 
 export default router;

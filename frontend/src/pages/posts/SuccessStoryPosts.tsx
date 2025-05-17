@@ -3,32 +3,32 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
-import { 
-  Button, 
-  Typography, 
-  Box, 
-  Container, 
-  IconButton, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  DialogActions, 
-  Snackbar, 
-  Alert
+import {
+  Button,
+  Typography,
+  Box,
+  Container,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { Add, Share, Close, Verified } from "@mui/icons-material";
 import { Filter } from "@/components/Filter/Filter";
-import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard";
+import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard/SuccessStoryCard";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
 import { motion } from "framer-motion";
 // import { useFormik } from "formik";
 // import * as yup from 'yup';
-import TextField from '@mui/material/TextField';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
-import MuiListItemText from '@mui/material/ListItemText';
+import TextField from "@mui/material/TextField";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemAvatar from "@mui/material/ListItemAvatar";
+import Avatar from "@mui/material/Avatar";
+import MuiListItemText from "@mui/material/ListItemText";
 
 interface Author {
   id: string;
@@ -90,10 +90,10 @@ export function AllSuccessStoriesPosts() {
   const [selectedMedia, setSelectedMedia] = useState<string | null>(null);
   const [openVerifiersDialog, setOpenVerifiersDialog] = useState(false);
   const [currentVerifiers, setCurrentVerifiers] = useState<Doctor[]>([]);
-  const [snackbar, setSnackbar] = useState({ 
-    open: false, 
-    message: '', 
-    severity: 'success' as 'success' | 'error' | 'info' | 'warning' 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success" as "success" | "error" | "info" | "warning",
   });
 
   // Dummy data for success stories
@@ -103,10 +103,11 @@ export function AllSuccessStoriesPosts() {
       author: {
         id: "user-1",
         name: "Rakesh",
-        avatar: "https://i.pravatar.cc/150?img=5"
+        avatar: "https://i.pravatar.cc/150?img=5",
       },
       title: "How Ayurveda Helped My Cow Recover from Digestive Issues",
-      content: "My cow was suffering from severe digestive problems for weeks. After trying various treatments, I turned to Ayurvedic remedies. The combination of buttermilk with rock salt and neem leaf decoction worked wonders. Within two weeks, her digestion improved significantly.",
+      content:
+        "My cow was suffering from severe digestive problems for weeks. After trying various treatments, I turned to Ayurvedic remedies. The combination of buttermilk with rock salt and neem leaf decoction worked wonders. Within two weeks, her digestion improved significantly.",
       images: [
         "https://images.unsplash.com/photo-1601758003122-53c40e686a19",
         "https://images.unsplash.com/photo-1603048719539-04d7f370038e",
@@ -120,14 +121,13 @@ export function AllSuccessStoriesPosts() {
           author: {
             id: "user-2",
             name: "Dr. Sharma",
-            avatar: "https://i.pravatar.cc/150?img=11"
+            avatar: "https://i.pravatar.cc/150?img=11",
           },
           text: "This is a great example of how traditional remedies can complement modern veterinary care.",
           createdAt: new Date("2023-05-15T10:30:00"),
           likes: 5,
-          replies: [
-          ]
-        }
+          replies: [],
+        },
       ],
       readTime: "4 min read",
       tags: ["Ayurveda", "Cow Care", "Digestive Health"],
@@ -138,30 +138,29 @@ export function AllSuccessStoriesPosts() {
             id: "doc-1",
             name: "Dr. Shakti Sharma",
             avatar: "https://i.pravatar.cc/150?img=11",
-            credentials: "Ayurvedic Doctor"
+            credentials: "Ayurvedic Doctor",
           },
           {
             id: "doc-2",
             name: "Dr. Aditya Rao",
             avatar: "https://i.pravatar.cc/150?img=13",
-            credentials: "Ayurvedic Specialist"
-          }
-        ]
+            credentials: "Ayurvedic Specialist",
+          },
+        ],
       },
-      createdAt: new Date("2023-05-10T09:00:00")
+      createdAt: new Date("2023-05-10T09:00:00"),
     },
     {
       id: "story-2",
       author: {
         id: "user-4",
         name: "Priya",
-        avatar: "https://i.pravatar.cc/150?img=8"
+        avatar: "https://i.pravatar.cc/150?img=8",
       },
       title: "Natural Deworming Treatment for My Cattle",
-      content: "After noticing signs of parasites in my cattle, I used a combination of ajwain (carom seeds) with warm water as suggested by my grandfather. The results were remarkable - within days, the symptoms reduced significantly. This traditional remedy saved me expensive vet bills.",
-      images: [
-        "https://images.unsplash.com/photo-1601758003122-53c40e686a20",
-      ],
+      content:
+        "After noticing signs of parasites in my cattle, I used a combination of ajwain (carom seeds) with warm water as suggested by my grandfather. The results were remarkable - within days, the symptoms reduced significantly. This traditional remedy saved me expensive vet bills.",
+      images: ["https://images.unsplash.com/photo-1601758003122-53c40e686a20"],
       likes: 34,
       likedBy: ["user-1"],
       comments: 5,
@@ -174,21 +173,22 @@ export function AllSuccessStoriesPosts() {
             id: "doc-1",
             name: "Dr. Shakti Sharma",
             avatar: "https://i.pravatar.cc/150?img=11",
-            credentials: "Ayurvedic Doctor"
-          }
-        ]
+            credentials: "Ayurvedic Doctor",
+          },
+        ],
       },
-      createdAt: new Date("2023-05-12T14:00:00")
+      createdAt: new Date("2023-05-12T14:00:00"),
     },
     {
       id: "story-3",
       author: {
         id: "user-5",
         name: "Vijay",
-        avatar: "https://i.pravatar.cc/150?img=9"
+        avatar: "https://i.pravatar.cc/150?img=9",
       },
       title: "Recovering from Mastitis with Herbal Compresses",
-      content: "When one of my dairy cows developed mastitis, I used warm herbal compresses with turmeric and neem. The inflammation reduced within days, and the cow was back to normal milk production in a week. I'm sharing this to help other farmers facing similar issues.",
+      content:
+        "When one of my dairy cows developed mastitis, I used warm herbal compresses with turmeric and neem. The inflammation reduced within days, and the cow was back to normal milk production in a week. I'm sharing this to help other farmers facing similar issues.",
       likes: 22,
       likedBy: [],
       comments: 3,
@@ -196,10 +196,10 @@ export function AllSuccessStoriesPosts() {
       tags: ["Mastitis", "Herbal Treatment"],
       verification: {
         verified: false,
-        verifiedBy: []
+        verifiedBy: [],
       },
-      createdAt: new Date("2023-05-15T16:00:00")
-    }
+      createdAt: new Date("2023-05-15T16:00:00"),
+    },
   ]);
 
   // const formik = useFormik({
@@ -229,7 +229,10 @@ export function AllSuccessStoriesPosts() {
   //   },
   // });
 
-  const showSnackbar = (message: string, severity: 'success' | 'error' | 'info' | 'warning') => {
+  const showSnackbar = (
+    message: string,
+    severity: "success" | "error" | "info" | "warning"
+  ) => {
     setSnackbar({ open: true, message, severity });
   };
 
@@ -238,16 +241,16 @@ export function AllSuccessStoriesPosts() {
   };
 
   const toggleLike = (postId: string) => {
-    setSuccessStories(prevPosts => 
-      prevPosts.map(post => {
+    setSuccessStories((prevPosts) =>
+      prevPosts.map((post) => {
         if (post.id === postId) {
           const isLiked = post.likedBy.includes(userId);
           return {
             ...post,
             likes: isLiked ? post.likes - 1 : post.likes + 1,
-            likedBy: isLiked 
-              ? post.likedBy.filter(id => id !== userId) 
-              : [...post.likedBy, userId]
+            likedBy: isLiked
+              ? post.likedBy.filter((id) => id !== userId)
+              : [...post.likedBy, userId],
           };
         }
         return post;
@@ -256,7 +259,7 @@ export function AllSuccessStoriesPosts() {
   };
 
   const toggleSave = (postId: string) => {
-    setSavedPosts(prev => {
+    setSavedPosts((prev) => {
       const newSaved = new Set(prev);
       newSaved.has(postId) ? newSaved.delete(postId) : newSaved.add(postId);
       return newSaved;
@@ -265,77 +268,83 @@ export function AllSuccessStoriesPosts() {
 
   const handleAddComment = (postId: string, commentText: string) => {
     if (!commentText.trim()) return;
-    
-    setSuccessStories(prevPosts => 
-      prevPosts.map(post => {
+
+    setSuccessStories((prevPosts) =>
+      prevPosts.map((post) => {
         if (post.id === postId) {
           const newComment = {
             id: `comment-${Date.now()}`,
             author: {
               id: userId,
               name: userId === "user-2" ? "Dr. Sharma" : "Current User",
-              avatar: "https://i.pravatar.cc/150?img=15"
+              avatar: "https://i.pravatar.cc/150?img=15",
             },
             text: commentText,
             createdAt: new Date(),
             likes: 0,
-            replies: []
+            replies: [],
           };
-          
+
           return {
             ...post,
             comments: post.comments + 1,
-            commentsList: [...(post.commentsList || []), newComment]
+            commentsList: [...(post.commentsList || []), newComment],
           };
         }
         return post;
       })
     );
-    showSnackbar('Comment added!', 'success');
+    showSnackbar("Comment added!", "success");
   };
 
   const handleShare = (post: SuccessStoryType) => {
-    navigator.clipboard.writeText(`Check out this success story: ${post.title}\n\n${post.content.substring(0, 100)}...`);
-    showSnackbar('Post link copied to clipboard!', 'info');
+    navigator.clipboard.writeText(
+      `Check out this success story: ${post.title}\n\n${post.content.substring(
+        0,
+        100
+      )}...`
+    );
+    showSnackbar("Post link copied to clipboard!", "info");
   };
 
   const handleAddReply = (postId: string, commentId: string, reply: string) => {
     if (!reply.trim()) return;
 
-    setSuccessStories(prevPosts =>
-      prevPosts.map(post => {
+    setSuccessStories((prevPosts) =>
+      prevPosts.map((post) => {
         if (post.id === postId) {
-          const updatedCommentsList = post.commentsList?.map(comment => {
-            if (comment.id === commentId) {
-              const newReply = {
-                id: `reply-${Date.now()}`,
-                author: {
-                  id: userId,
-                  name: userId === "user-2" ? "Dr. Sharma" : "Current User",
-                  avatar: "https://i.pravatar.cc/150?img=15"
-                },
-                text: reply,
-                createdAt: new Date(),
-                likes: 0,
-                replies: []
-              };
-              return {
-                ...comment,
-                replies: [...(comment.replies || []), newReply]
-              };
-            }
-            return comment;
-          }) || [];
+          const updatedCommentsList =
+            post.commentsList?.map((comment) => {
+              if (comment.id === commentId) {
+                const newReply = {
+                  id: `reply-${Date.now()}`,
+                  author: {
+                    id: userId,
+                    name: userId === "user-2" ? "Dr. Sharma" : "Current User",
+                    avatar: "https://i.pravatar.cc/150?img=15",
+                  },
+                  text: reply,
+                  createdAt: new Date(),
+                  likes: 0,
+                  replies: [],
+                };
+                return {
+                  ...comment,
+                  replies: [...(comment.replies || []), newReply],
+                };
+              }
+              return comment;
+            }) || [];
 
           return {
             ...post,
-            commentsList: updatedCommentsList
+            commentsList: updatedCommentsList,
           };
         }
         return post;
       })
     );
-    showSnackbar('Reply added!', 'success');
+    showSnackbar("Reply added!", "success");
   };
 
   const openMediaViewer = (mediaUrl: string) => {
@@ -368,8 +377,8 @@ export function AllSuccessStoriesPosts() {
         >
           <Box className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
             <Box>
-              <Typography 
-                variant="h3" 
+              <Typography
+                variant="h3"
                 className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent"
               >
                 Success Stories
@@ -395,9 +404,9 @@ export function AllSuccessStoriesPosts() {
 
           <Box className="mt-6 space-y-6">
             {isLoading
-              ? Array(3).fill(0).map((_, index) => (
-                  <PostCardSkeleton key={index} />
-                ))
+              ? Array(3)
+                  .fill(0)
+                  .map((_, index) => <PostCardSkeleton key={index} />)
               : successStories.map((post) => (
                   <SuccessStoryCard
                     key={post.id}
@@ -409,14 +418,18 @@ export function AllSuccessStoriesPosts() {
                     onSave={() => toggleSave(post.id)}
                     onShare={() => handleShare(post)}
                     onComment={(comment) => handleAddComment(post.id, comment)}
-                    onReply={(commentId, reply) => handleAddReply(post.id, commentId, reply)}
-                    onMediaClick={() => openMediaViewer(post.video || post.images?.[0] || '')}
+                    onReply={(commentId, reply) =>
+                      handleAddReply(post.id, commentId, reply)
+                    }
+                    onMediaClick={() =>
+                      openMediaViewer(post.video || post.images?.[0] || "")
+                    }
                     menuItems={[
-                      { 
-                        label: 'Share', 
+                      {
+                        label: "Share",
                         icon: <Share fontSize="small" />,
-                        action: () => handleShare(post) 
-                      }
+                        action: () => handleShare(post),
+                      },
                     ]}
                   />
                 ))}
@@ -426,10 +439,15 @@ export function AllSuccessStoriesPosts() {
       <Footer userType={userType} />
 
       {/* Edit Post Dialog */}
-      <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} fullWidth maxWidth="md">
+      <Dialog
+        open={openEditDialog}
+        onClose={() => setOpenEditDialog(false)}
+        fullWidth
+        maxWidth="md"
+      >
         <DialogTitle>Edit Post</DialogTitle>
         <DialogContent dividers>
-          <form 
+          <form
           // onSubmit={formik.handleSubmit}
           >
             <TextField
@@ -471,8 +489,8 @@ export function AllSuccessStoriesPosts() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button 
-            // onClick={() => formik.handleSubmit()} 
+          <Button
+            // onClick={() => formik.handleSubmit()}
             color="primary"
             variant="contained"
           >
@@ -482,14 +500,18 @@ export function AllSuccessStoriesPosts() {
       </Dialog>
 
       {/* Media Viewer Dialog */}
-      <Dialog 
-        open={openMediaDialog} 
-        onClose={() => setOpenMediaDialog(false)} 
-        fullWidth 
+      <Dialog
+        open={openMediaDialog}
+        onClose={() => setOpenMediaDialog(false)}
+        fullWidth
         maxWidth="md"
       >
         <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h6">Media</Typography>
             <IconButton onClick={() => setOpenMediaDialog(false)}>
               <Close />
@@ -497,26 +519,30 @@ export function AllSuccessStoriesPosts() {
           </Box>
         </DialogTitle>
         <DialogContent dividers>
-          {selectedMedia && (
-            selectedMedia.includes('youtube') ? (
-              <iframe 
-                width="100%" 
-                height="500" 
-                src={selectedMedia} 
-                title="YouTube video player" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          {selectedMedia &&
+            (selectedMedia.includes("youtube") ? (
+              <iframe
+                width="100%"
+                height="500"
+                src={selectedMedia}
+                title="YouTube video player"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               ></iframe>
             ) : (
-              <img 
-                className="success-story-image" 
-                src={selectedMedia} 
-                alt="Post media" 
-                style={{ width: '100%', height: 'auto', maxHeight: '80vh', objectFit: 'contain' }}
+              <img
+                className="success-story-image"
+                src={selectedMedia}
+                alt="Post media"
+                style={{
+                  width: "100%",
+                  height: "auto",
+                  maxHeight: "80vh",
+                  objectFit: "contain",
+                }}
               />
-            )
-          )}
+            ))}
         </DialogContent>
       </Dialog>
 
@@ -528,7 +554,11 @@ export function AllSuccessStoriesPosts() {
         fullWidth
       >
         <DialogTitle>
-          <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box
+            display="flex"
+            justifyContent="space-between"
+            alignItems="center"
+          >
             <Typography variant="h6">Verified By</Typography>
             <IconButton onClick={() => setOpenVerifiersDialog(false)}>
               <Close />
@@ -538,7 +568,10 @@ export function AllSuccessStoriesPosts() {
         <DialogContent dividers>
           <List>
             {currentVerifiers.map((doctor, index) => (
-              <ListItem key={doctor.id} divider={index !== currentVerifiers.length - 1}>
+              <ListItem
+                key={doctor.id}
+                divider={index !== currentVerifiers.length - 1}
+              >
                 <ListItemAvatar>
                   <Avatar src={doctor.avatar} alt={doctor.name}>
                     {doctor.name[0]}
@@ -565,7 +598,7 @@ export function AllSuccessStoriesPosts() {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
         <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
           {snackbar.message}

@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
-import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard";
+import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
+import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard/SuccessStoryCard";
 import {
   GeneralPostCardSkeleton,
   RoutinePostCardSkeleton,

@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard";
+import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard/SuccessStoryCard";
 import { SuccessStoryCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
 import usePost from "@/hooks/usePost/usePost";
 import { SuccessStoryType } from "../SuccessStoryPosts";

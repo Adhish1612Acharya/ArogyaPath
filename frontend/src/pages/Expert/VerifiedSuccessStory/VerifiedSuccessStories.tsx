@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { SuccessStoryCard } from '@/components/PostCards/SuccessStoryCard';
-import { SuccessStoryCardSkeleton } from '@/components/PostCards/PostCardSkeletons';
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard/SuccessStoryCard";
+import { SuccessStoryCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
 
 interface Doctor {
   name: string;
@@ -35,16 +35,18 @@ interface SuccessStoryPost {
 }
 
 export function VerifiedByVaidya() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [stories, setStories] = useState<SuccessStoryPost[]>([]);
-  const [filteredStories, setFilteredStories] = useState<SuccessStoryPost[]>([]);
+  const [filteredStories, setFilteredStories] = useState<SuccessStoryPost[]>(
+    []
+  );
 
   // Mock data for the currently logged-in expert
   const currentExpert = {
-    name: 'Dr. Priya Sharma',
-    avatar: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f',
-    credentials: 'PhD in Ayurveda'
+    name: "Dr. Priya Sharma",
+    avatar: "https://images.unsplash.com/photo-1594824476967-48c8b964273f",
+    credentials: "PhD in Ayurveda",
   };
 
   useEffect(() => {
@@ -52,100 +54,110 @@ export function VerifiedByVaidya() {
     const fetchVerifiedStories = async () => {
       setIsLoading(true);
       try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+
         // Mock data - stories verified by current expert
         const mockStories: SuccessStoryPost[] = [
           {
-            id: '1',
+            id: "1",
             author: {
-              name: 'Rahul Mehta',
-              avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d'
+              name: "Rahul Mehta",
+              avatar:
+                "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d",
             },
-            title: 'Reversing PCOS with Ayurveda',
-            content: 'After years of struggling with PCOS symptoms, Ayurveda helped me regain balance. Following Dr. Sharma\'s recommendations for diet and lifestyle changes transformed my health completely within 6 months.',
-            image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352',
+            title: "Reversing PCOS with Ayurveda",
+            content:
+              "After years of struggling with PCOS symptoms, Ayurveda helped me regain balance. Following Dr. Sharma's recommendations for diet and lifestyle changes transformed my health completely within 6 months.",
+            image:
+              "https://images.unsplash.com/photo-1498837167922-ddd27525d352",
             likes: 215,
             comments: 78,
-            readTime: '7 min read',
-            tags: ['PCOS', 'Women Health', 'Success'],
-            verification: { 
+            readTime: "7 min read",
+            tags: ["PCOS", "Women Health", "Success"],
+            verification: {
               verified: true,
-              verifiedBy: [currentExpert]
+              verifiedBy: [currentExpert],
             },
             taggedDoctors: [
               currentExpert,
               {
-                name: 'Dr. Anjali Deshpande',
-                avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2',
-                credentials: 'BAMS, Women\'s Health'
-              }
+                name: "Dr. Anjali Deshpande",
+                avatar:
+                  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
+                credentials: "BAMS, Women's Health",
+              },
             ],
-            createdAt: '2023-04-10'
+            createdAt: "2023-04-10",
           },
           {
-            id: '2',
+            id: "2",
             author: {
-              name: 'Sunita Rao',
-              avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2'
+              name: "Sunita Rao",
+              avatar:
+                "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
             },
-            title: 'Managing Diabetes Naturally',
-            content: 'Dr. Sharma\'s personalized Ayurvedic protocol helped me reduce my HbA1c from 8.5 to 6.2 without relying solely on medication. The herbal supplements and dietary changes made all the difference.',
-            image: 'https://images.unsplash.com/photo-1498837167922-ddd27525d352',
+            title: "Managing Diabetes Naturally",
+            content:
+              "Dr. Sharma's personalized Ayurvedic protocol helped me reduce my HbA1c from 8.5 to 6.2 without relying solely on medication. The herbal supplements and dietary changes made all the difference.",
+            image:
+              "https://images.unsplash.com/photo-1498837167922-ddd27525d352",
             likes: 187,
             comments: 42,
-            readTime: '6 min read',
-            tags: ['Diabetes', 'Success', 'Ayurvedic Treatment'],
-            verification: { 
+            readTime: "6 min read",
+            tags: ["Diabetes", "Success", "Ayurvedic Treatment"],
+            verification: {
               verified: true,
               verifiedBy: [
                 {
-                  name: 'Dr. Rajesh Verma',
-                  avatar: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d',
-                  credentials: 'Panchakarma Specialist'
+                  name: "Dr. Rajesh Verma",
+                  avatar:
+                    "https://images.unsplash.com/photo-1622253692010-333f2da6031d",
+                  credentials: "Panchakarma Specialist",
                 },
-                currentExpert
-              ]
+                currentExpert,
+              ],
             },
-            taggedDoctors: [
-              currentExpert
-            ],
-            createdAt: '2023-07-18'
+            taggedDoctors: [currentExpert],
+            createdAt: "2023-07-18",
           },
           {
-            id: '3',
+            id: "3",
             author: {
-              name: 'Priya Singh',
-              avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2'
+              name: "Priya Singh",
+              avatar:
+                "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2",
             },
-            title: 'Healing Digestive Disorders',
-            content: 'Years of IBS were resolved through Dr. Sharma\'s Ayurvedic treatment plan focusing on Pitta pacification and gut healing herbs.',
-            image: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2',
+            title: "Healing Digestive Disorders",
+            content:
+              "Years of IBS were resolved through Dr. Sharma's Ayurvedic treatment plan focusing on Pitta pacification and gut healing herbs.",
+            image:
+              "https://images.unsplash.com/photo-1515378791036-0648a3ef77b2",
             likes: 132,
             comments: 28,
-            readTime: '4 min read',
-            tags: ['Digestion', 'IBS', 'Pitta'],
-            verification: { 
+            readTime: "4 min read",
+            tags: ["Digestion", "IBS", "Pitta"],
+            verification: {
               verified: true,
-              verifiedBy: [currentExpert]
+              verifiedBy: [currentExpert],
             },
-            taggedDoctors: [
-              currentExpert
-            ],
-            createdAt: '2023-08-22'
-          }
+            taggedDoctors: [currentExpert],
+            createdAt: "2023-08-22",
+          },
         ];
 
         // Filter stories where current expert is in verifiedBy array
-        const verifiedStories = mockStories.filter(story => 
-          story.verification.verified && 
-          story.verification.verifiedBy?.some(doctor => doctor.name === currentExpert.name)
+        const verifiedStories = mockStories.filter(
+          (story) =>
+            story.verification.verified &&
+            story.verification.verifiedBy?.some(
+              (doctor) => doctor.name === currentExpert.name
+            )
         );
 
         setStories(verifiedStories);
         setFilteredStories(verifiedStories);
       } catch (error) {
-        console.error('Error fetching verified stories:', error);
+        console.error("Error fetching verified stories:", error);
       } finally {
         setIsLoading(false);
       }
@@ -155,13 +167,16 @@ export function VerifiedByVaidya() {
   }, []);
 
   useEffect(() => {
-    if (searchQuery.trim() === '') {
+    if (searchQuery.trim() === "") {
       setFilteredStories(stories);
     } else {
-      const filtered = stories.filter(story => 
-        story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        story.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        story.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      const filtered = stories.filter(
+        (story) =>
+          story.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          story.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          story.tags.some((tag) =>
+            tag.toLowerCase().includes(searchQuery.toLowerCase())
+          )
       );
       setFilteredStories(filtered);
     }
@@ -177,12 +192,14 @@ export function VerifiedByVaidya() {
       >
         <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Stories Verified By You</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              Stories Verified By You
+            </h1>
             <p className="text-gray-600 mt-2">
               Success stories you have personally verified
             </p>
           </div>
-          
+
           <div className="relative w-full md:w-96">
             <Input
               value={searchQuery}
@@ -241,7 +258,7 @@ export function VerifiedByVaidya() {
                   No verified stories found
                 </h3>
                 <p className="text-gray-600">
-                  {searchQuery.trim() === '' 
+                  {searchQuery.trim() === ""
                     ? "You haven't verified any success stories yet."
                     : "No verified stories match your search query."}
                 </p>

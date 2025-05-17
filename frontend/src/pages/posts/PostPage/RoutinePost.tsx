@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
+import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
 import { RoutinePostCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
 import { RoutinePostType } from "../RoutinesPosts";
 
