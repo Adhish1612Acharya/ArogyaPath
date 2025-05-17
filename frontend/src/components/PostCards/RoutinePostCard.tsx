@@ -43,7 +43,7 @@ import {
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useRef } from "react";
-import { CommentSection } from "@/components/PostCards/CommentSection/CommentSection";
+import CommentSection from "./CommentSection/CommentSection";
 import { styled } from "@mui/material/styles";
 
 interface Author {
