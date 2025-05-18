@@ -25,6 +25,7 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   setLoading,
   generatePDF,
   TOTAL_SECTIONS,
+  setAnalysisComplete,
 }) => {
   const { findPrakrithi } = usePrakrithi();
   const navigate = useNavigate();
@@ -125,7 +126,9 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
 
       const response = await findPrakrithi(processedData);
 
-      await generatePDF(response.data);
+      setAnalysisComplete(true);
+
+      // await generatePDF(response.data);
     } catch (error: any) {
       handleAxiosError(error);
       if (error.status === 401) navigate("/auth");
