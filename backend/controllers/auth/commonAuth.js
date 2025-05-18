@@ -1,7 +1,7 @@
 import Expert from "../../models/Expert/Expert.js";
 import User from "../../models/User/User.js";
 import crypto from "crypto";
-import { sendResetEmail } from "../../utils/sendEmail.js";
+import { sendEmail } from "../../utils/sendEmail.js";
 
 export const setForgotPasswordToken = async (req, res) => {
   const { email, role } = req.body;
@@ -32,7 +32,7 @@ export const setForgotPasswordToken = async (req, res) => {
         <p>If you did not request this, you can ignore this email.</p>
       `;
 
-  await sendResetEmail(user.email, emailSubject, emailContent);
+  await sendEmail(user.email, emailSubject, emailContent);
 
   res.json({ success: true, message: "Reset link sent to email" });
 };

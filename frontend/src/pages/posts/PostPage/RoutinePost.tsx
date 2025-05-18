@@ -3,12 +3,13 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
 import { RoutinePostCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
-import { RoutinePostType } from "../RoutinesPosts";
+import useRoutines from "@/hooks/useRoutine/useRoutine";
+import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
+import { RoutinePostType } from "@/types/RoutinesPost.types";
 
 export function RoutinePost() {
-  const { getRoutinesPostById } = useGetPost();
+  const { getRoutinesPostById } = useRoutines();
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<RoutinePostType | null>(null);
   const [loading, setLoading] = useState(true);

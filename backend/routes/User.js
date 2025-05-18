@@ -99,7 +99,7 @@ const router = express.Router();
 // );
 
 // Create a new user
-router.post(
+router.patch(
   "/complete-profile",
   checkUserLogin,
   validateUserCompleteProfile,

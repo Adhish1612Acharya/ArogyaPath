@@ -1,7 +1,7 @@
-import { GeneralPostType } from "@/types/GeneralPost.types";
+import { RoutinePostType } from "@/types/RoutinesPost.types";
 
-export interface GeneralPostCardProps {
-  post: GeneralPostType;
+export interface RoutinePostCardProps {
+  post: RoutinePostType;
   isLiked: boolean;
   isSaved: boolean;
   currentUserId: string;

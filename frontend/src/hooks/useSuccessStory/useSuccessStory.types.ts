@@ -1,9 +1,9 @@
-import { MediaUploads, Routine } from "@/types";
+import { MediaUploadsType, RoutineType } from "@/types";
 
 export interface SuccessStorySchema {
   title: string;
   description: string;
-  media: MediaUploads;
-  routines: Routine[];
+  media: MediaUploadsType;
+  routines: RoutineType[];
   tagged: string[];
 }

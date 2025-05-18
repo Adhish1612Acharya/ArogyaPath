@@ -39,7 +39,7 @@ const useRoutines = () => {
         console.log("Post Thumbnail : ", formData.thumbnail);
         routineData.append("media", formData.thumbnail);
       }
-      routineData.append("routines[]", JSON.stringify(formData.routines));
+      routineData.append("routines", JSON.stringify(formData.routines));
 
       for (let [key, value] of routineData.entries()) {
         console.log(`${key}:`, value);

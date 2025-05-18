@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
-import ExpressError from "../utils/ExpressError.js";
+import ExpressError from "../utils/expressError.js";
 
-export const sendResetEmail = async (toEmail, subject, emailBody) => {
+export const sendEmail = async (toEmail, subject, emailBody) => {
   try {
     // Configure transporter
     const transporter = nodemailer.createTransport({

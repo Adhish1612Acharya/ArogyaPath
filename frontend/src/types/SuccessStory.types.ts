@@ -14,4 +14,6 @@ export interface SuccessStoryType {
   likesCount: number;
   commentsCount: number;
   createdAt: Date | string;
+  verifyAuthorization: boolean;
+  alreadyVerified: boolean;
 }

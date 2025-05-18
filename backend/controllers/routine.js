@@ -1,7 +1,9 @@
 import Expert from "../models/Expert/Expert.js";
 import Routines from "../models/Routines/Routines.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
-import transformRoutine from "../utils/transformRoutinePost.js";
+import ExpressError from "../utils/expressError.js";
+import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
+
 
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
@@ -11,7 +13,7 @@ export const createRoutine = async (req, res) => {
   console.log("Media Files:", mediaFiles);
 
   const thumbnail =
-    mediaFiles[0]?.resource_type === "image" ? mediaFiles[0].secure_url : null;
+    mediaFiles?.[0].resource_type === "image" ? mediaFiles[0].secure_url : null;
 
   const readTime = calculateReadTime({ title, description, routines });
 
@@ -49,13 +51,11 @@ export const getAllRoutines = async (req, res) => {
     .select("-updatedAt")
     .populate("owner", "_id profile.fullName profile.profileImage");
 
-  const transformedRoutinePosts = routines.map(transformRoutine);
-
   return res.status(200).json({
     message: "Routines fetched successfully",
     success: true,
-    routines: transformedRoutinePosts,
-     userId: req.user._id,
+    routines: routines,
+    userId: req.user._id,
   });
 };
 
@@ -67,16 +67,14 @@ export const getRoutineById = async (req, res) => {
     .populate("owner", "_id profile.fullName profile.profileImage");
 
   if (!routine) {
-    return res.status(404).json({ message: "Routine not found" });
+    throw new ExpressError(404, "Routine not found");
   }
-
-  const transformedRoutinePost = transformRoutine(routine);
 
   return res.status(200).json({
     message: "Routine fetched successfully",
     success: true,
-    routine: transformedRoutinePost,
-     userId: req.user._id,
+    routine: routine,
+    userId: req.user._id,
   });
 };
 
@@ -90,7 +88,7 @@ export const updateRoutine = async (req, res) => {
   });
 
   if (!updatedRoutine) {
-    return res.status(404).json({ message: "Routine not found" });
+    throw new ExpressError(404, "Routine not found");
   }
 
   return res.status(200).json({
@@ -106,10 +104,19 @@ export const deleteRoutine = async (req, res) => {
   const deletedRoutine = await Routines.findByIdAndDelete(id);
 
   if (!deletedRoutine) {
-    return res.status(404).json({ message: "Routine not found" });
+    throw new ExpressError(404, "Routine not found");
   }
 
   return res.status(200).json({
+    success: true,
     message: "Routine deleted successfully",
   });
+};
+
+export default {
+  createRoutine,
+  getAllRoutines,
+  getRoutineById,
+  updateRoutine,
+  deleteRoutine,
 };
