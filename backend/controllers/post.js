@@ -29,12 +29,10 @@ const getPostById = async (req, res) => {
     throw new ExpressError(404, "Post not found");
   }
 
-  const transformedPost = transformPost(post);
-
   res.status(200).json({
     message: "Post retrieved",
     success: true,
-    post: transformedPost,
+    post: post,
     userId: req.user._id,
   });
 };

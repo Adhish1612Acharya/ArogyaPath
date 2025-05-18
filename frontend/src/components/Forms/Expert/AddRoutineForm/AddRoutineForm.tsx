@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useRoutes } from "react-router-dom";
 import { X, Plus, Loader2 } from "lucide-react";
 
 // ShadCN components
@@ -28,11 +28,12 @@ import usePost from "@/hooks/usePost/usePost";
 import addRoutineFormSchema from "./AddRoutineFormSchema";
 import dayjs from "dayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import useRoutines from "@/hooks/useRoutine/useRoutine";
 
 type RoutineFormSchema = z.infer<typeof addRoutineFormSchema>;
 
 const AddRoutineForm = () => {
-  const { submitRoutinePost } = usePost();
+  const { submitRoutinePost } = useRoutines();
   const navigate = useNavigate();
 
   const form = useForm<RoutineFormSchema>({
@@ -72,27 +73,18 @@ const AddRoutineForm = () => {
     setThumbnailPreview(null);
   };
 
-  const onSubmit = async (newPostData: RoutineFormSchema) => {
+  const onSubmit = async (newRoutinePostData: RoutineFormSchema) => {
     try {
-      const newPost = {
-        ...newPostData,
-        filters: ["all", "ayurveda"],
-      };
-
-      console.log("New Post : ", newPost);
-      const response = await submitRoutinePost(newPost);
-
+      console.log("New Post : ", newRoutinePostData);
+      const response = await submitRoutinePost(newRoutinePostData);
       if (response?.success) {
         form.reset();
         navigate(`/routines/${response?.postId}`);
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);
-      if (error.status === 401) {
-        navigate("/auth");
-      } else if (error.status === 403) {
-        navigate("/");
-      }
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
     }
   };
 

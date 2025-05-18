@@ -37,8 +37,6 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
   isSaved,
   currentUserId,
   menuItems,
-  onLike,
-  onSave,
   onMediaClick,
 }: GeneralPostCardProps) => {
   const commentInputRef = useRef<HTMLInputElement | null>(null);
@@ -72,6 +70,34 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
     if (!commentOpen && commentInputRef.current) {
       setTimeout(() => commentInputRef.current?.focus(), 100);
     }
+  };
+
+  const toggleLike = () => {
+    alert("Yet to implement");
+    // setGeneralPosts((prevPosts) =>
+    //   prevPosts.map((post) => {
+    //     if (post._id === postId) {
+    //       const isLiked = post.likedBy.includes(userId);
+    //       return {
+    //         ...post,
+    //         likes: isLiked ? post.likes - 1 : post.likes + 1,
+    //         likedBy: isLiked
+    //           ? post.likedBy.filter((id) => id !== userId)
+    //           : [...post.likedBy, userId],
+    //       };
+    //     }
+    //     return post;
+    //   })
+    // );
+  };
+
+  const toggleSave = () => {
+    alert("Yet to implement");
+    // setSavedPosts((prev) => {
+    //   const newSaved = new Set(prev);
+    //   newSaved.has(postId) ? newSaved.delete(postId) : newSaved.add(postId);
+    //   return newSaved;
+    // });
   };
 
   const menuOpen = Boolean(menuAnchorEl);
@@ -180,7 +206,7 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
             <div className="flex space-x-4 sm:space-x-6">
               <Button
                 size="small"
-                onClick={onLike}
+                onClick={toggleLike}
                 className={`h-8 px-2 hover:text-red-500 ${
                   isLiked ? "text-red-500" : "text-gray-500"
                 }`}
@@ -211,7 +237,7 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
             </div>
             <Button
               size="small"
-              onClick={onSave}
+              onClick={toggleSave}
               className={`h-8 w-8 p-0 hover:text-yellow-500 ${
                 isSaved ? "text-yellow-500" : "text-gray-500"
               }`}

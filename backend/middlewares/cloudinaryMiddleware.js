@@ -13,6 +13,8 @@ export const parseFormdata = (req, res, next) => {
     }
   }
 
+  console.log("Parse Data : ",req.body);
+
   next();
 };
 

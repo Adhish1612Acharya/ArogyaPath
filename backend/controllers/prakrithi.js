@@ -3,6 +3,7 @@ import Prakrithi from "../models/Prakrathi/Prakrathi.js";
 
 const findPrakrithi = async (req, res) => {
   const inputData = req.body;
+
   const { data: result } = await axios.post(process.env.PRAKRITHI_MODEL, {
     ApiKey: req.user?.premiumUser
       ? process.env.PRAKRITHI_PREMIUM_API_KEY

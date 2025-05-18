@@ -21,17 +21,12 @@ import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog"
 import usePost from "@/hooks/usePost/usePost";
 import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
 import { GeneralPostType } from "@/types/GeneralPost.types";
-import { set } from "date-fns";
-// import { useFormik } from "formik";
-// import * as yup from 'yup';
-
 
 export function AllGeneralPosts() {
   const { getAllPosts } = usePost();
 
   const [userType] = useState<"expert" | "patient">("patient");
   const [userId, setUserId] = useState(""); // Simulated current user ID
-  const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [currentPost, setCurrentPost] = useState<GeneralPostType | null>(null);
@@ -42,112 +37,7 @@ export function AllGeneralPosts() {
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
 
   // Embedded post data
-  const [generalPosts, setGeneralPosts] = useState<GeneralPostType[]>([
-    // {
-    //   id: "post-1",
-    //   author: {
-    //     id: "user-1",
-    //     name: "Dr. Sharma",
-    //     avatar: "https://i.pravatar.cc/150?img=11",
-    //   },
-    //   title: "The Power of Turmeric in Ayurveda",
-    //   content:
-    //     "Turmeric (Curcuma longa) has been used in Ayurveda for centuries as both a culinary spice and medicinal herb. Its active compound curcumin has powerful anti-inflammatory effects and is a very strong antioxidant.\n\nIn Ayurvedic medicine, turmeric is considered a balancing herb that helps with digestion, supports joint health, and promotes radiant skin. It's often used in golden milk recipes for its healing properties.",
-    //   images: [
-    //     "https://images.unsplash.com/photo-1603048719539-04d7f370038e",
-    //     "https://images.unsplash.com/photo-1603569283847-aa295f0d016a",
-    //     "https://images.unsplash.com/photo-1603569283847-aa295f0d016b",
-    //     "https://images.unsplash.com/photo-1603569283847-aa295f0d016c",
-    //   ],
-    //   video: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    //   document: "https://example.com/ayurvedic-remedies.pdf",
-    //   likes: 42,
-    //   likedBy: ["user-2", "user-5"],
-    //   comments: 3,
-    //   commentsList: [
-    //     {
-    //       id: "comment-1",
-    //       author: {
-    //         id: "user-2",
-    //         name: "Vaidya Patel",
-    //         avatar: "https://i.pravatar.cc/150?img=12",
-    //       },
-    //       text: "Great explanation! I often recommend turmeric with black pepper to enhance absorption.",
-    //       createdAt: new Date("2023-05-15T10:30:00"),
-    //       replies: [
-    //         {
-    //           id: "reply-1",
-    //           author: {
-    //             id: "user-3",
-    //             name: "Ayush Kumar",
-    //             avatar: "https://i.pravatar.cc/150?img=13",
-    //           },
-    //           text: "Yes! The piperine in black pepper increases curcumin absorption by 2000%!",
-    //           createdAt: new Date("2023-05-15T11:45:00"),
-    //         },
-    //       ],
-    //     },
-    //   ],
-    //   readTime: "3 min read",
-    //   tags: ["Ayurveda", "Herbs", "Remedies"],
-    //   createdAt: new Date("2023-05-10T09:00:00"),
-    // },
-    // {
-    //   id: "post-2",
-    //   author: {
-    //     id: "user-4",
-    //     name: "Dr. Gupta",
-    //     avatar: "https://i.pravatar.cc/150?img=14",
-    //   },
-    //   title: "Understanding Doshas: Vata, Pitta, Kapha",
-    //   content:
-    //     "The three doshas—Vata (air & space), Pitta (fire & water), and Kapha (water & earth)—are the foundational concepts of Ayurveda. Each person has a unique balance of these doshas that determines their physical, mental, and emotional characteristics.\n\nWhen the doshas are balanced, we experience health. When they're imbalanced, we experience disease. Ayurvedic treatments aim to restore balance through diet, herbs, and lifestyle changes.",
-    //   images: ["https://images.unsplash.com/photo-1603048719539-04d7f370038f"],
-    //   likes: 28,
-    //   likedBy: ["user-1"],
-    //   comments: 5,
-    //   readTime: "5 min read",
-    //   tags: ["Doshas", "Ayurveda Basics"],
-    //   createdAt: new Date("2023-05-12T14:00:00"),
-    // },
-  ]);
-
-  // const formik = useFormik({
-  //   initialValues: {
-  //     title: '',
-  //     content: '',
-  //     tags: ''
-  //   },
-  //   validationSchema: validationSchema,
-  //   onSubmit: (values) => {
-  //     if (currentPost) {
-  //       const updatedPosts = generalPosts.map(post => {
-  //         if (post.id === currentPost.id) {
-  //           return {
-  //             ...post,
-  //             title: values.title,
-  //             content: values.content,
-  //             tags: values.tags.split(',').map(tag => tag.trim())
-  //           };
-  //         }
-  //         return post;
-  //       });
-  //       setGeneralPosts(updatedPosts);
-  //       setOpenEditDialog(false);
-  //       showSnackbar('Post updated successfully!', 'success');
-  //     }
-  //   },
-  // });
-
-  // useEffect(() => {
-  //   if (currentPost) {
-  //     formik.setValues({
-  //       title: currentPost.title,
-  //       content: currentPost.content,
-  //       tags: currentPost.tags.join(", "),
-  //     });
-  //   }
-  // }, [currentPost]);
+  const [generalPosts, setGeneralPosts] = useState<GeneralPostType[]>([]);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -159,34 +49,6 @@ export function AllGeneralPosts() {
     };
     fetchPosts();
   }, []);
-
-  const toggleLike = (postId: string) => {
-    alert("Yet to implement");
-    // setGeneralPosts((prevPosts) =>
-    //   prevPosts.map((post) => {
-    //     if (post._id === postId) {
-    //       const isLiked = post.likedBy.includes(userId);
-    //       return {
-    //         ...post,
-    //         likes: isLiked ? post.likes - 1 : post.likes + 1,
-    //         likedBy: isLiked
-    //           ? post.likedBy.filter((id) => id !== userId)
-    //           : [...post.likedBy, userId],
-    //       };
-    //     }
-    //     return post;
-    //   })
-    // );
-  };
-
-  const toggleSave = (postId: string) => {
-    alert("Yet to implement");
-    // setSavedPosts((prev) => {
-    //   const newSaved = new Set(prev);
-    //   newSaved.has(postId) ? newSaved.delete(postId) : newSaved.add(postId);
-    //   return newSaved;
-    // });
-  };
 
   const handleEdit = (post: GeneralPostType) => {
     setCurrentPost(post);
@@ -282,8 +144,6 @@ export function AllGeneralPosts() {
                     isLiked={Math.floor(Math.random() * 2) === 1 ? true : false}
                     isSaved={Math.floor(Math.random() * 2) === 1 ? true : false}
                     currentUserId={userId}
-                    onLike={() => toggleLike(post._id)}
-                    onSave={() => toggleSave(post._id)}
                     onMediaClick={openMediaViewer}
                     menuItems={[
                       ...(isPostAuthor(post)

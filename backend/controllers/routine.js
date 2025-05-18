@@ -2,7 +2,8 @@ import Expert from "../models/Expert/Expert.js";
 import Routines from "../models/Routines/Routines.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
 import ExpressError from "../utils/expressError.js";
-import transformRoutine from "../utils/transformRoutinePost.js";
+import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
+
 
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
@@ -12,7 +13,7 @@ export const createRoutine = async (req, res) => {
   console.log("Media Files:", mediaFiles);
 
   const thumbnail =
-    mediaFiles[0]?.resource_type === "image" ? mediaFiles[0].secure_url : null;
+    mediaFiles?.[0].resource_type === "image" ? mediaFiles[0].secure_url : null;
 
   const readTime = calculateReadTime({ title, description, routines });
 

@@ -1,7 +1,7 @@
-import { MediaUploads } from "@/types";
+import { MediaUploadsType } from "@/types";
 
 export interface PostFormSchema {
   title: string;
   description: string;
-  media: MediaUploads;
+  media: MediaUploadsType;
 }

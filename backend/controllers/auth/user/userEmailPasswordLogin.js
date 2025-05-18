@@ -1,7 +1,5 @@
 import User from "../../../models/User/User.js";
-import crypto from "crypto";
-import { sendResetEmail } from "../../../utils/sendEmail.js";
-import Expert from "../../../models/Expert/Expert.js";
+
 
 export const signUp = async (req, res) => {
   let signUpError = false;

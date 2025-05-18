@@ -5,8 +5,6 @@ export interface GeneralPostCardProps {
   isLiked: boolean;
   isSaved: boolean;
   currentUserId: string;
-  onLike: () => void;
-  onSave: () => void;
   onMediaClick: (mediaIndex: number, images: string[]) => void;
   menuItems: Array<{
     label: string;

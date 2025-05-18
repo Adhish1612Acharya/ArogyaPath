@@ -71,8 +71,6 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
   isLiked,
   isSaved,
   currentUserId,
-  onLike,
-  onSave,
   onMediaClick,
   menuItems,
 }) => {
@@ -108,6 +106,34 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
     }
   };
 
+  const toggleLike = () => {
+    alert("Yet to implement");
+    // setGeneralPosts((prevPosts) =>
+    //   prevPosts.map((post) => {
+    //     if (post._id === postId) {
+    //       const isLiked = post.likedBy.includes(userId);
+    //       return {
+    //         ...post,
+    //         likes: isLiked ? post.likes - 1 : post.likes + 1,
+    //         likedBy: isLiked
+    //           ? post.likedBy.filter((id) => id !== userId)
+    //           : [...post.likedBy, userId],
+    //       };
+    //     }
+    //     return post;
+    //   })
+    // );
+  };
+
+  const toggleSave = () => {
+    alert("Yet to implement");
+    // setSavedPosts((prev) => {
+    //   const newSaved = new Set(prev);
+    //   newSaved.has(postId) ? newSaved.delete(postId) : newSaved.add(postId);
+    //   return newSaved;
+    // });
+  };
+
   const openMenu = Boolean(menuAnchorEl);
   const shareOpen = Boolean(shareAnchorEl);
 
@@ -131,7 +157,7 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
                 cursor: "pointer",
               }}
             >
-              {post.owner.profile.fullName}
+              {post.owner.profile.fullName[0]}
             </Avatar>
           }
           action={
@@ -317,7 +343,7 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
                   sx={{ fill: isLiked ? "currentColor" : "none" }}
                 />
               }
-              onClick={onLike}
+              onClick={toggleLike}
               sx={{
                 color: isLiked ? "error.main" : "text.secondary",
                 "&:hover": {
@@ -355,7 +381,7 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
             </Button>
           </Box>
           <IconButton
-            onClick={onSave}
+            onClick={toggleSave}
             sx={{
               color: isSaved ? "warning.main" : "text.secondary",
               "&:hover": {

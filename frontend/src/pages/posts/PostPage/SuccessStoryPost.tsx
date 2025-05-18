@@ -3,10 +3,11 @@ import { useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard/SuccessStoryCard";
 import { SuccessStoryCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
 import usePost from "@/hooks/usePost/usePost";
-import { SuccessStoryType } from "../SuccessStoryPosts";
+import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
+import SuccessStoryPostCard from "@/components/PostCards/SuccessStoryPostCard/SuccessStoryPostCard";
+import { SuccessStoryType } from "@/types/SuccessStory.types";
 
 // interface Author {
 //   name: string;
@@ -43,7 +44,7 @@ import { SuccessStoryType } from "../SuccessStoryPosts";
 // }
 
 export function SuccessStoryPost() {
-  const { getSuccessStoryById } = useGetPost();
+  const { getSuccessStoryById } = useSuccessStory();
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<SuccessStoryType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -93,7 +94,7 @@ export function SuccessStoryPost() {
         </div>
 
         <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
-          <SuccessStoryCard
+          <SuccessStoryPostCard
             post={post}
             liked={liked}
             saved={saved}

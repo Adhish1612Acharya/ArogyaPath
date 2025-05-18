@@ -41,6 +41,7 @@ import { Doctor } from "./AddSuccessStoryFormSchema.types";
 import useApi from "@/hooks/useApi/useApi";
 import usePost from "@/hooks/usePost/usePost";
 import { useNavigate } from "react-router-dom";
+import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -57,7 +58,7 @@ export interface Expert {
 
 export default function AddSuccessStoryForm() {
   const { get } = useApi();
-  const { submitSuccessStory } = usePost();
+  const { submitSuccessStory } = useSuccessStory();
   const navigate = useNavigate();
 
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -106,10 +107,9 @@ export default function AddSuccessStoryForm() {
     name: "routines",
   });
 
-  // Handle form submission
   const onSubmit = async (formData: FormValues) => {
     try {
-      const newPost = {
+      const newSuccessStoryData = {
         title: formData.title,
         description: formData.description,
         media: {
@@ -118,11 +118,10 @@ export default function AddSuccessStoryForm() {
           document: formData.media?.document,
         },
         routines: formData.hasRoutines ? formData.routines ?? [] : [],
-        filters: ["ayurveda", "naturopathy"], // Assume this comes from some other part of UI
         tagged: formData.tagged.map((taggedDoctor) => taggedDoctor.id),
       };
-
-      const response = await submitSuccessStory(newPost);
+      console.log("New Post : ", newSuccessStoryData);
+      const response = await submitSuccessStory(newSuccessStoryData);
       if (response?.success) {
         form.reset();
         navigate(`/success-stories/${response?.postId}`);

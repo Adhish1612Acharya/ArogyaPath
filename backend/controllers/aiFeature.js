@@ -48,10 +48,25 @@ export const aiQuerySearch = async (req, res) => {
   const aiResponse = await axios.post(process.env.AI_QUERY_MODEL, aiBody);
   console.log("AI Model Response:", aiResponse.data);
 
-  const results = [];
+  const results = {
+    generalPosts: [], // Will contain posts with type "post"
+    routines: [], // Will contain posts with type "routine"
+    successStories: [], // Will contain posts with type "successStory"
+  };
+
+  // Map of type values to results object keys
+  const typeToKeyMap = {
+    post: "generalPosts",
+    routine: "routines",
+    successStory: "successStories",
+  };
 
   for (const { postId, type } of aiResponse.data.results) {
+    // Skip if type is not recognized
+    if (!typeToKeyMap.hasOwnProperty(type)) continue;
+
     let data;
+    const resultsKey = typeToKeyMap[type];
 
     switch (type) {
       case "successStory":
@@ -67,29 +82,30 @@ export const aiQuerySearch = async (req, res) => {
             "_id profile.fullName profile.profileImage profile.expertType"
           );
         break;
+
       case "routine":
         data = await Routine.findById(postId)
           .select("-updatedAt")
           .populate("owner", "_id profile.fullName profile.profileImage");
         break;
+
       case "post":
         data = await Post.findById(postId)
           .select("-updatedAt")
           .populate("owner", "_id profile.fullName profile.profileImage");
         break;
-      default:
-        continue; // Skip unknown types
     }
 
     if (data) {
-      results.push({ type, data });
+      results[resultsKey].push(data);
     }
   }
 
   res.status(200).json({
     success: true,
     message: "AI search successful",
-    posts: results, // assuming the external API returns a `data` field
+    filteredPosts: results,
+    userId: req.user?._id,
   });
 };
 

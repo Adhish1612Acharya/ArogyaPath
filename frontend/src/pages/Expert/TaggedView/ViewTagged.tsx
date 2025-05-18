@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard/SuccessStoryCard";
 import { SuccessStoryCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
+import SuccessStoryPostCard from "@/components/PostCards/SuccessStoryPostCard/SuccessStoryPostCard";
 
 interface Doctor {
   name: string;
@@ -261,7 +261,7 @@ export function ExpertTaggedPosts() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <SuccessStoryCard
+                  <SuccessStoryPostCard
                     post={story}
                     liked={false}
                     saved={false}

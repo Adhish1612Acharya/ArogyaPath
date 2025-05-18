@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 import { GeneralPostCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
-import { GeneralPostsType } from "../GeneralPosts";
 import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
+import usePost from "@/hooks/usePost/usePost";
+import { GeneralPostType } from "@/types/GeneralPost.types";
 
 export function GeneralPost() {
-  const { getGPostById } = useGetPost();
+  const { getPostById } = usePost();
   const { id } = useParams<{ id: string }>();
-  const [post, setPost] = useState<GeneralPostsType | null>(null);
+  const [post, setPost] = useState<GeneralPostType | null>(null);
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -18,7 +19,7 @@ export function GeneralPost() {
   useEffect(() => {
     const fetchPost = async () => {
       if (!id) return;
-      const ssData = await getGPostById(id);
+      const ssData = await getPostById(id);
 
       setPost(ssData.post);
       setLoading(false);

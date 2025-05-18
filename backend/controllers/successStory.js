@@ -3,6 +3,8 @@ import SuccessStory from "../models/SuccessStory/SuccessStory.js";
 import User from "../models/User/User.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
 import transformSuccessStory from "../utils/transformSuccessStory.js";
+import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
+import { sendEmail } from "../utils/sendEmail.js";
 
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
@@ -83,7 +85,7 @@ export const createSuccessStory = async (req, res) => {
   <p>Thank you,<br/>ArogyaPath Team</p>
 `;
 
-    await sendResetEmail(eachExpert.email, emailSubject, emailContent);
+    await sendEmail(eachExpert.email, emailSubject, emailContent);
   }
 
   // Success response
@@ -126,7 +128,7 @@ export const getAllSuccessStories = async (req, res) => {
       (req.user.role === "expert" && isTagged && !alreadyVerified);
 
     return {
-      ...transformSuccessStory(story),
+      ...story.toObject(),
       verifyAuthorization,
       alreadyVerified,
     };
@@ -136,6 +138,7 @@ export const getAllSuccessStories = async (req, res) => {
     message: "Success stories retrieved successfully",
     success: true,
     successStories: transformedSuccessStories,
+    userId: req.user._id,
   });
 };
 
@@ -176,7 +179,7 @@ export const getSingleSuccessStory = async (req, res) => {
     (isTagged && !alreadyVerified);
 
   const transformedSuccessStory = {
-    ...transformSuccessStory(successStory),
+    ...successStory.toObject(),
     verifyAuthorization,
     alreadyVerified,
   };
@@ -185,6 +188,7 @@ export const getSingleSuccessStory = async (req, res) => {
     message: "Success story retrieved successfully",
     success: true,
     successStory: transformedSuccessStory,
+    userId: req.user._id,
   });
 };
 
@@ -230,7 +234,13 @@ export const verifySuccessStory = async (req, res) => {
   const { id } = req.params;
   const expertId = req.user._id;
 
-  const successStory = await SuccessStory.findById(id);
+  const successStory = await SuccessStory.findByIdAndUpdate(
+    id,
+    {
+      $addToSet: { verified: expertId },
+    },
+    { new: true } // So we get the updated doc with the new `verified` list
+  );
 
   if (!successStory) {
     return res.status(404).json({
@@ -239,20 +249,17 @@ export const verifySuccessStory = async (req, res) => {
     });
   }
 
-  // Push expert to verified list
-  successStory.verified.push(expertId);
   console.log("Success Story : ", successStory);
-  await successStory.save();
 
   // Update Expert - push to verifiedPosts, remove from taggedPosts
   const expertDetails = await Expert.findByIdAndUpdate(
     expertId,
     {
-      $push: { verifiedPosts: id },
+      $addToSet: { verifiedPosts: id },
       $pull: { taggedPosts: id },
     },
     { new: true }
-  );
+  ).select("_id profile.fullName profile.profileImage profile.expertType");
 
   return res.status(200).json({
     success: true,
@@ -260,10 +267,7 @@ export const verifySuccessStory = async (req, res) => {
     data: {
       id: successStory._id,
       verifiedCount: successStory.verified.length,
-      expertDetails: {
-        name: expertDetails.username,
-        avatar: expertDetails.profile.profileImage,
-      },
+      expertDetails: expertDetails,
     },
   });
 };
