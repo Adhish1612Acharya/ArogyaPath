@@ -30,20 +30,13 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
   const [selectedCategories, setSelectedCategories] = useState<
     Record<string, boolean>
   >({
-    Panchakarma: false,
-    Shirodhara: false,
-    Abhyanga: false,
-    Nasya: false,
-    Dinacharya: false,
-    Ratricharya: false,
-    Ritucharya: false,
-    vata: false,
-    pitta: false,
-    kapha: false,
-    "Sattvic Diet": false,
-    "Spicy Foods": false,
-    "Cooling Foods": false,
-    "Detox Recipes": false,
+    herbs: false,
+    routines: false,
+    wellnessTips: false,
+    diet: false,
+    yoga: false,
+    detox: false,
+    seasonal: false,
   });
 
   const diseases = [
@@ -170,82 +163,21 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
           {tabValue === 0 && (
             <div className="flex h-full">
               {/* Left Column: Filter Categories */}
-              <div className="w-1/4 border-r pr-4">
-                <ul className="space-y-2 text-sm text-gray-700 font-medium">
-                  {[
-                    "Therapies",
-                    "Lifestyle Type",
-                    "Dominant Dosha",
-                    "Diet & Food",
-                  ].map((category) => (
-                    <li
-                      key={category}
-                      className={`cursor-pointer px-3 py-2 rounded hover:bg-gray-100 ${
-                        activeFilter === category
-                          ? "bg-gray-100 font-semibold"
-                          : ""
-                      }`}
-                      onClick={() => setActiveFilter(category)}
-                    >
-                      {category}
-                    </li>
-                  ))}
-                </ul>
-              </div>
 
               {/* Right Column: Filter Options */}
               <div className="w-3/4 pl-6 space-y-6">
                 {activeFilter === "Therapies" && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {["Panchakarma", "Shirodhara", "Abhyanga", "Nasya"].map(
-                      (therapy) => (
-                        <FormControlLabel
-                          key={therapy}
-                          control={
-                            <Checkbox
-                              checked={selectedCategories[therapy]}
-                              onChange={() =>
-                                setSelectedCategories((prev) => ({
-                                  ...prev,
-                                  [therapy]: !prev[therapy],
-                                }))
-                              }
-                              color="primary"
-                              sx={{
-                                color: "#059669",
-                                "&.Mui-checked": {
-                                  color: "#059669",
-                                },
-                              }}
-                            />
-                          }
-                          label={therapy}
-                          sx={{
-                            "& .MuiFormControlLabel-label": {
-                              fontSize: "0.875rem",
-                            },
-                          }}
-                        />
-                      )
-                    )}
-                  </div>
-                )}
-
-                {activeFilter === "Lifestyle Type" && (
-                  <div className="flex flex-wrap gap-4">
-                    {["Dinacharya", "Ratricharya", "Ritucharya"].map((type) => (
+                    {categories.map((category) => (
                       <FormControlLabel
-                        key={type}
+                        key={category.id}
                         control={
                           <Checkbox
-                            checked={selectedCategories[type]}
+                            checked={selectedCategories[category.id]}
                             onChange={() =>
                               setSelectedCategories((prev) => ({
                                 ...prev,
-                                Dinacharya: false,
-                                Ratricharya: false,
-                                Ritucharya: false,
-                                [type]: true,
+                                [category.id]: !prev[category.id],
                               }))
                             }
                             color="primary"
@@ -257,86 +189,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
                             }}
                           />
                         }
-                        label={type}
-                        sx={{
-                          "& .MuiFormControlLabel-label": {
-                            fontSize: "0.875rem",
-                          },
-                        }}
-                      />
-                    ))}
-                  </div>
-                )}
-
-                {activeFilter === "Dominant Dosha" && (
-                  <div className="space-y-4">
-                    <h4 className="font-medium">Select Dominant Dosha</h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {["Vata", "Pitta", "Kapha"].map((dosha) => (
-                        <FormControlLabel
-                          key={dosha}
-                          control={
-                            <Checkbox
-                              checked={selectedCategories[dosha.toLowerCase()]}
-                              onChange={() =>
-                                setSelectedCategories((prev) => ({
-                                  ...prev,
-                                  vata: false,
-                                  pitta: false,
-                                  kapha: false,
-                                  [dosha.toLowerCase()]: true,
-                                }))
-                              }
-                              color="primary"
-                              sx={{
-                                color: "#059669",
-                                "&.Mui-checked": {
-                                  color: "#059669",
-                                },
-                              }}
-                            />
-                          }
-                          label={dosha}
-                          sx={{
-                            "& .MuiFormControlLabel-label": {
-                              fontSize: "0.875rem",
-                            },
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {activeFilter === "Diet & Food" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {[
-                      "Sattvic Diet",
-                      "Spicy Foods",
-                      "Cooling Foods",
-                      "Detox Recipes",
-                    ].map((item) => (
-                      <FormControlLabel
-                        key={item}
-                        control={
-                          <Checkbox
-                            checked={selectedCategories[item]}
-                            onChange={() =>
-                              setSelectedCategories((prev) => ({
-                                ...prev,
-                                [item]: !prev[item],
-                              }))
-                            }
-                            color="primary"
-                            sx={{
-                              color: "#059669",
-                              "&.Mui-checked": {
-                                color: "#059669",
-                              },
-                            }}
-                          />
-                        }
-                        label={item}
+                        label={category.label}
                         sx={{
                           "& .MuiFormControlLabel-label": {
                             fontSize: "0.875rem",
@@ -431,7 +284,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
           <DialogActions className="mt-6">
             <Button
               variant="outline"
-              onClick={ applyGetAllPosts}
+              onClick={applyGetAllPosts}
               className="text-gray-600 hover:bg-gray-100"
             >
               Cancel

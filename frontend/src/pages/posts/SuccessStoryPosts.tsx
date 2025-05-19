@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   Typography,
@@ -23,7 +23,7 @@ import { toast } from "react-toastify";
 import { UserOrExpertDetailsType } from "@/types";
 
 export function AllSuccessStoriesPosts() {
-
+  const navigate = useNavigate();
   const { getAllSuccessStories, filterSearch } = useSuccessStory();
 
   const [userId, setUserId] = useState("user-2");
@@ -157,7 +157,10 @@ export function AllSuccessStoriesPosts() {
               </Typography>
             </Box>
             <Box className="flex items-center gap-3">
-              <Filter applyFilters={applyFilters} getAllPosts={} />
+              <Filter
+                applyFilters={applyFilters}
+                getAllPosts={getAllSuccessStoriesPosts}
+              />
               <Button
                 component={Link}
                 to="/posts/create"

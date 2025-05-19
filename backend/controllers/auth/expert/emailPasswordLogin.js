@@ -62,26 +62,8 @@ export const failureLogin = async (req, res) => {
   });
 };
 
-export const logout = (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({
-        success: false,
-        message: err.message,
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "successLogOut",
-      });
-    }
-  });
-};
-
 export default {
   signUp,
   login,
   failureLogin,
-  logout,
 };

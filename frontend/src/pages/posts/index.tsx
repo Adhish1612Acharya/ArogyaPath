@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Navbar } from "@/components/PageNavBar";
+import { Footer } from "@/components/PageFooter";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,8 +10,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus,
   Heart,
@@ -20,61 +20,69 @@ import {
   Clock,
   BookOpen,
   Bookmark,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from '@/components/ui/hover-card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Filter } from '@/components/Filter/Filter';
+} from "@/components/ui/hover-card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Filter } from "@/components/Filter/Filter";
 
 export function PostsPage() {
-  const [userType] = useState<'expert' | 'patient'>('patient');
+  const [userType] = useState<"expert" | "patient">("patient");
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
   const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
-  const [activeTab, setActiveTab] = useState<'all' | 'general' | 'routine'>('all');
+  const [activeTab, setActiveTab] = useState<"all" | "general" | "routine">(
+    "all"
+  );
 
   const posts = [
     {
-      id: '1',
-      type: 'general',
+      id: "1",
+      type: "general",
       author: {
-        name: 'Dr. Ayush Kumar',
-        avatar: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d',
-        credentials: 'BAMS, MD Ayurveda',
-        experience: '15 years of experience',
+        name: "Dr. Ayush Kumar",
+        avatar: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d",
+        credentials: "BAMS, MD Ayurveda",
+        experience: "15 years of experience",
       },
-      title: 'Benefits of Ashwagandha',
+      title: "Benefits of Ashwagandha",
       content:
-        'Ashwagandha is an ancient medicinal herb with multiple health benefits. Known for its adaptogenic properties, it helps reduce stress and anxiety while boosting energy levels and improving concentration.',
-      image: 'https://images.unsplash.com/photo-1611241893603-3c359704e0ee',
+        "Ashwagandha is an ancient medicinal herb with multiple health benefits. Known for its adaptogenic properties, it helps reduce stress and anxiety while boosting energy levels and improving concentration.",
+      image: "https://images.unsplash.com/photo-1611241893603-3c359704e0ee",
       likes: 124,
       comments: 45,
-      readTime: '5 min read',
-      tags: ['Herbs', 'Wellness', 'Mental Health'],
+      readTime: "5 min read",
+      tags: ["Herbs", "Wellness", "Mental Health"],
     },
     {
-      id: '2',
-      type: 'routine',
+      id: "2",
+      type: "routine",
       author: {
-        name: 'Dr. Priya Sharma',
-        avatar: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f',
-        credentials: 'PhD in Ayurveda',
-        experience: '12 years of experience',
+        name: "Dr. Priya Sharma",
+        avatar: "https://images.unsplash.com/photo-1594824476967-48c8b964273f",
+        credentials: "PhD in Ayurveda",
+        experience: "12 years of experience",
       },
-      title: 'Daily Wellness Routine',
+      title: "Daily Wellness Routine",
       activities: [
-        { time: '06:00 AM', activity: 'Wake up and drink warm water with lemon' },
-        { time: '06:30 AM', activity: 'Yoga and Pranayama' },
-        { time: '07:30 AM', activity: 'Light breakfast with seasonal fruits' },
-        { time: '09:00 AM', activity: 'Start work with regular breaks' },
-        { time: '01:00 PM', activity: 'Balanced lunch following Ayurvedic principles' },
+        {
+          time: "06:00 AM",
+          activity: "Wake up and drink warm water with lemon",
+        },
+        { time: "06:30 AM", activity: "Yoga and Pranayama" },
+        { time: "07:30 AM", activity: "Light breakfast with seasonal fruits" },
+        { time: "09:00 AM", activity: "Start work with regular breaks" },
+        {
+          time: "01:00 PM",
+          activity: "Balanced lunch following Ayurvedic principles",
+        },
       ],
       likes: 89,
       comments: 23,
-      readTime: '3 min read',
-      tags: ['Daily Routine', 'Lifestyle', 'Wellness'],
+      readTime: "3 min read",
+      tags: ["Daily Routine", "Lifestyle", "Wellness"],
     },
   ];
 
@@ -103,7 +111,7 @@ export function PostsPage() {
   };
 
   const filteredPosts =
-    activeTab === 'all'
+    activeTab === "all"
       ? posts
       : posts.filter((post) => post.type === activeTab);
 
@@ -122,7 +130,10 @@ export function PostsPage() {
           </div>
           <div className="flex items-center gap-3">
             <Filter />
-            <Button asChild className="bg-green-600 hover:bg-green-700 shadow-md">
+            <Button
+              asChild
+              className="bg-green-600 hover:bg-green-700 shadow-md"
+            >
               <Link to="/posts/create" className="flex items-center gap-1">
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">Create Post</span>
@@ -131,7 +142,13 @@ export function PostsPage() {
           </div>
         </div>
 
-        <Tabs defaultValue="all" className="w-full" onValueChange={(value) => setActiveTab(value as 'all' | 'general' | 'routine')}>
+        <Tabs
+          defaultValue="all"
+          className="w-full"
+          onValueChange={(value) =>
+            setActiveTab(value as "all" | "general" | "routine")
+          }
+        >
           <div className="overflow-x-auto pb-2">
             <TabsList className="bg-white p-1 space-x-2 w-max">
               <TabsTrigger
@@ -166,7 +183,10 @@ export function PostsPage() {
                     <HoverCard>
                       <HoverCardTrigger asChild>
                         <Avatar className="h-10 w-10 sm:h-12 sm:w-12 cursor-pointer border-2 border-green-100">
-                          <AvatarImage src={post.author.avatar} alt={post.author.name} />
+                          <AvatarImage
+                            src={post.author.avatar}
+                            alt={post.author.name}
+                          />
                           <AvatarFallback>{post.author.name[0]}</AvatarFallback>
                         </Avatar>
                       </HoverCardTrigger>
@@ -174,12 +194,20 @@ export function PostsPage() {
                         <div className="flex space-x-4">
                           <Avatar className="h-12 w-12">
                             <AvatarImage src={post.author.avatar} />
-                            <AvatarFallback>{post.author.name[0]}</AvatarFallback>
+                            <AvatarFallback>
+                              {post.author.name[0]}
+                            </AvatarFallback>
                           </Avatar>
                           <div className="space-y-1">
-                            <h4 className="text-sm font-semibold">{post.author.name}</h4>
-                            <p className="text-xs text-gray-600">{post.author.credentials}</p>
-                            <p className="text-xs text-gray-600">{post.author.experience}</p>
+                            <h4 className="text-sm font-semibold">
+                              {post.author.name}
+                            </h4>
+                            <p className="text-xs text-gray-600">
+                              {post.author.credentials}
+                            </p>
+                            <p className="text-xs text-gray-600">
+                              {post.author.experience}
+                            </p>
                           </div>
                         </div>
                       </HoverCardContent>
@@ -190,8 +218,7 @@ export function PostsPage() {
                       </CardTitle>
                       <CardDescription className="flex flex-wrap items-center gap-2 text-xs sm:text-sm">
                         <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                          2 hours ago
+                          <Clock className="h-3 w-3 sm:h-4 sm:w-4" />2 hours ago
                         </span>
                         <span className="text-gray-300">•</span>
                         <span className="flex items-center gap-1">
@@ -206,9 +233,11 @@ export function PostsPage() {
                   <h3 className="text-xl sm:text-2xl font-semibold mb-3 hover:text-green-600 transition-colors">
                     {post.title}
                   </h3>
-                  {post.type === 'general' ? (
+                  {post.type === "general" ? (
                     <>
-                      <p className="text-gray-600 mb-4 text-sm sm:text-base">{post.content}</p>
+                      <p className="text-gray-600 mb-4 text-sm sm:text-base">
+                        {post.content}
+                      </p>
                       {post.image && (
                         <img
                           src={post.image}
@@ -241,8 +270,12 @@ export function PostsPage() {
                             )}
                           </div>
                           <div className="flex-1 p-3 rounded-lg hover:bg-green-50 transition-colors">
-                            <p className="font-medium text-sm text-green-700">{activity.time}</p>
-                            <p className="text-gray-600 text-sm">{activity.activity}</p>
+                            <p className="font-medium text-sm text-green-700">
+                              {activity.time}
+                            </p>
+                            <p className="text-gray-600 text-sm">
+                              {activity.activity}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -257,7 +290,7 @@ export function PostsPage() {
                         size="sm"
                         onClick={() => toggleLike(post.id)}
                         className={`h-8 px-2 hover:text-red-500 ${
-                          likedPosts.has(post.id) ? 'text-red-500' : ''
+                          likedPosts.has(post.id) ? "text-red-500" : ""
                         }`}
                       >
                         <Heart className="h-4 w-4 mr-1.5" />
@@ -271,7 +304,9 @@ export function PostsPage() {
                         className="h-8 px-2 hover:text-blue-500"
                       >
                         <MessageCircle className="h-4 w-4 mr-1.5" />
-                        <span className="text-xs sm:text-sm">{post.comments}</span>
+                        <span className="text-xs sm:text-sm">
+                          {post.comments}
+                        </span>
                       </Button>
                       <Button
                         variant="ghost"
@@ -287,12 +322,12 @@ export function PostsPage() {
                       size="sm"
                       onClick={() => toggleSave(post.id)}
                       className={`h-8 w-8 p-0 hover:text-yellow-500 ${
-                        savedPosts.has(post.id) ? 'text-yellow-500' : ''
+                        savedPosts.has(post.id) ? "text-yellow-500" : ""
                       }`}
                     >
                       <Bookmark
                         className={`h-4 w-4 transition-transform ${
-                          savedPosts.has(post.id) ? 'fill-current' : ''
+                          savedPosts.has(post.id) ? "fill-current" : ""
                         }`}
                       />
                     </Button>

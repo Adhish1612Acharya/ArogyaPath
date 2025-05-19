@@ -9,19 +9,9 @@ import commonAuthController from "../../controllers/auth/commonAuth.js";
 
 const router = express.Router();
 
-router.get("/check", (req, res) => {
-  const loggedIn = req.isAuthenticated();
-  const userRole = req.user?.role || null;
+router.get("/logout", commonAuthController.logout);
 
-  console.log("LoggedIn : ", loggedIn);
-
-  res.status(200).json({
-    success: true,
-    message: "Auth Status",
-    loggedIn,
-    userRole,
-  });
-});
+router.get("/check", commonAuthController.checkAuth);
 
 router.post(
   "/forgot-password",

@@ -12,7 +12,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Context provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(false); // Initialize login state
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | undefined>(undefined); // Initialize login state
 
   const [role, setRole] = useState<"user" | "expert" | undefined>(undefined);
 

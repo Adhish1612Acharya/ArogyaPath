@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
 import {
   Button,
   Typography,
@@ -27,7 +25,6 @@ export function AllGeneralPosts() {
 
   const { getAllPosts, filterSearch } = usePost();
 
-  const [userType] = useState<"expert" | "patient">("patient");
   const [userId, setUserId] = useState(""); // Simulated current user ID
   const [isLoading, setIsLoading] = useState(true);
   const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -117,7 +114,6 @@ export function AllGeneralPosts() {
 
   return (
     <Box className="w-screen bg-gray-50 flex flex-col">
-      <Navbar userType={userType} />
       <Container maxWidth="xl" className="flex-1 py-12 px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -186,7 +182,6 @@ export function AllGeneralPosts() {
           </Box>
         </motion.div>
       </Container>
-      <Footer userType={userType} />
 
       {/* Edit Post Dialog */}
       <Dialog

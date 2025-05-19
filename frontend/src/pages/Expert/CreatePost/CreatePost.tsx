@@ -13,10 +13,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Loader2 } from "lucide-react";
-import { Navbar } from "@/components/layout/navbar";
+import { Plus } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { Footer } from "@/components/layout/footer";
+
 import AddPostForm from "@/components/Forms/Expert/AddPostForm/AddPostForm";
 import AddRoutineForm from "@/components/Forms/Expert/AddRoutineForm/AddRoutineForm";
 
@@ -25,8 +24,6 @@ const CreatePost = () => {
 
   return (
     <div className="min-h-screen w-screen bg-gradient-to-br from-green-50 to-white">
-      <Navbar userType="expert" />
-
       <main className="w-full px-4 py-12 sm:px-6 lg:px-8">
         {/* Full width container with max content width */}
         <div className="w-[70%] mx-auto">
@@ -112,8 +109,6 @@ const CreatePost = () => {
           </div>
         </div>
       </main>
-
-      <Footer userType="expert" />
     </div>
   );
 };

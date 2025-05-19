@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Button,
   Typography,
@@ -22,7 +22,8 @@ import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog"
 import useRoutines from "@/hooks/useRoutine/useRoutine";
 
 export function AllRoutinePosts() {
-  const { getAllRoutinesPost } = useRoutines();
+  const navigate = useNavigate();
+  const { getAllRoutinesPost, filterSearch } = useRoutines();
 
   const [userId, setUserId] = useState("user-2");
   const [isLoading, setIsLoading] = useState(true);
@@ -37,21 +38,22 @@ export function AllRoutinePosts() {
 
   const [routinePosts, setRoutinePosts] = useState<RoutinePostType[]>([]);
 
-  useEffect(() => {
-    async function getRoutinePosts() {
-      try {
-        setIsLoading(true);
-        // In a real app, you would fetch from your API here
-        const response = await getAllRoutinesPost();
-        setRoutinePosts(response?.routines || routinePosts);
-        setUserId(response.userId);
-      } catch (error) {
-        console.error("Error fetching routines:", error);
-      } finally {
-        setIsLoading(false);
-      }
+  async function getAllRoutinePosts() {
+    try {
+      setIsLoading(true);
+      // In a real app, you would fetch from your API here
+      const response = await getAllRoutinesPost();
+      setRoutinePosts(response?.routines || routinePosts);
+      setUserId(response.userId);
+    } catch (error) {
+      console.error("Error fetching routines:", error);
+    } finally {
+      setIsLoading(false);
     }
-    getRoutinePosts();
+  }
+
+  useEffect(() => {
+    getAllRoutinePosts();
   }, []);
 
   const handleEdit = (post: RoutinePostType) => {
@@ -103,7 +105,7 @@ export function AllRoutinePosts() {
     try {
       setIsLoading(true);
       const response = await filterSearch(filters);
-      setGeneralPosts(response.posts);
+      setRoutinePosts(response.posts);
       setIsLoading(false);
     } catch (error: any) {
       console.error("Filter failed:", error.message);
@@ -134,7 +136,10 @@ export function AllRoutinePosts() {
               </Typography>
             </Box>
             <Box className="flex items-center gap-3">
-              <Filter />
+              <Filter
+                applyFilters={applyFilters}
+                getAllPosts={getAllRoutinePosts}
+              />
               <Button
                 component={Link}
                 to="/posts/create"

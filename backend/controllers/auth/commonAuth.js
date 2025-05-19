@@ -71,7 +71,40 @@ export const resetPassword = async (req, res) => {
   });
 };
 
+export const logout = (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      console.log(err);
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "successLogOut",
+      });
+    }
+  });
+};
+
+const checkAuth = (req, res) => {
+  const loggedIn = req.isAuthenticated();
+  const userRole = req.user?.role || null;
+
+  console.log("LoggedIn : ", loggedIn);
+
+  res.status(200).json({
+    success: true,
+    message: "Auth Status",
+    loggedIn,
+    userRole,
+  });
+};
+
 export default {
   setForgotPasswordToken,
   resetPassword,
+  logout,
+  checkAuth,
 };
