@@ -62,10 +62,28 @@ const useRoutines = () => {
     }
   };
 
+  const filterSearch = async (query: string) => {
+    try {
+      console.log("Query :", query);
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/routines/filter`,
+        {
+          params: {
+            filters: query,
+          },
+        }
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
   return {
     getRoutinesPostById,
     getAllRoutinesPost,
     submitRoutinePost,
+    filterSearch
   };
 };
 

@@ -36,6 +36,12 @@ router.get(
 );
 
 router.get(
+  "/filter",
+  isLoggedIn,
+  wrapAsync(successStoryControllers.filterSuccessStories)
+);
+
+router.get(
   "/:id",
   isLoggedIn,
   wrapAsync(successStoryControllers.getSingleSuccessStory)

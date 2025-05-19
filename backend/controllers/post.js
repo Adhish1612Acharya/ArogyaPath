@@ -118,14 +118,19 @@ const updatePost = async (req, res) => {
 };
 
 const filterPosts = async (req, res) => {
-  const { categories } = req.query;
-  if (!categories) {
-    return res.status(400).json({ message: "Provide categories" });
+  const { filters } = req.query;
+  if (!filters) {
+    throw new ExpressError(400, "Filters not provided");
   }
 
-  const categoryArray = categories.split(",").map((cat) => cat.trim());
-  const posts = await Post.find({ category: { $in: categoryArray } });
-  res.json({ message: "Filtered posts", posts });
+  const categoryArray = filters
+    .split(",")
+    .map((cat) => cat.toLowerCase().trim());
+
+  const posts = await Post.find({ filters: { $in: categoryArray } })
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
+  res.json({ success: true, message: "Filtered posts", posts });
 };
 
 const verifyPost = async (req, res) => {

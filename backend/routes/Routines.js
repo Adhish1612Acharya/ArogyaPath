@@ -30,6 +30,8 @@ router.post(
 
 router.get("/", isLoggedIn, wrapAsync(routineController.getAllRoutines));
 
+router.get("/filter", isLoggedIn, wrapAsync(routineController.filterRoutines));
+
 router.get("/:id", isLoggedIn, wrapAsync(routineController.getRoutineById));
 
 router.put(

@@ -64,10 +64,27 @@ const usePost = () => {
     }
   };
 
+  const filterSearch = async (query: string) => {
+    try {
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/posts/filter`,
+        {
+          params: {
+            filters: query,
+          },
+        }
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
   return {
     submitPost,
     getAllPosts,
     getPostById,
+    filterSearch,
   };
 };
 

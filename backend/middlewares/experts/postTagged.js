@@ -1,4 +1,5 @@
 import SuccessStory from "../../models/SuccessStory/SuccessStory.js";
+import ExpressError from "../../utils/expressError.js";
 
 export const checkIsTaggedAndVerified = async (req, res, next) => {
   const { id } = req.params;
