@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Leaf, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import RoleCard from "@/components/RoleCard/RoleCard";
@@ -7,14 +7,31 @@ import RoleCard from "@/components/RoleCard/RoleCard";
 type Role = "farmer" | "expert" | null;
 
 const RoleSelection = () => {
-  const [selectedRole, setSelectedRole] = useState<Role>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
+
+  const signUpRedirect = searchParams.get("signUpRedirect");
+
+  const [selectedRole, setSelectedRole] = useState<Role>(null);
 
   const handleContinue = () => {
     if (selectedRole === "farmer") {
-      navigate("/user/login");
+      if (redirectPath) {
+        navigate(`/user/login?redirect=${encodeURIComponent(redirectPath)}`);
+      } else if (signUpRedirect === "true") {
+        navigate("/user/register");
+      } else {
+        navigate("/user/login");
+      }
     } else if (selectedRole === "expert") {
-      navigate("/expert/login");
+      if (redirectPath) {
+        navigate(`/expert/login?redirect=${encodeURIComponent(redirectPath)}`);
+      } else if (signUpRedirect === "true") {
+        navigate("/expert/register");
+      } else {
+        navigate("/expert/login");
+      }
     }
   };
 

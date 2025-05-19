@@ -20,10 +20,6 @@ const PageNavBar: FC = () => {
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
   const [logOutLoad, setLogOutLoad] = useState<boolean>(false);
 
-  // if (isLoggedIn === undefined || role === undefined) {
-  //   return null; // or a loading skeleton/navbar
-  // }
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
@@ -31,6 +27,10 @@ const PageNavBar: FC = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (isLoggedIn === undefined) {
+    return null; // or a loading skeleton/navbar
+  }
 
   const common = [
     { href: "/", label: "Home" },
@@ -45,11 +45,12 @@ const PageNavBar: FC = () => {
     user: [
       ...common,
       { href: "/prakrithi/analysis", label: "Prakrithi Analysis" },
+      { href: "/user/success-stories/create", label: "Share Story" },
     ],
     noUser: [
       { href: "/", label: "Home" },
       { href: "/auth", label: "Login" },
-      { href: "/auth", label: "SignUp" },
+      { href: "/auth?signUpRedirect=true", label: "SignUp" },
     ],
   };
 

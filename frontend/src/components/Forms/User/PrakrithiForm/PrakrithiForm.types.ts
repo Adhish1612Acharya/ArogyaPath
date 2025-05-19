@@ -7,4 +7,5 @@ export interface PrakrithiAnalysisFormProps {
   generatePDF: (responseData: ApiResponse) => Promise<void>;
   TOTAL_SECTIONS: number;
   setAnalysisComplete: (value: boolean) => void;
+  setResponseData: (value: ApiResponse) => void;
 }

@@ -26,6 +26,7 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
   generatePDF,
   TOTAL_SECTIONS,
   setAnalysisComplete,
+  setResponseData,
 }) => {
   const { findPrakrithi } = usePrakrithi();
   const navigate = useNavigate();
@@ -125,6 +126,8 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
       };
 
       const response = await findPrakrithi(processedData);
+
+      setResponseData(response.data);
 
       setAnalysisComplete(true);
 

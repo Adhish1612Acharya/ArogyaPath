@@ -15,15 +15,14 @@ import { z } from "zod";
 import GoogleIcon from "@mui/icons-material/Google";
 import { FC } from "react";
 import loginSchema from "./ExpertLoginFormSchema";
-import useAuth from "@/hooks/expert/useAuth/useAuth";
-import { toast } from "react-toastify";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
 // import { Button } from "@/components/ui/button";
 
 const ExpertLoginForm: FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
   const { expertLogin } = useExpertAuth();
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -36,8 +35,12 @@ const ExpertLoginForm: FC = () => {
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     const response = await expertLogin(data.email, data.password);
     if (response.success) {
-      navigate("/gposts");
-    } 
+      if (redirectPath) {
+        navigate(redirectPath);
+      } else {
+        navigate("/gposts");
+      }
+    }
   };
 
   const googleLogin = async () => {
