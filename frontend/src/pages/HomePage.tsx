@@ -26,7 +26,7 @@ const HomePage = () => {
     };
 
     checkAuth();
-  }, [setIsLoggedIn]);
+  }, []);
   return (
     <div className="min-h-screen w-screen">
       <main>

@@ -190,6 +190,7 @@ export const getSingleSuccessStory = async (req, res) => {
     success: true,
     successStory: transformedSuccessStory,
     userId: req.user._id,
+    userRole: req.user.role,
   });
 };
 
@@ -249,7 +250,6 @@ export const verifySuccessStory = async (req, res) => {
       message: "Success story not found",
     });
   }
-
 
   // Update Expert - push to verifiedPosts, remove from taggedPosts
   const expertDetails = await Expert.findByIdAndUpdate(

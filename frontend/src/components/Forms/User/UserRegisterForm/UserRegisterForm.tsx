@@ -21,6 +21,7 @@ export const UserRegisterForm = () => {
   const { userSignUp } = useUserAuth();
   const navigate = useNavigate();
 
+
   const form = useForm<z.infer<typeof userRegisterSchema>>({
     resolver: zodResolver(userRegisterSchema),
     defaultValues: {
@@ -40,7 +41,7 @@ export const UserRegisterForm = () => {
     const response = await userSignUp(newData);
 
     if (response.success) {
-      navigate("/user/complete-profile");
+      navigate("/complete-profile/user");
     }
   };
 

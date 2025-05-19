@@ -24,29 +24,6 @@ import FORM_FIELDS from "@/constants/prakrithiFormFields";
 import PrakrithiForm from "@/components/Forms/User/PrakrithiForm/PrakrithiForm";
 import { ApiResponse } from "./PrakrithiAnalysis.types";
 
-// interface ApiResponse {
-//   Name: string;
-//   Age: string;
-//   Gender: string;
-//   Dominant_Prakrithi: string;
-//   Body_Constituents: Record<string, string>;
-//   Potential_Health_Concerns: string[];
-//   Recommendations: {
-//     Dietary_Guidelines: string[];
-//     Lifestyle_Suggestions: string[];
-//     Ayurvedic_Herbs_Remedies: string[] | Record<string, string[]>;
-//   };
-//   SimilarUsers?: {
-//     percentage: number;
-//     users: Array<{
-//       id: string;
-//       name: string;
-//       photoUrl: string;
-//       prakriti: string;
-//     }>;
-//   };
-// }
-
 // Particles background component
 const ParticlesBackground = () => {
   return (
@@ -85,7 +62,6 @@ export default function PrakritiForm() {
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState<boolean>(false);
-  const [responseData, setResponseData] = useState<ApiResponse | null>(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [similarUsersDialogOpen, setSimilarUsersDialogOpen] = useState(false);
@@ -95,6 +71,9 @@ export default function PrakritiForm() {
     threshold: 0.1,
     triggerOnce: true,
   });
+
+  const [responseData, setResponseData] = useState<ApiResponse | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string>("");
 
   const generatePDF = async (responseData: ApiResponse) => {
     setLoading(true);
@@ -227,22 +206,29 @@ export default function PrakritiForm() {
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${responseData.Name}_Prakriti_Analysis.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
-      setDownloadComplete(true);
-      setTimeout(() => setDownloadComplete(false), 3000);
+      console.log(url)
+      setPdfUrl(url);
     } catch (error) {
       console.error("Error generating PDF:", error);
     } finally {
       setLoading(false);
       setCurrentSection(1);
     }
+  };
+
+  const download = () => {
+    const a = document.createElement("a");
+    a.href = pdfUrl;
+    a.download = `${responseData?.Name}_Prakriti_Analysis.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(pdfUrl);
+    setPdfUrl("");
+
+    setDownloadComplete(true);
+    setTimeout(() => setDownloadComplete(false), 3000);
   };
 
   const sendEmail = async () => {
@@ -260,7 +246,6 @@ export default function PrakritiForm() {
       setLoading(false);
     }
   };
-
 
   const ResultsView = () => {
     // if (!responseData) return null;
@@ -289,7 +274,7 @@ export default function PrakritiForm() {
           >
             Your dominant Prakriti is:{" "}
             <span className="font-bold text-indigo-600 dark:text-indigo-300">
-              {responseData.Dominant_Prakrithi}
+              {responseData?.Dominant_Prakrithi}
             </span>
           </Typography>
 
@@ -298,7 +283,7 @@ export default function PrakritiForm() {
               variant="contained"
               color="primary"
               startIcon={<CloudDownload />}
-              onClick={() => generatePDF(responseData)}
+              onClick={download}
               className="h-16"
               fullWidth
             >
@@ -646,6 +631,7 @@ export default function PrakritiForm() {
                 TOTAL_SECTIONS={TOTAL_SECTIONS}
                 setLoading={setLoading}
                 setAnalysisComplete={setAnalysisComplete}
+                setResponseData={setResponseData}
               />
             </CardContent>
           </Card>
