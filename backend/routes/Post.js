@@ -30,6 +30,8 @@ router.post(
   wrapAsync(postController.createPost)
 );
 
+router.get("/filter", isLoggedIn, wrapAsync(postController.filterPosts));
+
 router.get("/:postId", isLoggedIn, wrapAsync(postController.getPostById));
 
 router.delete(
@@ -44,8 +46,6 @@ router.put(
   validatePost,
   wrapAsync(postController.updatePost)
 );
-
-router.get("/filter", isLoggedIn, wrapAsync(postController.filterPosts));
 
 router.post(
   "/verify/:id",

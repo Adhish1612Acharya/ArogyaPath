@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import {
@@ -23,7 +23,9 @@ import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostC
 import { GeneralPostType } from "@/types/GeneralPost.types";
 
 export function AllGeneralPosts() {
-  const { getAllPosts } = usePost();
+  const navigate = useNavigate();
+
+  const { getAllPosts, filterSearch } = usePost();
 
   const [userType] = useState<"expert" | "patient">("patient");
   const [userId, setUserId] = useState(""); // Simulated current user ID
@@ -39,15 +41,21 @@ export function AllGeneralPosts() {
   // Embedded post data
   const [generalPosts, setGeneralPosts] = useState<GeneralPostType[]>([]);
 
-  useEffect(() => {
-    const fetchPosts = async () => {
+  const fetchAllPosts = async () => {
+    try {
       setIsLoading(true);
       const response = await getAllPosts();
       setGeneralPosts(response.posts);
       setUserId(response.userId);
       setIsLoading(false);
-    };
-    fetchPosts();
+    } catch (error: any) {
+      console.error(error.message);
+      if (error.status === 401) navigate("/auth");
+    }
+  };
+
+  useEffect(() => {
+    fetchAllPosts();
   }, []);
 
   const handleEdit = (post: GeneralPostType) => {
@@ -95,6 +103,18 @@ export function AllGeneralPosts() {
     }
   };
 
+  const applyFilters = async (filters: string) => {
+    try {
+      setIsLoading(true);
+      const response = await filterSearch(filters);
+      setGeneralPosts(response.posts);
+      setIsLoading(false);
+    } catch (error: any) {
+      console.error("Filter failed:", error.message);
+      if (error.status === 401) navigate("/auth");
+    }
+  };
+
   return (
     <Box className="w-screen bg-gray-50 flex flex-col">
       <Navbar userType={userType} />
@@ -118,7 +138,7 @@ export function AllGeneralPosts() {
               </Typography>
             </Box>
             <Box className="flex items-center gap-3">
-              <Filter />
+              <Filter applyFilters={applyFilters} getAllPosts={fetchAllPosts} />
               <Button
                 component={Link}
                 to="/posts/create"

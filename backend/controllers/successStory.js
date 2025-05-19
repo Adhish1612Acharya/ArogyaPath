@@ -5,6 +5,7 @@ import calculateReadTime from "../utils/calculateReadTime.js";
 import transformSuccessStory from "../utils/transformSuccessStory.js";
 import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 import { sendEmail } from "../utils/sendEmail.js";
+import ExpressError from "../utils/expressError.js";
 
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
@@ -19,7 +20,7 @@ export const createSuccessStory = async (req, res) => {
   };
 
   //Cloudinary stores file URLs in `path`
-  mediaFiles.forEach((file) => {
+  mediaFiles?.forEach((file) => {
     // Determine file type from Cloudinary response
     if (file.resource_type === "image") {
       media.images.push(file.secure_url);
@@ -249,7 +250,6 @@ export const verifySuccessStory = async (req, res) => {
     });
   }
 
-  console.log("Success Story : ", successStory);
 
   // Update Expert - push to verifiedPosts, remove from taggedPosts
   const expertDetails = await Expert.findByIdAndUpdate(
@@ -272,6 +272,34 @@ export const verifySuccessStory = async (req, res) => {
   });
 };
 
+const filterSuccessStories = async (req, res) => {
+  const { filters } = req.query;
+  if (!filters) {
+    throw new ExpressError(400, "Filters not provided");
+  }
+
+  const categoryArray = filters
+    .split(",")
+    .map((cat) => cat.toLowerCase().trim());
+
+  console.log("Ctegory array : ", categoryArray);
+  const successStories = await SuccessStory.find({
+    filters: { $in: categoryArray },
+  })
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage")
+    .populate(
+      "tagged",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    )
+    .populate(
+      "verified",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    );
+
+  res.json({ success: true, message: "Filtered posts", successStories });
+};
+
 export default {
   createSuccessStory,
   getAllSuccessStories,
@@ -279,4 +307,5 @@ export default {
   updateSuccessStory,
   deleteSuccessStory,
   verifySuccessStory,
+  filterSuccessStories,
 };

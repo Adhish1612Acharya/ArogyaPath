@@ -110,13 +110,11 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
       setVerifyPostLoad(true);
       const response = await verifySuccessStory(post._id);
       if (response?.success) {
-        toast.success("Post verified by you");
-        addVerifiedExpert(post._id, response.expertDetails);
-        setVerifiedPost(true);
+        addVerifiedExpert(post._id, response.data.expertDetails);
+        setVerifiedPost(false);
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);
-      toast.error(error.message);
       if (error.status === 401) navigate("/auth");
       else if (error.status === 403) navigate("/");
     } finally {
@@ -266,13 +264,15 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
                     )}
                   </Box>
                 </Box>
-                <IconButton
-                  size="small"
-                  onClick={handleMenuOpen}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <MoreVert />
-                </IconButton>
+                {menuItems.length > 0 && (
+                  <IconButton
+                    size="small"
+                    onClick={handleMenuOpen}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <MoreVert />
+                  </IconButton>
+                )}
               </Box>
             </Box>
           </Box>
@@ -294,6 +294,18 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
               </MenuItem>
             ))}
           </Menu>
+
+          {/* Tags */}
+          <Box className="flex flex-wrap gap-2 mb-4 mt-4">
+            {post.tagged.map((tag, index) => (
+              <Chip
+                key={index}
+                label={`Dr.${tag.profile.fullName}`}
+                className="bg-green-50 text-green-700 hover:bg-green-100 transition-colors cursor-pointer"
+                size="small"
+              />
+            ))}
+          </Box>
 
           {/* Post content */}
           <Typography

@@ -162,9 +162,15 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
           }
           action={
             <>
-              <IconButton onClick={handleMenuOpen}>
-                <MoreVert />
-              </IconButton>
+              {menuItems.length > 0 && (
+                <IconButton
+                  size="small"
+                  onClick={handleMenuOpen}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <MoreVert />
+                </IconButton>
+              )}
               <Menu
                 anchorEl={menuAnchorEl}
                 open={openMenu}

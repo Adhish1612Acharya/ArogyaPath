@@ -84,11 +84,28 @@ const useSuccessStory = () => {
     }
   };
 
+  const filterSearch = async (query: string) => {
+    try {
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/success-stories/filter`,
+        {
+          params: {
+            filters: query,
+          },
+        }
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
   return {
     submitSuccessStory,
     verifySuccessStory,
     getAllSuccessStories,
     getSuccessStoryById,
+    filterSearch,
   };
 };
 

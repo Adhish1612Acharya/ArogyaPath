@@ -98,6 +98,19 @@ export function AllRoutinePosts() {
       );
     }
   };
+
+  const applyFilters = async (filters: string) => {
+    try {
+      setIsLoading(true);
+      const response = await filterSearch(filters);
+      setGeneralPosts(response.posts);
+      setIsLoading(false);
+    } catch (error: any) {
+      console.error("Filter failed:", error.message);
+      if (error.status === 401) navigate("/auth");
+    }
+  };
+
   return (
     <Box className="w-screen bg-gray-50 flex flex-col">
       {/* <Navbar userType={userType} /> */}

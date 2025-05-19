@@ -4,7 +4,6 @@ import calculateReadTime from "../utils/calculateReadTime.js";
 import ExpressError from "../utils/expressError.js";
 import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 
-
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
   const { title, description, routines } = req.body;
@@ -113,10 +112,28 @@ export const deleteRoutine = async (req, res) => {
   });
 };
 
+const filterRoutines = async (req, res) => {
+  const { filters } = req.query;
+  if (!filters) {
+    throw new ExpressError(400, "Filters not provided");
+  }
+
+  const categoryArray = filters
+    .split(",")
+    .map((cat) => cat.toLowerCase().trim());
+
+  const routines = await Routines.find({ filters: { $in: categoryArray } })
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
+
+  res.json({ success: true, message: "Filtered routines", routines });
+};
+
 export default {
   createRoutine,
   getAllRoutines,
   getRoutineById,
   updateRoutine,
   deleteRoutine,
+  filterRoutines,
 };

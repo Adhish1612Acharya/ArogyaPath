@@ -23,7 +23,8 @@ import { toast } from "react-toastify";
 import { UserOrExpertDetailsType } from "@/types";
 
 export function AllSuccessStoriesPosts() {
-  const { getAllSuccessStories } = useSuccessStory();
+
+  const { getAllSuccessStories, filterSearch } = useSuccessStory();
 
   const [userId, setUserId] = useState("user-2");
   const [isLoading, setIsLoading] = useState(false);
@@ -39,22 +40,23 @@ export function AllSuccessStoriesPosts() {
   // Dummy data for success stories
   const [successStories, setSuccessStories] = useState<SuccessStoryType[]>([]);
 
-  useEffect(() => {
-    async function getSuccessStoriesPosts() {
-      try {
-        setIsLoading(true);
-        // In a real app, you would fetch from your API here
-        const response = await getAllSuccessStories();
-        setSuccessStories(response?.successStories);
-        setUserId(response.userId);
-      } catch (error: any) {
-        console.error("Error fetching routines:", error);
-        toast.error(error.message);
-      } finally {
-        setIsLoading(false);
-      }
+  const getAllSuccessStoriesPosts = async () => {
+    try {
+      setIsLoading(true);
+      // In a real app, you would fetch from your API here
+      const response = await getAllSuccessStories();
+      setSuccessStories(response?.successStories);
+      setUserId(response.userId);
+    } catch (error: any) {
+      console.error("Error fetching routines:", error);
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
     }
-    getSuccessStoriesPosts();
+  };
+
+  useEffect(() => {
+    getAllSuccessStoriesPosts();
   }, []);
 
   const handleEdit = (post: SuccessStoryType) => {
@@ -106,16 +108,31 @@ export function AllSuccessStoriesPosts() {
     postId: string,
     expert: UserOrExpertDetailsType
   ) => {
+    console.log("Add Verified expert : ", expert);
     setSuccessStories((prev) =>
       prev.map((post) =>
         post._id === postId
           ? {
               ...post, // copy post
               verified: [...post.verified, expert], // copy verified
+              verifyAuthorization: false,
+              alreadyVerified: true,
             }
           : post
       )
     );
+  };
+
+  const applyFilters = async (filters: string) => {
+    try {
+      setIsLoading(true);
+      const response = await filterSearch(filters);
+      setSuccessStories(response.successStories);
+      setIsLoading(false);
+    } catch (error: any) {
+      console.error("Filter failed:", error.message);
+      if (error.status === 401) navigate("/auth");
+    }
   };
 
   return (
@@ -140,7 +157,7 @@ export function AllSuccessStoriesPosts() {
               </Typography>
             </Box>
             <Box className="flex items-center gap-3">
-              <Filter />
+              <Filter applyFilters={applyFilters} getAllPosts={} />
               <Button
                 component={Link}
                 to="/posts/create"

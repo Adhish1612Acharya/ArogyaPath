@@ -142,13 +142,15 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
               </div>
             </div>
 
-            <IconButton
-              size="small"
-              onClick={handleMenuOpen}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              <MoreVert />
-            </IconButton>
+            {menuItems.length > 0 && (
+              <IconButton
+                size="small"
+                onClick={handleMenuOpen}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <MoreVert />
+              </IconButton>
+            )}
           </div>
 
           <Menu
