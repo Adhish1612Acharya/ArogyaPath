@@ -19,14 +19,14 @@ import {
   Video,
   FileText,
   Trash2,
-  Clock
+  Clock,
 } from "lucide-react";
-import { Navbar } from "@/components/layout/navbar";
+import { Navbar } from "@/components/PageNavBar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import { Footer } from "@/components/layout/footer";
+import { Footer } from "@/components/PageFooter";
 import axios from "axios";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import filters from "@/constants";
@@ -425,11 +425,10 @@ export function CreatePostPage() {
   };
 
   return (
-
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-50 to-white">
-    <Navbar userType="expert" />
+      <Navbar userType="expert" />
 
-    <main className="flex-1 w-full container max-w-screen-lg px-4 sm:px-6 lg:px-8 py-12 mx-auto">
+      <main className="flex-1 w-full container max-w-screen-lg px-4 sm:px-6 lg:px-8 py-12 mx-auto">
         <Card className="max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="text-2xl text-center bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">

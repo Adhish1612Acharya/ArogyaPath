@@ -42,20 +42,6 @@ const useExpertAuth = () => {
     }
   };
 
-  const expertLogout = async () => {
-    try {
-      const response = await get(
-        `${import.meta.env.VITE_SERVER_URL}/api/auth/expert/logout`
-      );
-      if (response.success) {
-        toast.success("Logged out successfully");
-      }
-      return response;
-    } catch (error) {
-      handleAxiosError(error);
-    }
-  };
-
   const expertCompleteProfile = async (
     profileData: ExpertCompleteProfileData
   ) => {
@@ -77,7 +63,6 @@ const useExpertAuth = () => {
 
   return {
     expertLogin,
-    expertLogout,
     expertSignUp,
     expertCompleteProfile,
   };

@@ -1,3 +1,4 @@
+import { useAuth } from "@/context/AuthContext";
 import {
   Mail,
   Phone,
@@ -10,11 +11,8 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-interface FooterProps {
-  userType: "expert" | "patient";
-}
-
-export function Footer({ userType }: FooterProps) {
+const PageFooter = () => {
+  const { role } = useAuth();
   const footerLinks = {
     expert: [
       {
@@ -35,7 +33,7 @@ export function Footer({ userType }: FooterProps) {
         ],
       },
     ],
-    patient: [
+    user: [
       {
         title: "Health",
         links: [
@@ -54,6 +52,7 @@ export function Footer({ userType }: FooterProps) {
         ],
       },
     ],
+    noUser: [],
   };
 
   return (
@@ -77,7 +76,7 @@ export function Footer({ userType }: FooterProps) {
             </div>
 
             {/* Dynamic Links */}
-            {footerLinks[userType].map((section) => (
+            {footerLinks[role || "noUser"].map((section) => (
               <div key={section.title}>
                 <h3 className="text-lg font-semibold text-white mb-4">
                   {section.title}
@@ -144,4 +143,6 @@ export function Footer({ userType }: FooterProps) {
       </div>
     </footer>
   );
-}
+};
+
+export default PageFooter;

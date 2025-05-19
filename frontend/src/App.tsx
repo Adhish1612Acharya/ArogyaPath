@@ -7,7 +7,6 @@ import RegisterExpert from "./pages/auth/Expert/RegisterExpert";
 import LoginUser from "./pages/auth/User/LoginUser";
 import RegisterUser from "./pages/auth/User/RegisterUser";
 import RoleSelection from "./pages/RoleSelection/RoleSelection";
-import { PostsPage } from "./pages/posts";
 import PrakrutiForm from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 import HomePage from "./pages/HomePage";
@@ -30,17 +29,20 @@ import { AllGeneralPosts } from "./pages/posts/GeneralPosts";
 import { AllRoutinePosts } from "./pages/posts/RoutinesPosts";
 import { AllSuccessStoriesPosts } from "./pages/posts/SuccessStoryPosts";
 import { VerifiedByVaidya } from "./pages/Expert/VerifiedSuccessStory/VerifiedSuccessStories";
-import { Navbar } from "./components/layout/navbar";
+
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage/ForgotPasswordPage";
 import { ResetPasswordPage } from "./pages/ResetPasswordPage/ResetPasswordPage";
 import CopySnackbar from "./components/CopySnackBar/CopySnackBar";
 import DoctorProfile from "./pages/DoctorProfile/DoctorProfile";
 
+import PageFooter from "./components/PageFooter";
+import PageNavBar from "./components/PageNavBar";
+
 const App = () => {
-  // const { role, isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
   return (
     <>
-      {/* {<Navbar />} */}
+      <PageNavBar />
 
       <ToastContainer
         position="top-right"
@@ -121,10 +123,9 @@ const App = () => {
         </Routes>
       </div>
       <CopySnackbar />
-      {/* {nav && <Footer />} */}
+      {isLoggedIn !== undefined && <PageFooter />}
     </>
   );
 };
 
 export default App;
-            

@@ -42,19 +42,6 @@ const useUserAuth = () => {
     }
   };
 
-  const userLogout = async () => {
-    try {
-      const response = await get(
-        `${import.meta.env.VITE_SERVER_URL}/api/auth/user/logout`
-      );
-      if (response.success) {
-        toast.success("Logged out successfully");
-      }
-      return response;
-    } catch (error) {
-      handleAxiosError(error);
-    }
-  };
 
   const userCompleteProfile = async (profileData: UserCompleteProfileData) => {
     try {
@@ -75,7 +62,7 @@ const useUserAuth = () => {
 
   return {
     userLogin,
-    userLogout,
+
     userSignUp,
     userCompleteProfile,
   };

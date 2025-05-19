@@ -8,8 +8,6 @@ const router = express.Router();
 
 router.get("/failureLogin", emailPasswordUserAuthController.failureLogin);
 
-router.get("/logout", emailPasswordUserAuthController.logout);
-
 router.post(
   "/signUp",
   isAlreadyLoggedIn,
@@ -28,11 +26,6 @@ router.post(
 
 router.get("/check", isAlreadyLoggedIn, emailPasswordUserAuthController.login);
 
-// router.put(
-//   "/complete-profile",
-//   isAuthenticated,
-//   checkCompleteProfileForm,
-//   wrapAsync(authController.completeProfile)
-// );
+
 
 export default router;
