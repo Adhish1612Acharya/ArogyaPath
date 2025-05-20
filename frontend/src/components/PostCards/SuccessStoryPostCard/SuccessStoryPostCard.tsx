@@ -47,7 +47,6 @@ import CommentSection from "../CommentSection/CommentSection";
 import ShareMenu from "@/components/ShareMenu/ShareMenu";
 import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import { Loader2 } from "lucide-react";
 
 const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({

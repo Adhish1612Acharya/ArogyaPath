@@ -7,7 +7,7 @@ import {
 } from "./useUserAuth.types";
 
 const useUserAuth = () => {
-  const { post, get, patch } = useApi();
+  const { post,  patch } = useApi();
 
   const userLogin = async (email: string, password: string) => {
     try {

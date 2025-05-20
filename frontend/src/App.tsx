@@ -7,7 +7,6 @@ import RegisterExpert from "./pages/auth/Expert/RegisterExpert";
 import LoginUser from "./pages/auth/User/LoginUser";
 import RegisterUser from "./pages/auth/User/RegisterUser";
 import RoleSelection from "./pages/RoleSelection/RoleSelection";
-import PrakrutiForm from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 import HomePage from "./pages/HomePage";
 import CreateSuccessStory from "./pages/User/CreateSuccessStory/CreateSuccessStory";
@@ -37,6 +36,7 @@ import DoctorProfile from "./pages/DoctorProfile/DoctorProfile";
 
 import PageFooter from "./components/PageFooter";
 import PageNavBar from "./components/PageNavBar";
+import PrakrithiAnalysis from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -84,7 +84,7 @@ const App = () => {
               path="/complete-profile/user"
               element={<UserCompleteProfile />}
             />
-            <Route path="/prakrithi/analysis" element={<PrakrutiForm />} />
+            <Route path="/prakrithi/analysis" element={<PrakrithiAnalysis />} />
             <Route
               path="/user/success-stories/create"
               element={<CreateSuccessStory />}

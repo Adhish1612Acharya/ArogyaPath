@@ -14,8 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Button from "@mui/material/Button";
 import SaveIcon from "@mui/icons-material/Save";
-import useApi from "@/hooks/useApi/useApi";
-import { toast } from "react-toastify";
+// import useApi from "@/hooks/useApi/useApi";
+// import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
 
@@ -30,7 +30,7 @@ const vaidyaSchema = z.object({
 type VaidyaFormData = z.infer<typeof vaidyaSchema>;
 
 const ExpertCompleteProfile: React.FC = () => {
-  const { post } = useApi();
+  // const { post } = useApi();
   const { expertCompleteProfile } = useExpertAuth();
   const navigate = useNavigate();
 

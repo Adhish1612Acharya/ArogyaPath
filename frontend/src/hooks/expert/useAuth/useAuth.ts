@@ -15,14 +15,9 @@ const useAuth = () => {
     navigate("/expert/register");
   };
 
-  const googleSignUp = async (
-    role: string,
-    profileData: any,
-    address: string,
-    phoneNumber: string
-  ) => {
+  const googleSignUp = async (role: string) => {
     toast.info(`Sign up as ${role} is not implemented`);
-    navigate("/posts");
+    navigate("/gposts");
   };
 
   const signInWithEmailPassword = async (email: string, password: string) => {
@@ -58,7 +53,7 @@ const useAuth = () => {
     const reponse = await axios.post(
       "http://localhost:3000/api/auth/expert/signUp",
       data,
-      {withCredentials: true}
+      { withCredentials: true }
     );
     return reponse;
   };

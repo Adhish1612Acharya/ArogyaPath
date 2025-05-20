@@ -16,9 +16,9 @@ import { CommentSectionProps } from "./CommentSection.types";
 
 const CommentSection: FC<CommentSectionProps> = ({
   comments,
-  setComments,
+
   currentUserId,
-  postId,
+
   // onComment,
   // onReply,
   inputRef,
@@ -32,7 +32,7 @@ const CommentSection: FC<CommentSectionProps> = ({
   } | null>(null);
   const [expandedReplies, setExpandedReplies] = useState(new Set());
 
-  const onComment = (text: string) => {
+  const onComment = (_text: string) => {
     // Add comment api call
     // const response = {};//{success:true, message :"Comment Added" , data:{Comment},userId:id}
     // const newComment = response.data;
@@ -42,7 +42,7 @@ const CommentSection: FC<CommentSectionProps> = ({
     // });
   };
 
-  const onReply = (text: string, commentId: string) => {
+  const onReply = (_text: string, _commentId: string) => {
     // Add comment api call
     // const response = {};//{success:true, message :"Comment Added" , data:{Comment as Reply},userId:id}
     // const newReply = response.data;

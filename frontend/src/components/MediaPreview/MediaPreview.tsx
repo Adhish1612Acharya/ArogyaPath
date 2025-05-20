@@ -1,6 +1,6 @@
 import React from "react";
 import { Typography, Button } from "@mui/material";
-import { Collections, InsertDriveFile } from "@mui/icons-material";
+import {  InsertDriveFile } from "@mui/icons-material";
 import { MediaPreviewProps } from "./MediaPreview.types";
 
 const MediaPreview: React.FC<MediaPreviewProps> = ({

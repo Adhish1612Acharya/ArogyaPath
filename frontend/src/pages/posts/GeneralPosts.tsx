@@ -11,7 +11,7 @@ import {
   DialogActions,
   TextField,
 } from "@mui/material";
-import { Add, Share, Edit, Delete } from "@mui/icons-material";
+import { Add,  Edit, Delete } from "@mui/icons-material";
 import { Filter } from "@/components/Filter/Filter";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
 import { motion } from "framer-motion";
@@ -19,16 +19,18 @@ import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog"
 import usePost from "@/hooks/usePost/usePost";
 import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
 import { GeneralPostType } from "@/types/GeneralPost.types";
+import { useAuth } from "@/context/AuthContext";
 
 export function AllGeneralPosts() {
   const navigate = useNavigate();
+  const { role } = useAuth();
 
   const { getAllPosts, filterSearch } = usePost();
 
-  const [userId, setUserId] = useState(""); // Simulated current user ID
+  const [userId, setUserId] = useState(""); 
   const [isLoading, setIsLoading] = useState(true);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentPost, setCurrentPost] = useState<GeneralPostType | null>(null);
+  const [_currentPost, setCurrentPost] = useState<GeneralPostType | null>(null);
   const [openMediaDialog, setOpenMediaDialog] = useState(false);
   const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
     number | null
@@ -135,16 +137,18 @@ export function AllGeneralPosts() {
             </Box>
             <Box className="flex items-center gap-3">
               <Filter applyFilters={applyFilters} getAllPosts={fetchAllPosts} />
-              <Button
-                component={Link}
-                to="/posts/create"
-                variant="contained"
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md text-white"
-                startIcon={<Add />}
-              >
-                <span className="hidden sm:inline">Create Post</span>
-                <span className="sm:hidden">Create</span>
-              </Button>
+              {role === "expert" && (
+                <Button
+                  component={Link}
+                  to="/posts/create"
+                  variant="contained"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md text-white"
+                  startIcon={<Add />}
+                >
+                  <span className="hidden sm:inline">Create Post</span>
+                  <span className="sm:hidden">Create</span>
+                </Button>
+              )}
             </Box>
           </Box>
 

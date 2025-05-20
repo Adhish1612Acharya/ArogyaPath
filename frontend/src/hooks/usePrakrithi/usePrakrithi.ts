@@ -1,4 +1,3 @@
-import React from "react";
 import useApi from "../useApi/useApi";
 import { PrakrithiFormType } from "./usePrakrithi.types";
 import { handleAxiosError } from "@/utils/handleAxiosError";

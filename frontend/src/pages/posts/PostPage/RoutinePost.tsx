@@ -22,8 +22,8 @@ export function RoutinePost() {
   >(null);
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
 
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentPost, setCurrentPost] = useState<RoutinePostType | null>(null);
+  const [_openEditDialog, setOpenEditDialog] = useState(false);
+  const [_currentPost, setCurrentPost] = useState<RoutinePostType | null>(null);
   const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function RoutinePost() {
     setOpenEditDialog(true);
   };
 
-  const handleDelete = (postId: string) => {
+  const handleDelete = (_postId: string) => {
     // setSuccessStor((prevPosts) =>
     //   prevPosts.filter((post) => post._id !== postId)
     // );

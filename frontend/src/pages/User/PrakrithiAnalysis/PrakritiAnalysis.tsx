@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import {
   CircularProgress,
@@ -14,9 +14,9 @@ import {
   DialogContent,
   TextField,
   DialogActions,
-  Avatar,
+
 } from "@mui/material";
-import { Chat, Close, CloudDownload, Email, People } from "@mui/icons-material";
+import {  Close, CloudDownload, Email, People } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -58,7 +58,7 @@ const ParticlesBackground = () => {
 // Calculate total sections from form fields
 const TOTAL_SECTIONS = Math.max(...FORM_FIELDS.map((field) => field.section));
 
-export default function PrakritiForm() {
+export default function PrakrithiAnalysis() {
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState<boolean>(false);
@@ -73,7 +73,7 @@ export default function PrakritiForm() {
   });
 
   const [responseData, setResponseData] = useState<ApiResponse | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string>("");
+  const [pdf, setPdf] = useState<Blob | null>(null);
 
   const generatePDF = async (responseData: ApiResponse) => {
     setLoading(true);
@@ -147,9 +147,13 @@ export default function PrakritiForm() {
 
       // Potential Health Concerns
       drawSection("Potential Health Considerations");
-      responseData.Potential_Health_Concerns.forEach((concern: string) => {
-        drawText(`• ${concern}`);
-      });
+      if (responseData.Potential_Health_Concerns.length === 0) {
+        drawText(`{Subscribe to premium}`);
+      } else {
+        responseData.Potential_Health_Concerns.forEach((concern: string) => {
+          drawText(`• ${concern}`);
+        });
+      }
 
       y -= 15;
 
@@ -158,23 +162,36 @@ export default function PrakritiForm() {
 
       // Dietary Guidelines
       drawText("Dietary Guidelines:", true);
-      responseData.Recommendations.Dietary_Guidelines.forEach(
-        (item: string) => {
-          drawText(`  - ${item}`);
-        }
-      );
+      if (responseData.Recommendations.Dietary_Guidelines.length === 0) {
+        drawText(`{Subscribe to premium}`);
+      } else {
+        responseData.Recommendations.Dietary_Guidelines.forEach(
+          (item: string) => {
+            drawText(`  - ${item}`);
+          }
+        );
+      }
 
       // Lifestyle Suggestions
       drawText("Lifestyle Suggestions:", true);
-      responseData.Recommendations.Lifestyle_Suggestions.forEach(
-        (item: string) => {
-          drawText(`  - ${item}`);
-        }
-      );
+      if (responseData.Recommendations.Lifestyle_Suggestions.length === 0) {
+        drawText(`{Subscribe to premium}`);
+      } else {
+        responseData.Recommendations.Lifestyle_Suggestions.forEach(
+          (item: string) => {
+            drawText(`  - ${item}`);
+          }
+        );
+      }
 
       // Ayurvedic Herbs & Remedies
       drawText("Ayurvedic Herbs & Remedies:", true);
       if (
+        Array.isArray(responseData.Recommendations.Ayurvedic_Herbs_Remedies) &&
+        responseData.Recommendations.Ayurvedic_Herbs_Remedies.length === 0
+      ) {
+        drawText(`{Subscribe to premium}`);
+      } else if (
         Array.isArray(responseData.Recommendations.Ayurvedic_Herbs_Remedies)
       ) {
         responseData.Recommendations.Ayurvedic_Herbs_Remedies.forEach(
@@ -205,10 +222,7 @@ export default function PrakritiForm() {
       // Save and trigger download
       const pdfBytes = await pdfDoc.save();
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-
-      console.log(url)
-      setPdfUrl(url);
+      setPdf(blob);
     } catch (error) {
       console.error("Error generating PDF:", error);
     } finally {
@@ -218,14 +232,15 @@ export default function PrakritiForm() {
   };
 
   const download = () => {
+    if (!pdf) return;
+    const url = URL.createObjectURL(pdf);
     const a = document.createElement("a");
-    a.href = pdfUrl;
+    a.href = url;
     a.download = `${responseData?.Name}_Prakriti_Analysis.pdf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(pdfUrl);
-    setPdfUrl("");
+    URL.revokeObjectURL(url);
 
     setDownloadComplete(true);
     setTimeout(() => setDownloadComplete(false), 3000);
@@ -440,16 +455,16 @@ export default function PrakritiForm() {
             </IconButton>
           </DialogTitle>
           <DialogContent>
-            {responseData?.SimilarUsers && (
-              <>
+            {/* {responseData?.SimilarUsers && ( */}
+              {/* <>
                 <Typography variant="body1" className="mb-4 text-center">
                   <span className="font-bold text-teal-600">
                     {responseData.SimilarUsers.percentage}%
                   </span>{" "}
                   of people share similar Prakriti with you
-                </Typography>
+                </Typography> */}
 
-                <div className="space-y-4">
+                {/* <div className="space-y-4">
                   {responseData.SimilarUsers.users.map((user) => (
                     <div
                       key={user.id}
@@ -476,9 +491,9 @@ export default function PrakritiForm() {
                       </Button>
                     </div>
                   ))}
-                </div>
-              </>
-            )}
+                </div> */}
+              {/* </> */}
+            {/* )} */}
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setSimilarUsersDialogOpen(false)}>

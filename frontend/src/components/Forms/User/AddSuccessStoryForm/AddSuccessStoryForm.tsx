@@ -39,7 +39,6 @@ import Avatar from "@mui/material/Avatar";
 import formSchema from "./AddSuccessStoryFormSchema";
 import { Doctor } from "./AddSuccessStoryFormSchema.types";
 import useApi from "@/hooks/useApi/useApi";
-import usePost from "@/hooks/usePost/usePost";
 import { useNavigate } from "react-router-dom";
 import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 

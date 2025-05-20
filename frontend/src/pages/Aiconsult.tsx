@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Navbar } from "@/components/PageNavBar";
-import { Footer } from "@/components/PageFooter";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Bot, Send, Loader2 } from "lucide-react";
@@ -45,7 +43,7 @@ export function AIConsultPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <Navbar userType="patient" />
+  
 
       <main className="container mx-auto px-4 py-24">
         <Card className="max-w-4xl mx-auto">
@@ -113,7 +111,6 @@ export function AIConsultPage() {
         </Card>
       </main>
 
-      <Footer userType="patient" />
     </div>
   );
 }

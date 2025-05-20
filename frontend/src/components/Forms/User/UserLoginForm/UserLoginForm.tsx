@@ -44,7 +44,7 @@ const UserLoginForm = () => {
   };
 
   const googleLogin = async () => {
-    window.open("http://localhost:3000/api/auth/google/user", "_self");
+    window.open(`${import.meta.env.VITE_SERVER_URL}/api/auth/google/user`, "_self");
   };
 
   return (
