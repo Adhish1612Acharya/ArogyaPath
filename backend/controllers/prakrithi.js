@@ -7,7 +7,7 @@ const findPrakrithi = async (req, res) => {
   const inputData = req.body;
 
   const { data: result } = await axios.post(process.env.PRAKRITHI_MODEL, {
-    ApiKey: req.user?.premiumUser
+    ApiKey: !req.user?.premiumUser
       ? process.env.PRAKRITHI_PREMIUM_API_KEY
       : process.env.PRAKRITHI_FREE_API_KEY,
     ...inputData,
