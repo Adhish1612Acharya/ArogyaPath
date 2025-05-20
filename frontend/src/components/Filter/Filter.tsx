@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +12,12 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
-  CircularProgress,
 } from "@mui/material";
 import { Button } from "@/components/ui/button";
 // import useApi from "@/hooks/useApi/useApi";
-import axios from "axios";
-import { debounce } from "lodash";
+
 import { ayurvedicMedicines } from "@/constants/ayurvedicMedicines";
+import { diseasesList } from "@/constants/diseasesList";
 
 interface FilterProps {
   applyFilters: (filters: string) => Promise<void>;
@@ -36,7 +35,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
   const [medicines, setMedicines] = useState<string[]>([]);
   const [diseases, setDiseases] = useState<string[]>([]);
 
-  const [inputValue, setInputValue] = useState<string>("");
+  // const [inputValue, setInputValue] = useState<string>("");
 
   const [selectedCategories, setSelectedCategories] = useState<
     Record<string, boolean>
@@ -50,7 +49,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
     seasonal: false,
   });
 
-  const [loadingDiseases, setLoadingDiseases] = useState<boolean>(false);
+  const [_loadingDiseases, setLoadingDiseases] = useState<boolean>(false);
 
   // const diseases = [
   //   "Diabetes",
@@ -84,33 +83,43 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
   //   }
   // };
 
+  // // Debounced API call
+  // const getAllDiseasesList = debounce(async (query: string) => {
+  //   try {
+  //     if (!query.trim()) {
+  //       setDiseases([]);
+  //       return;
+  //     }
+  //     setLoadingDiseases(true);
+
+  //     // const response = await axios.get(
+  //     //   `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
+  //     // );
+  //     setDiseases(diseasesList);
+  //   } catch (err) {
+  //     console.error("Error fetching diseases:", err);
+  //     setDiseases([]);
+  //   } finally {
+  //     setLoadingDiseases(false);
+  //   }
+  // }, 300); // 300ms debounce delay
+
   // Debounced API call
-  const getAllDiseasesList = debounce(async (query: string) => {
-    try {
-      if (!query.trim()) {
-        setDiseases([]);
-        return;
-      }
-      setLoadingDiseases(true);
+  const getAllDiseasesList = () => {
+    setLoadingDiseases(true);
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
-      );
-      setDiseases(response.data[3] || []);
-    } catch (err) {
-      console.error("Error fetching diseases:", err);
-      setDiseases([]);
-    } finally {
-      setLoadingDiseases(false);
-    }
-  }, 300); // 300ms debounce delay
+    // const response = await axios.get(
+    //   `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
+    // );
+    setDiseases(diseasesList);
+  };
 
-  // Trigger API call when input changes
-  useEffect(() => {
-    getAllDiseasesList(inputValue);
-    // Cleanup debounce on unmount
-    return () => getAllDiseasesList.cancel();
-  }, [inputValue]);
+  // // Trigger API call when input changes
+  // useEffect(() => {
+  //   getAllDiseasesList(inputValue);
+  //   // Cleanup debounce on unmount
+  //   return () => getAllDiseasesList.cancel();
+  // }, [inputValue]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -170,7 +179,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
       // if (response) {
       //   setMedicines(response.data);
       // } else {
-        setMedicines(ayurvedicMedicines);
+      setMedicines(ayurvedicMedicines);
       // }
     } catch (err: any) {
       console.log(err);
@@ -264,16 +273,16 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
               </p>
               <Autocomplete
                 multiple
-                loading={loadingDiseases}
+                // loading={loadingDiseases}
                 options={diseases}
                 value={selectedDiseases}
                 onChange={(_event, newValue) => {
                   setSelectedDiseases(newValue);
                 }}
-                inputValue={inputValue}
-                onInputChange={(_event, newInputValue) => {
-                  setInputValue(newInputValue);
-                }}
+                // inputValue={inputValue}
+                // onInputChange={(_event, newInputValue) => {
+                //   setInputValue(newInputValue);
+                // }}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip
@@ -295,17 +304,18 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
                     variant="outlined"
                     label="Select Diseases"
                     placeholder="Search diseases..."
-                    InputProps={{
-                      ...params.InputProps,
-                      endAdornment: (
-                        <>
-                          {loadingDiseases ? (
-                            <CircularProgress color="inherit" size={20} />
-                          ) : null}
-                          {params.InputProps.endAdornment}
-                        </>
-                      ),
-                    }}
+                    onFocus={getAllDiseasesList}
+                    // InputProps={{
+                    //   ...params.InputProps,
+                    //   endAdornment: (
+                    //     <>
+                    //       {loadingDiseases ? (
+                    //         <CircularProgress color="inherit" size={20} />
+                    //       ) : null}
+                    //       {params.InputProps.endAdornment}
+                    //     </>
+                    //   ),
+                    // }}
                   />
                 )}
               />

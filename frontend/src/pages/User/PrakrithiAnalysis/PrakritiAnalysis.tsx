@@ -12,17 +12,16 @@ import {
   DialogTitle,
   IconButton,
   DialogContent,
-  TextField,
   DialogActions,
-
 } from "@mui/material";
-import {  Close, CloudDownload, Email, People } from "@mui/icons-material";
+import { Close, CloudDownload, Email, People } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
 import FORM_FIELDS from "@/constants/prakrithiFormFields";
 import PrakrithiForm from "@/components/Forms/User/PrakrithiForm/PrakrithiForm";
 import { ApiResponse } from "./PrakrithiAnalysis.types";
+import usePrakrithi from "@/hooks/usePrakrithi/usePrakrithi";
 
 // Particles background component
 const ParticlesBackground = () => {
@@ -59,11 +58,13 @@ const ParticlesBackground = () => {
 const TOTAL_SECTIONS = Math.max(...FORM_FIELDS.map((field) => field.section));
 
 export default function PrakrithiAnalysis() {
+  const { emailPkPdf } = usePrakrithi();
+
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState<boolean>(false);
   const [analysisComplete, setAnalysisComplete] = useState<boolean>(false);
-  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [email, setEmail] = useState("");
+
   const [similarUsersDialogOpen, setSimilarUsersDialogOpen] = useState(false);
   const [downloadComplete, setDownloadComplete] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -78,7 +79,6 @@ export default function PrakrithiAnalysis() {
   const generatePDF = async (responseData: ApiResponse) => {
     setLoading(true);
     try {
-      console.log("Reposne : ",responseData);
       // Add slight delay for better UX
       await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -248,18 +248,16 @@ export default function PrakrithiAnalysis() {
   };
 
   const sendEmail = async () => {
-    if (!responseData || !email) return;
+    if (!responseData) return;
 
-    setLoading(true);
+    setEmailLoading(true);
     try {
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      console.log(`Report sent to ${email}`);
-      setEmailDialogOpen(false);
+      await emailPkPdf(pdf);
     } catch (error) {
       console.error("Error sending email:", error);
     } finally {
-      setLoading(false);
+      setEmailLoading(false);
     }
   };
 
@@ -310,11 +308,11 @@ export default function PrakrithiAnalysis() {
               variant="contained"
               color="secondary"
               startIcon={<Email />}
-              onClick={() => setEmailDialogOpen(true)}
+              onClick={sendEmail}
               className="h-16"
               fullWidth
             >
-              Send to Email
+              {emailLoading ? <CircularProgress /> : "Send to Email"}
             </Button>
 
             <Button
@@ -383,12 +381,6 @@ export default function PrakrithiAnalysis() {
             <div className="inline-block animate-pulse">
               <CloudDownload className="text-teal-500 text-4xl" />
             </div>
-            <Typography
-              variant="caption"
-              className="block mt-2 text-gray-500 dark:text-gray-400"
-            >
-              Your report will download automatically
-            </Typography>
           </motion.div>
         </motion.div>
       </motion.div>
@@ -406,42 +398,6 @@ export default function PrakrithiAnalysis() {
         <ParticlesBackground />
         <ResultsView />
 
-        {/* Email Dialog */}
-        <Dialog
-          open={emailDialogOpen}
-          onClose={() => setEmailDialogOpen(false)}
-        >
-          <DialogTitle className="flex justify-between items-center">
-            <span>Send Report to Email</span>
-            <IconButton onClick={() => setEmailDialogOpen(false)}>
-              <Close />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent>
-            <TextField
-              autoFocus
-              margin="dense"
-              label="Email Address"
-              type="email"
-              fullWidth
-              variant="outlined"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setEmailDialogOpen(false)}>Cancel</Button>
-            <Button
-              onClick={sendEmail}
-              color="primary"
-              variant="contained"
-              disabled={loading || !email}
-            >
-              {loading ? <CircularProgress size={24} /> : "Send"}
-            </Button>
-          </DialogActions>
-        </Dialog>
-
         {/* Similar Users Dialog */}
         <Dialog
           open={similarUsersDialogOpen}
@@ -457,7 +413,7 @@ export default function PrakrithiAnalysis() {
           </DialogTitle>
           <DialogContent>
             {/* {responseData?.SimilarUsers && ( */}
-              {/* <>
+            {/* <>
                 <Typography variant="body1" className="mb-4 text-center">
                   <span className="font-bold text-teal-600">
                     {responseData.SimilarUsers.percentage}%
@@ -465,7 +421,7 @@ export default function PrakrithiAnalysis() {
                   of people share similar Prakriti with you
                 </Typography> */}
 
-                {/* <div className="space-y-4">
+            {/* <div className="space-y-4">
                   {responseData.SimilarUsers.users.map((user) => (
                     <div
                       key={user.id}
@@ -493,7 +449,7 @@ export default function PrakrithiAnalysis() {
                     </div>
                   ))}
                 </div> */}
-              {/* </> */}
+            {/* </> */}
             {/* )} */}
           </DialogContent>
           <DialogActions>

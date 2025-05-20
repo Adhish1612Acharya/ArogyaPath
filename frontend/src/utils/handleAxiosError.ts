@@ -9,7 +9,7 @@ export const handleAxiosError = (error: any) => {
 
     switch (status) {
       case 401:
-        toast.error("You are not authenticated. Please log in.");
+        toast.error("Either email or passowrd is incorrect");
         break;
       case 403:
         toast.error("You are not authorized to perform this action.");

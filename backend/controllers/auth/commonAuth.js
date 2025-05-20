@@ -32,7 +32,7 @@ export const setForgotPasswordToken = async (req, res) => {
         <p>If you did not request this, you can ignore this email.</p>
       `;
 
-  await sendEmail(user.email, emailSubject, emailContent);
+  await sendEmail(user.email, emailSubject, emailContent, null);
 
   res.json({ success: true, message: "Reset link sent to email" });
 };
