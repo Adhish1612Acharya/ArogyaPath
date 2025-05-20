@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -12,8 +12,12 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
+  CircularProgress,
 } from "@mui/material";
 import { Button } from "@/components/ui/button";
+import useApi from "@/hooks/useApi/useApi";
+import axios from "axios";
+import { debounce } from "lodash";
 
 interface FilterProps {
   applyFilters: (filters: string) => Promise<void>;
@@ -21,11 +25,17 @@ interface FilterProps {
 }
 
 export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
+  const { get } = useApi();
+
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
   const [selectedMedicines, setSelectedMedicines] = useState<string[]>([]);
   const [activeFilter, setActiveFilter] = useState("Therapies");
+  const [medicines, setMedicines] = useState<string[]>([]);
+  const [diseases, setDiseases] = useState<string[]>([]);
+
+  const [inputValue, setInputValue] = useState<string>("");
 
   const [selectedCategories, setSelectedCategories] = useState<
     Record<string, boolean>
@@ -39,27 +49,18 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
     seasonal: false,
   });
 
-  const diseases = [
-    "Diabetes",
-    "Hypertension",
-    "Arthritis",
-    "Asthma",
-    "Migraine",
-    "Digestive Disorders",
-    "Skin Diseases",
-    "Respiratory Issues",
-  ];
+  const [loadingDiseases, setLoadingDiseases] = useState<boolean>(false);
 
-  const medicines = [
-    "Ashwagandha",
-    "Turmeric",
-    "Giloy",
-    "Neem",
-    "Tulsi",
-    "Amla",
-    "Shilajit",
-    "Brahmi",
-  ];
+  // const diseases = [
+  //   "Diabetes",
+  //   "Hypertension",
+  //   "Arthritis",
+  //   "Asthma",
+  //   "Migraine",
+  //   "Digestive Disorders",
+  //   "Skin Diseases",
+  //   "Respiratory Issues",
+  // ];
 
   const categories = [
     { id: "herbs", label: "Herbs & Remedies" },
@@ -70,6 +71,45 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
     { id: "detox", label: "Detox & Cleansing" },
     { id: "seasonal", label: "Seasonal Care" },
   ];
+
+  // const getAllDiseasesList = async (query: string) => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
+  //     );
+  //     setDiseases(response.data[3]);
+  //   } catch (err: any) {
+  //     console.log(err);
+  //   }
+  // };
+
+  // Debounced API call
+  const getAllDiseasesList = debounce(async (query: string) => {
+    try {
+      if (!query.trim()) {
+        setDiseases([]);
+        return;
+      }
+      setLoadingDiseases(true);
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
+      );
+      setDiseases(response.data[3] || []);
+    } catch (err) {
+      console.error("Error fetching diseases:", err);
+      setDiseases([]);
+    } finally {
+      setLoadingDiseases(false);
+    }
+  }, 300); // 300ms debounce delay
+
+  // Trigger API call when input changes
+  useEffect(() => {
+    getAllDiseasesList(inputValue);
+    // Cleanup debounce on unmount
+    return () => getAllDiseasesList.cancel();
+  }, [inputValue]);
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -113,6 +153,33 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
       setOpen(false);
 
       await getAllPosts();
+    } catch (err: any) {
+      console.log(err);
+    }
+  };
+
+  const getAyurvedicMedicinesList = async () => {
+    try {
+      if (medicines.length > 0) return null;
+      console.log("Medicines");
+      const data = await get(import.meta.env.VITE_AYURVEDIC_MEDICINE);
+      // const data=await axios.get(
+      //   "https://ayurvedic-medcine-list.onrender.com/api/medicines"
+      // );
+      if (data) {
+        setMedicines(data);
+      } else {
+        setMedicines([
+          "Ashwagandha",
+          "Turmeric",
+          "Giloy",
+          "Neem",
+          "Tulsi",
+          "Amla",
+          "Shilajit",
+          "Brahmi",
+        ]);
+      }
     } catch (err: any) {
       console.log(err);
     }
@@ -174,12 +241,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
                         control={
                           <Checkbox
                             checked={selectedCategories[category.id]}
-                            onChange={() =>
-                              setSelectedCategories((prev) => ({
-                                ...prev,
-                                [category.id]: !prev[category.id],
-                              }))
-                            }
+                            onChange={() => handleCategoryChange(category.id)}
                             color="primary"
                             sx={{
                               color: "#059669",
@@ -210,10 +272,15 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
               </p>
               <Autocomplete
                 multiple
+                loading={loadingDiseases}
                 options={diseases}
                 value={selectedDiseases}
                 onChange={(event, newValue) => {
                   setSelectedDiseases(newValue);
+                }}
+                inputValue={inputValue}
+                onInputChange={(event, newInputValue) => {
+                  setInputValue(newInputValue);
                 }}
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
@@ -236,6 +303,17 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
                     variant="outlined"
                     label="Select Diseases"
                     placeholder="Search diseases..."
+                    InputProps={{
+                      ...params.InputProps,
+                      endAdornment: (
+                        <>
+                          {loadingDiseases ? (
+                            <CircularProgress color="inherit" size={20} />
+                          ) : null}
+                          {params.InputProps.endAdornment}
+                        </>
+                      ),
+                    }}
                   />
                 )}
               />
@@ -275,6 +353,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
                     variant="outlined"
                     label="Select Medicines"
                     placeholder="Search medicines..."
+                    onFocus={getAyurvedicMedicinesList}
                   />
                 )}
               />

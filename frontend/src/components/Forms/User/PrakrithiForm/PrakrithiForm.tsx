@@ -128,7 +128,7 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
 
       setAnalysisComplete(true);
 
-      // await generatePDF(response.data);
+      await generatePDF(response.data);
     } catch (error: any) {
       handleAxiosError(error);
       if (error.status === 401) navigate("/auth");
