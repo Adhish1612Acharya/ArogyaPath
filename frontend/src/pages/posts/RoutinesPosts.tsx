@@ -20,15 +20,17 @@ import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostC
 import { RoutinePostType } from "@/types/RoutinesPost.types";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
 import useRoutines from "@/hooks/useRoutine/useRoutine";
+import { useAuth } from "@/context/AuthContext";
 
 export function AllRoutinePosts() {
+  const { role } = useAuth();
   const navigate = useNavigate();
   const { getAllRoutinesPost, filterSearch } = useRoutines();
 
   const [userId, setUserId] = useState("user-2");
   const [isLoading, setIsLoading] = useState(true);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentPost, setCurrentPost] = useState<RoutinePostType | null>(null);
+  const [_currentPost, setCurrentPost] = useState<RoutinePostType | null>(null);
 
   const [openMediaDialog, setOpenMediaDialog] = useState(false);
   const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
@@ -140,16 +142,18 @@ export function AllRoutinePosts() {
                 applyFilters={applyFilters}
                 getAllPosts={getAllRoutinePosts}
               />
-              <Button
-                component={Link}
-                to="/posts/create"
-                variant="contained"
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md text-white"
-                startIcon={<Add />}
-              >
-                <span className="hidden sm:inline">Create Routine</span>
-                <span className="sm:hidden">Create</span>
-              </Button>
+              {role === "expert" && (
+                <Button
+                  component={Link}
+                  to="/expert/posts/create"
+                  variant="contained"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md text-white"
+                  startIcon={<Add />}
+                >
+                  <span className="hidden sm:inline">Create Routine</span>
+                  <span className="sm:hidden">Create</span>
+                </Button>
+              )}
             </Box>
           </Box>
 

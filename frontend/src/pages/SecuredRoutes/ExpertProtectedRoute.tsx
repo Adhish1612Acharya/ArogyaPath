@@ -1,6 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import useApi from "@/hooks/useApi/useApi";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
 
 const ExpertProtectedRoute = () => {

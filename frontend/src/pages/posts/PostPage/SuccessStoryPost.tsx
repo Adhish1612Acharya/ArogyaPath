@@ -7,7 +7,6 @@ import { SuccessStoryCardSkeleton } from "@/components/PostCards/PostCardSkeleto
 import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 import SuccessStoryPostCard from "@/components/PostCards/SuccessStoryPostCard/SuccessStoryPostCard";
 import { SuccessStoryType } from "@/types/SuccessStory.types";
-import useApi from "@/hooks/useApi/useApi";
 import { useAuth } from "@/context/AuthContext";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
 import { Delete, Edit } from "@mui/icons-material";
@@ -16,7 +15,6 @@ import { UserOrExpertDetailsType } from "@/types";
 export function SuccessStoryPost() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { get } = useApi();
   const { getSuccessStoryById } = useSuccessStory();
   const { setIsLoggedIn, setRole } = useAuth();
   const { id } = useParams<{ id: string }>();
@@ -28,8 +26,8 @@ export function SuccessStoryPost() {
   >(null);
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
 
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
+  const [_openEditDialog, setOpenEditDialog] = useState(false);
+  const [_currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
 
   const [userId, setUserId] = useState<string>("");
 
@@ -59,7 +57,7 @@ export function SuccessStoryPost() {
     setOpenEditDialog(true);
   };
 
-  const handleDelete = (postId: string) => {
+  const handleDelete = (_postId: string) => {
     // setSuccessStor((prevPosts) =>
     //   prevPosts.filter((post) => post._id !== postId)
     // );
@@ -100,7 +98,7 @@ export function SuccessStoryPost() {
   };
 
   const addVerifiedExpert = (
-    postId: string,
+    _postId: string,
     expert: UserOrExpertDetailsType
   ) => {
     console.log("Add Verified expert : ", expert);

@@ -7,7 +7,7 @@ import {
 } from "./useExpertAuth.types";
 
 const useExpertAuth = () => {
-  const { post, get, patch } = useApi();
+  const { post,  patch } = useApi();
 
   const expertLogin = async (email: string, password: string) => {
     try {

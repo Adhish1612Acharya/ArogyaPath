@@ -4,13 +4,13 @@ import { useNavigate } from "react-router-dom";
 const useAuth = () => {
   const navigate = useNavigate();
 
-  const phonePaswordLogin = async (phone: string, password: string) => {
+  const phonePaswordLogin = async (_phone: string, _password: string) => {
     // Mock functionality for UI-only implementation
     toast.info("Phone Password Login is not implemented yet.");
     navigate("/posts"); // Navigate to posts after login for UI flow
   };
 
-  const userSignUp = async (data: {
+  const userSignUp = async (_data: {
     name: string;
     phoneNumber: string;
     password: string;

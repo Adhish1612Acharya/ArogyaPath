@@ -3,6 +3,7 @@ if (process.env.NODE_ENV !== "production") {
   dotEnvConfig();
 }
 
+import path from "path";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -63,11 +64,13 @@ main()
   });
 
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/ayurpath");
+  await mongoose.connect(
+    process.env.DB_URL || "mongodb://127.0.0.1:27017/ayurpath"
+  );
 }
 
 const store = MongoStore.create({
-  mongoUrl: "mongodb://127.0.0.1:27017/ayurpath",
+  mongoUrl: process.env.DB_URL || "mongodb://127.0.0.1:27017/ayurpath",
   crypto: {
     secret: process.env.SECRET || "My secret code",
   },
@@ -87,7 +90,7 @@ const sessionOptions = {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     maxAge: 7 * 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // ✅ False for local dev
+    secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
 };
@@ -203,6 +206,20 @@ app.use("/api/auth/google/user", userGoogleAuth);
 //     res.json("Success");
 //   });
 // }
+
+const __dirname1 = path.resolve();
+
+if (process.env.NODE_ENV === "local") {
+  app.use(express.static(path.join(__dirname1, "/frontend/dist")));
+
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname1, "frontend", "dist", "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.json("Success");
+  });
+}
 
 // -------------------Deployment------------------//
 

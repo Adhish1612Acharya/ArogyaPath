@@ -15,9 +15,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { Button } from "@/components/ui/button";
-import useApi from "@/hooks/useApi/useApi";
+// import useApi from "@/hooks/useApi/useApi";
 import axios from "axios";
 import { debounce } from "lodash";
+import { ayurvedicMedicines } from "@/constants/ayurvedicMedicines";
 
 interface FilterProps {
   applyFilters: (filters: string) => Promise<void>;
@@ -25,13 +26,13 @@ interface FilterProps {
 }
 
 export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
-  const { get } = useApi();
+  // const { get } = useApi();
 
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
   const [selectedMedicines, setSelectedMedicines] = useState<string[]>([]);
-  const [activeFilter, setActiveFilter] = useState("Therapies");
+  const [activeFilter, _setActiveFilter] = useState("Therapies");
   const [medicines, setMedicines] = useState<string[]>([]);
   const [diseases, setDiseases] = useState<string[]>([]);
 
@@ -111,7 +112,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
     return () => getAllDiseasesList.cancel();
   }, [inputValue]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
@@ -161,25 +162,16 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
   const getAyurvedicMedicinesList = async () => {
     try {
       if (medicines.length > 0) return null;
-      console.log("Medicines");
-      const data = await get(import.meta.env.VITE_AYURVEDIC_MEDICINE);
-      // const data=await axios.get(
+      // console.log("Medicines");
+      // const data = await get(import.meta.env.VITE_AYURVEDIC_MEDICINE);
+      // const response = await axios.get(
       //   "https://ayurvedic-medcine-list.onrender.com/api/medicines"
       // );
-      if (data) {
-        setMedicines(data);
-      } else {
-        setMedicines([
-          "Ashwagandha",
-          "Turmeric",
-          "Giloy",
-          "Neem",
-          "Tulsi",
-          "Amla",
-          "Shilajit",
-          "Brahmi",
-        ]);
-      }
+      // if (response) {
+      //   setMedicines(response.data);
+      // } else {
+        setMedicines(ayurvedicMedicines);
+      // }
     } catch (err: any) {
       console.log(err);
     }
@@ -275,11 +267,11 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
                 loading={loadingDiseases}
                 options={diseases}
                 value={selectedDiseases}
-                onChange={(event, newValue) => {
+                onChange={(_event, newValue) => {
                   setSelectedDiseases(newValue);
                 }}
                 inputValue={inputValue}
-                onInputChange={(event, newInputValue) => {
+                onInputChange={(_event, newInputValue) => {
                   setInputValue(newInputValue);
                 }}
                 renderTags={(value, getTagProps) =>
@@ -329,7 +321,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
                 multiple
                 options={medicines}
                 value={selectedMedicines}
-                onChange={(event, newValue) => {
+                onChange={(_event, newValue) => {
                   setSelectedMedicines(newValue);
                 }}
                 renderTags={(value, getTagProps) =>

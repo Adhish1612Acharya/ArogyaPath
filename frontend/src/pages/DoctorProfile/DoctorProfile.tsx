@@ -7,7 +7,7 @@ import {
   Chip,
   Divider,
   Grid,
-  IconButton,
+
   List,
   ListItem,
   ListItemAvatar,
@@ -155,7 +155,7 @@ const DoctorProfile = () => {
     fetchDoctorData();
   }, [id]);
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
 
@@ -220,7 +220,9 @@ const DoctorProfile = () => {
         <Card sx={{ mb: 3 }}>
           <CardContent>
             <Grid container spacing={3}>
-              <Grid item xs={12} md={3}>
+              <Grid 
+              // item xs={12} md={3}
+              >
                 <Box
                   display="flex"
                   flexDirection="column"
@@ -244,7 +246,11 @@ const DoctorProfile = () => {
                   </Button>
                 </Box>
               </Grid>
-              <Grid item xs={12} md={9}>
+              <Grid 
+              // item
+              //  xs={12} 
+              // md={9}
+              >
                 <Box display="flex" alignItems="center" mb={1}>
                   <Typography variant="h4" component="h1" sx={{ mr: 2 }}>
                     {doctor.name}
@@ -462,8 +468,10 @@ const DoctorProfile = () => {
                 Availability
               </Typography>
               <Grid container spacing={2}>
-                {doctor.availability.map((slot, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={index}>
+                {doctor.availability.map((slot, _index) => (
+                  <Grid 
+                  // item xs={12} sm={6} md={4} key={index}
+                  >
                     <Card variant="outlined">
                       <CardContent>
                         <Box display="flex" alignItems="center" mb={1}>

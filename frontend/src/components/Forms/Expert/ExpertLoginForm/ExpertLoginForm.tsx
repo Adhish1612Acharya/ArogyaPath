@@ -44,7 +44,7 @@ const ExpertLoginForm: FC = () => {
   };
 
   const googleLogin = async () => {
-    window.open("http://localhost:3000/api/auth/google/expert", "_self");
+    window.open(`${import.meta.env.VITE_SERVER_URL}/api/auth/google/expert`, "_self");
   };
 
   return (

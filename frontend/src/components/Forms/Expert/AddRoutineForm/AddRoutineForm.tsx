@@ -1,9 +1,9 @@
 import React, { useRef, useState } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate, useRoutes } from "react-router-dom";
-import { X, Plus, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { X, Loader2 } from "lucide-react";
 
 // ShadCN components
 import {
@@ -24,7 +24,6 @@ import UploadIcon from "@mui/icons-material/Upload";
 import DeleteIcon from "@mui/icons-material/Delete";
 
 // Custom logic
-import usePost from "@/hooks/usePost/usePost";
 import addRoutineFormSchema from "./AddRoutineFormSchema";
 import dayjs from "dayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";

@@ -21,15 +21,17 @@ import { SuccessStoryType } from "@/types/SuccessStory.types";
 import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 import { toast } from "react-toastify";
 import { UserOrExpertDetailsType } from "@/types";
+import { useAuth } from "@/context/AuthContext";
 
 export function AllSuccessStoriesPosts() {
+  const { role } = useAuth();
   const navigate = useNavigate();
   const { getAllSuccessStories, filterSearch } = useSuccessStory();
 
-  const [userId, setUserId] = useState();
+  const [userId, setUserId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
+  const [_currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
 
   const [openMediaDialog, setOpenMediaDialog] = useState(false);
   const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
@@ -161,16 +163,18 @@ export function AllSuccessStoriesPosts() {
                 applyFilters={applyFilters}
                 getAllPosts={getAllSuccessStoriesPosts}
               />
-              <Button
-                component={Link}
-                to="/posts/create"
-                variant="contained"
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md text-white"
-                startIcon={<Add />}
-              >
-                <span className="hidden sm:inline">Create Post</span>
-                <span className="sm:hidden">Create</span>
-              </Button>
+              {role === "user" && (
+                <Button
+                  component={Link}
+                  to="/user/success-stories/create"
+                  variant="contained"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md text-white"
+                  startIcon={<Add />}
+                >
+                  <span className="hidden sm:inline">Create Post</span>
+                  <span className="sm:hidden">Create</span>
+                </Button>
+              )}
             </Box>
           </Box>
 

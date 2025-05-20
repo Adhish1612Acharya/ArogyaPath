@@ -19,13 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import axios from "axios";
 
 export function LoginPage() {
   const [userType, setUserType] = useState<"user" | "expert">("user");
 
   const googleLogin = async () => {
-    window.open(`http://localhost:3000/auth/google`, "_self");
+    window.open(`${import.meta.env.VITE_SERVER_URL}/auth/google`, "_self");
   };
 
   return (
@@ -68,7 +67,12 @@ export function LoginPage() {
               placeholder="Enter your password"
             />
           </div>
-          <Button className="w-full" onClick={() => {googleLogin()}}>
+          <Button
+            className="w-full"
+            onClick={() => {
+              googleLogin();
+            }}
+          >
             Login
           </Button>
         </CardContent>
