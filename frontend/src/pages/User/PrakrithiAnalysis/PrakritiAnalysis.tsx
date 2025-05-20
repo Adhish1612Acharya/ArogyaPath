@@ -63,7 +63,6 @@ export default function PrakrithiAnalysis() {
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [analysisComplete, setAnalysisComplete] = useState<boolean>(false);
-  const [responseData, setResponseData] = useState<ApiResponse | null>(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [similarUsersDialogOpen, setSimilarUsersDialogOpen] = useState(false);
@@ -73,6 +72,9 @@ export default function PrakrithiAnalysis() {
     threshold: 0.1,
     triggerOnce: true,
   });
+
+  const [responseData, setResponseData] = useState<ApiResponse | null>(null);
+  const [pdfUrl, setPdfUrl] = useState<string>("");
 
   const generatePDF = async (responseData: ApiResponse) => {
     setLoading(true);
@@ -206,22 +208,29 @@ export default function PrakrithiAnalysis() {
       const blob = new Blob([pdfBytes], { type: "application/pdf" });
 
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${responseData.Name}_Prakriti_Analysis.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
-      setDownloadComplete(true);
-      setTimeout(() => setDownloadComplete(false), 3000);
+      console.log(url)
+      setPdfUrl(url);
     } catch (error) {
       console.error("Error generating PDF:", error);
     } finally {
       setLoading(false);
       setCurrentSection(1);
     }
+  };
+
+  const download = () => {
+    const a = document.createElement("a");
+    a.href = pdfUrl;
+    a.download = `${responseData?.Name}_Prakriti_Analysis.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(pdfUrl);
+    setPdfUrl("");
+
+    setDownloadComplete(true);
+    setTimeout(() => setDownloadComplete(false), 3000);
   };
 
   const sendEmail = async () => {
@@ -276,7 +285,7 @@ export default function PrakrithiAnalysis() {
               variant="contained"
               color="primary"
               startIcon={<CloudDownload />}
-              onClick={() => generatePDF(responseData)}
+              onClick={download}
               className="h-16"
               fullWidth
             >
@@ -624,6 +633,7 @@ export default function PrakrithiAnalysis() {
                 TOTAL_SECTIONS={TOTAL_SECTIONS}
                 setLoading={setLoading}
                 setAnalysisComplete={setAnalysisComplete}
+                setResponseData={setResponseData}
               />
             </CardContent>
           </Card>

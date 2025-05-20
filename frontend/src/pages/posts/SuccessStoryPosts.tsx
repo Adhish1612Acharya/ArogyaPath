@@ -26,7 +26,7 @@ export function AllSuccessStoriesPosts() {
   const navigate = useNavigate();
   const { getAllSuccessStories, filterSearch } = useSuccessStory();
 
-  const [userId, setUserId] = useState("user-2");
+  const [userId, setUserId] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);

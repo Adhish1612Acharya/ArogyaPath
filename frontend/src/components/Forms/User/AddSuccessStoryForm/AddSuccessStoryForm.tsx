@@ -120,7 +120,6 @@ export default function AddSuccessStoryForm() {
         routines: formData.hasRoutines ? formData.routines ?? [] : [],
         tagged: formData.tagged.map((taggedDoctor) => taggedDoctor.id),
       };
-      console.log("New Post : ", newSuccessStoryData);
       const response = await submitSuccessStory(newSuccessStoryData);
       if (response?.success) {
         form.reset();

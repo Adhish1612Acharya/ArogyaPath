@@ -14,13 +14,14 @@ import { Input } from "@/components/ui/input";
 import Button from "@mui/material/Button";
 import { Loader2, LogIn } from "lucide-react";
 import GoogleIcon from "@mui/icons-material/Google";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
 
 const UserLoginForm = () => {
   const { userLogin } = useUserAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectPath = searchParams.get("redirect");
 
   const form = useForm<z.infer<typeof userLoginSchema>>({
     resolver: zodResolver(userLoginSchema),
@@ -34,7 +35,11 @@ const UserLoginForm = () => {
     const response = await userLogin(data.email, data.password);
 
     if (response.success) {
-      navigate("/gposts");
+      if (redirectPath) {
+        navigate(redirectPath);
+      } else {
+        navigate("/gposts");
+      }
     }
   };
 

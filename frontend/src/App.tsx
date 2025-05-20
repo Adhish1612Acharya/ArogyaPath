@@ -61,6 +61,7 @@ const App = () => {
       <div className="main-container">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
           <Route element={<GuestProtectedRoute />}>
             <Route path="/verify-email" element={<EmailVerify />} />
             <Route path="/verify-mobile" element={<MobileVerify />} />
@@ -108,7 +109,7 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
-            <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+
             <Route path="/doctor-profile/:id" element={<DoctorProfile />} />
             <Route path="/ai-query" element={<AISearchPage />} />
             {/* <Route path="/posts" element={<PostsPage />} /> */}
