@@ -6,14 +6,14 @@ import googleAuthController from "../../controllers/auth/googleAuth.js";
 const router = express.Router();
 
 passport.use(
-  'google-expert',
+  "google-expert",
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID || "default-client-id",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "default-client-secret",
-      callbackURL: "http://localhost:3000/api/auth/google/expert/callback",
+      callbackURL: `${process.env.SERVER_URL}/api/auth/google/expert/callback`,
       passReqToCallback: true,
-       scope: ["profile", "email"]
+      scope: ["profile", "email"],
     },
     googleAuthController.googleCallBackFunctionForExpert
   )
@@ -21,14 +21,14 @@ passport.use(
 
 router.get(
   "/",
-  passport.authenticate('google-expert'),
+  passport.authenticate("google-expert"),
   googleAuthController.handleGoogleAuthError
 );
 
 router.get(
   "/callback",
-  passport.authenticate('google-expert', {
-    failureRedirect: "/auth/google/failureLogin",
+  passport.authenticate("google-expert", {
+    failureRedirect: "/api/auth/google/expert/failureLogin",
   }),
   googleAuthController.handleGoogleCallback
 );
