@@ -72,12 +72,13 @@ export default function PrakrithiAnalysis() {
     triggerOnce: true,
   });
 
-  const [responseData, setResponseData] = useState<ApiResponse | null>(null);
+  const [responseData, setResponseData] = useState<ApiResponse | null>();
   const [pdf, setPdf] = useState<Blob | null>(null);
 
   const generatePDF = async (responseData: ApiResponse) => {
     setLoading(true);
     try {
+      console.log("Reposne : ",responseData);
       // Add slight delay for better UX
       await new Promise((resolve) => setTimeout(resolve, 500));
 
