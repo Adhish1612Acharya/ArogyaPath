@@ -86,7 +86,7 @@ export const createSuccessStory = async (req, res) => {
   <p>Thank you,<br/>ArogyaPath Team</p>
 `;
 
-    await sendEmail(eachExpert.email, emailSubject, emailContent);
+    await sendEmail(eachExpert.email, emailSubject, emailContent, null);
   }
 
   // Success response

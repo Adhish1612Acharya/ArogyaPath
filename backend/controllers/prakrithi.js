@@ -1,5 +1,7 @@
 import axios from "axios";
 import Prakrithi from "../models/Prakrathi/Prakrathi.js";
+import ExpressError from "../utils/expressError.js";
+import { sendPdfReport } from "../utils/sendPdfReport.js";
 
 const findPrakrithi = async (req, res) => {
   const inputData = req.body;
@@ -102,7 +104,25 @@ const findSimilarPrakrithiUsers = async (req, res) => {
   });
 };
 
+const sendPkPdfToMail = async (req, res) => {
+  if (!req.file) {
+    throw new ExpressError("PDF file is required", 400);
+  }
+
+  // Get the uploaded PDF buffer
+  const pdfBuffer = req.file.buffer;
+
+  // Send the PDF via email
+  await sendPdfReport(req.user?.email, pdfBuffer, req.user?.profile.fullName);
+
+  res.status(200).json({
+    success: true,
+    message: "PDF sent and analysis completed",
+  });
+};
+
 export default {
   findPrakrithi,
   findSimilarPrakrithiUsers,
+  sendPkPdfToMail,
 };
