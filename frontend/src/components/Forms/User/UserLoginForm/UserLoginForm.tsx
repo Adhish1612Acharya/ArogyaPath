@@ -44,7 +44,10 @@ const UserLoginForm = () => {
   };
 
   const googleLogin = async () => {
-    window.open(`${import.meta.env.VITE_SERVER_URL}/api/auth/google/user`, "_self");
+    window.open(
+      `${import.meta.env.VITE_SERVER_URL}/api/auth/google/user`,
+      "_self"
+    );
   };
 
   return (
@@ -55,7 +58,7 @@ const UserLoginForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel className="text-gray-700">Username</FormLabel>
+              <FormLabel className="text-gray-700">Email</FormLabel>
               <FormControl>
                 <Input
                   placeholder="user"

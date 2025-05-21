@@ -5,6 +5,7 @@ import { sendPdfReport } from "../utils/sendPdfReport.js";
 
 const findPrakrithi = async (req, res) => {
   const inputData = req.body;
+  const userId = req.user?._id;
 
   const { data: result } = await axios.post(process.env.PRAKRITHI_MODEL, {
     ApiKey: !req.user?.premiumUser
@@ -13,7 +14,6 @@ const findPrakrithi = async (req, res) => {
     ...inputData,
   });
 
-  console.log("Prakrithi Model Response:", result);
   // Combine user input and model response
   const prakrithiData = {
     ...inputData,
@@ -25,17 +25,32 @@ const findPrakrithi = async (req, res) => {
   };
 
   // Save the combined data
-  const newEntry = await Prakrithi.create(prakrithiData);
+  const userPkAlreadyExists = await Prakrithi.find({ user: userId });
+  let newEntry = null;
+
+  if (userPkAlreadyExists.length > 0) {
+    newEntry = await Prakrithi.findOneAndUpdate(
+      { user: userId }, // Correct filter - finds doc where user field matches userId
+      prakrithiData,
+      { new: true }
+    );
+  } else {
+    await Prakrithi.create(prakrithiData);
+  }
+
+  console.log("New Entry : ", newEntry);
 
   // Send success response
-  res.status(201).json({ success: true, data: newEntry });
+  res.status(201).json({ success: true, data: newEntry || prakrithiData });
 };
 
 const findSimilarPrakrithiUsers = async (req, res) => {
   const userId = req.user._id;
 
   // 1. Get the current user's Prakrithi data from the database
-  const currentUserEntry = await Prakrithi.findOne({ user: userId });
+  const currentUserEntry = await Prakrithi.findOne({ user: userId }).populate(
+    "user"
+  );
 
   // If no Prakrithi data is found for the user, return a 404 error
   if (!currentUserEntry) {
@@ -68,11 +83,15 @@ const findSimilarPrakrithiUsers = async (req, res) => {
     "Ayurvedic_Treatment",
   ];
 
+  console.log("CurrUser : ", currentUserEntry);
+
   // 3. Get all other users' Prakrithi data from the database (excluding the current user)
   const otherUsers = await Prakrithi.find({
     user: { $ne: userId },
     Dominant_Prakrithi: currentUserEntry.Dominant_Prakrithi,
-  });
+  }).populate("user");
+
+  console.log("Other users : ", otherUsers);
 
   // 4. Compare each other user's Prakrithi data with the current user's data and calculate similarity
   const similarUsers = otherUsers
@@ -87,20 +106,27 @@ const findSimilarPrakrithiUsers = async (req, res) => {
       });
 
       // Calculate the similarity percentage based on the number of matching fields
-      const similarityPercentage = (matches / fieldsToCompare.length) * 100;
+      const similarityPercentage = (
+        (matches / fieldsToCompare.length) *
+        100
+      ).toFixed(2);
 
-      return { user, similarityPercentage };
+      console.log(similarityPercentage)
+
+      return { user: user.user, similarityPercentage };
     })
     // Filter users to include only those with a similarity of at least 70%
-    .filter(({ similarityPercentage }) => similarityPercentage >= 70)
+    // .filter(({ similarityPercentage }) => similarityPercentage >= 70)
     // Sort the users by similarity percentage in descending order
     .sort((a, b) => b.similarityPercentage - a.similarityPercentage);
+
+  console.log("Similar User : ", similarUsers);
 
   // 5. Return the list of similar users (excluding similarity percentage in the response)
   res.status(200).json({
     success: true,
     message: "Similar users data",
-    similarUsers: similarUsers.map(({ user }) => user),
+    similarUsers: similarUsers,
   });
 };
 
