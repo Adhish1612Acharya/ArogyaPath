@@ -44,7 +44,10 @@ const ExpertLoginForm: FC = () => {
   };
 
   const googleLogin = async () => {
-    window.open(`${import.meta.env.VITE_SERVER_URL}/api/auth/google/expert`, "_self");
+    window.open(
+      `${import.meta.env.VITE_SERVER_URL}/api/auth/google/expert`,
+      "_self"
+    );
   };
 
   return (
@@ -77,7 +80,7 @@ const ExpertLoginForm: FC = () => {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-gray-700">Username</FormLabel>
+                <FormLabel className="text-gray-700">Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="vaidya"

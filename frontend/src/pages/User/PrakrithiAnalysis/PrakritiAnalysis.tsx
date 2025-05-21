@@ -13,8 +13,9 @@ import {
   IconButton,
   DialogContent,
   DialogActions,
+  Avatar,
 } from "@mui/material";
-import { Close, CloudDownload, Email, People } from "@mui/icons-material";
+import { Chat, Close, CloudDownload, Email, People } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -22,6 +23,8 @@ import FORM_FIELDS from "@/constants/prakrithiFormFields";
 import PrakrithiForm from "@/components/Forms/User/PrakrithiForm/PrakrithiForm";
 import { ApiResponse } from "./PrakrithiAnalysis.types";
 import usePrakrithi from "@/hooks/usePrakrithi/usePrakrithi";
+import { UserOrExpertDetailsType } from "@/types";
+import { Loader2 } from "lucide-react";
 
 // Particles background component
 const ParticlesBackground = () => {
@@ -58,7 +61,7 @@ const ParticlesBackground = () => {
 const TOTAL_SECTIONS = Math.max(...FORM_FIELDS.map((field) => field.section));
 
 export default function PrakrithiAnalysis() {
-  const { emailPkPdf } = usePrakrithi();
+  const { emailPkPdf, getSimilarPrakrithiUsers } = usePrakrithi();
 
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -66,6 +69,15 @@ export default function PrakrithiAnalysis() {
   const [analysisComplete, setAnalysisComplete] = useState<boolean>(false);
 
   const [similarUsersDialogOpen, setSimilarUsersDialogOpen] = useState(false);
+  const [similarPkUsers, setSimilarPkUsers] = useState<
+    {
+      user: UserOrExpertDetailsType;
+      similarityPercentage: number;
+    }[]
+  >([]);
+  const [findSimilarPkUsersLoad, setFindSimilarPkUsersLoad] =
+    useState<boolean>(false);
+
   const [downloadComplete, setDownloadComplete] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const [headerRef, headerInView] = useInView({
@@ -75,6 +87,25 @@ export default function PrakrithiAnalysis() {
 
   const [responseData, setResponseData] = useState<ApiResponse | null>();
   const [pdf, setPdf] = useState<Blob | null>(null);
+
+  const findSimilarPkUsers = async () => {
+    try {
+      if (similarPkUsers.length > 0) return;
+      setFindSimilarPkUsersLoad(true);
+      const response = await getSimilarPrakrithiUsers();
+
+      if (response.success) {
+        setSimilarPkUsers(response.similarUsers);
+      } else {
+        setSimilarPkUsers([]);
+      }
+    } catch (err: any) {
+      console.log(err);
+    } finally {
+      setFindSimilarPkUsersLoad(false);
+      setSimilarUsersDialogOpen(true);
+    }
+  };
 
   const generatePDF = async (responseData: ApiResponse) => {
     setLoading(true);
@@ -319,11 +350,15 @@ export default function PrakrithiAnalysis() {
               variant="outlined"
               color="primary"
               startIcon={<People />}
-              onClick={() => setSimilarUsersDialogOpen(true)}
+              onClick={findSimilarPkUsers}
               className="h-16"
               fullWidth
             >
-              Connect with Similar Prakriti
+              {findSimilarPkUsersLoad ? (
+                <Loader2 className="animate-spin" />
+              ) : (
+                "Connect with Similar Prakriti"
+              )}
             </Button>
           </div>
         </motion.div>
@@ -412,29 +447,32 @@ export default function PrakrithiAnalysis() {
             </IconButton>
           </DialogTitle>
           <DialogContent>
-            {/* {responseData?.SimilarUsers && ( */}
-            {/* <>
+            {similarPkUsers.length > 0 && (
+              <>
                 <Typography variant="body1" className="mb-4 text-center">
                   <span className="font-bold text-teal-600">
-                    {responseData.SimilarUsers.percentage}%
+                    {similarPkUsers.length}
                   </span>{" "}
                   of people share similar Prakriti with you
-                </Typography> */}
+                </Typography>
 
-            {/* <div className="space-y-4">
-                  {responseData.SimilarUsers.users.map((user) => (
+                <div className="space-y-4">
+                  {similarPkUsers.map((eachPkUser) => (
                     <div
-                      key={user.id}
+                      key={eachPkUser.user._id}
                       className="flex items-center justify-between p-3 border rounded-lg"
                     >
                       <div className="flex items-center space-x-3">
-                        <Avatar src={user.photoUrl} alt={user.name} />
+                        <Avatar
+                          src={eachPkUser.user._id}
+                          alt={eachPkUser.user.profile.fullName}
+                        />
                         <div>
                           <Typography variant="subtitle1">
-                            {user.name}
+                            {eachPkUser.user.profile.fullName}
                           </Typography>
                           <Typography variant="body2" className="text-gray-500">
-                            {user.prakriti} Prakriti
+                            {eachPkUser.similarityPercentage}%
                           </Typography>
                         </div>
                       </div>
@@ -448,9 +486,9 @@ export default function PrakrithiAnalysis() {
                       </Button>
                     </div>
                   ))}
-                </div> */}
-            {/* </> */}
-            {/* )} */}
+                </div>
+              </>
+            )}
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setSimilarUsersDialogOpen(false)}>

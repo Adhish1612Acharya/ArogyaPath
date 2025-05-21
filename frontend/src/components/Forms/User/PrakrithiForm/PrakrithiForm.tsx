@@ -330,7 +330,7 @@ const PrakrithiForm: FC<PrakrithiAnalysisFormProps> = ({
                   },
                   transition: "all 0.3s ease",
                 }}
-                disabled={!isValid}
+                // disabled={!isValid}
               >
                 <motion.span
                   animate={

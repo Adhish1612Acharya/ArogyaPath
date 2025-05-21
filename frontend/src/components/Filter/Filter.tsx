@@ -12,8 +12,8 @@ import {
   Box,
   Checkbox,
   FormControlLabel,
+  Button,
 } from "@mui/material";
-import { Button } from "@/components/ui/button";
 // import useApi from "@/hooks/useApi/useApi";
 
 import { ayurvedicMedicines } from "@/constants/ayurvedicMedicines";
@@ -189,7 +189,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
   return (
     <>
       <Button
-        variant="outline"
+        variant="contained"
         className="border-green-600 text-green-600 hover:bg-green-50"
         onClick={() => setOpen(true)}
       >
@@ -364,7 +364,7 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
 
           <DialogActions className="mt-6">
             <Button
-              variant="outline"
+              // variant="outline"
               onClick={applyGetAllPosts}
               className="text-gray-600 hover:bg-gray-100"
             >
