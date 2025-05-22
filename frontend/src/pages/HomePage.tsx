@@ -1,9 +1,22 @@
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
-import useApi from "@/hooks/useApi/useApi";
-import { Heart, Leaf, Shield, Users } from "lucide-react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { 
+  Button,
+  Box,
+  Container,
+  Grid,
+  Typography,
+  Paper,
+  Avatar
+} from "@mui/material";
+import { 
+  Favorite as HeartIcon,
+  Spa as LeafIcon,
+  Security as ShieldIcon,
+  People as UsersIcon 
+} from "@mui/icons-material";
+import { useAuth } from "@/context/AuthContext";
+import useApi from "@/hooks/useApi/useApi";
 
 const HomePage = () => {
   const { setIsLoggedIn, setRole } = useAuth();
@@ -27,92 +40,202 @@ const HomePage = () => {
 
     checkAuth();
   }, []);
+
   return (
-    <div className="min-h-screen w-screen">
+    <Box sx={{ minHeight: "100vh", width: "100vw" }}>
       <main>
         {/* Hero Section */}
-        <section className="pt-20 pb-16 bg-gradient-to-b from-green-50 to-white">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-col md:flex-row items-center justify-between">
-              <div className="md:w-1/2 space-y-6">
-                <h1 className="text-5xl font-bold leading-tight">
+        <Box 
+          sx={{ 
+            pt: 20, 
+            pb: 16, 
+            background: "linear-gradient(to bottom, #f0fdf4, #ffffff)" 
+          }}
+        >
+          <Container maxWidth="lg">
+            <Box 
+              sx={{ 
+                display: "flex", 
+                flexDirection: { xs: "column", md: "row" }, 
+                alignItems: "center", 
+                justifyContent: "space-between",
+                gap: 4
+              }}
+            >
+              <Box sx={{ width: { md: "50%" }, maxWidth: "100%", spaceY: 6 }}>
+                <Typography 
+                  variant="h1" 
+                  sx={{ 
+                    fontSize: "3rem", 
+                    fontWeight: 700, 
+                    lineHeight: 1.2,
+                    mb: 3
+                  }}
+                >
                   Your Journey to Holistic Health Starts Here
-                </h1>
-                <p className="text-xl text-gray-600">
+                </Typography>
+                <Typography 
+                  variant="subtitle1" 
+                  sx={{ 
+                    fontSize: "1.25rem", 
+                    color: "text.secondary",
+                    mb: 4
+                  }}
+                >
                   Connect with expert Ayurvedic practitioners and discover
                   personalized wellness solutions.
-                </p>
-                <div className="space-x-4">
-                  <Button size="lg" asChild>
-                    <Link to="/auth">Get Started</Link>
+                </Typography>
+                <Box sx={{ display: "flex", gap: 2 }}>
+                  <Button 
+                    variant="contained" 
+                    size="large" 
+                    component={Link} 
+                    to="/auth"
+                    sx={{
+                      backgroundColor: "primary.main",
+                      "&:hover": {
+                        backgroundColor: "primary.dark"
+                      }
+                    }}
+                  >
+                    Get Started
                   </Button>
-                  <Button size="lg" variant="outline" asChild>
-                    <Link to="/experts">Find Experts</Link>
+                  <Button 
+                    variant="outlined" 
+                    size="large" 
+                    component={Link} 
+                    to="/experts"
+                    sx={{
+                      borderColor: "primary.main",
+                      color: "primary.main",
+                      "&:hover": {
+                        backgroundColor: "primary.light",
+                        borderColor: "primary.dark"
+                      }
+                    }}
+                  >
+                    Find Experts
                   </Button>
-                </div>
-              </div>
-              <div className="md:w-1/2 mt-8 md:mt-0">
-                <img
+                </Box>
+              </Box>
+              <Box 
+                sx={{ 
+                  width: { md: "50%" }, 
+                  mt: { xs: 8, md: 0 },
+                  display: "flex",
+                  justifyContent: "center"
+                }}
+              >
+                <Box
+                  component="img"
                   src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b"
                   alt="Ayurvedic Medicine"
-                  className="rounded-lg shadow-xl"
+                  sx={{ 
+                    borderRadius: 2, 
+                    boxShadow: 3,
+                    maxWidth: "100%",
+                    height: "auto"
+                  }}
                 />
-              </div>
-            </div>
-          </div>
-        </section>
+              </Box>
+            </Box>
+          </Container>
+        </Box>
 
         {/* Features Section */}
-        <section className="py-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-3xl font-bold text-center mb-12">
+        <Box sx={{ py: 16 }}>
+          <Container maxWidth="lg">
+            <Typography 
+              variant="h2" 
+              sx={{ 
+                fontSize: "2.5rem", 
+                fontWeight: 700, 
+                textAlign: "center",
+                mb: 8
+              }}
+            >
               Why Choose AyurCare?
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            </Typography>
+            <Grid container spacing={4}>
               {[
                 {
-                  icon: <Leaf className="h-8 w-8 text-green-600" />,
+                  icon: <LeafIcon color="success" sx={{ fontSize: 32 }} />,
                   title: "Traditional Wisdom",
                   description:
                     "Access centuries-old healing practices adapted for modern life.",
                 },
                 {
-                  icon: <Users className="h-8 w-8 text-green-600" />,
+                  icon: <UsersIcon color="success" sx={{ fontSize: 32 }} />,
                   title: "Expert Practitioners",
                   description:
                     "Connect with verified Ayurvedic doctors and specialists.",
                 },
                 {
-                  icon: <Shield className="h-8 w-8 text-green-600" />,
+                  icon: <ShieldIcon color="success" sx={{ fontSize: 32 }} />,
                   title: "Trusted Platform",
                   description:
                     "Secure, reliable, and privacy-focused healthcare platform.",
                 },
                 {
-                  icon: <Heart className="h-8 w-8 text-green-600" />,
+                  icon: <HeartIcon color="success" sx={{ fontSize: 32 }} />,
                   title: "Personalized Care",
                   description:
                     "Get customized wellness plans tailored to your needs.",
                 },
               ].map((feature, index) => (
-                <div
-                  key={index}
-                  className="text-center p-6 rounded-lg bg-white shadow-lg hover:shadow-xl transition-shadow"
-                >
-                  <div className="inline-block p-3 bg-green-50 rounded-full mb-4">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600">{feature.description}</p>
-                </div>
+                <Grid item xs={12} sm={6} md={3} key={index}>
+                  <Paper 
+                    elevation={3} 
+                    sx={{ 
+                      p: 6, 
+                      textAlign: "center",
+                      height: "100%",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      "&:hover": {
+                        boxShadow: 6
+                      },
+                      transition: "box-shadow 0.3s ease-in-out"
+                    }}
+                  >
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: "success.light", 
+                        width: 56, 
+                        height: 56,
+                        mb: 3,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
+                    >
+                      {feature.icon}
+                    </Avatar>
+                    <Typography 
+                      variant="h5" 
+                      component="h3" 
+                      sx={{ 
+                        fontWeight: 600,
+                        mb: 2
+                      }}
+                    >
+                      {feature.title}
+                    </Typography>
+                    <Typography 
+                      variant="body1" 
+                      color="text.secondary"
+                    >
+                      {feature.description}
+                    </Typography>
+                  </Paper>
+                </Grid>
               ))}
-            </div>
-          </div>
-        </section>
+            </Grid>
+          </Container>
+        </Box>
       </main>
-    </div>
+    </Box>
   );
 };
 
