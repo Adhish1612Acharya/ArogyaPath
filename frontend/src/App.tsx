@@ -37,6 +37,7 @@ import DoctorProfile from "./pages/DoctorProfile/DoctorProfile";
 import PageFooter from "./components/PageFooter";
 import PageNavBar from "./components/PageNavBar";
 import PrakrithiAnalysis from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
+import ChatPage from "./pages/ChatPage/ChatPage";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -108,7 +109,7 @@ const App = () => {
           <Route element={<ProtectedRoute />}>
             <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
-
+            <Route path="/chats/:id" element={<ChatPage />} />
             <Route path="/doctor-profile/:id" element={<DoctorProfile />} />
             <Route path="/ai-query" element={<AISearchPage />} />
             {/* <Route path="/posts" element={<PostsPage />} /> */}
