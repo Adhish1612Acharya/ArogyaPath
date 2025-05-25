@@ -206,28 +206,33 @@ export default function AddSuccessStoryForm() {
 
   // Fake doctor search
   const searchDoctors = async (query: string) => {
-    setIsSearching(true);
-    console.log("Searching for doctors:", query);
+    try {
+      setIsSearching(true);
+      console.log("Searching for doctors:", query);
 
-    // Simulate API call
-    const response = await get(
-      `${import.meta.env.VITE_SERVER_URL}/api/experts/search/doctors`,
-      {
-        params: { q: query },
-      }
-    );
+      // Simulate API call
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/experts/search/doctors`,
+        {
+          params: { q: query },
+        }
+      );
 
-    console.log("Doctor search response:", response);
+      console.log("Doctor search response:", response);
 
-    const doctors = response.doctors.map((doctor: Expert) => ({
-      id: doctor._id,
-      name: doctor.username,
-      avatar:
-        doctor.profile.profileImage || "/placeholder.svg?height=40&width=40",
-    }));
+      const doctors = response.doctors.map((doctor: Expert) => ({
+        id: doctor._id,
+        name: doctor.username,
+        avatar:
+          doctor.profile.profileImage || "/placeholder.svg?height=40&width=40",
+      }));
 
-    setSearchResults(doctors);
-    setIsSearching(false);
+      setSearchResults(doctors);
+      setIsSearching(false);
+    } catch (error: any) {
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
+    }
   };
 
   // Handle doctor selection

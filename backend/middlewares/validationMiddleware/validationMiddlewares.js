@@ -11,6 +11,7 @@ import {
   userProfileSchema,
   commentSchemaZod,
   prakrithiSchema,
+  usersIdsSchema,
 } from "./validationSchema.js";
 
 export const validateUser = (req, res, next) => {
@@ -90,6 +91,12 @@ export const validateUserCompleteProfile = (req, res, next) => {
   next();
 };
 
+export const validateChatUsersIds = (req, res, next) => {
+  const result = usersIdsSchema.safeParse(req.body);
+  if (!result.success) throw new ExpressError(400, result.error.format());
+  next();
+};
+
 export default {
   validateUser,
   validateExpert,
@@ -100,4 +107,5 @@ export default {
   validateResetPassword,
   validateExpertCompleteProfile,
   validateUserCompleteProfile,
+  validateChatUsersIds,
 };

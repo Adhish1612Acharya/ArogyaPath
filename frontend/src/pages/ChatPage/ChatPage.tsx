@@ -3,6 +3,7 @@ import { ChatHeader } from "@/components/Chat/ChatHeader/ChatHeader";
 import { ChatInput } from "@/components/Chat/ChatInput/ChatInput";
 import ChatLayout from "@/components/Chat/ChatLayout/ChatLayout";
 import { useAuth } from "@/context/AuthContext";
+import useChat from "@/hooks/useChat/useChat";
 import { Message } from "@/types/Message.types";
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
@@ -16,7 +17,7 @@ export var socket: any;
 
 const ChatPage = () => {
   const { id } = useParams();
-  const { setIsLoggedIn } = useAuth();
+  const { fetchChatMessages } = useChat();
   const navigate = useNavigate();
 
   const [chatUsers, setChatUsers] = useState([]);
@@ -25,71 +26,52 @@ const ChatPage = () => {
 
   const [currUser, setCurrUser] = useState([]);
 
-  //   useEffect(() => {
-  //     setIsLoggedIn(undefined);
-  //     if (!id) {
-  //       toast.error("Chat ID is missing");
-  //       return;
-  //     }
+  // Function to fetch messages and set up socket
+  const initializeChat = async () => {
+    try {
+      if (!id) {
+        toast.error("Chat ID is missing");
+        return;
+      }
+      const response = await fetchChatMessages(id);
+      setMessages(response.messages);
+      setCurrUser(response.chatInfo);
+    } catch (error: any) {
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 404) navigate("/");
+    }
+  };
 
-  //     // Function to fetch messages and set up socket
-  //     const initializeChat = async () => {
-  //       try {
-  //         const response = await dispatch(fetchChatMessages(id));
-  //         const { type, payload }: any = response;
+  useEffect(() => {
+    initializeChat();
+    // // Cleanup on unmount
+    return () => {
+      if (socket) {
+        socket.off(); // Remove all listeners
+        socket.disconnect();
+        console.log("Socket disconnected");
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, navigate]);
 
-  //         if (type === "/fetchChatMessages/fulfilled") {
-  //           // Initialize socket
-  //           if (!socket) {
-  //             socket = io(ENDPOINT);
-  //             socket.on("connect", () => {
-  //               console.log("Socket connected");
-  //               dispatch(setSocketConnected(true));
-  //             });
+  useEffect(() => {
+    if (socket) {
+      console.log("Setting up socket listener for received messages");
 
-  //             // Emit socket events
-  //             socket.emit("setup", payload.loggedInUser);
-  //             socket.emit("join chat", id);
-  //           }
-  //         } else {
-  //           navigate("/u/buddy-request/created/view");
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching messages:", error);
-  //         toast.error("Failed to load chat messages");
-  //       }
-  //     };
+      // Add listener
+      socket.on("received", (newMessage: Message) => {
+        console.log("Received message:", newMessage);
+        dispatch(addMessage(newMessage));
+      });
 
-  //     initializeChat();
-
-  //     // // Cleanup on unmount
-  //     return () => {
-  //       if (socket) {
-  //         socket.off(); // Remove all listeners
-  //         socket.disconnect();
-  //         console.log("Socket disconnected");
-  //       }
-  //     };
-  //     // eslint-disable-next-line react-hooks/exhaustive-deps
-  //   }, [id,  navigate]);
-
-  //   useEffect(() => {
-  //     if (socket) {
-  //       console.log("Setting up socket listener for received messages");
-
-  //       // Add listener
-  //       socket.on("received", (newMessage: Message) => {
-  //         console.log("Received message:", newMessage);
-  //         dispatch(addMessage(newMessage));
-  //       });
-
-  //       // Cleanup listener on unmount
-  //       return () => {
-  //         socket.off("received");
-  //         console.log("Removed socket listener for received messages");
-  //       };
-  //     }
-  //   }, [socket]);
+      // Cleanup listener on unmount
+      return () => {
+        socket.off("received");
+        console.log("Removed socket listener for received messages");
+      };
+    }
+  }, [socket]);
 
   return (
     <ChatLayout>
