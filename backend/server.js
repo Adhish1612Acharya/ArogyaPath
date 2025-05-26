@@ -11,10 +11,7 @@ import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
 import chatRoutes from "./routes/Chat.js";
-// import { Server } from 'socket.io';
-// import http from "http";
-// import { Server } from "socket.io";
-// import initSocket from "./socket.js";
+import { Server, Socket } from "socket.io";
 
 import successStoryRoute from "./routes/SuccessStory.js";
 
@@ -38,8 +35,11 @@ import passport from "passport";
 import MongoStore from "connect-mongo";
 
 import aiFeaturesRoute from "./routes/aiFeature.js";
+import Message from "./models/Message/Message.js";
+import ExpressError from "./utils/expressError.js";
+import Chat from "./models/Chat/Chat.js";
+import { profile } from "console";
 
-// dotenv.config();
 const app = express();
 
 //socket connection
@@ -85,7 +85,7 @@ const sessionOptions = {
   store,
   secret: process.env.SECRET || "MySecretKey",
   resave: false,
-  saveUninitialized: false, // ⬅️ Ensure only authenticated sessions are stored
+  saveUninitialized: false,
   cookie: {
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -166,46 +166,23 @@ app.use("/api/auth", commonAuthRouter);
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/auth/user", userEmailPasswordAuth);
 
-app.use("/api/posts", postRoute);
-app.use("/api/success-stories", successStoryRoute);
-app.use("/api/routines", routinesRoute);
-app.use("/api/experts", expertRoute);
-app.use("/api/users", userRoutes);
-app.use("/api/prakrithi", prakrathiRoutes);
-app.use("/api/healthChallenge", healthChallenge);
-app.use("/api/chat", chatRoutes);
-
 app.use("/api/auth/google/expert", expertGoogleAuth);
 app.use("/api/auth/google/user", userGoogleAuth);
 
-// app.get("/check", (req, res) => {
-//   console.log("Logged IN : ", req.isAuthenticated());
-//   res.json("LoggedIn : ");
-// });
+app.use("/api/posts", postRoute);
+app.use("/api/success-stories", successStoryRoute);
+app.use("/api/routines", routinesRoute);
 
-// app.get("/debug-session", (req, res) => {
-//   console.log(" Session Details:", req.session);
-//   console.log(" Authenticated User:", req.user);
-//   res.json({ session: req.session, user: req.user });
-// });
+app.use("/api/experts", expertRoute);
+app.use("/api/users", userRoutes);
+
+app.use("/api/prakrithi", prakrathiRoutes);
+
+app.use("/api/healthChallenge", healthChallenge);
+
+app.use("/api/chat", chatRoutes);
 
 // -------------------Deployment------------------//
-
-// const __dirname1 = path.resolve();
-
-// if (process.env.NODE_ENV === "local") {
-//   app.use(express.static(path.join(__dirname1, "../frontend/dist")));
-
-//   app.get("*", (req, res) => {
-//     res.sendFile(
-//       path.join(__dirname1, "../", "frontend", "dist", "index.html")
-//     );
-//   });
-// } else {
-//   app.get("/", (req, res) => {
-//     res.json("Success");
-//   });
-// }
 
 const __dirname1 = path.resolve();
 
@@ -223,11 +200,6 @@ if (process.env.NODE_ENV === "local") {
 
 // -------------------Deployment------------------//
 
-// app.get("/login", (req, res) => {
-//   const buildPath = path.join(__dirname1, "../frontend/dist");
-//   res.sendFile(path.join(buildPath, "index.html"));
-// });
-
 app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
@@ -242,11 +214,76 @@ const port = process.env.PORT || 3000;
 
 // });
 
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log("Server listening on port: ", port);
 });
 
-//SOCKET CONNECTION
+const io = new Server(server, {
+  pingTimeout: 60000,
+  cors: { origin: ["http://localhost:5173"] },
+});
 
-// // Start the server
-// server.listen(8080, () => console.log("Server running on http://localhost:8080"));
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  // Handle events from the client
+  socket.on("setup", (userData) => {
+    socket.join(userData._id);
+    console.log("user : ", userData._id);
+  });
+
+  socket.on("join chat", (room) => {
+    socket.join(room);
+    console.log("User Joined Rom : ", room);
+  });
+
+  // Handle chat messages
+  socket.on("chatMessage", async (message, chatId) => {
+    if (!req.isAuthenticated()) {
+      res.status(401).json({ success: false, message: "Not Logged In" });
+      return;
+    }
+
+    const chat = await Chat.findById(chatId);
+
+    if (!chat) {
+      res.status(404).json({ success: false, message: "Chat not found" });
+      return;
+    }
+    const roomId = chatId;
+    const senderType = req.user?.role === "expert" ? "Expert" : "User";
+    const senderId = req.user?._id;
+
+    // Save message to MongoDB
+    const newMessage = new Message({
+      senderType: senderType,
+      sender: senderId,
+      content: message,
+      chat: roomId,
+    });
+
+    await newMessage.save();
+
+    // Emit to all clients in the room
+    io.to(roomId).emit("newMessage", {
+      _id: newMessage._id,
+      sender: {
+        _id: req.user?._id,
+        profile: {
+          fullName: req.user?.fullName,
+          profilePicture: req.user?.profilePicture,
+        },
+      },
+      content: message,
+      timestamp: newMessage.timestamp,
+    });
+
+    console.log(
+      `Message sent from ${senderId} to ${receiverId} in room ${roomId}`
+    );
+  });
+
+  socket.on("disconnect", () => {
+    console.log("A user disconnected:", socket.id);
+  });
+});

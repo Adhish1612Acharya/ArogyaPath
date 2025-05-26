@@ -45,12 +45,14 @@ export const postSchemaZod = z.object({
 export const routineSchemaZod = z.object({
   title: z.string(),
   description: z.string(),
-  routines: z.array(
-    z.object({
-      time: z.string().min(1, "Time is required"),
-      content: z.string().min(1, "Content is required"),
-    })
-  ).min(1, "At least one routine is required"),
+  routines: z
+    .array(
+      z.object({
+        time: z.string().min(1, "Time is required"),
+        content: z.string().min(1, "Content is required"),
+      })
+    )
+    .min(1, "At least one routine is required"),
 });
 
 // -------------------- SuccessStory Schema --------------------
@@ -148,6 +150,31 @@ export const userProfileSchema = z.object({
   // bio: z.string().optional().or(z.literal("")),
 });
 
+const objectIdRegex = /^[a-f\d]{24}$/i;
+
+export const usersIdsSchema = z
+  .object({
+    participants: z
+      .array(
+        z.object({
+          userType: z.enum(["User", "Expert"]),
+          user: z.string().regex(objectIdRegex, "Invalid ObjectId format"),
+        })
+      )
+      .nonempty("Participants array must contain at least one valid ObjectId"),
+  })
+  .refine(
+    (data) => {
+      const userIds = data.participants.map((p) => p.user);
+      const uniqueUserIds = new Set(userIds);
+      return userIds.length === uniqueUserIds.size;
+    },
+    {
+      path: ["participants"],
+      message: "Duplicate users are not allowed in participants array",
+    }
+  );
+
 export default {
   userSchemaZod,
   expertSchemaZod,
@@ -157,4 +184,5 @@ export default {
   resetPasswordSchema,
   expertProfileSchema,
   userProfileSchema,
+  usersIdsSchema,
 };
