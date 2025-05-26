@@ -6,13 +6,14 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { ChatInputProps } from "./ChatInput.types";
-import { socket } from "@/pages/ChatPage/ChatPage";
+import useSocket from "@/hooks/useSocket/useSocket";
 
 const sendMessageInputSchema = z.object({
   msg: z.string().min(1),
 });
 
-export const ChatInput: FC<ChatInputProps> = ({ chatId }) => {
+export const ChatInput: FC<ChatInputProps> = ({ chatId, currUser }) => {
+  // const { socket } = useSocket(chatId, currUser);
   const form = useForm<z.infer<typeof sendMessageInputSchema>>({
     resolver: zodResolver(sendMessageInputSchema),
     defaultValues: {
@@ -23,23 +24,26 @@ export const ChatInput: FC<ChatInputProps> = ({ chatId }) => {
   const handleSubmits = async (
     data: z.infer<typeof sendMessageInputSchema>
   ) => {
-    console.log(data);
-    if (chatId && socket) {
-      const response: any = await dispatch(
-        sendChatMessages({ chatId, message: data.msg })
-      );
-      console.log(response);
-      const newMessage = response.payload.addedMessage;
-      console.log(newMessage);
+    // console.log(data);
+    // if (chatId && socket) {
+    //   const message = data.msg;
 
-      if (newMessage) {
-        socket.emit("new message", newMessage);
-      }
-    } else {
-      toast.error("Some error occured");
-    }
+    //   socket.emit("chatMessage", { message, chatId });
+      // const response: any = await dispatch(
+      //   sendChatMessages({ chatId, message: data.msg })
+      // );
+      // console.log(response);
+      // const newMessage = response.payload.addedMessage;
+      // console.log(newMessage);
 
-    form.reset();
+      // if (newMessage) {
+      //   socket.emit("new message", newMessage);
+      // }
+    // } else {
+    //   toast.error("Some error occured");
+    // }
+
+    // form.reset();
   };
 
   return (

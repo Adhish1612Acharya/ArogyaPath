@@ -1,21 +1,20 @@
 import Chat from "../models/Chat/Chat.js";
+import User from "../models/User/User.js";
 import ExpressError from "../utils/expressError.js";
 
-export const checkChatOwnership = (req, res, next) => {
+export const checkChatOwnership = async (req, res, next) => {
   const chatId = req.params.id;
   const userId = req.user?._id;
 
-  const chat = Chat.find({
+  const chat = await Chat.findOne({
     _id: chatId,
     participants: { $elemMatch: { user: userId } },
-  }).populate(
-    "participants.user",
-    "_id profile.fullName profile.profilePicture"
-  );
+  }).populate("participants.user", "_id profile.fullName profile.profileImage");
 
   if (!chat) {
     throw new ExpressError("Chat not found or unauthorized access", 403);
   }
+
 
   chat.participants = chat.participants.filter(
     (participant) => participant.user._id.toString() !== req.user._id.toString()

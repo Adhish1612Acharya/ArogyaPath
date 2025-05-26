@@ -228,6 +228,7 @@ io.on("connection", (socket) => {
 
   // Handle events from the client
   socket.on("setup", (userData) => {
+    console.log("User Data: ", userData);
     socket.join(userData._id);
     console.log("user : ", userData._id);
   });

@@ -25,6 +25,8 @@ import { ApiResponse } from "./PrakrithiAnalysis.types";
 import usePrakrithi from "@/hooks/usePrakrithi/usePrakrithi";
 import { UserOrExpertDetailsType } from "@/types";
 import { Loader2 } from "lucide-react";
+import useChat from "@/hooks/useChat/useChat";
+import { toast } from "react-toastify";
 
 // Particles background component
 const ParticlesBackground = () => {
@@ -62,6 +64,7 @@ const TOTAL_SECTIONS = Math.max(...FORM_FIELDS.map((field) => field.section));
 
 export default function PrakrithiAnalysis() {
   const { emailPkPdf, getSimilarPrakrithiUsers } = usePrakrithi();
+  const { createChat } = useChat();
 
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -87,6 +90,24 @@ export default function PrakrithiAnalysis() {
 
   const [responseData, setResponseData] = useState<ApiResponse | null>();
   const [pdf, setPdf] = useState<Blob | null>(null);
+
+  const [createChatLoad, setCreateChatLoad] = useState<boolean>(false);
+
+  const createNewChat = async (userId: string) => {
+    try {
+      setCreateChatLoad(true);
+      const response = await createChat([{ userType: "User", user: userId }]);
+      if (response.success) {
+        toast.success("Chat created successfully");
+      }
+    } catch (error: any) {
+      if (error.status === 401) {
+        toast.error("Please login to create a chat");
+      }
+    } finally {
+      setCreateChatLoad(false);
+    }
+  };
 
   const findSimilarPkUsers = async () => {
     try {
@@ -480,9 +501,15 @@ export default function PrakrithiAnalysis() {
                         variant="outlined"
                         color="primary"
                         startIcon={<Chat />}
+                        onClick={() => createNewChat(eachPkUser.user._id)}
                         size="small"
+                        disabled={createChatLoad}
                       >
-                        Chat
+                        {createChatLoad ? (
+                          <Loader2 className="animate-spin" />
+                        ) : (
+                          "Chat"
+                        )}
                       </Button>
                     </div>
                   ))}
