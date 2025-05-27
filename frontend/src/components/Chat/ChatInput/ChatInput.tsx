@@ -12,8 +12,12 @@ const sendMessageInputSchema = z.object({
   msg: z.string().min(1),
 });
 
-export const ChatInput: FC<ChatInputProps> = ({ chatId, currUser }) => {
-  // const { socket } = useSocket(chatId, currUser);
+export const ChatInput: FC<ChatInputProps> = ({
+  chatId,
+  currUser,
+  socket,
+  sendMessage,
+}) => {
   const form = useForm<z.infer<typeof sendMessageInputSchema>>({
     resolver: zodResolver(sendMessageInputSchema),
     defaultValues: {
@@ -24,26 +28,27 @@ export const ChatInput: FC<ChatInputProps> = ({ chatId, currUser }) => {
   const handleSubmits = async (
     data: z.infer<typeof sendMessageInputSchema>
   ) => {
-    // console.log(data);
-    // if (chatId && socket) {
-    //   const message = data.msg;
+    if (!socket) {
+      toast.error("Socket not connected");
+      return;
+    }
 
-    //   socket.emit("chatMessage", { message, chatId });
-      // const response: any = await dispatch(
-      //   sendChatMessages({ chatId, message: data.msg })
-      // );
-      // console.log(response);
-      // const newMessage = response.payload.addedMessage;
-      // console.log(newMessage);
+    if (!chatId) {
+      toast.error("Chat ID missing");
+      return;
+    }
 
-      // if (newMessage) {
-      //   socket.emit("new message", newMessage);
-      // }
-    // } else {
-    //   toast.error("Some error occured");
-    // }
+    if (!currUser) {
+      toast.error("Current user not found");
+      return;
+    }
 
-    // form.reset();
+    const message = data.msg.trim();
+    if (!message) return;
+
+    sendMessage(message);
+
+    form.reset();
   };
 
   return (

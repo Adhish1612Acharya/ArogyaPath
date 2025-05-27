@@ -25,7 +25,10 @@ const ChatPage = () => {
     null
   );
 
-  const { socketConnected, onNewMessage } = useSocket(id || "", currUser);
+  const { socket, socketConnected, onNewMessage, sendMessage } = useSocket(
+    id || "",
+    currUser
+  );
 
   useEffect(() => {
     const initializeChat = async () => {
@@ -38,7 +41,7 @@ const ChatPage = () => {
         const response = await fetchChatMessages(id);
         console.log("Chat response:", response);
 
-        const participants = response.chat.participants;
+        const participants = response.chatInfo.participants;
 
         const chatUsers = participants.map((participant: any) => ({
           _id: participant.user._id,
@@ -52,6 +55,7 @@ const ChatPage = () => {
         setChatUsers(chatUsers);
         setMessages(response.messages);
         setCurrUser(response.currUser);
+        console.log("Re renders done :");
       } catch (error: any) {
         if (error.status === 401) navigate("/auth");
         else if (error.status === 404) navigate("/");
@@ -59,7 +63,7 @@ const ChatPage = () => {
     };
 
     initializeChat();
-  }, [id, fetchChatMessages, navigate]);
+  }, [id, navigate]);
 
   useEffect(() => {
     const removeListener = onNewMessage((newMessage: Message) => {
@@ -77,7 +81,12 @@ const ChatPage = () => {
       <ChatHeader users={chatUsers} />
       <ChatContainer messages={messages} currUser={currUser} />
       <Box sx={{ p: 2, bgcolor: "background.paper" }}>
-        <ChatInput chatId={id || ""} currUser={currUser} />
+        <ChatInput
+          chatId={id || ""}
+          sendMessage={sendMessage}
+          socket={socket}
+          currUser={currUser}
+        />
       </Box>
     </ChatLayout>
   );

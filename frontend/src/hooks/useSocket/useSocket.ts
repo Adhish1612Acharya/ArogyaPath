@@ -8,9 +8,16 @@ const useSocket = (chatId: string, currUser: any) => {
   const socketRef = useRef<Socket | null>(null);
   const [socketConnected, setSocketConnected] = useState(false);
 
+  // Setup socket connection when currUser becomes available
   useEffect(() => {
-    // if (!chatId || !currUser) return;
+    if (!chatId || !currUser) return;
 
+    console.log(
+      "Initializing socket with user:",
+      currUser,
+      "and chat:",
+      chatId
+    );
     socketRef.current = io(ENDPOINT);
 
     socketRef.current.on("connect", () => {
@@ -28,16 +35,33 @@ const useSocket = (chatId: string, currUser: any) => {
         console.log("Socket disconnected");
       }
     };
-  }, [chatId, currUser]);
+  }, [chatId, currUser]); // Now this will rerun once currUser is set
 
-  const onNewMessage = useCallback((callback: (message: any) => void) => {
-    socketRef.current?.on("newMessage", callback);
+  const onNewMessage = (callback: (message: any) => void) => {
+    if (!socketRef.current) return () => {};
+    socketRef.current.on("newMessage", callback);
     return () => {
       socketRef.current?.off("newMessage", callback);
     };
-  }, []);
+  };
 
-  return { socket: socketRef.current, socketConnected, onNewMessage };
+  const sendMessage = useCallback(
+    (message: string) => {
+      if (socketRef.current && chatId) {
+        socketRef.current.emit("chatMessage", { message, chatId }); // ✅ correct format
+      } else {
+        console.warn("Socket not connected or chatId missing");
+      }
+    },
+    [chatId]
+  );
+
+  return {
+    socket: socketRef.current,
+    socketConnected,
+    onNewMessage,
+    sendMessage,
+  };
 };
 
 export default useSocket;

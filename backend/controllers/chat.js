@@ -7,7 +7,7 @@ export const getChatMessages = async (req, res) => {
 
   // Fetch all messages between the two users
   const messages = await Message.find({ chat: chatId })
-    .select("-chat -senderType")
+    .select("-chat")
     .sort({ createdAt: 1 })
     .populate("sender", "_id profile.fullName profile.profilePicture");
 
