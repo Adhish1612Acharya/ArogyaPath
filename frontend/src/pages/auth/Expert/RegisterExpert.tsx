@@ -1,34 +1,36 @@
 import { FC, useState } from "react";
-import { Heart, Loader2, UserPlus } from "lucide-react";
+import { Heart, UserPlus } from "lucide-react";
 import AuthLayoutExpert from "@/components/AuthLayoutExpert/AuthLayoutExpert";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import Button from "@mui/material/Button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate } from "react-router-dom";
 import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import { LoadingButton } from "@mui/lab";
 
 // Schema
 const registerSchema = z.object({
   fullName: z.string().min(1, "Full Name is required"),
   email: z.string().email("Invalid email"),
   password: z.string().min(6, "Minimum 6 characters"),
-  // confirmPassword: z.string(),
 });
-// .refine((data) => data.password === data.confirmPassword, {
-//   message: "Passwords must match",
-//   path: ["confirmPassword"],
-// });
 
 const userTypeOptions = [
   { type: "ayurvedic", label: "Ayurvedic Doctor", icon: Heart },
@@ -38,16 +40,19 @@ const userTypeOptions = [
 const RegisterExpert: FC = () => {
   const navigate = useNavigate();
   const { expertSignUp } = useExpertAuth();
-
+  const theme = useTheme();
   const [userType, setUserType] = useState<string | null>(null);
 
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
       fullName: "",
       email: "",
       password: "",
-      // confirmPassword: "",
     },
   });
 
@@ -76,178 +81,203 @@ const RegisterExpert: FC = () => {
       subtitle="Join our community and make a difference."
     >
       {!userType ? (
-        <div className="space-y-6">
-          <h3 className="text-lg font-medium text-gray-900">
+        <Box sx={{ width: "100%" }}>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
             Select your role
-          </h3>
-          <div className="grid grid-cols-1 gap-4">
+          </Typography>
+          <Grid container spacing={2}>
             {userTypeOptions.map(({ type, label, icon: Icon }) => (
-              <button
-                key={type}
-                onClick={() => setUserType(type)}
-                className="p-4 border-2 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-colors duration-200"
-              >
-                <Icon className="w-8 h-8 mx-auto mb-2 text-indigo-600" />
-                <span className="block text-sm font-medium text-gray-900">
-                  {label}
-                </span>
-              </button>
+              <Grid item xs={12} sm={6} key={type}>
+                <Card
+                  onClick={() => setUserType(type)}
+                  sx={{
+                    p: 3,
+                    cursor: "pointer",
+                    border: "2px solid transparent",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      borderColor: theme.palette.primary.main,
+                      backgroundColor: theme.palette.primary.lighter,
+                    },
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                    height: "100%",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: "50%",
+                      bgcolor: theme.palette.primary.light,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      mb: 2,
+                    }}
+                  >
+                    <Icon
+                      style={{
+                        width: 28,
+                        height: 28,
+                        color: theme.palette.primary.main,
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="subtitle1" fontWeight={500}>
+                    {label}
+                  </Typography>
+                </Card>
+              </Grid>
             ))}
-          </div>
-        </div>
+          </Grid>
+        </Box>
       ) : (
-        <>
-          <div className="space-y-8">
-            <div className="text-center">
-              <div className="mx-auto w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-4">
-                <UserPlus className="w-10 h-10 text-amber-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Expert Registration
-              </h2>
-              <p className="mt-2 text-sm text-gray-600">
-                Join ArogyaPath as a certified{" "}
-                {userType === "ayurvedic" ? "Ayurvedic" : "Naturopathy"}{" "}
-                practitioner
-              </p>
-            </div>
+        <Box sx={{ width: "100%" }}>
+          <Box sx={{ textAlign: "center", mb: 4 }}>
+            <Box
+              sx={{
+                mx: "auto",
+                width: 80,
+                height: 80,
+                bgcolor: "warning.light",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+              }}
+            >
+              <UserPlus style={{ width: 36, height: 36, color: theme.palette.warning.main }} />
+            </Box>
+            <Typography variant="h4" fontWeight={700} gutterBottom>
+              Expert Registration
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Join ArogyaPath as a certified{" "}
+              {userType === "ayurvedic" ? "Ayurvedic" : "Naturopathy"}{" "}
+              practitioner
+            </Typography>
+          </Box>
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onRegisterSubmit)}
-                className="space-y-6"
+          <Box component="form" onSubmit={handleSubmit(onRegisterSubmit)}>
+            <Stack spacing={3}>
+              <FormControl fullWidth variant="outlined" error={!!errors.fullName}>
+                <InputLabel htmlFor="fullName">Full Name</InputLabel>
+                <OutlinedInput
+                  id="fullName"
+                  label="Full Name"
+                  {...register("fullName")}
+                  placeholder="Vaidya Name"
+                />
+                {errors.fullName && (
+                  <FormHelperText>{errors.fullName.message}</FormHelperText>
+                )}
+              </FormControl>
+
+              <FormControl fullWidth variant="outlined" error={!!errors.email}>
+                <InputLabel htmlFor="email">Email</InputLabel>
+                <OutlinedInput
+                  id="email"
+                  label="Email"
+                  {...register("email")}
+                  placeholder="vaidya@example.com"
+                />
+                {errors.email && (
+                  <FormHelperText>{errors.email.message}</FormHelperText>
+                )}
+              </FormControl>
+
+              <FormControl fullWidth variant="outlined" error={!!errors.password}>
+                <InputLabel htmlFor="password">Password</InputLabel>
+                <OutlinedInput
+                  id="password"
+                  type="password"
+                  label="Password"
+                  {...register("password")}
+                  placeholder="••••••••"
+                />
+                {errors.password && (
+                  <FormHelperText>{errors.password.message}</FormHelperText>
+                )}
+              </FormControl>
+
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                color="warning"
+                size="large"
+                loading={isSubmitting}
+                loadingPosition="start"
+                startIcon={<UserPlus style={{ width: 20, height: 20 }} />}
+                sx={{
+                  py: 1.5,
+                  fontWeight: 600,
+                  textTransform: "none",
+                  fontSize: "1rem",
+                }}
               >
-                <FormField
-                  control={form.control}
-                  name="fullName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700">Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Vaidya Name" {...field} />
-                      </FormControl>
-                      <FormMessage className="text-xs text-rose-600" />
-                    </FormItem>
-                  )}
-                />
+                Register
+              </LoadingButton>
 
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700">Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="vaidya@example.com" {...field} />
-                      </FormControl>
-                      <FormMessage className="text-xs text-rose-600" />
-                    </FormItem>
-                  )}
-                />
+              <Divider sx={{ my: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  OR
+                </Typography>
+              </Divider>
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700">Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs text-rose-600" />
-                    </FormItem>
-                  )}
-                />
+              <Button
+                variant="outlined"
+                size="large"
+                onClick={googleRegister}
+                startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
+                sx={{
+                  py: 1.5,
+                  fontWeight: 600,
+                  textTransform: "none",
+                  fontSize: "1rem",
+                }}
+              >
+                Register with Google
+              </Button>
+            </Stack>
+          </Box>
 
-                {/* <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-700">
-                        Confirm Password
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          type="password"
-                          placeholder="••••••••"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage className="text-xs text-rose-600" />
-                    </FormItem>
-                  )}
-                /> */}
+          <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems="center" mt={4}>
+            <Button
+              onClick={() => setUserType(null)}
+              sx={{
+                color: "primary.main",
+                textTransform: "none",
+                fontWeight: 500,
+              }}
+            >
+              Change role
+            </Button>
 
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="warning"
-                  fullWidth
-                  disabled={form.formState.isSubmitting}
-                  startIcon={
-                    form.formState.isSubmitting ? (
-                      <Loader2 className="animate-spin w-5 h-5" />
-                    ) : (
-                      <UserPlus className="w-5 h-5" />
-                    )
+            <Typography variant="body2" color="text.secondary">
+              Already have an account?{" "}
+              <Button
+                href="/expert/login"
+                sx={{
+                  color: "warning.main",
+                  textTransform: "none",
+                  fontWeight: 600,
+                  p: 0,
+                  minWidth: 'auto',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    textDecoration: 'underline'
                   }
-                  sx={{ textTransform: "none", py: 1.5 }}
-                >
-                  Register
-                </Button>
-
-                {/* Divider */}
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-5 py-2 text-gray-500 rounded-md">
-                      Or
-                    </span>
-                  </div>
-                </div>
-
-                {/* Register with Google */}
-                <Button
-                  type="button"
-                  variant="outlined"
-                  fullWidth
-                  onClick={googleRegister}
-                  startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
-                  sx={{ textTransform: "none", py: 1.5 }}
-                >
-                  Register with Google
-                </Button>
-              </form>
-            </Form>
-
-            <div className="flex justify-between items-center mt-4">
-              <button
-                type="button"
-                onClick={() => setUserType(null)}
-                className="text-sm text-indigo-600 hover:text-indigo-500"
+                }}
               >
-                Change role
-              </button>
-
-              <p className="text-sm text-gray-600 text-right">
-                Already have an account?{" "}
-                <a
-                  href="/expert/login"
-                  className="font-medium text-amber-600 hover:text-amber-500"
-                >
-                  Sign in
-                </a>
-              </p>
-            </div>
-          </div>
-        </>
+                Sign in
+              </Button>
+            </Typography>
+          </Stack>
+        </Box>
       )}
     </AuthLayoutExpert>
   );
