@@ -1,30 +1,43 @@
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import Button from "@mui/material/Button";
-import { Input } from "@/components/ui/input";
+import { FC, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, LogIn } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import GoogleIcon from "@mui/icons-material/Google";
-import { FC } from "react";
+import {
+  Box,
+  Button,
+  Divider,
+  IconButton,
+  InputAdornment,
+  Link,
+  Stack,
+  TextField,
+  Typography,
+  useTheme
+} from "@mui/material";
+import {
+  Google as GoogleIcon,
+  Login as LoginIcon,
+  Visibility,
+  VisibilityOff
+} from "@mui/icons-material";
+import { LoadingButton } from "@mui/lab";
 import loginSchema from "./ExpertLoginFormSchema";
-import { useNavigate, useSearchParams } from "react-router-dom";
 import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
-// import { Button } from "@/components/ui/button";
+import { amber } from "@mui/material/colors";
 
 const ExpertLoginForm: FC = () => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect");
   const { expertLogin } = useExpertAuth();
-  const form = useForm<z.infer<typeof loginSchema>>({
+  
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting }
+  } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
@@ -32,14 +45,12 @@ const ExpertLoginForm: FC = () => {
     },
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     const response = await expertLogin(data.email, data.password);
     if (response.success) {
-      if (redirectPath) {
-        navigate(redirectPath);
-      } else {
-        navigate("/gposts");
-      }
+      navigate(redirectPath || "/gposts");
     }
   };
 
@@ -51,131 +62,179 @@ const ExpertLoginForm: FC = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <div className="mx-auto w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mb-4">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="w-10 h-10 text-amber-600"
-          >
-            <path d="M12 2v4M6 8l-3 3M21 11l-3-3M18 22v-4M15 15l3 3M9 15l-3 3" />
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900">Vaidya Login</h2>
-        <p className="mt-2 text-sm text-gray-600">
-          Access your Ayurvedic practice dashboard
-        </p>
-      </div>
+ 
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onLoginSubmit)} className="space-y-6">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">Email</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="vaidya"
-                    {...field}
-                    className="focus:ring-amber-500 focus:border-amber-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <div className="flex items-center justify-between">
-                  <FormLabel className="text-gray-700">Password</FormLabel>
-                  <a
-                    href="/expert/forgot-password"
-                    className="text-sm font-medium text-amber-600 hover:text-amber-500"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    {...field}
-                    className="focus:ring-amber-500 focus:border-amber-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <div className="space-y-4">
-            <Button
-              type="submit"
-              variant="contained"
-              color="warning"
-              fullWidth
-              disabled={form.formState.isSubmitting}
-              startIcon={
-                form.formState.isSubmitting ? (
-                  <Loader2 className="animate-spin w-5 h-5" />
-                ) : (
-                  <LogIn className="w-5 h-5" />
-                )
-              }
-              sx={{ textTransform: "none", py: 1.5 }}
+        <Stack spacing={4}>
+          {/* Header */}
+          <Box textAlign="center">
+            <Box
+              sx={{
+                width: 80,
+                height: 80,
+                bgcolor: amber[50],
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mx: "auto",
+                mb: 3
+              }}
             >
-              Sign in
-            </Button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ width: 40, height: 40, color: amber[600] }}
+              >
+                <path d="M12 2v4M6 8l-3 3M21 11l-3-3M18 22v-4M15 15l3 3M9 15l-3 3" />
+              </svg>
+            </Box>
+            <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
+              Vaidya Login
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Access your Ayurvedic practice dashboard
+            </Typography>
+          </Box>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-5 py-2 text-gray-500 rounded-md">
-                  Or
-                </span>
-              </div>
-            </div>
+          {/* Login Form */}
+          <Box component="form" onSubmit={handleSubmit(onLoginSubmit)}>
+            <Stack spacing={3}>
+              {/* Email Field */}
+              <TextField
+                {...register("email")}
+                label="Email"
+                variant="outlined"
+                placeholder="vaidya"
+                fullWidth
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                InputProps={{
+                  sx: {
+                    "&:hover fieldset": {
+                      borderColor: amber[600]
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: amber[600]
+                    }
+                  }
+                }}
+              />
 
-            <Button
-              type="button"
-              variant="outlined"
-              fullWidth
-              onClick={() => googleLogin()}
-              startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
-              sx={{ textTransform: "none", py: 1.5 }}
+              {/* Password Field */}
+              <TextField
+                {...register("password")}
+                label="Password"
+                type={showPassword ? "text" : "password"}
+                variant="outlined"
+                placeholder="••••••••"
+                fullWidth
+                error={!!errors.password}
+                helperText={errors.password?.message}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                  sx: {
+                    "&:hover fieldset": {
+                      borderColor: amber[600]
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: amber[600]
+                    }
+                  }
+                }}
+              />
+
+              <Box textAlign="right">
+                <Link
+                  href="/expert/forgot-password"
+                  color="amber.700"
+                  underline="hover"
+                  variant="body2"
+                >
+                  Forgot password?
+                </Link>
+              </Box>
+
+              {/* Submit Button */}
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                color="warning"
+                fullWidth
+                size="large"
+                loading={isSubmitting}
+                loadingPosition="start"
+                startIcon={<LoginIcon />}
+                sx={{
+                  py: 1.5,
+                  textTransform: "none",
+                  fontWeight: "medium",
+                  "&:hover": {
+                    backgroundColor: amber[700]
+                  }
+                }}
+              >
+                Sign in
+              </LoadingButton>
+
+              {/* Divider */}
+              <Divider sx={{ my: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                  OR
+                </Typography>
+              </Divider>
+
+              {/* Google Button */}
+              <Button
+                variant="outlined"
+                fullWidth
+                size="large"
+                onClick={googleLogin}
+                startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
+                sx={{
+                  py: 1.5,
+                  textTransform: "none",
+                  fontWeight: "medium",
+                  borderColor: "grey.300",
+                  "&:hover": {
+                    borderColor: "grey.400",
+                    backgroundColor: "action.hover"
+                  }
+                }}
+              >
+                Continue with Google
+              </Button>
+            </Stack>
+          </Box>
+
+          {/* Footer */}
+          <Typography variant="body2" textAlign="center" color="text.secondary">
+            New to ArogyaPath?{" "}
+            <Link
+              href="/expert/register"
+              color="amber.700"
+              underline="hover"
+              fontWeight="medium"
             >
-              Continue with Google
-            </Button>
-          </div>
-        </form>
-      </Form>
-
-      <div className="text-center text-sm text-gray-600">
-        <p>
-          New to ArogyaPath?{" "}
-          <a
-            href="/expert/register"
-            className="font-medium text-amber-600 hover:text-amber-500"
-          >
-            Create an account
-          </a>
-        </p>
-      </div>
-    </div>
+              Create an account
+            </Link>
+          </Typography>
+        </Stack>
+  
+    
   );
 };
 

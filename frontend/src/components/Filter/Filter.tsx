@@ -13,11 +13,18 @@ import {
   Checkbox,
   FormControlLabel,
   Button,
+  Fade,
+  Grow,
+  Slide,
+  CircularProgress,
 } from "@mui/material";
-// import useApi from "@/hooks/useApi/useApi";
+import { motion } from "framer-motion";
+
+
 
 import { ayurvedicMedicines } from "@/constants/ayurvedicMedicines";
 import { diseasesList } from "@/constants/diseasesList";
+
 
 interface FilterProps {
   applyFilters: (filters: string) => Promise<void>;
@@ -25,17 +32,15 @@ interface FilterProps {
 }
 
 export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
-  // const { get } = useApi();
-
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
   const [selectedMedicines, setSelectedMedicines] = useState<string[]>([]);
-  const [activeFilter, _setActiveFilter] = useState("Therapies");
+  const [activeFilter] = useState("Therapies");
   const [medicines, setMedicines] = useState<string[]>([]);
   const [diseases, setDiseases] = useState<string[]>([]);
-
-  // const [inputValue, setInputValue] = useState<string>("");
+  const [loadingDiseases, setLoadingDiseases] = useState(false);
+  const [loadingMedicines, setLoadingMedicines] = useState(false);
 
   const [selectedCategories, setSelectedCategories] = useState<
     Record<string, boolean>
@@ -49,19 +54,6 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
     seasonal: false,
   });
 
-  const [_loadingDiseases, setLoadingDiseases] = useState<boolean>(false);
-
-  // const diseases = [
-  //   "Diabetes",
-  //   "Hypertension",
-  //   "Arthritis",
-  //   "Asthma",
-  //   "Migraine",
-  //   "Digestive Disorders",
-  //   "Skin Diseases",
-  //   "Respiratory Issues",
-  // ];
-
   const categories = [
     { id: "herbs", label: "Herbs & Remedies" },
     { id: "routines", label: "Daily Routines" },
@@ -72,54 +64,13 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
     { id: "seasonal", label: "Seasonal Care" },
   ];
 
-  // const getAllDiseasesList = async (query: string) => {
-  //   try {
-  //     const response = await axios.get(
-  //       `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
-  //     );
-  //     setDiseases(response.data[3]);
-  //   } catch (err: any) {
-  //     console.log(err);
-  //   }
-  // };
-
-  // // Debounced API call
-  // const getAllDiseasesList = debounce(async (query: string) => {
-  //   try {
-  //     if (!query.trim()) {
-  //       setDiseases([]);
-  //       return;
-  //     }
-  //     setLoadingDiseases(true);
-
-  //     // const response = await axios.get(
-  //     //   `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
-  //     // );
-  //     setDiseases(diseasesList);
-  //   } catch (err) {
-  //     console.error("Error fetching diseases:", err);
-  //     setDiseases([]);
-  //   } finally {
-  //     setLoadingDiseases(false);
-  //   }
-  // }, 300); // 300ms debounce delay
-
-  // Debounced API call
   const getAllDiseasesList = () => {
     setLoadingDiseases(true);
-
-    // const response = await axios.get(
-    //   `${import.meta.env.VITE_DISEASE_API}?terms=${query}`
-    // );
-    setDiseases(diseasesList);
+    setTimeout(() => {
+      setDiseases(diseasesList);
+      setLoadingDiseases(false);
+    }, 500);
   };
-
-  // // Trigger API call when input changes
-  // useEffect(() => {
-  //   getAllDiseasesList(inputValue);
-  //   // Cleanup debounce on unmount
-  //   return () => getAllDiseasesList.cancel();
-  // }, [inputValue]);
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
@@ -142,241 +93,408 @@ export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
         medicines: selectedMedicines,
       };
 
-      // Convert each filter array to comma-separated string
       const queryString = Object.entries(filters)
         .map(([_key, value]) => value.join(","))
-        .filter((filter) => {
-          return filter !== "";
-        })
+        .filter((filter) => filter !== "")
         .join(",");
 
       setOpen(false);
-
       await applyFilters(queryString);
-    } catch (err: any) {
-      console.log(err);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const applyGetAllPosts = async () => {
     try {
       setOpen(false);
-
       await getAllPosts();
-    } catch (err: any) {
-      console.log(err);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   const getAyurvedicMedicinesList = async () => {
     try {
-      if (medicines.length > 0) return null;
-      // console.log("Medicines");
-      // const data = await get(import.meta.env.VITE_AYURVEDIC_MEDICINE);
-      // const response = await axios.get(
-      //   "https://ayurvedic-medcine-list.onrender.com/api/medicines"
-      // );
-      // if (response) {
-      //   setMedicines(response.data);
-      // } else {
-      setMedicines(ayurvedicMedicines);
-      // }
-    } catch (err: any) {
-      console.log(err);
+      if (medicines.length > 0) return;
+      setLoadingMedicines(true);
+      setTimeout(() => {
+        setMedicines(ayurvedicMedicines);
+        setLoadingMedicines(false);
+      }, 500);
+    } catch (err) {
+      console.error(err);
     }
   };
 
   return (
     <>
-      <Button
-        variant="contained"
-        className="border-green-600 text-green-600 hover:bg-green-50"
-        onClick={() => setOpen(true)}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
-        Filter
-      </Button>
+        <Button
+          variant="outlined"
+          className="border-green-600 text-green-600 hover:bg-green-50 hover:border-green-700 hover:text-green-700"
+          onClick={() => setOpen(true)}
+          sx={{
+            px: 3,
+            py: 1,
+            borderRadius: "8px",
+            fontWeight: 600,
+            letterSpacing: "0.5px",
+            transition: "all 0.3s ease",
+          }}
+        >
+          Filter
+        </Button>
+      </motion.div>
 
       <Dialog
         open={open}
         onClose={() => setOpen(false)}
         fullWidth
         maxWidth="md"
+        TransitionComponent={Slide}
+        transitionDuration={300}
       >
-        <DialogContent className="sm:max-w-lg">
-          <DialogTitle className="text-lg font-semibold text-gray-800">
-            Filter Posts
-          </DialogTitle>
-
-          <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-            <Tabs
-              value={tabValue}
-              onChange={handleTabChange}
-              aria-label="filter tabs"
+        <DialogContent className="sm:max-w-lg" sx={{ p: 0 }}>
+          <Box
+            sx={{
+              background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+              p: 3,
+              borderBottom: "1px solid #e5e7eb",
+            }}
+          >
+            <DialogTitle
+              sx={{
+                fontSize: "1.5rem",
+                fontWeight: 700,
+                color: "#065f46",
+                p: 0,
+                mb: 1,
+              }}
             >
-              <Tab
-                label="By Category"
-                sx={{ textTransform: "none", fontWeight: 500 }}
-              />
-              <Tab
-                label="By Disease"
-                sx={{ textTransform: "none", fontWeight: 500 }}
-              />
-              <Tab
-                label="By Medicine"
-                sx={{ textTransform: "none", fontWeight: 500 }}
-              />
-            </Tabs>
+              Filter Posts
+            </DialogTitle>
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+              <Tabs
+                value={tabValue}
+                onChange={handleTabChange}
+                aria-label="filter tabs"
+                sx={{
+                  "& .MuiTabs-indicator": {
+                    backgroundColor: "#059669",
+                    height: 3,
+                  },
+                }}
+              >
+                <Tab
+                  label="By Category"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: tabValue === 0 ? "#065f46" : "#6b7280",
+                    "&:hover": {
+                      color: "#059669",
+                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                    },
+                  }}
+                />
+                <Tab
+                  label="By Disease"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: tabValue === 1 ? "#065f46" : "#6b7280",
+                    "&:hover": {
+                      color: "#059669",
+                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                    },
+                  }}
+                />
+                <Tab
+                  label="By Medicine"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: tabValue === 2 ? "#065f46" : "#6b7280",
+                    "&:hover": {
+                      color: "#059669",
+                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                    },
+                  }}
+                />
+              </Tabs>
+            </Box>
           </Box>
 
-          {tabValue === 0 && (
-            <div className="flex h-full">
-              {/* Left Column: Filter Categories */}
+          <Box sx={{ p: 3 }}>
+            {tabValue === 0 && (
+              <Fade in={tabValue === 0} timeout={300}>
+                <div className="flex h-full">
+                  <div className="w-full space-y-6">
+                    {activeFilter === "Therapies" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {categories.map((category) => (
+                          <motion.div
+                            key={category.id}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={selectedCategories[category.id]}
+                                  onChange={() =>
+                                    handleCategoryChange(category.id)
+                                  }
+                                  color="primary"
+                                  sx={{
+                                    color: "#059669",
+                                    "&.Mui-checked": {
+                                      color: "#059669",
+                                    },
+                                    "&:hover": {
+                                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                                    },
+                                  }}
+                                />
+                              }
+                              label={
+                                <span className="text-gray-700">
+                                  {category.label}
+                                </span>
+                              }
+                              sx={{
+                                "& .MuiFormControlLabel-label": {
+                                  fontSize: "0.9rem",
+                                  fontWeight: 500,
+                                },
+                                backgroundColor: selectedCategories[category.id]
+                                  ? "#f0fdf4"
+                                  : "transparent",
+                                borderRadius: "8px",
+                                px: 2,
+                                py: 1,
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  backgroundColor: "rgba(5, 150, 105, 0.05)",
+                                },
+                              }}
+                            />
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Fade>
+            )}
 
-              {/* Right Column: Filter Options */}
-              <div className="w-3/4 pl-6 space-y-6">
-                {activeFilter === "Therapies" && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {categories.map((category) => (
-                      <FormControlLabel
-                        key={category.id}
-                        control={
-                          <Checkbox
-                            checked={selectedCategories[category.id]}
-                            onChange={() => handleCategoryChange(category.id)}
-                            color="primary"
+            {tabValue === 1 && (
+              <Grow in={tabValue === 1} timeout={300}>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Select diseases to filter relevant Ayurvedic posts:
+                  </p>
+                  <Autocomplete
+                    multiple
+                    loading={loadingDiseases}
+                    options={diseases}
+                    value={selectedDiseases}
+                    onChange={(_event, newValue) => {
+                      setSelectedDiseases(newValue);
+                    }}
+                    renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500 }}
+                        >
+                          <Chip
+                            variant="outlined"
+                            label={option}
+                            {...getTagProps({ index })}
+                            className="m-1"
                             sx={{
+                              backgroundColor: "#f0fdf4",
+                              borderColor: "#059669",
                               color: "#059669",
-                              "&.Mui-checked": {
-                                color: "#059669",
+                              "&:hover": {
+                                backgroundColor: "#dcfce7",
                               },
                             }}
                           />
-                        }
-                        label={category.label}
-                        sx={{
-                          "& .MuiFormControlLabel-label": {
-                            fontSize: "0.875rem",
+                        </motion.div>
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Select Diseases"
+                        placeholder="Search diseases..."
+                        onFocus={getAllDiseasesList}
+                        InputProps={{
+                          ...params.InputProps,
+                          sx: {
+                            borderRadius: "8px",
+                            "&:hover fieldset": {
+                              borderColor: "#059669 !important",
+                            },
                           },
+                          endAdornment: (
+                            <>
+                              {loadingDiseases ? (
+                                <CircularProgress
+                                  color="success"
+                                  size={20}
+                                  sx={{ mr: 1 }}
+                                />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
                         }}
                       />
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {tabValue === 1 && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Select diseases to filter relevant Ayurvedic posts:
-              </p>
-              <Autocomplete
-                multiple
-                // loading={loadingDiseases}
-                options={diseases}
-                value={selectedDiseases}
-                onChange={(_event, newValue) => {
-                  setSelectedDiseases(newValue);
-                }}
-                // inputValue={inputValue}
-                // onInputChange={(_event, newInputValue) => {
-                //   setInputValue(newInputValue);
-                // }}
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      variant="outlined"
-                      label={option}
-                      {...getTagProps({ index })}
-                      className="m-1"
-                      sx={{
-                        backgroundColor: "#f0fdf4",
-                        borderColor: "#059669",
-                        color: "#059669",
-                      }}
-                    />
-                  ))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Select Diseases"
-                    placeholder="Search diseases..."
-                    onFocus={getAllDiseasesList}
-                    // InputProps={{
-                    //   ...params.InputProps,
-                    //   endAdornment: (
-                    //     <>
-                    //       {loadingDiseases ? (
-                    //         <CircularProgress color="inherit" size={20} />
-                    //       ) : null}
-                    //       {params.InputProps.endAdornment}
-                    //     </>
-                    //   ),
-                    // }}
+                    )}
                   />
-                )}
-              />
-            </div>
-          )}
+                </div>
+              </Grow>
+            )}
 
-          {tabValue === 2 && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Select medicines to filter related Ayurvedic content:
-              </p>
-              <Autocomplete
-                multiple
-                options={medicines}
-                value={selectedMedicines}
-                onChange={(_event, newValue) => {
-                  setSelectedMedicines(newValue);
-                }}
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      variant="outlined"
-                      label={option}
-                      {...getTagProps({ index })}
-                      className="m-1"
-                      sx={{
-                        backgroundColor: "#ecfdf5",
-                        borderColor: "#10b981",
-                        color: "#10b981",
-                      }}
-                    />
-                  ))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Select Medicines"
-                    placeholder="Search medicines..."
-                    onFocus={getAyurvedicMedicinesList}
+            {tabValue === 2 && (
+              <Fade in={tabValue === 2} timeout={300}>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Select medicines to filter related Ayurvedic content:
+                  </p>
+                  <Autocomplete
+                    multiple
+                    loading={loadingMedicines}
+                    options={medicines}
+                    value={selectedMedicines}
+                    onChange={(_event, newValue) => {
+                      setSelectedMedicines(newValue);
+                    }}
+                    renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500 }}
+                        >
+                          <Chip
+                            variant="outlined"
+                            label={option}
+                            {...getTagProps({ index })}
+                            className="m-1"
+                            sx={{
+                              backgroundColor: "#ecfdf5",
+                              borderColor: "#10b981",
+                              color: "#10b981",
+                              "&:hover": {
+                                backgroundColor: "#d1fae5",
+                              },
+                            }}
+                          />
+                        </motion.div>
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Select Medicines"
+                        placeholder="Search medicines..."
+                        onFocus={getAyurvedicMedicinesList}
+                        InputProps={{
+                          ...params.InputProps,
+                          sx: {
+                            borderRadius: "8px",
+                            "&:hover fieldset": {
+                              borderColor: "#10b981 !important",
+                            },
+                          },
+                          endAdornment: (
+                            <>
+                              {loadingMedicines ? (
+                                <CircularProgress
+                                  color="success"
+                                  size={20}
+                                  sx={{ mr: 1 }}
+                                />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
                   />
-                )}
-              />
-            </div>
-          )}
+                </div>
+              </Fade>
+            )}
 
-          <DialogActions className="mt-6">
-            <Button
-              // variant="outline"
-              onClick={applyGetAllPosts}
-              className="text-gray-600 hover:bg-gray-100"
+            <DialogActions
+              sx={{
+                mt: 4,
+                px: 0,
+                justifyContent: "space-between",
+              }}
             >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleApplyFilters}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Apply Filters
-            </Button>
-          </DialogActions>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
+                  variant="outlined"
+                  onClick={applyGetAllPosts}
+                  sx={{
+                    color: "#6b7280",
+                    borderColor: "#e5e7eb",
+                    fontWeight: 600,
+                    px: 3,
+                    py: 1,
+                    borderRadius: "8px",
+                    "&:hover": {
+                      backgroundColor: "#f3f4f6",
+                      borderColor: "#d1d5db",
+                    },
+                  }}
+                >
+                  Reset Filters
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
+                  variant="contained"
+                  onClick={handleApplyFilters}
+                  sx={{
+                    backgroundColor: "#059669",
+                    color: "white",
+                    fontWeight: 600,
+                    px: 3,
+                    py: 1,
+                    borderRadius: "8px",
+                    "&:hover": {
+                      backgroundColor: "#047857",
+                    },
+                  }}
+                >
+                  Apply Filters
+                </Button>
+              </motion.div>
+            </DialogActions>
+          </Box>
         </DialogContent>
       </Dialog>
     </>

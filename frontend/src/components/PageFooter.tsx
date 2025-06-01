@@ -24,6 +24,8 @@ import {
   Group,
   LibraryBooks,
   Healing,
+  ArrowUpward,
+  Send
 } from "@mui/icons-material";
 import {
   Box,
@@ -38,13 +40,25 @@ import {
   Slide,
   Fade,
   Zoom,
+  TextField,
+  Button,
+  Tooltip,
+  Grow,
+  Collapse
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
+import { styled, keyframes } from "@mui/material/styles";
 import { Link as RouterLink } from "react-router-dom";
+
+// Floating animation
+const float = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-15px); }
+  100% { transform: translateY(0px); }
+`;
 
 const FloatingIcon = styled(Box)(({ theme }) => ({
   position: "absolute",
-  background: theme.palette.primary.main,
+  background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.light} 100%)`,
   color: theme.palette.primary.contrastText,
   borderRadius: "50%",
   width: 60,
@@ -54,8 +68,14 @@ const FloatingIcon = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   boxShadow: theme.shadows[10],
   zIndex: 1,
+  animation: `${float} 6s ease-in-out infinite`,
   "& svg": {
     fontSize: 30,
+  },
+  transition: "all 0.3s ease",
+  "&:hover": {
+    transform: "scale(1.1)",
+    boxShadow: theme.shadows[16],
   },
 }));
 
@@ -64,10 +84,18 @@ const StyledLink = styled(Link)(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(1),
   transition: "all 0.3s ease",
+  padding: theme.spacing(0.5, 0),
   "&:hover": {
     color: theme.palette.secondary.main,
     transform: "translateX(5px)",
+    textDecoration: "none",
   },
+}));
+
+const AnimatedDivider = styled(Divider)(({ theme }) => ({
+  background: `linear-gradient(90deg, transparent, ${theme.palette.secondary.main}, transparent)`,
+  height: 2,
+  opacity: 0.7,
 }));
 
 const PageFooter = () => {
@@ -75,7 +103,27 @@ const PageFooter = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [scrollPosition, setScrollPosition] = useState(0);
-  const [visible, setVisible] = useState(false);
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+  const [hoveredIcon, setHoveredIcon] = useState(null);
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (email) {
+      setSubscribed(true);
+      setEmail("");
+      setTimeout(() => setSubscribed(false), 3000);
+    }
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.pageYOffset);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const footerLinks = {
     expert: [
@@ -133,16 +181,13 @@ const PageFooter = () => {
     ],
   };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const position = window.pageYOffset;
-      setScrollPosition(position);
-      setVisible(position > 100);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  const socialMedia = [
+    { icon: <Facebook />, name: "Facebook", color: "#3b5998" },
+    { icon: <Twitter />, name: "Twitter", color: "#1da1f2" },
+    { icon: <Instagram />, name: "Instagram", color: "#e1306c" },
+    { icon: <YouTube />, name: "YouTube", color: "#ff0000" },
+    { icon: <LinkedIn />, name: "LinkedIn", color: "#0077b5" },
+  ];
 
   return (
     <Box
@@ -161,29 +206,42 @@ const PageFooter = () => {
           right: 0,
           height: "4px",
           background: `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
+          animation: `${float} 8s ease-in-out infinite`,
         },
       }}
     >
       {/* Floating decorative elements */}
-      <Fade in={visible} timeout={1000}>
-        <FloatingIcon sx={{ top: "10%", left: "5%", animation: "float 6s ease-in-out infinite" }}>
-          <Spa />
-        </FloatingIcon>
-      </Fade>
-      <Fade in={visible} timeout={1500}>
-        <FloatingIcon sx={{ top: "20%", right: "5%", animation: "float 8s ease-in-out infinite" }}>
-          <Healing />
-        </FloatingIcon>
-      </Fade>
+      <FloatingIcon sx={{ 
+        top: "10%", 
+        left: "5%", 
+        animationDelay: "0.5s",
+        display: { xs: "none", lg: "flex" }
+      }}>
+        <Spa />
+      </FloatingIcon>
+      
+      <FloatingIcon sx={{ 
+        top: "20%", 
+        right: "5%", 
+        animationDelay: "1s",
+        display: { xs: "none", lg: "flex" }
+      }}>
+        <Healing />
+      </FloatingIcon>
 
       <Container maxWidth="xl">
         <Grid container spacing={6}>
           {/* Brand Column */}
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={5} lg={4}>
             <Slide direction="up" in={true} timeout={500}>
               <Box sx={{ position: "relative", zIndex: 2 }}>
                 <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <Spa sx={{ fontSize: 40, color: theme.palette.secondary.main, mr: 1 }} />
+                  <Spa sx={{ 
+                    fontSize: 40, 
+                    color: theme.palette.secondary.main, 
+                    mr: 1,
+                    animation: `${float} 4s ease-in-out infinite` 
+                  }} />
                   <Typography
                     variant="h4"
                     component={RouterLink}
@@ -192,82 +250,112 @@ const PageFooter = () => {
                       fontWeight: 700,
                       color: "inherit",
                       textDecoration: "none",
-                      "&:hover": { color: theme.palette.secondary.main },
+                      "&:hover": { 
+                        color: theme.palette.secondary.main,
+                        textShadow: `0 0 10px ${theme.palette.secondary.light}`
+                      },
+                      transition: "all 0.3s ease",
                     }}
                   >
                     AyurCare
                   </Typography>
                 </Box>
-                <Typography variant="body1" sx={{ mb: 3 }}>
+                <Typography variant="body1" sx={{ mb: 3, opacity: 0.9 }}>
                   Empowering health through traditional wisdom and modern care.
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", color: theme.palette.secondary.light }}>
-                  <Spa sx={{ mr: 1 }} />
+                <Box sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  color: theme.palette.secondary.light,
+                  mb: 4
+                }}>
+                  <Spa sx={{ mr: 1, fontSize: 18 }} />
                   <Typography variant="caption">Ancient roots, modern healing</Typography>
                 </Box>
 
                 {/* Newsletter Subscription */}
-                {!isMobile && (
-                  <Box sx={{ mt: 4 }}>
-                    <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 600 }}>
-                      Stay Updated
-                    </Typography>
+                <Box sx={{ mt: 4, maxWidth: 400 }}>
+                  <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
+                    Stay Updated
+                  </Typography>
+                  <Collapse in={!subscribed}>
                     <Box
                       component="form"
+                      onSubmit={handleSubscribe}
                       sx={{
                         display: "flex",
                         gap: 1,
-                        "& .MuiInputBase-root": {
-                          color: theme.palette.primary.contrastText,
-                          "&::before": { borderColor: theme.palette.primary.contrastText },
-                        },
+                        alignItems: "center",
                       }}
                     >
-                      <input
-                        type="email"
+                      <TextField
+                        variant="outlined"
                         placeholder="Your email"
-                        style={{
-                          flex: 1,
-                          padding: "8px 12px",
-                          borderRadius: "4px",
-                          border: "none",
-                          background: "rgba(255, 255, 255, 0.1)",
-                          color: "white",
-                        }}
-                      />
-                      <button
-                        type="submit"
-                        style={{
-                          background: theme.palette.secondary.main,
-                          color: theme.palette.secondary.contrastText,
-                          border: "none",
-                          borderRadius: "4px",
-                          padding: "8px 16px",
-                          cursor: "pointer",
-                          fontWeight: "bold",
-                          transition: "all 0.3s",
-                          "&:hover": {
-                            background: theme.palette.secondary.dark,
+                        size="small"
+                        fullWidth
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        sx={{
+                          "& .MuiOutlinedInput-root": {
+                            color: theme.palette.primary.contrastText,
+                            "& fieldset": {
+                              borderColor: "rgba(255, 255, 255, 0.3)",
+                            },
+                            "&:hover fieldset": {
+                              borderColor: theme.palette.secondary.main,
+                            },
+                          },
+                          "& .MuiInputLabel-root": {
+                            color: "rgba(255, 255, 255, 0.7)",
                           },
                         }}
-                      >
-                        Subscribe
-                      </button>
+                      />
+                      <Tooltip title="Subscribe">
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color="secondary"
+                          sx={{
+                            minWidth: 0,
+                            height: 40,
+                            width: 40,
+                            borderRadius: "50%",
+                          }}
+                        >
+                          <Send />
+                        </Button>
+                      </Tooltip>
                     </Box>
-                  </Box>
-                )}
+                  </Collapse>
+                  <Collapse in={subscribed}>
+                    <Typography variant="body2" color="secondary" sx={{ fontStyle: "italic" }}>
+                      Thank you for subscribing!
+                    </Typography>
+                  </Collapse>
+                </Box>
               </Box>
             </Slide>
           </Grid>
 
           {/* Dynamic Links Columns */}
           {footerLinks[role || "noUser"].map((section, index) => (
-            <Grid item xs={12} sm={6} md={2} key={index}>
-              <Slide direction="up" in={true} timeout={(index + 1) * 300}>
+            <Grid item xs={6} sm={4} md={3} lg={2} key={index}>
+              <Grow in={true} timeout={(index + 1) * 300}>
                 <Box>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Box sx={{ 
+                    display: "flex", 
+                    alignItems: "center", 
+                    mb: 2,
+                    paddingBottom: 1,
+                    borderBottom: `2px solid ${theme.palette.secondary.main}`,
+                    width: "fit-content"
+                  }}>
                     {React.cloneElement(section.icon, {
-                      sx: { color: theme.palette.secondary.main, mr: 1 },
+                      sx: { 
+                        color: theme.palette.secondary.main, 
+                        mr: 1,
+                        fontSize: 22 
+                      },
                     })}
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       {section.title}
@@ -281,72 +369,81 @@ const PageFooter = () => {
                           to={link.href}
                           color="inherit"
                           underline="none"
-                          sx={{ py: 0.5 }}
                         >
-                          {link.icon}
+                          {React.cloneElement(link.icon, { sx: { fontSize: 18 } })}
                           {link.label}
                         </StyledLink>
                       </li>
                     ))}
                   </Box>
                 </Box>
-              </Slide>
+              </Grow>
             </Grid>
           ))}
 
           {/* Contact Column */}
-          <Grid item xs={12} sm={6} md={3}>
+          <Grid item xs={12} sm={6} md={4} lg={3}>
             <Slide direction="up" in={true} timeout={900}>
               <Box>
-                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                  <ContactSupport sx={{ color: theme.palette.secondary.main, mr: 1 }} />
+                <Box sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  mb: 2,
+                  paddingBottom: 1,
+                  borderBottom: `2px solid ${theme.palette.secondary.main}`,
+                  width: "fit-content"
+                }}>
+                  <ContactSupport sx={{ 
+                    color: theme.palette.secondary.main, 
+                    mr: 1,
+                    fontSize: 22 
+                  }} />
                   <Typography variant="h6" sx={{ fontWeight: 600 }}>
                     Contact Us
                   </Typography>
                 </Box>
                 <Box sx={{ "& > *:not(:last-child)": { mb: 2 } }}>
                   <StyledLink href="mailto:ayurcare@example.com" color="inherit" underline="none">
-                    <Email />
+                    <Email sx={{ fontSize: 18 }} />
                     ayurcare@example.com
                   </StyledLink>
                   <StyledLink href="tel:+919876543210" color="inherit" underline="none">
-                    <Phone />
+                    <Phone sx={{ fontSize: 18 }} />
                     +91 9876543210
                   </StyledLink>
                   <StyledLink href="#" color="inherit" underline="none">
-                    <Place />
+                    <Place sx={{ fontSize: 18 }} />
                     Mangalore, India
                   </StyledLink>
                 </Box>
 
                 {/* Social Media */}
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 600 }}>
+                <Box sx={{ mt: 4 }}>
+                  <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 600 }}>
                     Follow Us
                   </Typography>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    {[
-                      { icon: <Facebook />, name: "Facebook" },
-                      { icon: <Twitter />, name: "Twitter" },
-                      { icon: <Instagram />, name: "Instagram" },
-                      { icon: <YouTube />, name: "YouTube" },
-                      { icon: <LinkedIn />, name: "LinkedIn" },
-                    ].map((social, i) => (
-                      <Zoom in={true} timeout={1200 + i * 100} key={social.name}>
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                    {socialMedia.map((social) => (
+                      <Tooltip title={social.name} key={social.name}>
                         <IconButton
                           aria-label={social.name}
                           sx={{
-                            background: "rgba(255, 255, 255, 0.1)",
-                            color: "inherit",
+                            background: hoveredIcon === social.name ? social.color : "rgba(255, 255, 255, 0.1)",
+                            color: hoveredIcon === social.name ? "#fff" : "inherit",
+                            transition: "all 0.3s ease",
                             "&:hover": {
-                              background: theme.palette.secondary.main,
-                              color: theme.palette.secondary.contrastText,
+                              background: social.color,
+                              color: "#fff",
+                              transform: "translateY(-3px)",
+                              boxShadow: `0 5px 15px ${social.color}80`,
                             },
                           }}
+                          onMouseEnter={() => setHoveredIcon(social.name)}
+                          onMouseLeave={() => setHoveredIcon(null)}
                         >
                           {social.icon}
                         </IconButton>
-                      </Zoom>
+                      </Tooltip>
                     ))}
                   </Box>
                 </Box>
@@ -355,13 +452,16 @@ const PageFooter = () => {
           </Grid>
         </Grid>
 
-        <Divider sx={{ my: 4, background: "rgba(255, 255, 255, 0.2)" }} />
+        <AnimatedDivider sx={{ my: 6 }} />
 
         {/* Bottom Footer */}
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={6}>
             <Fade in={true} timeout={1500}>
-              <Typography variant="body2" sx={{ textAlign: { xs: "center", md: "left" } }}>
+              <Typography variant="body2" sx={{ 
+                textAlign: { xs: "center", md: "left" },
+                opacity: 0.8
+              }}>
                 © {new Date().getFullYear()} AyurCare. All rights reserved.
               </Typography>
             </Fade>
@@ -373,15 +473,37 @@ const PageFooter = () => {
                   display: "flex",
                   justifyContent: { xs: "center", md: "flex-end" },
                   gap: 2,
+                  flexWrap: "wrap",
                 }}
               >
-                <Link component={RouterLink} to="/privacy" color="inherit" underline="hover" variant="body2">
+                <Link 
+                  component={RouterLink} 
+                  to="/privacy" 
+                  color="inherit" 
+                  underline="hover" 
+                  variant="body2"
+                  sx={{ opacity: 0.8, "&:hover": { opacity: 1 } }}
+                >
                   Privacy Policy
                 </Link>
-                <Link component={RouterLink} to="/terms" color="inherit" underline="hover" variant="body2">
+                <Link 
+                  component={RouterLink} 
+                  to="/terms" 
+                  color="inherit" 
+                  underline="hover" 
+                  variant="body2"
+                  sx={{ opacity: 0.8, "&:hover": { opacity: 1 } }}
+                >
                   Terms of Service
                 </Link>
-                <Link component={RouterLink} to="/cookies" color="inherit" underline="hover" variant="body2">
+                <Link 
+                  component={RouterLink} 
+                  to="/cookies" 
+                  color="inherit" 
+                  underline="hover" 
+                  variant="body2"
+                  sx={{ opacity: 0.8, "&:hover": { opacity: 1 } }}
+                >
                   Cookie Policy
                 </Link>
               </Box>
@@ -391,36 +513,35 @@ const PageFooter = () => {
       </Container>
 
       {/* Floating back to top button */}
-      {scrollPosition > 300 && (
-        <Fade in={scrollPosition > 300}>
-          <Box
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            sx={{
-              position: "fixed",
-              bottom: 24,
-              right: 24,
-              width: 50,
-              height: 50,
-              borderRadius: "50%",
-              background: theme.palette.secondary.main,
-              color: theme.palette.secondary.contrastText,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              boxShadow: theme.shadows[10],
-              zIndex: 1000,
-              transition: "all 0.3s",
-              "&:hover": {
-                transform: "translateY(-5px)",
-                background: theme.palette.secondary.dark,
-              },
-            }}
-          >
-            <Spa sx={{ transform: "rotate(180deg)" }} />
-          </Box>
-        </Fade>
-      )}
+      <Fade in={scrollPosition > 300}>
+        <Box
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          sx={{
+            position: "fixed",
+            bottom: 24,
+            right: 24,
+            width: 50,
+            height: 50,
+            borderRadius: "50%",
+            background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.light} 100%)`,
+            color: theme.palette.secondary.contrastText,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: theme.shadows[10],
+            zIndex: 1000,
+            transition: "all 0.3s",
+            opacity: scrollPosition > 300 ? 1 : 0,
+            "&:hover": {
+              transform: "translateY(-5px) scale(1.1)",
+              boxShadow: `0 5px 20px ${theme.palette.secondary.main}80`,
+            },
+          }}
+        >
+          <ArrowUpward />
+        </Box>
+      </Fade>
     </Box>
   );
 };

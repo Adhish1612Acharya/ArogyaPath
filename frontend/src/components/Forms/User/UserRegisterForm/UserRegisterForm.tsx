@@ -1,26 +1,31 @@
 import { z } from "zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import userRegisterSchema from "./UserRegisterSchema";
-import { Loader2, UserPlus } from "lucide-react";
-import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
-import GoogleIcon from "@mui/icons-material/Google";
 import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
+import {
+  Box,
+  Button,
+  Divider,
+  Grid,
+  TextField,
+  Typography,
+  useTheme,
+  Paper,
+  Link,
+  CircularProgress,
+  Stack,
+} from "@mui/material";
+import {
+  Google as GoogleIcon,
+  PersonAdd as PersonAddIcon,
+} from "@mui/icons-material";
 
 export const UserRegisterForm = () => {
   const { userSignUp } = useUserAuth();
   const navigate = useNavigate();
-
+  const theme = useTheme();
 
   const form = useForm<z.infer<typeof userRegisterSchema>>({
     resolver: zodResolver(userRegisterSchema),
@@ -50,119 +55,179 @@ export const UserRegisterForm = () => {
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="fullName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">Full Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="John Doe"
-                    {...field}
-                    className="focus:ring-green-500 focus:border-green-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">Email</FormLabel>
-                <FormControl>
-                  <Input
-                    type="email"
-                    placeholder="you@gmail.com"
-                    {...field}
-                    className="focus:ring-green-500 focus:border-green-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-700">Password</FormLabel>
-                <FormControl>
-                  <Input
-                    type="password"
-                    placeholder="••••••••"
-                    {...field}
-                    className="focus:ring-green-500 focus:border-green-500"
-                  />
-                </FormControl>
-                <FormMessage className="text-xs text-rose-600" />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <Button
-            type="submit"
-            variant="contained"
-            color="success"
-            fullWidth
-            disabled={form.formState.isSubmitting}
-            startIcon={
-              form.formState.isSubmitting ? (
-                <Loader2 className="animate-spin w-5 h-5" />
-              ) : (
-                <UserPlus className="w-5 h-5" />
-              )
-            }
-            sx={{
-              textTransform: "none",
-              py: 1.5,
-              fontSize: "1rem",
-              fontWeight: 600,
-            }}
-          >
-            Create Account
-          </Button>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-gray-500">
-                Or continue with
-              </span>
-            </div>
-          </div>
-
-          <Button type="button" className="w-full" onClick={googleSignUp}>
-            <GoogleIcon fontSize="large" />
-            SignUp with Google
-          </Button>
-        </div>
-
-        <div className="text-center text-sm text-gray-600">
-          <p>
-            Already have an account?{" "}
-            <a
-              href="/user/login"
-              className="font-medium text-green-600 hover:text-green-500"
+        <Stack spacing={4}>
+          {/* Header */}
+          <Box textAlign="center">
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                fontWeight: 700,
+                color: theme.palette.text.primary,
+                mb: 1,
+              }}
             >
-              Sign in
-            </a>
-          </p>
-        </div>
-      </form>
-    </Form>
+              Create Your Account
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Join our community today
+            </Typography>
+          </Box>
+
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <Stack spacing={3}>
+              {/* Form Fields */}
+              
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    label="Full Name"
+                    variant="outlined"
+                    error={!!form.formState.errors.fullName}
+                    helperText={form.formState.errors.fullName?.message}
+                    {...form.register("fullName")}
+                    placeholder="John Doe"
+                    InputProps={{
+                      sx: {
+                        borderRadius: 2,
+                        "&:focus-within fieldset": {
+                          borderColor: `${theme.palette.success.main} !important`,
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    fullWidth
+                    type="email"
+                    label="Email"
+                    variant="outlined"
+                    error={!!form.formState.errors.email}
+                    helperText={form.formState.errors.email?.message}
+                    {...form.register("email")}
+                    placeholder="you@gmail.com"
+                    InputProps={{
+                      sx: {
+                        borderRadius: 2,
+                        "&:focus-within fieldset": {
+                          borderColor: `${theme.palette.success.main} !important`,
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    type="password"
+                    label="Password"
+                    variant="outlined"
+                    error={!!form.formState.errors.password}
+                    helperText={form.formState.errors.password?.message}
+                    {...form.register("password")}
+                    placeholder="••••••••"
+                    InputProps={{
+                      sx: {
+                        borderRadius: 2,
+                        "&:focus-within fieldset": {
+                          borderColor: `${theme.palette.success.main} !important`,
+                        },
+                      },
+                    }}
+                  />
+                </Grid>
+              
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                variant="contained"
+                color="success"
+                fullWidth
+                size="large"
+                disabled={form.formState.isSubmitting}
+                startIcon={
+                  form.formState.isSubmitting ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <PersonAddIcon />
+                  )
+                }
+                sx={{
+                  py: 1.5,
+                  borderRadius: 2,
+                  fontWeight: 600,
+                  fontSize: "1rem",
+                  textTransform: "none",
+                  boxShadow: "none",
+                  "&:hover": {
+                    boxShadow: "none",
+                  },
+                }}
+              >
+                Create Account
+              </Button>
+
+              {/* Divider */}
+              <Divider sx={{ my: 1 }}>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ px: 2 }}
+                >
+                  OR CONTINUE WITH
+                </Typography>
+              </Divider>
+
+              {/* Google Button */}
+              <Button
+                variant="outlined"
+                fullWidth
+                size="large"
+                onClick={googleSignUp}
+                startIcon={<GoogleIcon />}
+                sx={{
+                  py: 1.5,
+                  borderRadius: 2,
+                  textTransform: "none",
+                  fontSize: "1rem",
+                  borderWidth: 1.5,
+                  "&:hover": {
+                    borderWidth: 1.5,
+                  },
+                }}
+              >
+                Sign up with Google
+              </Button>
+
+              {/* Login Link */}
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                textAlign="center"
+                sx={{ mt: 2 }}
+              >
+                Already have an account?{" "}
+                <Link
+                  href="/user/login"
+                  color="success.main"
+                  sx={{
+                    fontWeight: 600,
+                    textDecoration: "none",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                >
+                  Sign in
+                </Link>
+              </Typography>
+            </Stack>
+          </form>
+        </Stack>
+  
   );
 };
