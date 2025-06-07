@@ -1,14 +1,4 @@
 import {
-  Favorite,
-  ChatBubbleOutline,
-  Share,
-  Bookmark,
-  MenuBook,
-  AccessTime,
-  MoreVert,
-} from "@mui/icons-material";
-import {
-  Button,
   Avatar,
   Card,
   CardContent,
@@ -20,7 +10,28 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
+  Divider,
+  CardHeader,
+  Collapse,
+  Box,
+  Badge,
 } from "@mui/material";
+import {
+  Favorite,
+  FavoriteBorder,
+  ChatBubbleOutline,
+  Share,
+  Bookmark,
+  BookmarkBorder,
+  MenuBook,
+  AccessTime,
+  MoreVert,
+  Visibility,
+  Report,
+  Edit,
+  Delete,
+} from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useRef, FC } from "react";
@@ -30,21 +41,66 @@ import ShareMenu from "../../ShareMenu/ShareMenu";
 import { GeneralPostCardProps } from "./GeneralPostCard.types";
 import CommentSection from "../CommentSection/CommentSection";
 import { Comment } from "@/types/Comment.types";
+import { useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 2,
+  overflow: "hidden",
+  transition: "all 0.3s ease",
+  boxShadow: theme.shadows[2],
+  border: `1px solid ${theme.palette.grey[200]}`,
+  "&:hover": {
+    boxShadow: theme.shadows[6],
+    transform: "translateY(-4px)",
+  },
+}));
+
+const PostTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  fontSize: "1.25rem",
+  lineHeight: 1.4,
+  color: theme.palette.grey[900],
+  marginBottom: theme.spacing(1.5),
+  "&:hover": {
+    color: theme.palette.primary.main,
+  },
+}));
+
+const PostDescription = styled(Typography)(({ theme }) => ({
+  color: theme.palette.grey[700],
+  fontSize: "0.95rem",
+  lineHeight: 1.6,
+  marginBottom: theme.spacing(2),
+}));
+
+const ActionButton = styled(IconButton)(({ theme }) => ({
+  padding: theme.spacing(1),
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
 
 const GeneralPostCard: FC<GeneralPostCardProps> = ({
   post,
   isLiked,
   isSaved,
   currentUserId,
-  menuItems,
   onMediaClick,
-}: GeneralPostCardProps) => {
+  onEdit,
+  onDelete,
+}) => {
+  const theme = useTheme();
   const commentInputRef = useRef<HTMLInputElement | null>(null);
 
   const [commentOpen, setCommentOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
   const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
+  const [liked, setLiked] = useState(isLiked);
+  const [saved, setSaved] = useState(isSaved);
+  const [likeCount, setLikeCount] = useState(post.likesCount);
+  const [viewCount] = useState(Math.floor(Math.random() * 1000));
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -64,214 +120,350 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
 
   const handleCommentClick = () => {
     setCommentOpen(!commentOpen);
-    // Api call for fetching all comments
-    // const respons = {};
-    // setComments(response.data);
     if (!commentOpen && commentInputRef.current) {
       setTimeout(() => commentInputRef.current?.focus(), 100);
     }
   };
 
   const toggleLike = () => {
-    alert("Yet to implement");
-    // setGeneralPosts((prevPosts) =>
-    //   prevPosts.map((post) => {
-    //     if (post._id === postId) {
-    //       const isLiked = post.likedBy.includes(userId);
-    //       return {
-    //         ...post,
-    //         likes: isLiked ? post.likes - 1 : post.likes + 1,
-    //         likedBy: isLiked
-    //           ? post.likedBy.filter((id) => id !== userId)
-    //           : [...post.likedBy, userId],
-    //       };
-    //     }
-    //     return post;
-    //   })
-    // );
+    setLiked(!liked);
+    setLikeCount(liked ? likeCount - 1 : likeCount + 1);
   };
 
   const toggleSave = () => {
-    alert("Yet to implement");
-    // setSavedPosts((prev) => {
-    //   const newSaved = new Set(prev);
-    //   newSaved.has(postId) ? newSaved.delete(postId) : newSaved.add(postId);
-    //   return newSaved;
-    // });
+    setSaved(!saved);
+  };
+
+  const handleReport = () => {
+    // Report functionality
+    handleMenuClose();
   };
 
   const menuOpen = Boolean(menuAnchorEl);
   const shareOpen = Boolean(shareAnchorEl);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="hover:shadow-lg transition-shadow duration-300 rounded-lg overflow-hidden max-w-2xl mx-auto">
-        <CardContent className="p-4">
-          {/* Author section */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 w-80">
-              <Avatar
-                className="h-12 w-12"
-                src={post.owner.profile.profileImage}
-              >
-                {post.owner.profile.fullName[0]}
-              </Avatar>
-              <div className="space-y-1">
-                <Typography variant="subtitle1" className="font-semibold">
-                  {post.owner.profile.fullName}
-                </Typography>
-
-                {/* Time and Read Time info right under full name */}
-                <div className="flex flex-wrap items-center gap-2 text-gray-500 text-sm">
-                  <span className="flex items-center gap-1">
-                    <AccessTime className="text-sm" />
-                    {formatDistanceToNow(new Date(post.createdAt), {
-                      addSuffix: true,
-                    })}
-                  </span>
-                  <span className="text-gray-300">•</span>
-                  <span className="flex items-center gap-1">
-                    <MenuBook className="text-sm" />
-                    {post.readTime}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {menuItems.length > 0 && (
-              <IconButton
-                size="small"
-                onClick={handleMenuOpen}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <MoreVert />
-              </IconButton>
-            )}
-          </div>
-
-          <Menu
-            anchorEl={menuAnchorEl}
-            open={menuOpen}
-            onClose={handleMenuClose}
-            onClick={handleMenuClose}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-          >
-            {menuItems.map((item, index) => (
-              <MenuItem key={index} onClick={item.action}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText>{item.label}</ListItemText>
-              </MenuItem>
-            ))}
-          </Menu>
-
-          {/* Post content */}
-          <Typography
-            variant="h5"
-            className="my-3 font-semibold hover:text-green-600 transition-colors"
-          >
-            {post.title}
-          </Typography>
-
-          <Typography
-            variant="body1"
-            className="text-gray-600 mb-4 whitespace-pre-line"
-          >
-            {post.description}
-          </Typography>
-
-          {/* Media display */}
-          <MediaPreview
-            media={post.media as MediaUpload}
-            onMediaClick={onMediaClick}
-          />
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {post.filters.map((tag: string) => (
-              <Chip
-                key={tag}
-                label={`#${tag}`}
-                className="bg-green-50 text-green-700 hover:bg-green-100 transition-colors cursor-pointer"
-                size="small"
+    <StyledCard>
+      {/* Author section */}
+      <CardHeader
+        avatar={
+          <Badge
+            overlap="circular"
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            badgeContent={
+              <Box
+                sx={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  backgroundColor: '#4CAF50',
+                  border: `2px solid ${theme.palette.background.paper}`,
+                }}
               />
-            ))}
-          </div>
-        </CardContent>
+            }
+          >
+            <Avatar
+              src={post.owner.profile.profileImage}
+              sx={{
+                width: 48,
+                height: 48,
+                border: "2px solid white",
+                boxShadow: theme.shadows[1],
+                "&:hover": {
+                  transform: "scale(1.1)",
+                  transition: "transform 0.3s",
+                },
+              }}
+            >
+              {post.owner.profile.fullName[0]}
+            </Avatar>
+          </Badge>
+        }
+        action={
+          <IconButton
+            size="small"
+            onClick={handleMenuOpen}
+            sx={{ color: "grey.600" }}
+          >
+            <MoreVert fontSize="small" />
+          </IconButton>
+        }
+        title={
+          <Typography variant="subtitle1" fontWeight={600}>
+            {post.owner.profile.fullName}
+          </Typography>
+        }
+        subheader={
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+            <Tooltip title="Posted time" arrow>
+              <Typography
+                variant="caption"
+                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+              >
+                <AccessTime fontSize="inherit" sx={{ mr: 0.5 }} />
+                {formatDistanceToNow(new Date(post.createdAt), {
+                  addSuffix: true,
+                })}
+              </Typography>
+            </Tooltip>
+            <Typography variant="caption" sx={{ color: "grey.400" }}>
+              •
+            </Typography>
+            <Tooltip title="Reading time" arrow>
+              <Typography
+                variant="caption"
+                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+              >
+                <MenuBook fontSize="inherit" sx={{ mr: 0.5 }} />
+                {post.readTime}
+              </Typography>
+            </Tooltip>
+          </Box>
+        }
+        sx={{
+          pb: 1,
+          "& .MuiCardHeader-action": {
+            alignSelf: "center",
+          },
+        }}
+      />
 
-        {/* Actions */}
-        <CardActions className="bg-gray-50 px-4 py-3 border-t">
-          <div className="flex justify-between items-center w-full">
-            <div className="flex space-x-4 sm:space-x-6">
-              <Button
+      {/* Post content */}
+      <CardContent sx={{ pt: 0, pb: 2 }}>
+        <PostTitle>{post.title}</PostTitle>
+        
+        <PostDescription>
+          {post.description.length > 200
+            ? `${post.description.substring(0, 200)}...`
+            : post.description}
+        </PostDescription>
+
+        {/* Media display */}
+        {post.media && (
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            transition={{ duration: 0.3 }}
+            style={{ marginBottom: theme.spacing(2) }}
+          >
+            <MediaPreview
+              media={post.media as MediaUpload}
+              onMediaClick={onMediaClick}
+            />
+          </motion.div>
+        )}
+
+        {/* Tags */}
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
+          {post.filters.map((tag: string) => (
+            <Chip
+              key={tag}
+              label={`#${tag}`}
+              size="small"
+              sx={{
+                backgroundColor: "rgba(5, 150, 105, 0.1)",
+                color: "rgb(5, 150, 105)",
+                "&:hover": {
+                  backgroundColor: "rgba(5, 150, 105, 0.2)",
+                },
+                fontSize: "0.7rem",
+                height: "24px",
+              }}
+            />
+          ))}
+        </Box>
+      </CardContent>
+
+      {/* Stats and Actions */}
+      <CardActions sx={{ 
+        px: 2,
+        py: 1,
+        bgcolor: "grey.50",
+        borderTop: `1px solid ${theme.palette.grey[200]}`,
+      }}>
+        <Box sx={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          width: "100%"
+        }}>
+          {/* Left side - Like, Comment, Share */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
+            <Tooltip title={liked ? "Unlike" : "Like"} arrow>
+              <ActionButton
                 size="small"
                 onClick={toggleLike}
-                className={`h-8 px-2 hover:text-red-500 ${
-                  isLiked ? "text-red-500" : "text-gray-500"
-                }`}
-                startIcon={
-                  <Favorite
-                    className={isLiked ? "text-inherit" : "text-gray-500"}
-                  />
-                }
+                sx={{
+                  color: liked ? "error.main" : "grey.600",
+                }}
               >
-                <span className="text-xs sm:text-sm">{post.likesCount}</span>
-              </Button>
-              <Button
+                {liked ? <Favorite /> : <FavoriteBorder />}
+                <Typography variant="body2" sx={{ ml: 0.5, minWidth: 20 }}>
+                  {likeCount}
+                </Typography>
+              </ActionButton>
+            </Tooltip>
+
+            <Tooltip title="Comments" arrow>
+              <ActionButton
                 size="small"
                 onClick={handleCommentClick}
-                className="h-8 px-2 text-gray-500 hover:text-blue-500"
-                startIcon={<ChatBubbleOutline />}
+                sx={{
+                  color: "grey.600",
+                }}
               >
-                <span className="text-xs sm:text-sm">{post.commentsCount}</span>
-              </Button>
-              <Button
+                <ChatBubbleOutline />
+                <Typography variant="body2" sx={{ ml: 0.5, minWidth: 20 }}>
+                  {post.commentsCount}
+                </Typography>
+              </ActionButton>
+            </Tooltip>
+
+            <Tooltip title="Share" arrow>
+              <ActionButton
                 size="small"
                 onClick={handleShareClick}
-                className="h-8 px-2 text-gray-500 hover:text-green-500"
-                startIcon={<Share />}
+                sx={{
+                  color: "grey.600",
+                }}
               >
-                <span className="text-xs sm:text-sm">Share</span>
-              </Button>
-            </div>
-            <Button
-              size="small"
-              onClick={toggleSave}
-              className={`h-8 w-8 p-0 hover:text-yellow-500 ${
-                isSaved ? "text-yellow-500" : "text-gray-500"
-              }`}
-            >
-              <Bookmark
-                className={isSaved ? "text-inherit" : "text-gray-500"}
-              />
-            </Button>
-          </div>
-        </CardActions>
+                <Share />
+              </ActionButton>
+            </Tooltip>
+          </Box>
+          
+          {/* Right side - Bookmark and Views (only for author) */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Tooltip title={saved ? "Unsave" : "Save"} arrow>
+              <ActionButton
+                size="small"
+                onClick={toggleSave}
+                sx={{
+                  color: saved ? "warning.main" : "grey.600",
+                }}
+              >
+                {saved ? <Bookmark /> : <BookmarkBorder />}
+              </ActionButton>
+            </Tooltip>
+            
+            {post.owner._id === currentUserId && (
+              <Tooltip title="Views" arrow>
+                <Typography variant="caption" sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  color: "grey.600",
+                  ml: 1,
+                }}>
+                  <Visibility fontSize="small" sx={{ mr: 0.5 }} />
+                  {viewCount}
+                </Typography>
+              </Tooltip>
+            )}
+          </Box>
+        </Box>
+      </CardActions>
 
-        <ShareMenu
-          anchorEl={shareAnchorEl}
-          open={shareOpen}
-          onClose={handleShareClose}
-          postTitle={post.title}
+      {/* Comment Section */}
+      <Collapse in={commentOpen} timeout="auto" unmountOnExit>
+        <Divider />
+        <CommentSection
+          comments={comments}
+          setComments={setComments}
+          postId={post._id}
+          currentUserId={currentUserId}
+          inputRef={commentInputRef}
         />
+      </Collapse>
 
-        {/* Comment Section */}
-        {commentOpen && (
-          <div className="border-t">
-            <CommentSection
-              comments={comments}
-              setComments={setComments}
-              postId={post._id}
-              currentUserId={currentUserId}
-              inputRef={commentInputRef}
-            />
-          </div>
+      <ShareMenu
+        anchorEl={shareAnchorEl}
+        open={shareOpen}
+        onClose={handleShareClose}
+        postTitle={post.title}
+      />
+
+      {/* Post Menu */}
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={menuOpen}
+        onClose={handleMenuClose}
+        onClick={handleMenuClose}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          elevation: 3,
+          sx: {
+            borderRadius: 2,
+            minWidth: 180,
+            boxShadow: "0px 5px 15px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <MenuItem
+          onClick={handleShareClick}
+          sx={{
+            "&:hover": {
+              backgroundColor: "rgba(5, 150, 105, 0.08)",
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: "rgb(5, 150, 105)" }}>
+            <Share fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Share" />
+        </MenuItem>
+        
+        <MenuItem
+          onClick={handleReport}
+          sx={{
+            "&:hover": {
+              backgroundColor: "rgba(5, 150, 105, 0.08)",
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: "rgb(5, 150, 105)" }}>
+            <Report fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Report" />
+        </MenuItem>
+        
+        {onEdit && (
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
+              onEdit();
+            }}
+            sx={{
+              "&:hover": {
+                backgroundColor: "rgba(5, 150, 105, 0.08)",
+              },
+            }}
+          >
+            <ListItemIcon sx={{ color: "rgb(5, 150, 105)" }}>
+              <Edit fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Edit" />
+          </MenuItem>
         )}
-      </Card>
-    </motion.div>
+        
+        {onDelete && (
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
+              onDelete();
+            }}
+            sx={{
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.08)",
+              },
+            }}
+          >
+            <ListItemIcon sx={{ color: "error.main" }}>
+              <Delete fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Delete" sx={{ color: "error.main" }} />
+          </MenuItem>
+        )}
+      </Menu>
+    </StyledCard>
   );
 };
 

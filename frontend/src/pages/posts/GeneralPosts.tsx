@@ -5,40 +5,73 @@ import {
   Typography,
   Box,
   Container,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   TextField,
+  useMediaQuery,
+  useTheme,
+  InputAdornment,
+  Paper,
 } from "@mui/material";
-import { Add,  Edit, Delete } from "@mui/icons-material";
+import { Add, Edit, Delete } from "@mui/icons-material";
 import { Filter } from "@/components/Filter/Filter";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
 import usePost from "@/hooks/usePost/usePost";
 import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
 import { GeneralPostType } from "@/types/GeneralPost.types";
 import { useAuth } from "@/context/AuthContext";
+import SearchIcon from "@mui/icons-material/Search";
+import { styled } from "@mui/material/styles";
+
+const HeroSection = styled(Box)(({ theme }) => ({
+  textAlign: "center",
+  marginBottom: theme.spacing(8),
+  padding: theme.spacing(4),
+  background: "linear-gradient(135deg, #f5f7fa 0%, #e4f0f9 100%)",
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: theme.shadows[2],
+}));
+
+const SearchContainer = styled(Paper)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: theme.spacing(2),
+  padding: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: theme.shadows[3],
+  marginBottom: theme.spacing(4),
+  background: "white",
+  maxWidth: 700,
+  marginLeft: "auto",
+  marginRight: "auto",
+}));
+
+const PostsContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(4),
+  width: "100%",
+}));
 
 export function AllGeneralPosts() {
   const navigate = useNavigate();
   const { role } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { getAllPosts, filterSearch } = usePost();
 
-  const [userId, setUserId] = useState(""); 
+  const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [_currentPost, setCurrentPost] = useState<GeneralPostType | null>(null);
+  const [currentPost, setCurrentPost] = useState<GeneralPostType | null>(null);
   const [openMediaDialog, setOpenMediaDialog] = useState(false);
-  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
-    number | null
-  >(null);
+  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<number | null>(null);
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
-
-  // Embedded post data
   const [generalPosts, setGeneralPosts] = useState<GeneralPostType[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchAllPosts = async () => {
     try {
@@ -63,9 +96,7 @@ export function AllGeneralPosts() {
   };
 
   const handleDelete = (postId: string) => {
-    setGeneralPosts((prevPosts) =>
-      prevPosts.filter((post) => post._id !== postId)
-    );
+    setGeneralPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
   };
 
   const openMediaViewer = (mediaIndex: number, images: string[]) => {
@@ -84,24 +115,6 @@ export function AllGeneralPosts() {
     return post.owner._id === userId;
   };
 
-  const handleNextImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
-      );
-    }
-  };
-
-  const handlePrevImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) =>
-          (prev ? prev - 1 + mediaDialogImages.length : 0) %
-          mediaDialogImages.length
-      );
-    }
-  };
-
   const applyFilters = async (filters: string) => {
     try {
       setIsLoading(true);
@@ -114,149 +127,210 @@ export function AllGeneralPosts() {
     }
   };
 
+  const filteredPosts = generalPosts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.filters.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
-    <Box className="w-screen bg-gray-50 flex flex-col">
-      <Container maxWidth="xl" className="flex-1 py-12 px-4 sm:px-6">
+    <Box sx={{
+      background: "linear-gradient(to bottom, #f8fafc, #f1f5f9)",
+      py: 6,
+      width: '100vw',
+      px: 0,
+    }}>
+      <Container maxWidth={false}>
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full"
+          transition={{ duration: 0.5 }}
         >
-          <Box className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <Box>
-              <Typography
-                variant="h3"
-                className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent"
-              >
-                General Ayurvedic Posts
-              </Typography>
-              <Typography variant="subtitle1" className="text-gray-600 mt-2">
-                Discover knowledge and insights from Ayurvedic experts
-              </Typography>
-            </Box>
-            <Box className="flex items-center gap-3">
+          <HeroSection>
+            <Typography
+              variant="h1"
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: "2.5rem", md: "3.5rem" },
+                mb: 3,
+                background: "linear-gradient(45deg, #059669 30%, #10b981 90%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                lineHeight: 1.2,
+              }}
+            >
+              Ayurvedic Knowledge Hub
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                color: "text.secondary",
+                fontSize: { xs: "1rem", md: "1.25rem" },
+                maxWidth: "800px",
+                mx: "auto",
+              }}
+            >
+              Discover, share and learn from authentic Ayurvedic wisdom curated by experts
+            </Typography>
+          </HeroSection>
+
+          {/* Search and Action Bar */}
+          <SearchContainer elevation={3}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search posts by title, content or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                sx: {
+                  borderRadius: 2,
+                  backgroundColor: "background.paper",
+                }
+              }}
+              sx={{
+                flexGrow: 1,
+                maxWidth: { md: "600px" },
+              }}
+            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
               <Filter applyFilters={applyFilters} getAllPosts={fetchAllPosts} />
               {role === "expert" && (
                 <Button
                   component={Link}
                   to="/posts/create"
                   variant="contained"
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md text-white"
+                  color="primary"
                   startIcon={<Add />}
+                  size={isMobile ? "medium" : "large"}
+                  sx={{
+                    background: "linear-gradient(45deg, #059669 30%, #10b981 90%)",
+                    boxShadow: "0 4px 6px rgba(5, 150, 105, 0.2)",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 6px 8px rgba(5, 150, 105, 0.3)",
+                    },
+                    transition: "all 0.3s ease",
+                    whiteSpace: "nowrap",
+                  }}
                 >
-                  <span className="hidden sm:inline">Create Post</span>
-                  <span className="sm:hidden">Create</span>
+                  {isMobile ? "Create" : "Create Post"}
                 </Button>
               )}
             </Box>
-          </Box>
-
-          <Box className="mt-6 space-y-6">
-            {isLoading
-              ? Array(3)
-                  .fill(0)
-                  .map((_, index) => <PostCardSkeleton key={index} />)
-              : generalPosts.map((post) => (
-                  <GeneralPostCard
-                    key={post._id}
-                    post={post}
-                    isLiked={Math.floor(Math.random() * 2) === 1 ? true : false}
-                    isSaved={Math.floor(Math.random() * 2) === 1 ? true : false}
-                    currentUserId={userId}
-                    onMediaClick={openMediaViewer}
-                    menuItems={[
-                      ...(isPostAuthor(post)
-                        ? [
-                            {
-                              label: "Edit",
-                              icon: <Edit fontSize="small" />,
-                              action: () => handleEdit(post),
-                            },
-                            {
-                              label: "Delete",
-                              icon: <Delete fontSize="small" />,
-                              action: () => handleDelete(post._id),
-                            },
-                          ]
-                        : []),
-                    ]}
-                  />
-                ))}
-          </Box>
+          </SearchContainer>
         </motion.div>
-      </Container>
 
-      {/* Edit Post Dialog */}
-      <Dialog
-        open={openEditDialog}
-        onClose={() => setOpenEditDialog(false)}
-        fullWidth
-        maxWidth="md"
-      >
-        <DialogTitle>Edit Post</DialogTitle>
-        <DialogContent dividers>
-          <form
-          // onSubmit={formik.handleSubmit}
-          >
-            <TextField
-              fullWidth
-              id="title"
-              name="title"
-              label="Title"
-              // value={formik.values.title}
-              // onChange={formik.handleChange}
-              // error={formik.touched.title && Boolean(formik.errors.title)}
-              // helperText={formik.touched.title && formik.errors.title}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              id="content"
-              name="content"
-              label="Content"
-              multiline
-              rows={6}
-              // value={formik.values.content}
-              // onChange={formik.handleChange}
-              // error={formik.touched.content && Boolean(formik.errors.content)}
-              // helperText={formik.touched.content && formik.errors.content}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              id="tags"
-              name="tags"
-              label="Tags (comma separated)"
-              // value={formik.values.tags}
-              // onChange={formik.handleChange}
-              // error={formik.touched.tags && Boolean(formik.errors.tags)}
-              // helperText={formik.touched.tags && formik.errors.tags}
-              margin="normal"
-            />
-          </form>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-          <Button
-            // onClick={() => formik.handleSubmit()}
-            color="primary"
-            variant="contained"
-          >
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
+        {/* Posts Container */}
+        <PostsContainer>
+          {isLoading ? (
+            Array(4)
+              .fill(0)
+              .map((_, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <PostCardSkeleton />
+                </motion.div>
+              ))
+          ) : filteredPosts.length > 0 ? (
+            <AnimatePresence>
+              {filteredPosts.map((post) => (
+                <motion.div
+                  key={post._id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Box sx={{ maxWidth: 700, mx: "auto", width: "100%" }}>
+                    <GeneralPostCard
+                      post={post}
+                      isLiked={Math.floor(Math.random() * 2) === 1}
+                      isSaved={Math.floor(Math.random() * 2) === 1}
+                      currentUserId={userId}
+                      onMediaClick={openMediaViewer}
+                      onEdit={isPostAuthor(post) ? () => handleEdit(post) : undefined}
+                      onDelete={isPostAuthor(post) ? () => handleDelete(post._id) : undefined}
+                    />
+                  </Box>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="col-span-full text-center py-16"
+            >
+              <Box sx={{
+                maxWidth: "500px",
+                mx: "auto",
+                p: 4,
+                borderRadius: 3,
+                backgroundColor: "background.paper",
+                boxShadow: 1,
+              }}>
+                <Box sx={{
+                  width: 120,
+                  height: 120,
+                  mx: "auto",
+                  mb: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "grey.100",
+                  borderRadius: "50%",
+                }}>
+                  <SearchIcon sx={{ fontSize: 60, color: "grey.400" }} />
+                </Box>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                  No posts found
+                </Typography>
+                <Typography variant="body1" sx={{ color: "text.secondary", mb: 3 }}>
+                  Try adjusting your search or filters to find what you're looking for.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    setSearchQuery("");
+                    fetchAllPosts();
+                  }}
+                  sx={{
+                    borderColor: "primary.main",
+                    color: "primary.main",
+                    "&:hover": {
+                      backgroundColor: "primary.light",
+                      borderColor: "primary.dark",
+                    },
+                  }}
+                >
+                  Clear search
+                </Button>
+              </Box>
+            </motion.div>
+          )}
+        </PostsContainer>
+      </Container>
 
       {/* Media Viewer Dialog */}
       <MediaViewerDialog
         open={openMediaDialog}
         images={mediaDialogImages}
-        title={""}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
-        onNext={handleNextImage}
-        onPrev={handlePrevImage}
       />
     </Box>
   );
