@@ -2,74 +2,211 @@ import {
   Avatar,
   Box,
   Button,
-  Divider,
   IconButton,
   TextField,
   Typography,
+  Stack,
+  ListItem,
+  ListItemAvatar,
+  Collapse,
+  Badge,
 } from "@mui/material";
-import { Send, Reply} from "@mui/icons-material";
+import { Send, Reply, Favorite, FavoriteBorder, ExpandMore, ExpandLess } from "@mui/icons-material";
 import { useState, FC } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { CommentSectionProps } from "./CommentSection.types";
+import { styled } from "@mui/material/styles";
 
+const CommentContainer = styled(Box)(({ theme }) => ({
+  padding: theme.spacing(3),
+  backgroundColor: theme.palette.grey[50],
+  borderTop: `1px solid ${theme.palette.grey[200]}`,
+}));
+
+const CommentForm = styled("form")(({ theme }) => ({
+  marginBottom: theme.spacing(3),
+}));
+
+const CommentTextField = styled(TextField)(({ theme }) => ({
+  "& .MuiOutlinedInput-root": {
+    borderRadius: theme.shape.borderRadius * 2,
+    backgroundColor: theme.palette.background.paper,
+    "& fieldset": {
+      borderColor: theme.palette.grey[300],
+    },
+    "&:hover fieldset": {
+      borderColor: theme.palette.primary.main,
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+}));
+
+const CommentItem = styled(ListItem)(({ theme }) => ({
+  alignItems: "flex-start",
+  padding: theme.spacing(2),
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: theme.shape.borderRadius,
+  boxShadow: theme.shadows[1],
+  marginBottom: theme.spacing(2),
+  "&:hover": {
+    boxShadow: theme.shadows[2],
+  },
+  transition: theme.transitions.create(['box-shadow'], {
+    duration: theme.transitions.duration.shorter,
+  }),
+}));
+
+const ReplyItem = styled(ListItem)(({ theme }) => ({
+  alignItems: "flex-start",
+  padding: theme.spacing(1.5, 2),
+  backgroundColor: theme.palette.grey[50],
+  borderRadius: theme.shape.borderRadius,
+  marginBottom: theme.spacing(1),
+  marginLeft: theme.spacing(4),
+  borderLeft: `3px solid ${theme.palette.grey[300]}`,
+}));
+
+const CommentContent = styled(Box)(({ theme }) => ({
+  flex: 1,
+  minWidth: 0,
+}));
+
+const CommentActions = styled(Box)(({ theme }) => ({
+  display: "flex",
+  alignItems: "center",
+  gap: theme.spacing(1),
+  marginTop: theme.spacing(1),
+}));
+
+// Add types for comment and reply if not already present
+interface CommentOwnerProfile {
+  fullName: string;
+  profileImage: string;
+}
+interface CommentOwner {
+  _id: string;
+  profile: CommentOwnerProfile;
+}
+interface ReplyType {
+  _id: string;
+  content: string;
+  owner: CommentOwner;
+  createdAt: string;
+  repliedTo: { _id: string; ownerName: string };
+  likes: number;
+  likedBy: string[];
+}
+interface CommentType {
+  _id: string;
+  content: string;
+  owner: CommentOwner;
+  createdAt: string;
+  replies: ReplyType[];
+  repliesCount: number;
+  likes: number;
+  likedBy: string[];
+}
 
 const CommentSection: FC<CommentSectionProps> = ({
   comments,
-
+  setComments,
+  postId,
   currentUserId,
-
-  // onComment,
-  // onReply,
   inputRef,
+}: {
+  comments: CommentType[];
+  setComments: React.Dispatch<React.SetStateAction<CommentType[]>>;
+  postId: string;
+  currentUserId: string;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }) => {
-
-
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<{
     commentId: string;
     ownerName: string;
   } | null>(null);
-  const [expandedReplies, setExpandedReplies] = useState(new Set());
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
 
-  const onComment = (_text: string) => {
-    // Add comment api call
-    // const response = {};//{success:true, message :"Comment Added" , data:{Comment},userId:id}
-    // const newComment = response.data;
-    // newComment.replies = [];
-    // setComments((prev: Comment[]) => {
-    //   return [ ...prev, newComment ];
-    // });
+  const onComment = (text: string) => {
+    if (!text.trim()) return;
+    
+    // Simulate API call
+    const newCommentObj = {
+      _id: `comment-${Date.now()}`,
+      content: text,
+      owner: {
+        _id: currentUserId,
+        profile: {
+          fullName: "You",
+          profileImage: `https://i.pravatar.cc/150?img=${currentUserId.slice(-2)}`,
+        },
+      },
+      createdAt: new Date().toISOString(),
+      replies: [],
+      repliesCount: 0,
+      likes: 0,
+      likedBy: [],
+    };
+    
+    setComments((prev) => [...prev, newCommentObj]);
+    setNewComment("");
   };
 
-  const onReply = (_text: string, _commentId: string) => {
-    // Add comment api call
-    // const response = {};//{success:true, message :"Comment Added" , data:{Comment as Reply},userId:id}
-    // const newReply = response.data;
-    // newReply.replies = [];
-    // setComments((prev: Comment[]) => {
-    //prev.forEach((comment)=>{
-    //  if(comment._id ===newReply.repliedTo._id )
-    // {
-    //  comment.replies.push(newReply);
-    // comment.repliedCount+=1
-    // }
-    //})
-    //   return [...prev];
-    // });
+  const onReply = (text: string, commentId: string) => {
+    if (!text.trim()) return;
+    
+    const parentComment = comments.find(c => c._id === commentId);
+    if (!parentComment) return;
+    
+    const newReply = {
+      _id: `reply-${Date.now()}`,
+      content: text,
+      owner: {
+        _id: currentUserId,
+        profile: {
+          fullName: "You",
+          profileImage: `https://i.pravatar.cc/150?img=${currentUserId.slice(-2)}`,
+        },
+      },
+      createdAt: new Date().toISOString(),
+      repliedTo: {
+        _id: parentComment._id,
+        ownerName: parentComment.owner.profile.fullName,
+      },
+      likes: 0,
+      likedBy: [],
+    };
+    
+    setComments(prev => 
+      prev.map(comment => 
+        comment._id === commentId
+          ? { 
+              ...comment, 
+              replies: [...comment.replies, newReply],
+              repliesCount: comment.repliesCount + 1
+            }
+          : comment
+      )
+    );
+    setReplyingTo(null);
+    setNewComment("");
+    
+    // Expand replies if not already expanded
+    if (!expandedReplies.has(commentId)) {
+      setExpandedReplies(prev => new Set(prev).add(commentId));
+    }
   };
 
-  const handleCommentSubmit = (e: any) => {
+  const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newComment.trim()) return;
-
     if (replyingTo) {
       onReply(newComment, replyingTo.commentId);
-      setReplyingTo(null);
     } else {
       onComment(newComment);
     }
-    setNewComment("");
   };
 
   const toggleReply = (commentId: string, ownerName: string) => {
@@ -84,31 +221,67 @@ const CommentSection: FC<CommentSectionProps> = ({
   };
 
   const toggleExpandReplies = (commentId: string) => {
-    setExpandedReplies((prev) => {
+    setExpandedReplies(prev => {
       const newSet = new Set(prev);
       newSet.has(commentId) ? newSet.delete(commentId) : newSet.add(commentId);
       return newSet;
     });
   };
 
-  // const handleLikeComment = (commentId) => {
-  //   console.log("Liked comment:", commentId);
-  // };
+  const handleLikeComment = (commentId: string, isReply = false) => {
+    setComments(prev =>
+      prev.map(comment => {
+        if (comment._id === commentId) {
+          const isLiked = comment.likedBy.includes(currentUserId);
+          return {
+            ...comment,
+            likedBy: isLiked
+              ? comment.likedBy.filter(id => id !== currentUserId)
+              : [...comment.likedBy, currentUserId],
+            likes: isLiked ? comment.likes - 1 : comment.likes + 1,
+          };
+        }
+        
+        if (isReply) {
+          const updatedReplies = comment.replies.map(reply => {
+            if (reply._id === commentId) {
+              const isLiked = reply.likedBy.includes(currentUserId);
+              return {
+                ...reply,
+                likedBy: isLiked
+                  ? reply.likedBy.filter(id => id !== currentUserId)
+                  : [...reply.likedBy, currentUserId],
+                likes: isLiked ? reply.likes - 1 : reply.likes + 1,
+              };
+            }
+            return reply;
+          });
+          
+          return {
+            ...comment,
+            replies: updatedReplies,
+          };
+        }
+        
+        return comment;
+      })
+    );
+  };
 
-  // const isCommentLiked = (comment) => {
-  //   return comment.likedBy?.includes(currentUserId) || false;
-  // };
+  const isCommentLiked = (comment: any) => {
+    return comment.likedBy?.includes(currentUserId) || false;
+  };
 
   return (
-    <Box className="p-4 bg-gray-50">
+    <CommentContainer>
       {/* Comment input */}
-      <form onSubmit={handleCommentSubmit} className="mb-4">
-        <Box className="flex gap-2">
+      <CommentForm onSubmit={handleCommentSubmit}>
+        <Stack direction="row" spacing={2} alignItems="flex-start">
           <Avatar
-            className="h-10 w-10"
             src={`https://i.pravatar.cc/150?img=${currentUserId.slice(-2)}`}
+            sx={{ width: 40, height: 40 }}
           />
-          <TextField
+          <CommentTextField
             inputRef={inputRef}
             fullWidth
             variant="outlined"
@@ -120,201 +293,209 @@ const CommentSection: FC<CommentSectionProps> = ({
             }
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            className="bg-white rounded-lg"
             InputProps={{
               endAdornment: (
                 <IconButton
                   type="submit"
                   disabled={!newComment.trim()}
-                  className="text-green-600"
+                  color="primary"
+                  sx={{ ml: 1 }}
                 >
                   <Send />
                 </IconButton>
               ),
             }}
+            sx={{
+              flexGrow: 1,
+            }}
           />
-        </Box>
+        </Stack>
         {replyingTo && (
-          <Box className="flex justify-end mt-1">
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
             <Button
               size="small"
               onClick={() => setReplyingTo(null)}
-              className="text-gray-500"
+              sx={{ color: "text.secondary" }}
             >
               Cancel reply
             </Button>
           </Box>
         )}
-      </form>
+      </CommentForm>
 
       {/* Comments list */}
-      <Box className="space-y-4">
-        {comments.length === 0 ? (
-          <Typography
-            variant="body2"
-            className="text-gray-500 text-center py-4"
-          >
-            No comments yet. Be the first to comment!
-          </Typography>
-        ) : (
-          comments.map((comment) => (
+      {comments.length === 0 ? (
+        <Typography
+          variant="body2"
+          sx={{
+            color: "text.secondary",
+            textAlign: "center",
+            py: 4,
+          }}
+        >
+          No comments yet. Be the first to comment!
+        </Typography>
+      ) : (
+        <Box sx={{ mt: 2 }}>
+          {comments.map((comment) => (
             <motion.div
               key={comment._id}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <Box className="flex gap-3">
-                <Avatar
-                  className="h-8 w-8 mt-1"
-                  src={comment.owner.profile.profileImage}
-                  alt={comment.owner.profile.fullName}
-                />
-                <Box className="flex-1">
-                  <Box className="bg-white p-3 rounded-lg shadow-sm">
-                    <Box className="flex justify-between items-start">
-                      <Typography variant="subtitle2" className="font-semibold">
-                        {comment.owner.profile.fullName}
-                      </Typography>
-                      <Typography variant="caption" className="text-gray-500">
-                        {formatDistanceToNow(new Date(comment.createdAt), {
-                          addSuffix: true,
-                        })}
-                      </Typography>
-                    </Box>
-                    <Typography variant="body2" className="mt-1">
-                      {comment.content}
+              <CommentItem>
+                <ListItemAvatar>
+                  <Avatar
+                    src={comment.owner.profile.profileImage}
+                    alt={comment.owner.profile.fullName}
+                    sx={{ width: 40, height: 40 }}
+                  />
+                </ListItemAvatar>
+                <CommentContent>
+                  <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                    <Typography variant="subtitle2" fontWeight={600}>
+                      {comment.owner.profile.fullName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {formatDistanceToNow(new Date(comment.createdAt), {
+                        addSuffix: true,
+                      })}
                     </Typography>
                   </Box>
-
-                  <Box className="flex items-center gap-2 mt-1 ml-2">
-                    {/* <IconButton
+                  <Typography variant="body2" sx={{ mt: 1, whiteSpace: "pre-wrap" }}>
+                    {comment.content}
+                  </Typography>
+                  
+                  <CommentActions>
+                    <IconButton
                       size="small"
-                      onClick={() => handleLikeComment(comment.id)}
-                      className={`p-0 text-xs ${
-                        isCommentLiked(comment)
-                          ? "text-red-500"
-                          : "text-gray-500"
-                      }`}
+                      onClick={() => handleLikeComment(comment._id)}
+                      sx={{
+                        color: isCommentLiked(comment) ? "error.main" : "text.secondary",
+                        p: 0.5,
+                      }}
                     >
-                      <Favorite fontSize="small" />
-                    </IconButton> */}
-                    {/* <Typography variant="caption" className="text-gray-500">
-                      {comment.likes + (isCommentLiked(comment) ? 1 : 0)}
-                    </Typography> */}
+                      {isCommentLiked(comment) ? (
+                        <Favorite fontSize="small" />
+                      ) : (
+                        <FavoriteBorder fontSize="small" />
+                      )}
+                      <Typography variant="caption" sx={{ ml: 0.5 }}>
+                        {comment.likes}
+                      </Typography>
+                    </IconButton>
+                    
                     <Button
                       size="small"
-                      onClick={() =>
-                        toggleReply(comment._id, comment.owner.profile.fullName)
-                      }
-                      className="text-gray-500 text-xs"
+                      onClick={() => toggleReply(comment._id, comment.owner.profile.fullName)}
+                      sx={{
+                        color: "text.secondary",
+                        minWidth: 0,
+                        p: 0.5,
+                      }}
                       startIcon={<Reply fontSize="small" />}
                     >
                       Reply
                     </Button>
-                  </Box>
+                  </CommentActions>
+                </CommentContent>
+              </CommentItem>
 
-                  {/* Replies */}
-                  {comment.repliesCount > 0 && (
-                    <Box className="mt-2 ml-4">
-                      {!expandedReplies.has(comment._id) ? (
-                        <Button
-                          size="small"
-                          onClick={() => toggleExpandReplies(comment._id)}
-                          className="text-gray-500 text-xs"
-                        >
-                          {`View ${comment.repliesCount} ${
-                            comment.repliesCount === 1 ? "reply" : "replies"
-                          }`}
-                        </Button>
+              {/* Replies section */}
+              {comment.repliesCount > 0 && (
+                <Box sx={{ ml: 4 }}>
+                  <Button
+                    size="small"
+                    onClick={() => toggleExpandReplies(comment._id)}
+                    sx={{
+                      color: "text.secondary",
+                      mb: 1,
+                    }}
+                    startIcon={
+                      expandedReplies.has(comment._id) ? (
+                        <ExpandLess />
                       ) : (
-                        <>
-                          <Button
-                            size="small"
-                            onClick={() => toggleExpandReplies(comment._id)}
-                            className="text-gray-500 text-xs"
-                          >
-                            Hide replies
-                          </Button>
-                          <Box className="space-y-3 mt-2">
-                            {comment.replies.map((reply) => (
-                              <motion.div
-                                key={reply._id}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <Box className="flex gap-2">
-                                  <Avatar
-                                    className="h-7 w-7 mt-1"
-                                    src={reply.owner.profile.profileImage}
-                                    alt={reply.owner.profile.fullName}
-                                  />
-                                  <Box className="flex-1">
-                                    <Box className="bg-white p-2 rounded-lg shadow-sm">
-                                      <Box className="flex justify-between items-start">
-                                        <Typography
-                                          variant="subtitle2"
-                                          className="font-semibold text-sm"
-                                        >
-                                          {reply.owner.profile.fullName}
-                                        </Typography>
-                                        <Typography
-                                          variant="caption"
-                                          className="text-gray-500"
-                                        >
-                                          {formatDistanceToNow(
-                                            new Date(reply.createdAt),
-                                            { addSuffix: true }
-                                          )}
-                                        </Typography>
-                                      </Box>
-                                      <Typography
-                                        variant="body2"
-                                        className="mt-1 text-sm"
-                                      >
-                                        {reply.content}
-                                      </Typography>
-                                    </Box>
-                                    {/* <Box className="flex items-center gap-2 mt-1 ml-2"> */}
-                                      {/* <IconButton
-                                        size="small"
-                                        onClick={() =>
-                                          handleLikeComment(reply.id)
-                                        }
-                                        className={`p-0 text-xs ${
-                                          isCommentLiked(reply)
-                                            ? "text-red-500"
-                                            : "text-gray-500"
-                                        }`}
-                                      >
-                                        <Favorite fontSize="small" />
-                                      </IconButton> */}
-                                      {/* <Typography
-                                        variant="caption"
-                                        className="text-gray-500"
-                                      >
-                                        {reply.likes +
-                                          (isCommentLiked(reply) ? 1 : 0)}
-                                      </Typography> */}
-                                   {/* </Box> */}
-                                  </Box>
+                        <ExpandMore />
+                      )
+                    }
+                  >
+                    {expandedReplies.has(comment._id)
+                      ? "Hide replies"
+                      : `View ${comment.repliesCount} ${
+                          comment.repliesCount === 1 ? "reply" : "replies"
+                        }`}
+                  </Button>
+
+                  <Collapse in={expandedReplies.has(comment._id)}>
+                    <Box sx={{ mt: 1 }}>
+                      {comment.replies.map((reply) => (
+                        <motion.div
+                          key={reply._id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ReplyItem>
+                            <ListItemAvatar>
+                              <Avatar
+                                src={reply.owner.profile.profileImage}
+                                alt={reply.owner.profile.fullName}
+                                sx={{ width: 32, height: 32 }}
+                              />
+                            </ListItemAvatar>
+                            <CommentContent>
+                              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                                <Box>
+                                  <Typography variant="subtitle2" fontWeight={600}>
+                                    {reply.owner.profile.fullName}
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary">
+                                    Replying to {reply.repliedTo.ownerName}
+                                  </Typography>
                                 </Box>
-                              </motion.div>
-                            ))}
-                          </Box>
-                        </>
-                      )}
+                                <Typography variant="caption" color="text.secondary">
+                                  {formatDistanceToNow(new Date(reply.createdAt), {
+                                    addSuffix: true,
+                                  })}
+                                </Typography>
+                              </Box>
+                              <Typography variant="body2" sx={{ mt: 1, whiteSpace: "pre-wrap" }}>
+                                {reply.content}
+                              </Typography>
+                              
+                              <CommentActions>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleLikeComment(reply._id, true)}
+                                  sx={{
+                                    color: isCommentLiked(reply) ? "error.main" : "text.secondary",
+                                    p: 0.5,
+                                  }}
+                                >
+                                  {isCommentLiked(reply) ? (
+                                    <Favorite fontSize="small" />
+                                  ) : (
+                                    <FavoriteBorder fontSize="small" />
+                                  )}
+                                  <Typography variant="caption" sx={{ ml: 0.5 }}>
+                                    {reply.likes}
+                                  </Typography>
+                                </IconButton>
+                              </CommentActions>
+                            </CommentContent>
+                          </ReplyItem>
+                        </motion.div>
+                      ))}
                     </Box>
-                  )}
+                  </Collapse>
                 </Box>
-              </Box>
-              <Divider className="my-3" />
+              )}
             </motion.div>
-          ))
-        )}
-      </Box>
-    </Box>
+          ))}
+        </Box>
+      )}
+    </CommentContainer>
   );
 };
 
