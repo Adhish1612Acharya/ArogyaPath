@@ -152,7 +152,7 @@ export const userProfileSchema = z.object({
 
 const objectIdRegex = /^[a-f\d]{24}$/i;
 
-export const usersIdsSchema = z
+export const  usersIdsSchema = z
   .object({
     participants: z
       .array(

@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { ChatMessageProps } from "./ChatMessage.types";
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, currUser }) => {
-  const isUser = message.owner._id === currUser._id;
+  const isUser = message.sender._id === currUser._id;
 
   return (
     <Box
@@ -26,7 +26,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, currUser }) => {
           borderRadius: 2,
         }}
       >
-        <Typography variant="body1">{message.message}</Typography>
+        <Typography variant="body1">{message.content}</Typography>
         <Typography
           variant="caption"
           sx={{

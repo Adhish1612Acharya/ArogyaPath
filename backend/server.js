@@ -228,6 +228,8 @@ io.on("connection", (socket) => {
 
   // Handle events from the client
   socket.on("setup", (userData) => {
+    console.log("User Data: ", userData);
+    socket.user = userData;
     socket.join(userData._id);
     console.log("user : ", userData._id);
   });
@@ -238,21 +240,24 @@ io.on("connection", (socket) => {
   });
 
   // Handle chat messages
-  socket.on("chatMessage", async (message, chatId) => {
-    if (!req.isAuthenticated()) {
-      res.status(401).json({ success: false, message: "Not Logged In" });
+  socket.on("chatMessage", async ({ message, chatId }) => {
+    const user = socket.user;
+    console.log("User : ", user);
+
+    if (!user) {
+      socket.emit("error", "User not authenticated");
       return;
     }
 
     const chat = await Chat.findById(chatId);
 
     if (!chat) {
-      res.status(404).json({ success: false, message: "Chat not found" });
+      socket.emit("error", "Chat not found");
       return;
     }
     const roomId = chatId;
-    const senderType = req.user?.role === "expert" ? "Expert" : "User";
-    const senderId = req.user?._id;
+    const senderType = user.role === "expert" ? "Expert" : "User";
+    const senderId = user._id;
 
     // Save message to MongoDB
     const newMessage = new Message({
@@ -268,19 +273,17 @@ io.on("connection", (socket) => {
     io.to(roomId).emit("newMessage", {
       _id: newMessage._id,
       sender: {
-        _id: req.user?._id,
+        _id: user._id,
         profile: {
-          fullName: req.user?.fullName,
-          profilePicture: req.user?.profilePicture,
+          fullName: user.fullName,
+          profilePicture: user.profilePicture,
         },
       },
       content: message,
-      timestamp: newMessage.timestamp,
+      createdAt: newMessage.createdAt,
     });
 
-    console.log(
-      `Message sent from ${senderId} to ${receiverId} in room ${roomId}`
-    );
+    console.log(`Message sent from ${senderId} in room ${roomId}`);
   });
 
   socket.on("disconnect", () => {

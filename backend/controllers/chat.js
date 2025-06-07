@@ -7,24 +7,37 @@ export const getChatMessages = async (req, res) => {
 
   // Fetch all messages between the two users
   const messages = await Message.find({ chat: chatId })
-    .select("-chat -senderType")
+    .select("-chat")
     .sort({ createdAt: 1 })
     .populate("sender", "_id profile.fullName profile.profilePicture");
+
+  const currUser = {
+    _id: req.user._id,
+    profile: {
+      fullName: req.user.profile.fullName,
+      profileImage: req.user.profile.profileImage,
+    },
+  };
+
+  console.log("messages fetched : ", messages);
 
   res.status(200).json({
     success: true,
     messages,
     chatInfo: chat,
+    currUser,
   });
 };
 
 export const createChat = async (req, res) => {
-  const { participants } = req.body;
+  let { participants } = req.body;
 
-  participants = participants.push({
+  participants.push({
     user: req.user._id,
     userType: req.user.role === "expert" ? "Expert" : "User",
   });
+
+  console.log("Participants:", participants);
 
   const chat = await Chat.create({ participants });
   res.status(201).json({ success: true, chat });
