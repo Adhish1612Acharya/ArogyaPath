@@ -1,18 +1,4 @@
-// src/components/PostCards/SuccessStoryCard.tsx
 import {
-  Favorite,
-  ChatBubbleOutline,
-  Share,
-  Bookmark,
-  MenuBook,
-  AccessTime,
-  MoreVert,
-  Close,
-  Verified,
-  CheckCircle,
-} from "@mui/icons-material";
-import {
-  Button,
   Avatar,
   Card,
   CardContent,
@@ -20,63 +6,162 @@ import {
   Chip,
   Typography,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Box,
   Menu,
   MenuItem,
   ListItemIcon,
   ListItemText,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText as MuiListItemText,
-  Paper,
+  Tooltip,
+  Divider,
+  CardHeader,
+  Collapse,
+  Box,
+  Badge,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Button,
 } from "@mui/material";
-import FiberManualRecordIcon from "@mui/icons-material/FiberManualRecord";
+import {
+  Favorite,
+  FavoriteBorder,
+  ChatBubbleOutline,
+  Share,
+  Bookmark,
+  BookmarkBorder,
+  MenuBook,
+  AccessTime,
+  MoreVert,
+  Visibility,
+  Close,
+  CheckCircle,
+  Warning,
+} from "@mui/icons-material";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
 import { useState, useRef, FC } from "react";
+import MediaPreview from "../../MediaPreview/MediaPreview";
+import { MediaUpload } from "../../MediaPreview/MediaPreview.types";
+import ShareMenu from "../../ShareMenu/ShareMenu";
 import { SuccessStoryCardProps } from "./SuccessStoryPostCard.types";
-import { Comment } from "@/types/Comment.types";
-import MediaPreview from "@/components/MediaPreview/MediaPreview";
-import { MediaUpload } from "@/components/MediaPreview/MediaPreview.types";
 import CommentSection from "../CommentSection/CommentSection";
-import ShareMenu from "@/components/ShareMenu/ShareMenu";
-import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
+import { Comment } from "@/types/Comment.types";
+import { useTheme } from "@mui/material/styles";
+import { styled } from "@mui/material/styles";
 import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import React from "react";
+
+const StyledCard = styled(Card)(({ theme }) => ({
+  borderRadius: theme.shape.borderRadius * 2,
+  overflow: "hidden",
+  transition: "all 0.3s ease",
+  boxShadow: theme.shadows[2],
+  border: `1px solid ${theme.palette.grey[200]}`,
+  "&:hover": {
+    boxShadow: theme.shadows[6],
+    transform: "translateY(-4px)",
+  },
+}));
+
+const PostTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 700,
+  fontSize: "1.25rem",
+  lineHeight: 1.4,
+  color: theme.palette.grey[900],
+  marginBottom: theme.spacing(1.5),
+  "&:hover": {
+    color: theme.palette.primary.main,
+  },
+}));
+
+const PostDescription = styled(Typography)(({ theme }) => ({
+  color: theme.palette.grey[700],
+  fontSize: "0.95rem",
+  lineHeight: 1.6,
+  marginBottom: theme.spacing(2),
+}));
+
+const ActionButton = styled(IconButton)(({ theme }) => ({
+  padding: theme.spacing(1),
+  "&:hover": {
+    backgroundColor: theme.palette.action.hover,
+  },
+}));
+
+const RoutineItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  gap: theme.spacing(2),
+  position: "relative",
+  padding: theme.spacing(1),
+  borderRadius: theme.shape.borderRadius,
+  transition: "background-color 0.3s",
+  "&:hover": {
+    backgroundColor: theme.palette.success.light,
+  },
+}));
+
+const VerificationBadge = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(0.5, 1),
+  borderRadius: theme.shape.borderRadius,
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  textTransform: 'uppercase',
+  letterSpacing: '0.5px',
+  marginRight: theme.spacing(1),
+  '& svg': {
+    marginRight: theme.spacing(0.5),
+    fontSize: '1rem',
+  }
+}));
+
+const VerifiedBadge = styled(VerificationBadge)(({ theme }) => ({
+  backgroundColor: theme.palette.success.light,
+  color: theme.palette.success.dark,
+}));
+
+const InvalidBadge = styled(VerificationBadge)(({ theme }) => ({
+  backgroundColor: theme.palette.error.light,
+  color: theme.palette.error.dark,
+}));
+
+const UnverifiedBadge = styled(VerificationBadge)(({ theme }) => ({
+  backgroundColor: theme.palette.grey[200],
+  color: theme.palette.grey[600],
+}));
 
 const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
   post,
   isLiked,
   isSaved,
-  addVerifiedExpert,
   currentUserId,
   menuItems,
   onMediaClick,
 }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
+  const commentInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { verifySuccessStory } = useSuccessStory();
-
-  const [verifyPostLoad, setVerifyPostLoad] = useState<boolean>(false);
-  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
-  const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
-  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
   const [commentOpen, setCommentOpen] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
-  const commentInputRef = useRef<HTMLInputElement>(null);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null);
+  const [shareAnchorEl, setShareAnchorEl] = useState<null | HTMLElement>(null);
+  const [liked, setLiked] = useState(isLiked);
+  const [saved, setSaved] = useState(isSaved);
+  const [likeCount, setLikeCount] = useState(post.likesCount);
+  const [viewCount] = useState(Math.floor(Math.random() * 1000));
+  const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
+  const [invalidDialogOpen, setInvalidDialogOpen] = useState(false);
+  const [invalidReason, setInvalidReason] = useState("");
+  const [verificationLoading, setVerificationLoading] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState<
+    "verified" | "invalid" | "unverified"
+  >(post.verified.length > 0 ? "verified" : "unverified");
+  const [showVerifyActions, setShowVerifyActions] = useState(false);
 
-  const [verifiedPost, setVerifiedPost] = useState<boolean>(
-    post.verifyAuthorization && !post.alreadyVerified
-  );
-
-  const handleVerifiersClick = () => {
-    setVerifiersDialogOpen(true);
-  };
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchorEl(event.currentTarget);
   };
@@ -95,364 +180,535 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
 
   const handleCommentClick = () => {
     setCommentOpen(!commentOpen);
-    // Api call for fetching all comments
-    // const respons = {};
-    // setComments(response.data);
     if (!commentOpen && commentInputRef.current) {
       setTimeout(() => commentInputRef.current?.focus(), 100);
     }
   };
 
-  const verifyPost = async () => {
-    try {
-      if (!post.verifyAuthorization) return;
-      setVerifyPostLoad(true);
-      const response = await verifySuccessStory(post._id);
-      if (response?.success) {
-        addVerifiedExpert(post._id, response.data.expertDetails);
-        setVerifiedPost(false);
-      }
-    } catch (error: any) {
-      console.error("Post failed:", error.message);
-      if (error.status === 401) navigate("/auth");
-      else if (error.status === 403) navigate("/");
-    } finally {
-      setVerifyPostLoad(false);
-    }
-  };
-
   const toggleLike = () => {
-    alert("Yet to implement");
-    // setGeneralPosts((prevPosts) =>
-    //   prevPosts.map((post) => {
-    //     if (post._id === postId) {
-    //       const isLiked = post.likedBy.includes(userId);
-    //       return {
-    //         ...post,
-    //         likes: isLiked ? post.likes - 1 : post.likes + 1,
-    //         likedBy: isLiked
-    //           ? post.likedBy.filter((id) => id !== userId)
-    //           : [...post.likedBy, userId],
-    //       };
-    //     }
-    //     return post;
-    //   })
-    // );
+    setLiked(!liked);
+    setLikeCount(liked ? likeCount - 1 : likeCount + 1);
   };
 
   const toggleSave = () => {
-    alert("Yet to implement");
-    // setSavedPosts((prev) => {
-    //   const newSaved = new Set(prev);
-    //   newSaved.has(postId) ? newSaved.delete(postId) : newSaved.add(postId);
-    //   return newSaved;
-    // });
+    setSaved(!saved);
   };
 
-  const openMenu = Boolean(menuAnchorEl);
+  const handleVerifiersClick = () => {
+    if (verificationStatus === "verified") {
+      setVerifiersDialogOpen(true);
+    }
+  };
+
+  const handleVerify = () => {
+    setVerificationLoading(true);
+    setTimeout(() => {
+      setVerificationStatus("verified");
+      setVerificationLoading(false);
+    }, 1000);
+  };
+
+  const handleMarkInvalid = () => {
+    setInvalidDialogOpen(true);
+  };
+
+  const confirmInvalid = () => {
+    setVerificationLoading(true);
+    setTimeout(() => {
+      setVerificationStatus("invalid");
+      setVerificationLoading(false);
+      setInvalidDialogOpen(false);
+      setInvalidReason("");
+    }, 1000);
+  };
+
+  // Helper: is current user a tagged doctor?
+  const isTaggedDoctor = post.tagged.some((doctor) => doctor._id === currentUserId);
+  const canVerifyOrInvalidate = isTaggedDoctor && verificationStatus === "unverified";
+
+  const menuOpen = Boolean(menuAnchorEl);
   const shareOpen = Boolean(shareAnchorEl);
 
+  // When verification status changes, hide verify actions
+  React.useEffect(() => {
+    setShowVerifyActions(false);
+  }, [verificationStatus]);
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <Card className="hover:shadow-lg transition-shadow duration-300 rounded-lg overflow-hidden max-w-2xl mx-auto">
-        <CardContent className="p-4">
-          {/* Author section */}
-          <Box className="flex items-start space-x-4">
-            {/* Author section */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4 w-80">
-                <Avatar
-                  className="h-12 w-12"
-                  src={post.owner.profile.profileImage}
-                >
-                  {post.owner.profile.fullName[0]}
-                </Avatar>
-                <div className="space-y-1">
-                  <Typography variant="subtitle1" className="font-semibold">
-                    {post.owner.profile.fullName}
-                  </Typography>
-
-                  {/* Time and Read Time info right under full name */}
-                  <div className="flex flex-wrap items-center gap-2 text-gray-500 text-sm">
-                    <span className="flex items-center gap-1">
-                      <AccessTime className="text-sm" />
-                      {formatDistanceToNow(new Date(post.createdAt), {
-                        addSuffix: true,
-                      })}
-                    </span>
-                    <span className="text-gray-300">•</span>
-                    <span className="flex items-center gap-1">
-                      <MenuBook className="text-sm" />
-                      {post.readTime}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <Box className="flex-1">
-              <Box className="flex justify-between items-start">
-                <Box>
-                  {/* <Typography
-                    variant="h6"
-                    className="font-semibold hover:text-green-600 transition-colors"
-                  >
-                    {post.owner.profile.fullName}
-                  </Typography> */}
-                  <Box className="flex flex-wrap items-center gap-2 text-gray-500">
-                    {/* <Typography
-                      variant="caption"
-                      className="flex items-center gap-1"
-                    >
-                      <AccessTime className="text-sm" />
-                      {formatDistanceToNow(new Date(post.createdAt || ""), {
-                        addSuffix: true,
-                      })}
-                    </Typography>
-                    <Typography variant="caption" className="text-gray-300">
-                      •
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      className="flex items-center gap-1"
-                    >
-                      <MenuBook className="text-sm" />
-                      {post.readTime}
-                    </Typography> */}
-                    {/* <Typography variant="caption" className="text-gray-300">
-                        •
-                      </Typography> */}
-                    {!post.verifyAuthorization && post.verified.length > 0 && (
-                      <Typography
-                        variant="caption"
-                        className="flex items-center gap-1 text-green-600 cursor-pointer"
-                        onClick={handleVerifiersClick}
-                      >
-                        <Verified className="text-sm" />
-                        Verified
-                      </Typography>
-                    )}
-                    {post.verified.length == 0 && !post.verifyAuthorization && (
-                      <Typography
-                        variant="caption"
-                        className="flex items-center gap-1 text-red-600"
-                      >
-                        {/* <Verified className="text-sm" /> */}
-                        Under Verification
-                      </Typography>
-                    )}
-
-                    {verifiedPost && (
-                      <Button
-                        // variant="caption"
-                        className="flex items-center gap-1 text-green-600 cursor-pointer"
-                        onClick={verifyPost}
-                        disabled={verifyPostLoad}
-                      >
-                        {/* <Verified className="text-sm" /> */}
-                        {verifyPostLoad ? (
-                          <Loader2 className="animate-spin" />
-                        ) : (
-                          "Verify"
-                        )}
-                      </Button>
-                    )}
-                  </Box>
-                </Box>
-                {menuItems.length > 0 && (
-                  <IconButton
-                    size="small"
-                    onClick={handleMenuOpen}
-                    className="text-gray-500 hover:text-gray-700"
-                  >
-                    <MoreVert />
-                  </IconButton>
-                )}
-              </Box>
-            </Box>
-          </Box>
-
-          <Menu
-            anchorEl={menuAnchorEl}
-            open={openMenu}
-            onClose={handleMenuClose}
-            onClick={handleMenuClose}
-            transformOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-          >
-            {menuItems.map((item, index) => (
-              <MenuItem key={index} onClick={item.action}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText>{item.label}</ListItemText>
-              </MenuItem>
-            ))}
-          </Menu>
-
-          {/* Tags */}
-          <Box className="flex flex-wrap gap-2 mb-4 mt-4">
-            {post.tagged.map((tag, index) => (
-              <Chip
-                key={index}
-                label={`Dr.${tag.profile.fullName}`}
-                className="bg-green-50 text-green-700 hover:bg-green-100 transition-colors cursor-pointer"
-                size="small"
+    <StyledCard>
+      {/* Author section */}
+      <CardHeader
+        avatar={
+          <Badge
+            overlap="circular"
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            badgeContent={
+              <Box
+                sx={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: '50%',
+                  backgroundColor: '#4CAF50',
+                  border: `2px solid ${theme.palette.background.paper}`,
+                }}
               />
-            ))}
-          </Box>
-
-          {/* Post content */}
-          <Typography
-            variant="h5"
-            className="my-3 font-semibold hover:text-green-600 transition-colors"
+            }
           >
-            {post.title}
-          </Typography>
-
-          <Typography
-            variant="body1"
-            className="text-gray-600 mb-4 whitespace-pre-line"
-          >
-            {post.description}
-          </Typography>
-
-          {/* Media display */}
-          <MediaPreview
-            media={post.media as MediaUpload}
-            onMediaClick={onMediaClick}
-          />
-
-          {/* Activities */}
-          <Box mt={2}>
-            {post.routines.map((routine, index) => (
-              <Box key={index} display="flex" gap={2} position="relative">
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                  pt={0.5}
-                >
-                  <FiberManualRecordIcon fontSize="small" color="primary" />
-                  {index < post.routines.length - 1 && (
-                    <div
-                      style={{
-                        width: 2,
-                        height: 24,
-                        backgroundColor: "#ccc",
-                        margin: "4px 0",
-                      }}
-                    />
-                  )}
-                </Box>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 2,
-                    flex: 1,
-                    "&:hover": {
-                      bgcolor: "success.light",
-                    },
-                    transition: "background-color 0.3s",
-                    borderRadius: 1,
+            <Avatar
+              src={post.owner.profile.profileImage}
+              sx={{
+                width: 48,
+                height: 48,
+                border: "2px solid white",
+                boxShadow: theme.shadows[1],
+                "&:hover": {
+                  transform: "scale(1.1)",
+                  transition: "transform 0.3s",
+                },
+              }}
+            >
+              {post.owner.profile.fullName[0]}
+            </Avatar>
+          </Badge>
+        }
+        action={
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {/* Verification badge logic for tagged doctor: show Not Verified as clickable if canVerifyOrInvalidate */}
+            {canVerifyOrInvalidate ? (
+              <Tooltip title="Not yet verified by medical professionals. Click to verify or mark invalid." arrow>
+                <UnverifiedBadge
+                  sx={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    // Open a menu/dialog for verify/invalid actions
+                    // For simplicity, show the two buttons inline below the badge
+                    setShowVerifyActions(true);
                   }}
                 >
-                  <Typography variant="subtitle2" color="success.dark">
-                    {routine.time}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {routine.content}
-                  </Typography>
-                </Paper>
+                  <Warning fontSize="small" />
+                  Unverified
+                </UnverifiedBadge>
+              </Tooltip>
+            ) : (
+              <>
+                {verificationStatus === "verified" && (
+                  <Tooltip title="Verified by medical professionals" arrow>
+                    <VerifiedBadge onClick={handleVerifiersClick}>
+                      <CheckCircle fontSize="small" />
+                      Verified
+                    </VerifiedBadge>
+                  </Tooltip>
+                )}
+                {verificationStatus === "invalid" && (
+                  <Tooltip title={`Invalid post: ${invalidReason}`} arrow>
+                    <InvalidBadge>
+                      <Warning fontSize="small" />
+                      Invalid
+                    </InvalidBadge>
+                  </Tooltip>
+                )}
+                {verificationStatus === "unverified" && (
+                  <Tooltip title="Not yet verified by medical professionals" arrow>
+                    <UnverifiedBadge>
+                      <Warning fontSize="small" />
+                      Unverified
+                    </UnverifiedBadge>
+                  </Tooltip>
+                )}
+              </>
+            )}
+            {/* Show verify/invalid actions inline if showVerifyActions is true */}
+            {canVerifyOrInvalidate && showVerifyActions && (
+              <Box sx={{ display: 'flex', gap: 1, ml: 2 }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="success"
+                  startIcon={verificationLoading ? <Loader2 className="animate-spin" /> : <CheckCircle />}
+                  onClick={handleVerify}
+                  disabled={verificationLoading}
+                >
+                  Verify
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                  startIcon={verificationLoading ? <Loader2 className="animate-spin" /> : <Warning />}
+                  onClick={handleMarkInvalid}
+                  disabled={verificationLoading}
+                >
+                  Mark Invalid
+                </Button>
               </Box>
-            ))}
-          </Box>
-          {/* Tags */}
-          <Box className="flex flex-wrap gap-2 mb-4">
-            {post.filters.map((filter, index) => (
-              <Chip
-                key={index}
-                label={`#${filter}`}
-                className="bg-green-50 text-green-700 hover:bg-green-100 transition-colors cursor-pointer"
-                size="small"
-              />
-            ))}
-          </Box>
-        </CardContent>
-
-        {/* Actions */}
-        <CardActions className="bg-gray-50 px-4 py-3 border-t">
-          <Box className="flex justify-between items-center w-full">
-            <Box className="flex space-x-4 sm:space-x-6">
-              <Button
-                size="small"
-                onClick={toggleLike}
-                className={`h-8 px-2 hover:text-red-500 ${
-                  isLiked ? "text-red-500" : "text-gray-500"
-                }`}
-                startIcon={
-                  <Favorite
-                    className={isLiked ? "text-inherit" : "text-gray-500"}
-                  />
-                }
-              >
-                <Typography variant="caption">{post.likesCount}</Typography>
-              </Button>
-              <Button
-                size="small"
-                onClick={handleCommentClick}
-                className="h-8 px-2 text-gray-500 hover:text-blue-500"
-                startIcon={<ChatBubbleOutline />}
-              >
-                <Typography variant="caption">{post.commentsCount}</Typography>
-              </Button>
-              <Button
-                size="small"
-                onClick={handleShareClick}
-                className="h-8 px-2 text-gray-500 hover:text-green-500"
-                startIcon={<Share />}
-              >
-                <Typography variant="caption">Share</Typography>
-              </Button>
-            </Box>
+            )}
+            {/* Menu button */}
             <IconButton
               size="small"
-              onClick={toggleSave}
-              className={`h-8 w-8 p-0 hover:text-yellow-500 ${
-                isSaved ? "text-yellow-500" : "text-gray-500"
-              }`}
+              onClick={handleMenuOpen}
+              sx={{ color: "grey.600" }}
             >
-              <Bookmark
-                className={isSaved ? "text-inherit" : "text-gray-500"}
-              />
+              <MoreVert fontSize="small" />
             </IconButton>
           </Box>
-        </CardActions>
-
-        <ShareMenu
-          anchorEl={shareAnchorEl}
-          open={shareOpen}
-          onClose={handleShareClose}
-          postTitle={post.title}
-        />
-
-        {/* Comment Section */}
-        {commentOpen && (
-          <Box className="border-t">
-            <CommentSection
-              comments={comments}
-              setComments={setComments}
-              postId={post._id}
-              currentUserId={currentUserId}
-              inputRef={commentInputRef}
-            />
+        }
+        title={
+          <Typography variant="subtitle1" fontWeight={600}>
+            {post.owner.profile.fullName}
+          </Typography>
+        }
+        subheader={
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+            <Tooltip title="Posted time" arrow>
+              <Typography
+                variant="caption"
+                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+              >
+                <AccessTime fontSize="inherit" sx={{ mr: 0.5 }} />
+                {formatDistanceToNow(new Date(post.createdAt), {
+                  addSuffix: true,
+                })}
+              </Typography>
+            </Tooltip>
+            <Typography variant="caption" sx={{ color: "grey.400" }}>
+              •
+            </Typography>
+            <Tooltip title="Reading time" arrow>
+              <Typography
+                variant="caption"
+                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+              >
+                <MenuBook fontSize="inherit" sx={{ mr: 0.5 }} />
+                {post.readTime}
+              </Typography>
+            </Tooltip>
           </Box>
+        }
+        sx={{
+          pb: 1,
+          "& .MuiCardHeader-action": {
+            alignSelf: "center",
+          },
+        }}
+      />
+
+      {/* Tagged Doctors */}
+      {post.tagged.length > 0 && (
+        <Box sx={{ px: 2, pt: 0, pb: 1 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            Tagged Doctors:
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {post.tagged.map((doctor) => (
+              <Chip
+                key={doctor._id}
+                avatar={<Avatar src={doctor.profile.profileImage} />}
+                label={`Dr. ${doctor.profile.fullName}`}
+                size="small"
+                onClick={() => navigate(`/doctor/profile/${doctor._id}`)}
+                sx={{
+                  backgroundColor: "rgba(5, 150, 105, 0.1)",
+                  color: "rgb(5, 150, 105)",
+                  "&:hover": {
+                    backgroundColor: "rgba(5, 150, 105, 0.2)",
+                  },
+                  fontSize: "0.7rem",
+                  height: "28px",
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+      )}
+
+      {/* Post content */}
+      <CardContent sx={{ pt: 0, pb: 2 }}>
+        <PostTitle>{post.title}</PostTitle>
+        
+        <PostDescription>
+          {post.description}
+        </PostDescription>
+
+        {/* Media display */}
+        {post.media && (
+          <motion.div
+            whileHover={{ scale: 1.01 }}
+            transition={{ duration: 0.3 }}
+            style={{ marginBottom: theme.spacing(2) }}
+          >
+            <MediaPreview
+              media={post.media as MediaUpload}
+              onMediaClick={onMediaClick}
+            />
+          </motion.div>
         )}
-      </Card>
+
+        {/* Routines */}
+        <Box sx={{ mb: 2 }}>
+          {post.routines.map((routine, index) => (
+            <RoutineItem key={index}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  pt: 0.5,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    backgroundColor: theme.palette.primary.main,
+                  }}
+                />
+                {index < post.routines.length - 1 && (
+                  <Box
+                    sx={{
+                      width: 2,
+                      height: 24,
+                      backgroundColor: theme.palette.grey[300],
+                      my: 0.5,
+                    }}
+                  />
+                )}
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" color="success.dark">
+                  {routine.time}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {routine.content}
+                </Typography>
+              </Box>
+            </RoutineItem>
+          ))}
+        </Box>
+
+        {/* Tags */}
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+          {post.filters.map((tag) => (
+            <Chip
+              key={tag}
+              label={`#${tag}`}
+              size="small"
+              sx={{
+                backgroundColor: "rgba(5, 150, 105, 0.1)",
+                color: "rgb(5, 150, 105)",
+                "&:hover": {
+                  backgroundColor: "rgba(5, 150, 105, 0.2)",
+                },
+                fontSize: "0.7rem",
+                height: "24px",
+              }}
+            />
+          ))}
+        </Box>
+
+        {/* Verification Status and buttons */}
+        <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+          {verificationStatus === "unverified" && (
+            <Chip
+              label="Not Verified"
+              size="small"
+              sx={{
+                backgroundColor: theme.palette.grey[100],
+                color: theme.palette.grey[600],
+              }}
+            />
+          )}
+          {/* Verification buttons for tagged doctors */}
+          {canVerifyOrInvalidate && (
+            <>
+              <Button
+                variant="outlined"
+                size="small"
+                color="success"
+                startIcon={verificationLoading ? <Loader2 className="animate-spin" /> : <CheckCircle />}
+                onClick={handleVerify}
+                disabled={verificationLoading}
+                sx={{ ml: 1 }}
+              >
+                Verify
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                color="error"
+                startIcon={verificationLoading ? <Loader2 className="animate-spin" /> : <Warning />}
+                onClick={handleMarkInvalid}
+                disabled={verificationLoading}
+                sx={{ ml: 1 }}
+              >
+                Mark Invalid
+              </Button>
+            </>
+          )}
+        </Box>
+      </CardContent>
+
+      {/* Stats and Actions */}
+      <CardActions sx={{ 
+        px: 2,
+        py: 1,
+        bgcolor: "grey.50",
+        borderTop: `1px solid ${theme.palette.grey[200]}`,
+      }}>
+        <Box sx={{ 
+          display: "flex", 
+          justifyContent: "space-between", 
+          alignItems: "center",
+          width: "100%"
+        }}>
+          {/* Left side - Like, Comment, Share */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
+            <Tooltip title={liked ? "Unlike" : "Like"} arrow>
+              <ActionButton
+                size="small"
+                onClick={toggleLike}
+                sx={{
+                  color: liked ? "error.main" : "grey.600",
+                }}
+              >
+                {liked ? <Favorite /> : <FavoriteBorder />}
+                <Typography variant="body2" sx={{ ml: 0.5, minWidth: 20 }}>{likeCount}</Typography>
+              </ActionButton>
+            </Tooltip>
+
+            <Tooltip title="Comments" arrow>
+              <ActionButton
+                size="small"
+                onClick={handleCommentClick}
+                sx={{
+                  color: "grey.600",
+                }}
+              >
+                <ChatBubbleOutline />
+                <Typography variant="body2" sx={{ ml: 0.5, minWidth: 20 }}>{post.commentsCount}</Typography>
+              </ActionButton>
+            </Tooltip>
+
+            <Tooltip title="Share" arrow>
+              <ActionButton
+                size="small"
+                onClick={handleShareClick}
+                sx={{
+                  color: "grey.600",
+                }}
+              >
+                <Share />
+              </ActionButton>
+            </Tooltip>
+          </Box>
+          
+          {/* Right side - Bookmark and Views (only for author) */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Tooltip title={saved ? "Unsave" : "Save"} arrow>
+              <ActionButton
+                size="small"
+                onClick={toggleSave}
+                sx={{
+                  color: saved ? "warning.main" : "grey.600",
+                }}
+              >
+                {saved ? <Bookmark /> : <BookmarkBorder />}
+              </ActionButton>
+            </Tooltip>
+            
+            {post.owner._id === currentUserId && (
+              <Tooltip title="Views" arrow>
+                <Typography variant="caption" sx={{ 
+                  display: "flex", 
+                  alignItems: "center", 
+                  color: "grey.600",
+                  ml: 1,
+                }}>
+                  <Visibility fontSize="small" sx={{ mr: 0.5 }} />
+                  {viewCount}
+                </Typography>
+              </Tooltip>
+            )}
+          </Box>
+        </Box>
+      </CardActions>
+
+      {/* Comment Section */}
+      <Collapse in={commentOpen} timeout="auto" unmountOnExit>
+        <Divider />
+        <CommentSection
+          comments={comments}
+          setComments={setComments}
+          postId={post._id}
+          currentUserId={currentUserId}
+          inputRef={commentInputRef}
+        />
+      </Collapse>
+
+      <ShareMenu
+        anchorEl={shareAnchorEl}
+        open={shareOpen}
+        onClose={handleShareClose}
+        postTitle={post.title}
+      />
+
+      {/* Post Menu */}
+      <Menu
+        anchorEl={menuAnchorEl}
+        open={menuOpen}
+        onClose={handleMenuClose}
+        onClick={handleMenuClose}
+        transformOrigin={{ vertical: "top", horizontal: "right" }}
+        PaperProps={{
+          elevation: 3,
+          sx: {
+            borderRadius: 2,
+            minWidth: 180,
+            boxShadow: "0px 5px 15px rgba(0,0,0,0.1)",
+          },
+        }}
+      >
+        <MenuItem
+          onClick={handleShareClick}
+          sx={{
+            "&:hover": {
+              backgroundColor: "rgba(5, 150, 105, 0.08)",
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: "rgb(5, 150, 105)" }}>
+            <Share fontSize="small" />
+          </ListItemIcon>
+          <ListItemText primary="Share" />
+        </MenuItem>
+        
+        {menuItems.map((item, index) => (
+          <MenuItem
+            key={index}
+            onClick={() => {
+              handleMenuClose();
+              item.action();
+            }}
+            sx={{
+              "&:hover": {
+                backgroundColor: "rgba(5, 150, 105, 0.08)",
+              },
+              ...(item.label === "Delete" ? {
+                "&:hover": { backgroundColor: "rgba(255, 0, 0, 0.08)" }
+              } : {})
+            }}
+          >
+            <ListItemIcon sx={{ 
+              color: item.label === "Delete" ? "error.main" : "rgb(5, 150, 105)" 
+            }}>
+              {item.icon}
+            </ListItemIcon>
+            <ListItemText 
+              primary={item.label} 
+              sx={item.label === "Delete" ? { color: "error.main" } : {}} 
+            />
+          </MenuItem>
+        ))}
+      </Menu>
 
       {/* Verifiers Dialog */}
       <Dialog
@@ -462,11 +718,7 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
         fullWidth
       >
         <DialogTitle>
-          <Box
-            display="flex"
-            justifyContent="space-between"
-            alignItems="center"
-          >
+          <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h6">Verified By</Typography>
             <IconButton onClick={() => setVerifiersDialogOpen(false)}>
               <Close />
@@ -474,36 +726,81 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
           </Box>
         </DialogTitle>
         <DialogContent dividers>
-          <List>
-            {post.verified.map((doctor, index) => (
-              <ListItem
-                key={doctor._id}
-                divider={index !== post.verified.length - 1}
+          <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+            {post.verified.map((doctor) => (
+              <Box 
+                key={doctor._id} 
+                sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  p: 2,
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                    cursor: 'pointer'
+                  }
+                }}
+                onClick={() => navigate(`/doctor/profile/${doctor._id}`)}
               >
-                <ListItemAvatar>
-                  <Avatar
-                    src={doctor.profile.profileImage}
-                    alt={doctor.profile.fullName}
-                  >
-                    {doctor.profile.fullName[0]}
-                  </Avatar>
-                </ListItemAvatar>
-                <MuiListItemText
-                  primary={doctor.profile.fullName}
-                  // secondary={doctor.profile.fullName}
+                <Avatar 
+                  src={doctor.profile.profileImage} 
+                  sx={{ width: 40, height: 40, mr: 2 }}
                 />
-                <CheckCircle color="primary" />
-              </ListItem>
+                <Typography variant="subtitle1">
+                  Dr. {doctor.profile.fullName}
+                </Typography>
+                <Box sx={{ flexGrow: 1 }} />
+                <CheckCircle color="success" />
+              </Box>
             ))}
-          </List>
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setVerifiersDialogOpen(false)} color="primary">
-            Close
+          <Button onClick={() => setVerifiersDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Mark Invalid Dialog */}
+      <Dialog
+        open={invalidDialogOpen}
+        onClose={() => setInvalidDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h6">Mark Post as Invalid</Typography>
+            <IconButton onClick={() => setInvalidDialogOpen(false)}>
+              <Close />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Please provide a reason for marking this post as invalid:
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            rows={4}
+            variant="outlined"
+            value={invalidReason}
+            onChange={(e) => setInvalidReason(e.target.value)}
+            placeholder="Enter reason (e.g., misleading information, inappropriate content, etc.)"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setInvalidDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={confirmInvalid} 
+            color="error"
+            variant="contained"
+            disabled={!invalidReason.trim()}
+          >
+            Confirm Invalid
           </Button>
         </DialogActions>
       </Dialog>
-    </motion.div>
+    </StyledCard>
   );
 };
 
