@@ -22,7 +22,8 @@ import {
   useTheme,
   Collapse,
   Grow,
-  Zoom
+  Zoom,
+  CircularProgress
 } from "@mui/material";
 import { 
   Spa as LeafIcon,
@@ -347,6 +348,7 @@ const PageNavBar: FC = () => {
   const logout = async () => {
     try {
       setLogOutLoad(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Add 2s delay
       const response = await get(`${import.meta.env.VITE_SERVER_URL}/api/auth/logout`);
       if (response.success) {
         toast.success("Logged out successfully");
@@ -560,15 +562,8 @@ const PageNavBar: FC = () => {
                     <MenuItem onClick={logout} disabled={logOutLoad} sx={{ py: 1.5 }}>
                       {logOutLoad ? (
                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                          <Box sx={{ 
-                            animation: 'spin 1s linear infinite', 
-                            mr: 1,
-                            display: 'flex',
-                            alignItems: 'center'
-                          }}>
-                            <LogOutIcon />
-                          </Box>
-                          Logging out...
+                          <CircularProgress size={16} thickness={5} sx={{ mr: 1.5 }} />
+                          <Typography variant="body2">Logging out...</Typography>
                         </Box>
                       ) : (
                         <>
@@ -731,16 +726,24 @@ const PageNavBar: FC = () => {
             </Fade>
             <Fade in timeout={currentLinks.length * 100 + 600}>
               <MobileMenuItem
-                startIcon={<LogOutIcon />}
+                startIcon={logOutLoad ? <CircularProgress size={16} thickness={5} /> : <LogOutIcon />}
                 fullWidth
-                onClick={() => {
-                  logout();
-                  setMobileMenuOpen(false);
+                onClick={async () => {
+                  setMobileMenuOpen(true); // keep menu open
+                  await logout(); // wait for logout to finish
+                  setMobileMenuOpen(false); // close after logout
                 }}
                 disabled={logOutLoad}
-                sx={{ color: 'error.main' }}
+                sx={{ color: logOutLoad ? 'text.secondary' : 'error.main', position: 'relative' }}
               >
-                {logOutLoad ? 'Logging out...' : 'Logout'}
+                {logOutLoad ? (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: '100%', justifyContent: 'center' }}>
+                    <CircularProgress size={16} thickness={5} />
+                    <Typography variant="body2" sx={{ ml: 1 }}>Logging out...</Typography>
+                  </Box>
+                ) : (
+                  'Logout'
+                )}
               </MobileMenuItem>
             </Fade>
           </>
