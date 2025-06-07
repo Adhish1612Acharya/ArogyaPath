@@ -1,51 +1,52 @@
-import type React from "react";
-import { useRef, useState } from "react";
+import { useState, useRef } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import dayjs from "dayjs";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 import {
-  Form,
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Container,
+  Divider,
   FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Loader2, X, ImageIcon, FileText, Video } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
+  FormHelperText,
+  TextField,
+  Typography,
+  useTheme,
+  Avatar,
   Button,
   Checkbox,
   Chip,
   CircularProgress,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  Paper,
 } from "@mui/material";
-import { Close as CloseIcon, Add as AddIcon } from "@mui/icons-material";
-import Avatar from "@mui/material/Avatar";
+import {
+  Close as CloseIcon,
+  Add as AddIcon,
+  Image as ImageIcon,
+  Description as FileTextIcon,
+  VideoLibrary as VideoIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
 import formSchema from "./AddSuccessStoryFormSchema";
 import { Doctor } from "./AddSuccessStoryFormSchema.types";
 import useApi from "@/hooks/useApi/useApi";
-import { useNavigate } from "react-router-dom";
 import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 
 type FormValues = z.infer<typeof formSchema>;
 
 export interface ExpertProfile {
-  expertType: "ayurvedic" | "naturopathy" | string; // add other types if needed
+  expertType: "ayurvedic" | "naturopathy" | string;
   profileImage: string;
 }
 
@@ -56,6 +57,7 @@ export interface Expert {
 }
 
 export default function AddSuccessStoryForm() {
+  const theme = useTheme();
   const { get } = useApi();
   const { submitSuccessStory } = useSuccessStory();
   const navigate = useNavigate();
@@ -79,7 +81,6 @@ export default function AddSuccessStoryForm() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<Doctor[]>([]);
 
-  // Initialize the form
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -96,7 +97,6 @@ export default function AddSuccessStoryForm() {
     },
   });
 
-  // Set up field array for routines
   const {
     fields: routineFields,
     append,
@@ -149,7 +149,7 @@ export default function AddSuccessStoryForm() {
         ...newFiles.map((file) => URL.createObjectURL(file)),
       ],
     }));
-    imageInputRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
+    imageInputRef.current!.value = "";
   };
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,7 +164,7 @@ export default function AddSuccessStoryForm() {
         video: URL.createObjectURL(file),
       });
     }
-    videoInputRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
+    videoInputRef.current!.value = "";
   };
 
   const handleDocumentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -179,13 +179,12 @@ export default function AddSuccessStoryForm() {
         document: URL.createObjectURL(file),
       });
     }
-    docInputRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
+    docInputRef.current!.value = "";
   };
 
   const handleImagePreviewCancel = (i: number) => {
     URL.revokeObjectURL(mediaPreview.images[i]);
-    const newImages =
-      mediaPreview.images?.filter((_, index) => index !== i) || [];
+    const newImages = mediaPreview.images?.filter((_, index) => index !== i) || [];
     setMediaPreview((prev) => ({ ...prev, images: newImages }));
     const currentImages = form.getValues("media.images") || [];
     const newFiles = currentImages.filter((_, index) => index !== i);
@@ -204,7 +203,6 @@ export default function AddSuccessStoryForm() {
     form.setValue("media.document", null);
   };
 
-  // Fake doctor search
   const searchDoctors = async (query: string) => {
     try {
       setIsSearching(true);
@@ -235,14 +233,11 @@ export default function AddSuccessStoryForm() {
     }
   };
 
-  // Handle doctor selection
   const selectDoctor = (doctor: Doctor) => {
     const currentDoctors = form.getValues("tagged") || [];
 
-    // Check if doctor is already selected
     if (currentDoctors.some((d) => d.id === doctor.id)) return;
 
-    // Check if we've reached the maximum number of doctors
     if (currentDoctors.length >= 5) {
       form.setError("tagged", {
         type: "manual",
@@ -255,7 +250,6 @@ export default function AddSuccessStoryForm() {
     form.clearErrors("tagged");
   };
 
-  // Handle doctor removal
   const removeDoctor = (doctorId: string) => {
     const currentDoctors = form.getValues("tagged") || [];
     form.setValue(
@@ -265,463 +259,528 @@ export default function AddSuccessStoryForm() {
   };
 
   return (
-    <div className="container  w-screen mx-auto py-8 px-4">
-      <h1 className="text-2xl font-bold mb-6">Add Success Story</h1>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        minWidth: "100vw",
+        background: `linear-gradient(135deg, ${theme.palette.grey[50]} 0%, #ffffff 100%)`,
+        py: 8,
+        px: { xs: 2, sm: 4 },
+      }}
+    >
+      <Container sx={{ px: { xs: 0, lg: 2 } }}>
+        {/* Hero Section */}
+        <Box
+          sx={{
+            textAlign: "center",
+            mb: 8,
+            px: { xs: 2, sm: 0 },
+          }}
+        >
+          <Typography
+            variant="h2"
+            component="h1"
+            sx={{
+              fontWeight: 700,
+              mb: 2,
+              fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+              lineHeight: 1.2,
+            }}
+          >
+            Share Your{" "}
+            <Typography
+              component="span"
+              color="primary.main"
+              sx={{
+                fontWeight: 700,
+                fontSize: "inherit",
+                display: "inline",
+              }}
+            >
+              Success Story
+            </Typography>
+          </Typography>
+          <Typography
+            variant="subtitle1"
+            color="text.secondary"
+            sx={{
+              maxWidth: "800px",
+              mx: "auto",
+              fontSize: { xs: "1rem", sm: "1.25rem" },
+            }}
+          >
+            Inspire others by sharing your journey to wellness and recovery
+          </Typography>
+        </Box>
 
-      <Card className="shadow-md">
-        <CardContent className="pt-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* Main Card */}
+        <Card
+          sx={{
+            width: "100%",
+            borderRadius: 4,
+            overflow: "hidden",
+            boxShadow: 3,
+            border: "none",
+          }}
+        >
+          {/* Card Header with Gradient */}
+          <CardHeader
+            title={
+              <Typography
+                variant="h3"
+                component="h2"
+                sx={{
+                  fontWeight: 700,
+                  color: "common.white",
+                  textAlign: "center",
+                  fontSize: { xs: "1.5rem", sm: "2rem" },
+                }}
+              >
+                Create Success Story
+              </Typography>
+            }
+            subheader={
+              <Typography
+                variant="body1"
+                sx={{
+                  color: "primary.light",
+                  textAlign: "center",
+                  mt: 1,
+                }}
+              >
+                Share your journey to inspire others
+              </Typography>
+            }
+            sx={{
+              py: 6,
+              background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.success.main} 100%)`,
+            }}
+          />
+
+          <CardContent sx={{ p: { xs: 3, md: 6 } }}>
+            <form onSubmit={form.handleSubmit(onSubmit)}>
               {/* Title Field */}
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Title</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter success story title"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Give your success story a compelling title
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormControl fullWidth sx={{ mb: 4 }}>
+                <TextField
+                  label="Title"
+                  variant="outlined"
+                  placeholder="Enter success story title"
+                  {...form.register("title")}
+                  error={!!form.formState.errors.title}
+                  helperText={form.formState.errors.title?.message}
+                />
+                <FormHelperText>
+                  Give your success story a compelling title
+                </FormHelperText>
+              </FormControl>
 
               {/* Description Field */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Describe the success story in detail"
-                        className="min-h-[120px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>
-                      Provide a detailed description of the success story
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <FormControl fullWidth sx={{ mb: 4 }}>
+                <TextField
+                  label="Description"
+                  variant="outlined"
+                  placeholder="Describe the success story in detail"
+                  multiline
+                  rows={4}
+                  {...form.register("description")}
+                  error={!!form.formState.errors.description}
+                  helperText={form.formState.errors.description?.message}
+                />
+                <FormHelperText>
+                  Provide a detailed description of the success story
+                </FormHelperText>
+              </FormControl>
 
               {/* Media Upload Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Media Upload</h3>
-                <p className="text-sm text-muted-foreground">
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Media Upload
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
                   Upload images, a video, or a document to accompany your
                   success story
-                </p>
+                </Typography>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Grid container spacing={3} sx={{ mt: 2 }}>
                   {/* Images Upload */}
-                  <div>
-                    <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 h-32 hover:bg-muted/50 transition-colors cursor-pointer">
-                      <label
-                        htmlFor="images-upload"
-                        className="cursor-pointer flex flex-col items-center"
-                      >
-                        <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                        <span className="text-sm font-medium">
-                          Upload Images
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Multiple allowed
-                        </span>
-                      </label>
+                  <Grid item xs={12} md={4}>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 3,
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        cursor: "pointer",
+                        "&:hover": {
+                          borderColor: "primary.main",
+                          backgroundColor: "action.hover",
+                        },
+                      }}
+                      onClick={() => imageInputRef.current?.click()}
+                    >
+                      <ImageIcon
+                        fontSize="large"
+                        color="action"
+                        sx={{ mb: 1 }}
+                      />
+                      <Typography variant="subtitle1">Upload Images</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Multiple allowed
+                      </Typography>
                       <input
-                        id="images-upload"
                         type="file"
                         ref={imageInputRef}
                         multiple
                         accept="image/*"
-                        className="hidden"
+                        style={{ display: "none" }}
                         onChange={handleImagesChange}
                       />
-                    </div>
-                  </div>
+                    </Paper>
+                  </Grid>
 
                   {/* Video Upload */}
-                  <div>
-                    <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 h-32 hover:bg-muted/50 transition-colors cursor-pointer">
-                      <label
-                        htmlFor="video-upload"
-                        className="cursor-pointer flex flex-col items-center"
-                      >
-                        <Video className="h-8 w-8 text-muted-foreground mb-2" />
-                        <span className="text-sm font-medium">
-                          Upload Video
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Single file
-                        </span>
-                      </label>
+                  <Grid item xs={12} md={4}>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 3,
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        cursor: "pointer",
+                        "&:hover": {
+                          borderColor: "primary.main",
+                          backgroundColor: "action.hover",
+                        },
+                      }}
+                      onClick={() => videoInputRef.current?.click()}
+                    >
+                      <VideoIcon
+                        fontSize="large"
+                        color="action"
+                        sx={{ mb: 1 }}
+                      />
+                      <Typography variant="subtitle1">Upload Video</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        Single file
+                      </Typography>
                       <input
-                        id="video-upload"
-                        ref={videoInputRef}
                         type="file"
+                        ref={videoInputRef}
                         accept="video/*"
-                        className="hidden"
+                        style={{ display: "none" }}
                         onChange={handleVideoChange}
                       />
-                    </div>
-                  </div>
+                    </Paper>
+                  </Grid>
 
                   {/* Document Upload */}
-                  <div>
-                    <div className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 h-32 hover:bg-muted/50 transition-colors cursor-pointer">
-                      <label
-                        htmlFor="document-upload"
-                        className="cursor-pointer flex flex-col items-center"
-                      >
-                        <FileText className="h-8 w-8 text-muted-foreground mb-2" />
-                        <span className="text-sm font-medium">
-                          Upload Document
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          PDF only
-                        </span>
-                      </label>
+                  <Grid item xs={12} md={4}>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 3,
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textAlign: "center",
+                        cursor: "pointer",
+                        "&:hover": {
+                          borderColor: "primary.main",
+                          backgroundColor: "action.hover",
+                        },
+                      }}
+                      onClick={() => docInputRef.current?.click()}
+                    >
+                      <FileTextIcon
+                        fontSize="large"
+                        color="action"
+                        sx={{ mb: 1 }}
+                      />
+                      <Typography variant="subtitle1">
+                        Upload Document
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        PDF only
+                      </Typography>
                       <input
-                        id="document-upload"
-                        ref={docInputRef}
                         type="file"
+                        ref={docInputRef}
                         accept=".pdf"
-                        className="hidden"
+                        style={{ display: "none" }}
                         onChange={handleDocumentChange}
                       />
-                    </div>
-                  </div>
-                </div>
+                    </Paper>
+                  </Grid>
+                </Grid>
 
+                {/* Media Previews */}
                 {mediaPreview.images?.length > 0 && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium mb-2">Image Previews</h4>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Image Previews
+                    </Typography>
+                    <Grid container spacing={2}>
                       {mediaPreview.images?.map((url, index) => (
-                        <div
-                          key={index}
-                          className="relative rounded-md overflow-hidden h-24"
-                        >
-                          <img
-                            src={url || "/placeholder.svg"}
-                            alt={`Preview ${index}`}
-                            className="w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1"
-                            onClick={() => {
-                              handleImagePreviewCancel(index);
+                        <Grid item key={index} xs={6} sm={4} md={3}>
+                          <Box
+                            sx={{
+                              position: "relative",
+                              borderRadius: 1,
+                              overflow: "hidden",
+                              height: 120,
                             }}
                           >
-                            <X size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            className="absolute top-1 right-1 bg-black/70 rounded-full p-1"
-                            onClick={() => {
-                              handleImagePreviewCancel(index);
-                            }}
-                          >
-                            <X className="h-4 w-4 text-white" />
-                          </button>
-                        </div>
+                            <img
+                              src={url || "/placeholder.svg"}
+                              alt={`Preview ${index}`}
+                              style={{
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              sx={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                backgroundColor: "error.main",
+                                color: "common.white",
+                                "&:hover": {
+                                  backgroundColor: "error.dark",
+                                },
+                              }}
+                              onClick={() => handleImagePreviewCancel(index)}
+                            >
+                              <CloseIcon fontSize="small" />
+                            </IconButton>
+                          </Box>
+                        </Grid>
                       ))}
-                    </div>
-                  </div>
+                    </Grid>
+                  </Box>
                 )}
 
                 {mediaPreview.video && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium mb-2">Video Preview</h4>
-                    <div className="relative rounded-md overflow-hidden">
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Video Preview
+                    </Typography>
+                    <Box
+                      sx={{
+                        position: "relative",
+                        borderRadius: 1,
+                        overflow: "hidden",
+                        maxHeight: 300,
+                      }}
+                    >
                       <video
                         src={mediaPreview.video}
                         controls
-                        className="w-full max-h-[300px]"
+                        style={{ width: "100%" }}
                       />
-                      <button
-                        type="button"
-                        className="absolute top-2 right-2 bg-black/70 rounded-full p-1"
+                      <IconButton
+                        size="small"
+                        sx={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          backgroundColor: "error.main",
+                          color: "common.white",
+                          "&:hover": {
+                            backgroundColor: "error.dark",
+                          },
+                        }}
                         onClick={handleVideoPreviewCancel}
                       >
-                        <X className="h-4 w-4 text-white" />
-                      </button>
-                    </div>
-                  </div>
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
                 )}
 
                 {mediaPreview.document && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium mb-2">
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="subtitle2" gutterBottom>
                       Document Preview
-                    </h4>
-                    <div className="flex items-center p-3 border rounded-md">
-                      <FileText className="h-6 w-6 mr-2 text-muted-foreground" />
-                      <span className="text-sm truncate flex-1">
-                        {form.getValues("media.document")?.name || "Document"}
-                      </span>
-                      <button
-                        type="button"
-                        className="ml-2 text-muted-foreground hover:text-foreground"
+                    </Typography>
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <FileTextIcon
+                          color="action"
+                          sx={{ mr: 2 }}
+                        />
+                        <Typography variant="body2">
+                          {form.getValues("media.document")?.name || "Document"}
+                        </Typography>
+                      </Box>
+                      <IconButton
+                        size="small"
                         onClick={handleDocPreviewCancel}
                       >
-                        <X className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </div>
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Paper>
+                  </Box>
                 )}
-              </div>
+              </Box>
 
               {/* Routines Section */}
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <FormField
-                    control={form.control}
-                    name="hasRoutines"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value}
-                            onChange={(e) => {
-                              field.onChange(e.target.checked);
-                              if (e.target.checked) {
-                                form.setValue("routines", [
-                                  {
-                                    time: "",
-                                    content: "",
-                                  },
-                                ]);
-                              }
-                              if (!e.target.checked) {
-                                form.setValue("routines", undefined);
-                              }
-                              // <Checkbox
-                              //   checked={field.value}
-                              //   onChange={(e) => {
-                              //     const checked = e.target.checked;
-                              //     field.onChange(checked);
-
-                              //     form.setValue(
-                              //       "routines",
-                              //       checked
-                              //         ? [{ time: "", content: "" }]
-                              //         : undefined,
-                              //       {
-                              //         shouldDirty: true,
-                              //         shouldTouch: true,
-                              //         shouldValidate: true,
-                              //       }
-                              //     );
-                              //   }}
-                              // />;
-                            }}
-                          />
-                        </FormControl>
-                        <div className="space-y-1 leading-none">
-                          <FormLabel>Include Routines</FormLabel>
-                          <FormDescription>
-                            Add daily routines that contributed to the success
-                          </FormDescription>
-                        </div>
-                      </FormItem>
-                    )}
+              <Box sx={{ mb: 4 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                  <Checkbox
+                    checked={form.watch("hasRoutines")}
+                    onChange={(e) => {
+                      form.setValue("hasRoutines", e.target.checked);
+                      if (e.target.checked) {
+                        form.setValue("routines", [
+                          {
+                            time: "",
+                            content: "",
+                          },
+                        ]);
+                      } else {
+                        form.setValue("routines", undefined);
+                      }
+                    }}
                   />
-                </div>
+                  <Box>
+                    <Typography variant="h6" component="h3">
+                      Include Routines
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Add daily routines that contributed to the success
+                    </Typography>
+                  </Box>
+                </Box>
 
                 {form.watch("hasRoutines") && (
-                  <div className="space-y-4 pl-6 border-l-2 border-muted">
+                  <Box
+                    sx={{
+                      pl: 4,
+                      borderLeft: 2,
+                      borderColor: "divider",
+                      mb: 2,
+                    }}
+                  >
                     {routineFields.map((field, index) => (
-                      <div
+                      <Box
                         key={field.id}
-                        className="grid grid-cols-1 md:grid-cols-[200px_1fr_auto] gap-4 items-start"
+                        sx={{
+                          mb: 3,
+                          display: "flex",
+                          flexDirection: { xs: "column", md: "row" },
+                          gap: 2,
+                          alignItems: { md: "flex-end" },
+                        }}
                       >
-                        {/* TIME PICKER */}
-                        <FormField
-                          control={form.control}
-                          name={`routines.${index}.time`}
-                          render={({ field, fieldState }) => (
-                            <FormItem>
-                              <FormLabel>Time</FormLabel>
-                              <TimePicker
-                                ampm
-                                value={
-                                  field.value
-                                    ? dayjs(field.value, "hh:mm A")
-                                    : null
-                                }
-                                onChange={(val) =>
-                                  field.onChange(
-                                    val ? val.format("hh:mm A") : null
-                                  )
-                                }
-                                slotProps={{
-                                  textField: {
-                                    fullWidth: true,
-                                    variant: "outlined",
-                                    placeholder: "e.g. 08:00 AM",
-                                    error: !!fieldState.error,
-                                    helperText: fieldState.error?.message,
-                                  },
-                                }}
-                              />
-                            </FormItem>
-                          )}
+                        <TimePicker
+                          label="Time"
+                          ampm
+                          value={
+                            form.watch(`routines.${index}.time`)
+                              ? dayjs(
+                                  form.watch(`routines.${index}.time`),
+                                  "hh:mm A"
+                                )
+                              : null
+                          }
+                          onChange={(val) =>
+                            form.setValue(
+                              `routines.${index}.time`,
+                              val ? val.format("hh:mm A") : null
+                            )
+                          }
+                          slotProps={{
+                            textField: {
+                              fullWidth: true,
+                              error: !!form.formState.errors.routines?.[index]
+                                ?.time,
+                              helperText:
+                                form.formState.errors.routines?.[index]?.time
+                                  ?.message,
+                            },
+                          }}
+                          sx={{ width: { xs: "100%", md: 200 } }}
                         />
 
-                        <FormField
-                          control={form.control}
-                          name={`routines.${index}.content`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Describe the routine"
-                                  className="resize-none"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                        <TextField
+                          label="Routine Description"
+                          variant="outlined"
+                          fullWidth
+                          multiline
+                          rows={2}
+                          {...form.register(`routines.${index}.content`)}
+                          error={
+                            !!form.formState.errors.routines?.[index]?.content
+                          }
+                          helperText={
+                            form.formState.errors.routines?.[index]?.content
+                              ?.message
+                          }
                         />
 
                         <IconButton
-                          color="default"
                           onClick={() => remove(index)}
                           disabled={routineFields.length === 1}
-                          sx={{ marginTop: "8px" }}
+                          color="error"
                         >
                           <CloseIcon />
                         </IconButton>
-                      </div>
+                      </Box>
                     ))}
 
                     <Button
                       variant="outlined"
-                      size="small"
                       startIcon={<AddIcon />}
                       onClick={() => append({ time: "", content: "" })}
-                      sx={{ marginTop: "8px" }}
+                      sx={{ mt: 1 }}
                     >
                       Add Routine
                     </Button>
-                  </div>
+                  </Box>
                 )}
-              </div>
+              </Box>
 
               {/* Doctor Tagging Section */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Doctor Tagging</h3>
-                <p className="text-sm text-muted-foreground">
+              <Box sx={{ mb: 4 }}>
+                <Typography variant="h6" component="h3" gutterBottom>
+                  Doctor Tagging
+                </Typography>
+                <Typography variant="body2" color="text.secondary" gutterBottom>
                   Tag up to 5 doctors who contributed to this success story
-                </p>
+                </Typography>
 
-                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outlined" startIcon={<AddIcon />}>
-                      Add Doctors
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-md">
-                    <DialogHeader>
-                      <DialogTitle>Search Doctors</DialogTitle>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          placeholder="Search by name"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          onClick={() => searchDoctors(searchQuery)}
-                          disabled={isSearching || searchQuery.length < 2}
-                        >
-                          {isSearching ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            "Search"
-                          )}
-                        </Button>
-                      </div>
-
-                      {form.formState.errors.tagged && (
-                        <Alert variant="destructive">
-                          <AlertDescription>
-                            {form.formState.errors.tagged.message}
-                          </AlertDescription>
-                        </Alert>
-                      )}
-
-                      <div className="max-h-[300px] overflow-y-auto">
-                        {isSearching ? (
-                          <div className="flex justify-center py-8">
-                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                          </div>
-                        ) : searchResults.length > 0 ? (
-                          <div className="space-y-2">
-                            {searchResults.map((doctor) => (
-                              <div
-                                key={doctor.id}
-                                className="flex items-center justify-between p-2 hover:bg-muted rounded-md cursor-pointer"
-                                onClick={() => selectDoctor(doctor)}
-                              >
-                                <div className="flex items-center space-x-3">
-                                  <Avatar>
-                                    <img
-                                      src={doctor.avatar || "/placeholder.svg"}
-                                      alt={doctor.name}
-                                    />
-                                  </Avatar>
-                                  <span>{doctor.name}</span>
-                                </div>
-                                <Button
-                                  type="button"
-                                  variant="outlined"
-                                  disabled={form
-                                    .getValues("tagged")
-                                    ?.some((d) => d.id === doctor.id)}
-                                >
-                                  {form
-                                    .getValues("tagged")
-                                    ?.some((d) => d.id === doctor.id)
-                                    ? "Added"
-                                    : "Add"}
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        ) : searchQuery.length > 0 ? (
-                          <p className="text-center py-8 text-muted-foreground">
-                            No doctors found
-                          </p>
-                        ) : (
-                          <p className="text-center py-8 text-muted-foreground">
-                            Search for doctors by name
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setIsDialogOpen(true)}
+                  sx={{ mb: 2 }}
+                >
+                  Add Doctors
+                </Button>
 
                 {form.watch("tagged")?.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
                     {form.watch("tagged").map((doctor) => (
                       <Chip
                         key={doctor.id}
@@ -737,34 +796,156 @@ export default function AddSuccessStoryForm() {
                         deleteIcon={<CloseIcon fontSize="small" />}
                       />
                     ))}
-                  </div>
+                  </Box>
                 )}
-              </div>
 
-              <Separator />
+                {form.formState.errors.tagged && (
+                  <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                    {form.formState.errors.tagged.message}
+                  </Typography>
+                )}
+              </Box>
+
+              <Divider sx={{ my: 4 }} />
 
               {/* Submit Button */}
               <Button
                 type="submit"
                 variant="contained"
-                disabled={form.formState.isSubmitting}
+                size="large"
                 fullWidth
+                disabled={form.formState.isSubmitting}
                 startIcon={
                   form.formState.isSubmitting ? (
-                    <CircularProgress size={16} color="inherit" />
+                    <CircularProgress size={24} color="inherit" />
                   ) : null
                 }
               >
-                {form.formState.isSubmitting ? (
-                  <>Submitting...</>
-                ) : (
-                  "Submit Success Story"
-                )}
+                {form.formState.isSubmitting ? "Submitting..." : "Submit Success Story"}
               </Button>
             </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </Container>
+
+      {/* Doctor Search Dialog */}
+      <Dialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Search Doctors</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mb: 3 }}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search by name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: <SearchIcon color="action" sx={{ mr: 1 }} />,
+              }}
+            />
+          </Box>
+
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+            <Button
+              variant="contained"
+              onClick={() => searchDoctors(searchQuery)}
+              disabled={isSearching || searchQuery.length < 2}
+              startIcon={
+                isSearching ? (
+                  <CircularProgress size={20} color="inherit" />
+                ) : null
+              }
+            >
+              Search
+            </Button>
+          </Box>
+
+          <Box
+            sx={{
+              maxHeight: 400,
+              overflowY: "auto",
+              borderTop: 1,
+              borderColor: "divider",
+              pt: 2,
+            }}
+          >
+            {isSearching ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: 100,
+                }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : searchResults.length > 0 ? (
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {searchResults.map((doctor) => (
+                  <Paper
+                    key={doctor.id}
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      cursor: "pointer",
+                      "&:hover": {
+                        backgroundColor: "action.hover",
+                      },
+                    }}
+                    onClick={() => selectDoctor(doctor)}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <Avatar src={doctor.avatar} alt={doctor.name} />
+                      <Typography>{doctor.name}</Typography>
+                    </Box>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      disabled={form
+                        .getValues("tagged")
+                        ?.some((d) => d.id === doctor.id)}
+                    >
+                      {form.getValues("tagged")?.some((d) => d.id === doctor.id)
+                        ? "Added"
+                        : "Add"}
+                    </Button>
+                  </Paper>
+                ))}
+              </Box>
+            ) : searchQuery.length > 0 ? (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                textAlign="center"
+                sx={{ py: 4 }}
+              >
+                No doctors found
+              </Typography>
+            ) : (
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                textAlign="center"
+                sx={{ py: 4 }}
+              >
+                Search for doctors by name
+              </Typography>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
   );
 }
