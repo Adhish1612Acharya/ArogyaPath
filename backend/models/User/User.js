@@ -39,6 +39,18 @@ const userSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    sentChatRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ChatRequest",
+      },
+    ],
+    receivedChatRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ChatRequest",
+      },
+    ],
   },
 
   { timestamps: true }

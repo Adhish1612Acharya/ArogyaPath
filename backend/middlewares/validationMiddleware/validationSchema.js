@@ -1,10 +1,5 @@
 import { z } from "zod";
 
-// Utility for MongoDB ObjectId
-const objectIdSchema = z
-  .string()
-  .regex(/^[a-f\d]{24}$/i, "Invalid MongoDB ObjectId");
-
 // -------------------- User Schema --------------------
 export const userSchemaZod = z.object({
   fullname: z.string().min(1, "Full name is required").max(50),
@@ -151,8 +146,74 @@ export const userProfileSchema = z.object({
 });
 
 const objectIdRegex = /^[a-f\d]{24}$/i;
+const objectIdSchema = z
+  .string()
+  .regex(objectIdRegex, "Invalid MongoDB ObjectId");
 
-export const  usersIdsSchema = z
+export const chatRequestSchemaZod = z
+  .object({
+    chatType: z.enum(["private", "group"]),
+    groupName: z.string().optional(),
+    users: z.array(
+      z.object({
+        user: objectIdSchema,
+        userType: z.enum(["User", "Expert"]),
+      })
+    ),
+    chatReason: z.object({
+      similarPrakrithi: z.boolean(),
+      otherReason: z.string().nullable().optional(),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    // Check for duplicate user IDs
+    const userIds = data.users?.map((u) => u.user?.toString());
+    const duplicates = userIds?.filter(
+      (id, index) => userIds.indexOf(id) !== index
+    );
+
+    if (duplicates && duplicates.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Duplicate user IDs are not allowed.",
+        path: ["users"],
+      });
+    }
+
+    if (data.chatType === "group") {
+      if (!data.users || data.users.length < 2) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Group chat must have at least 2 users.",
+          path: ["users"],
+        });
+      }
+      if (!data.groupName || data.groupName.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Group name is required for group chat.",
+          path: ["groupName"],
+        });
+      }
+    } else if (data.chatType === "private") {
+      if (!data.users || data.users.length !== 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Private chat must have exactly 1 user.",
+          path: ["users"],
+        });
+      }
+      if (data.groupName) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Group name should not be present for private chat.",
+          path: ["groupName"],
+        });
+      }
+    }
+  });
+
+export const usersIdsSchema = z
   .object({
     participants: z
       .array(
@@ -185,4 +246,5 @@ export default {
   expertProfileSchema,
   userProfileSchema,
   usersIdsSchema,
+  chatRequestSchemaZod,
 };
