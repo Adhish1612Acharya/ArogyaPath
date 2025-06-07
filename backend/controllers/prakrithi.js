@@ -2,6 +2,7 @@ import axios from "axios";
 import Prakrithi from "../models/Prakrathi/Prakrathi.js";
 import ExpressError from "../utils/expressError.js";
 import { sendPdfReport } from "../utils/sendPdfReport.js";
+import { calculateSimilarPrakrithiUsers } from "../utils/similarPkUsers.js";
 
 const findPrakrithi = async (req, res) => {
   const inputData = req.body;
@@ -46,21 +47,12 @@ const findPrakrithi = async (req, res) => {
 
 const findSimilarPrakrithiUsers = async (req, res) => {
   const userId = req.user._id;
-
-  // 1. Get the current user's Prakrithi data from the database
   const currentUserEntry = await Prakrithi.findOne({ user: userId }).populate(
     "user"
   );
-
-  // If no Prakrithi data is found for the user, return a 404 error
   if (!currentUserEntry) {
-    return res.status(404).json({
-      success: false,
-      message: "Prakrithi data not found for this user.",
-    });
+    throw new ExpressError(404, "Prakrithi data not found for this user.");
   }
-
-  // 2. Define the list of fields to compare between users
   const fieldsToCompare = [
     "Body_Type",
     "Skin_Type",
@@ -83,50 +75,19 @@ const findSimilarPrakrithiUsers = async (req, res) => {
     "Ayurvedic_Treatment",
   ];
 
-  console.log("CurrUser : ", currentUserEntry);
-
-  // 3. Get all other users' Prakrithi data from the database (excluding the current user)
   const otherUsers = await Prakrithi.find({
     user: { $ne: userId },
     Dominant_Prakrithi: currentUserEntry.Dominant_Prakrithi,
   }).populate("user");
-
-  console.log("Other users : ", otherUsers);
-
-  // 4. Compare each other user's Prakrithi data with the current user's data and calculate similarity
-  const similarUsers = otherUsers
-    .map((user) => {
-      let matches = 0;
-
-      // For each field, check if it matches between the current user and the other user
-      fieldsToCompare.forEach((field) => {
-        if (currentUserEntry[field] === user[field]) {
-          matches++; // Increment match count if values are the same
-        }
-      });
-
-      // Calculate the similarity percentage based on the number of matching fields
-      const similarityPercentage = (
-        (matches / fieldsToCompare.length) *
-        100
-      ).toFixed(2);
-
-      console.log(similarityPercentage)
-
-      return { user: user.user, similarityPercentage };
-    })
-    // Filter users to include only those with a similarity of at least 70%
-    // .filter(({ similarityPercentage }) => similarityPercentage >= 70)
-    // Sort the users by similarity percentage in descending order
-    .sort((a, b) => b.similarityPercentage - a.similarityPercentage);
-
-  console.log("Similar User : ", similarUsers);
-
-  // 5. Return the list of similar users (excluding similarity percentage in the response)
+  const similarUsers = calculateSimilarPrakrithiUsers(
+    currentUserEntry,
+    otherUsers,
+    fieldsToCompare
+  );
   res.status(200).json({
     success: true,
     message: "Similar users data",
-    similarUsers: similarUsers,
+    similarUsers,
   });
 };
 

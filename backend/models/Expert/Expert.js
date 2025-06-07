@@ -49,6 +49,18 @@ const ExpertSchema = new Schema(
     role: { type: String, enum: ["expert"], default: "expert" },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
+    sentChatRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ChatRequest",
+      },
+    ],
+    receivedChatRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ChatRequest",
+      },
+    ],
   },
   { timestamps: true }
 );

@@ -15,7 +15,7 @@ const router = express.Router();
 router.get(
   "/:id",
   isLoggedIn,
-  checkChatOwnership,
+  wrapAsync(checkChatOwnership),
   wrapAsync(chatController.getChatMessages)
 );
 
