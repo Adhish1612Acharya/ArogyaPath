@@ -159,7 +159,7 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<
     "verified" | "invalid" | "unverified"
-  >(post.verified.length > 0 ? "verified" : "unverified");
+  >(post.verified.length > 0 ? "verified" : post.invalid ? "invalid" : "unverified");
   const [showVerifyActions, setShowVerifyActions] = useState(false);
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -205,6 +205,7 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
     setTimeout(() => {
       setVerificationStatus("verified");
       setVerificationLoading(false);
+      // In a real app, you would update the post.verified array here
     }, 1000);
   };
 
@@ -218,7 +219,8 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
       setVerificationStatus("invalid");
       setVerificationLoading(false);
       setInvalidDialogOpen(false);
-      setInvalidReason("");
+      // In a real app, you would update the post.invalid object here
+      // post.invalid = { reason: invalidReason, by: currentUserId }
     }, 1000);
   };
 
@@ -233,6 +235,13 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
   React.useEffect(() => {
     setShowVerifyActions(false);
   }, [verificationStatus]);
+
+  // Get verification status for each tagged doctor
+  const getTaggedDoctorStatus = (doctorId: string) => {
+    if (post.verified.some(d => d._id === doctorId)) return "verified";
+    if (post.invalid && post.invalid.by === doctorId) return "invalid";
+    return "unverified";
+  };
 
   return (
     <StyledCard>
@@ -278,11 +287,7 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
               <Tooltip title="Not yet verified by medical professionals. Click to verify or mark invalid." arrow>
                 <UnverifiedBadge
                   sx={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    // Open a menu/dialog for verify/invalid actions
-                    // For simplicity, show the two buttons inline below the badge
-                    setShowVerifyActions(true);
-                  }}
+                  onClick={() => setShowVerifyActions(!showVerifyActions)}
                 >
                   <Warning fontSize="small" />
                   Unverified
@@ -292,14 +297,17 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
               <>
                 {verificationStatus === "verified" && (
                   <Tooltip title="Verified by medical professionals" arrow>
-                    <VerifiedBadge onClick={handleVerifiersClick}>
+                    <VerifiedBadge 
+                      onClick={handleVerifiersClick}
+                      sx={{ cursor: 'pointer' }}
+                    >
                       <CheckCircle fontSize="small" />
                       Verified
                     </VerifiedBadge>
                   </Tooltip>
                 )}
                 {verificationStatus === "invalid" && (
-                  <Tooltip title={`Invalid post: ${invalidReason}`} arrow>
+                  <Tooltip title={`Invalid post: ${post.invalid?.reason || "No reason provided"}`} arrow>
                     <InvalidBadge>
                       <Warning fontSize="small" />
                       Invalid
@@ -398,24 +406,36 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
             Tagged Doctors:
           </Typography>
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {post.tagged.map((doctor) => (
-              <Chip
-                key={doctor._id}
-                avatar={<Avatar src={doctor.profile.profileImage} />}
-                label={`Dr. ${doctor.profile.fullName}`}
-                size="small"
-                onClick={() => navigate(`/doctor/profile/${doctor._id}`)}
-                sx={{
-                  backgroundColor: "rgba(5, 150, 105, 0.1)",
-                  color: "rgb(5, 150, 105)",
-                  "&:hover": {
-                    backgroundColor: "rgba(5, 150, 105, 0.2)",
-                  },
-                  fontSize: "0.7rem",
-                  height: "28px",
-                }}
-              />
-            ))}
+            {post.tagged.map((doctor) => {
+              const status = getTaggedDoctorStatus(doctor._id);
+              return (
+                <Chip
+                  key={doctor._id}
+                  avatar={<Avatar src={doctor.profile.profileImage} />}
+                  label={`Dr. ${doctor.profile.fullName}`}
+                  size="small"
+                  onClick={() => navigate(`/doctors/profile/${doctor._id}`)}
+                  sx={{
+                    backgroundColor: 
+                      status === "verified" ? "rgba(5, 150, 105, 0.1)" :
+                      status === "invalid" ? "rgba(239, 68, 68, 0.1)" :
+                      "rgba(156, 163, 175, 0.1)",
+                    color: 
+                      status === "verified" ? "rgb(5, 150, 105)" :
+                      status === "invalid" ? "rgb(239, 68, 68)" :
+                      "rgb(156, 163, 175)",
+                    "&:hover": {
+                      backgroundColor: 
+                        status === "verified" ? "rgba(5, 150, 105, 0.2)" :
+                        status === "invalid" ? "rgba(239, 68, 68, 0.2)" :
+                        "rgba(156, 163, 175, 0.2)",
+                    },
+                    fontSize: "0.7rem",
+                    height: "28px",
+                  }}
+                />
+              );
+            })}
           </Box>
         </Box>
       )}
@@ -518,8 +538,8 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
             />
           )}
           {/* Verification buttons for tagged doctors */}
-          {canVerifyOrInvalidate && (
-            <>
+          {canVerifyOrInvalidate && showVerifyActions && (
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <Button
                 variant="outlined"
                 size="small"
@@ -527,7 +547,6 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
                 startIcon={verificationLoading ? <Loader2 className="animate-spin" /> : <CheckCircle />}
                 onClick={handleVerify}
                 disabled={verificationLoading}
-                sx={{ ml: 1 }}
               >
                 Verify
               </Button>
@@ -538,11 +557,10 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
                 startIcon={verificationLoading ? <Loader2 className="animate-spin" /> : <Warning />}
                 onClick={handleMarkInvalid}
                 disabled={verificationLoading}
-                sx={{ ml: 1 }}
               >
                 Mark Invalid
               </Button>
-            </>
+            </Box>
           )}
         </Box>
       </CardContent>
@@ -739,7 +757,7 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
                     cursor: 'pointer'
                   }
                 }}
-                onClick={() => navigate(`/doctor/profile/${doctor._id}`)}
+                onClick={() => navigate(`/doctors/profile/${doctor._id}`)}
               >
                 <Avatar 
                   src={doctor.profile.profileImage} 
