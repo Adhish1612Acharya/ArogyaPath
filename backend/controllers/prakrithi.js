@@ -2,7 +2,7 @@ import axios from "axios";
 import Prakrithi from "../models/Prakrathi/Prakrathi.js";
 import ExpressError from "../utils/expressError.js";
 import { sendPdfReport } from "../utils/sendPdfReport.js";
-import { calculateSimilarPrakrithiUsers } from "../utils/similarPkUsers.js";
+import calculateSimilarPrakrithiUsers from "../utils/similarPkUsers.js";
 
 const findPrakrithi = async (req, res) => {
   const inputData = req.body;

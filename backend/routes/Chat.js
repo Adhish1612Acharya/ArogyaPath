@@ -5,9 +5,14 @@ import {
   checkChatOwnership,
   checkChatUsersExists,
   checkIncludesCurrChatUser,
+  checkUserInChatRequest,
 } from "../middlewares/chat.js";
 import chatController from "../controllers/chat.js";
-import { validateChatUsersIds } from "../middlewares/validationMiddleware/validationMiddlewares.js";
+import {
+  validateChatUsersIds,
+  validateChatRequest,
+  checkChatRequestDoesNotContainCurrentUser,
+} from "../middlewares/validationMiddleware/validationMiddlewares.js";
 
 const router = express.Router();
 
@@ -19,13 +24,40 @@ router.get(
   wrapAsync(chatController.getChatMessages)
 );
 
+// Create a new chat
+// router.post(
+//   "/",
+//   isLoggedIn,
+//   validateChatUsersIds,
+//   checkIncludesCurrChatUser,
+//   wrapAsync(checkChatUsersExists),
+//   wrapAsync(chatController.createChat)
+// );
+
+// Create a chat request
 router.post(
-  "/",
+  "/request",
   isLoggedIn,
-  validateChatUsersIds,
-  checkIncludesCurrChatUser,
+  validateChatRequest,
+  checkChatRequestDoesNotContainCurrentUser,
   wrapAsync(checkChatUsersExists),
-  wrapAsync(chatController.createChat)
+  wrapAsync(chatController.createChatRequest)
+);
+
+// Accept a chat request
+router.post(
+  "/request/:id/accept",
+  isLoggedIn,
+  wrapAsync(checkUserInChatRequest),
+  wrapAsync(chatController.acceptChatRequest)
+);
+
+// Reject a chat request
+router.post(
+  "/request/:id/reject",
+  isLoggedIn,
+  wrapAsync(checkUserInChatRequest),
+  wrapAsync(chatController.rejectChatRequest)
 );
 
 export default router;

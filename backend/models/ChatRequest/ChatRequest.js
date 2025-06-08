@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const chatRequestSchema = new Schema({
   ownerType: {
@@ -28,10 +28,10 @@ const chatRequestSchema = new Schema({
         enum: ["pending", "accepted", "rejected"],
         default: "pending",
       },
-      similarPrakrithiPercenatge:{
+      similarPrakrithiPercenatge: {
         type: Number,
         default: null,
-      }
+      },
     },
   ],
   chatType: {
@@ -53,6 +53,13 @@ const chatRequestSchema = new Schema({
       default: null,
     },
   },
+  chat: {
+    type: Schema.Types.ObjectId,
+    ref: "Chat",
+    default: null,
+  },
 });
 
 const ChatRequest = mongoose.model("ChatRequest", chatRequestSchema);
+
+export default ChatRequest;

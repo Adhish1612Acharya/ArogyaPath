@@ -1,21 +1,12 @@
 import { useState, useRef } from "react";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import {
-  CircularProgress,
   Card,
   CardHeader,
   CardContent,
   Typography,
   LinearProgress,
-  Button,
-  Dialog,
-  DialogTitle,
-  IconButton,
-  DialogContent,
-  DialogActions,
-  Avatar,
 } from "@mui/material";
-import { Chat, Close, CloudDownload, Email, People } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -24,9 +15,11 @@ import PrakrithiForm from "@/components/Forms/User/PrakrithiForm/PrakrithiForm";
 import { ApiResponse } from "./PrakrithiAnalysis.types";
 import usePrakrithi from "@/hooks/usePrakrithi/usePrakrithi";
 import { UserOrExpertDetailsType } from "@/types";
-import { Loader2 } from "lucide-react";
 import useChat from "@/hooks/useChat/useChat";
 import { toast } from "react-toastify";
+import SimilarPkUserDialog from "@/components/SimilarPkUserDialog/SimilarPkUserDialog";
+import PrakritiAnalysisLoading from "../../../components/PrakritiAnalysisLoading/PrakritiAnalysisLoading";
+import PrakrithiResultView from "@/components/PrakrithiResultView/PrakrithiResultView";
 
 // Particles background component
 const ParticlesBackground = () => {
@@ -313,133 +306,10 @@ export default function PrakrithiAnalysis() {
     }
   };
 
-  const ResultsView = () => {
-    // if (!responseData) return null;
-
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl max-w-2xl mx-auto"
-      >
-        <motion.div
-          initial={{ scale: 0.9 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 300 }}
-        >
-          <Typography
-            variant="h4"
-            className="mb-6 text-teal-600 dark:text-teal-400 font-bold"
-          >
-            Analysis Complete!
-          </Typography>
-
-          <Typography
-            variant="h6"
-            className="mb-4 text-gray-700 dark:text-gray-200"
-          >
-            Your dominant Prakriti is:{" "}
-            <span className="font-bold text-indigo-600 dark:text-indigo-300">
-              {responseData?.Dominant_Prakrithi}
-            </span>
-          </Typography>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<CloudDownload />}
-              onClick={download}
-              className="h-16"
-              fullWidth
-            >
-              Download Report
-            </Button>
-
-            <Button
-              variant="contained"
-              color="secondary"
-              startIcon={<Email />}
-              onClick={sendEmail}
-              className="h-16"
-              fullWidth
-            >
-              {emailLoading ? <CircularProgress /> : "Send to Email"}
-            </Button>
-
-            <Button
-              variant="outlined"
-              color="primary"
-              startIcon={<People />}
-              onClick={findSimilarPkUsers}
-              className="h-16"
-              fullWidth
-            >
-              {findSimilarPkUsersLoad ? (
-                <Loader2 className="animate-spin" />
-              ) : (
-                "Connect with Similar Prakriti"
-              )}
-            </Button>
-          </div>
-        </motion.div>
-      </motion.div>
-    );
-  };
-
   // Loading state
   if (loading && !analysisComplete) {
     return (
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="flex flex-col items-center justify-center min-h-screen w-screen bg-gradient-to-br from-teal-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden"
-      >
-        <ParticlesBackground />
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="relative z-10 text-center p-8 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-2xl shadow-xl"
-        >
-          <CircularProgress
-            color="primary"
-            size={80}
-            thickness={2.5}
-            className="text-teal-500"
-          />
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-          >
-            <Typography
-              variant="h4"
-              className="mt-8 text-teal-600 dark:text-teal-400 font-bold"
-            >
-              Analyzing Your Prakriti...
-            </Typography>
-            <Typography
-              variant="body1"
-              className="mt-4 text-gray-600 dark:text-gray-300 max-w-md"
-            >
-              We're carefully evaluating your responses to provide the most
-              accurate Ayurvedic insights.
-            </Typography>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.5 }}
-            className="mt-6"
-          >
-            <div className="inline-block animate-pulse">
-              <CloudDownload className="text-teal-500 text-4xl" />
-            </div>
-          </motion.div>
-        </motion.div>
-      </motion.div>
+      <PrakritiAnalysisLoading ParticlesBackground={ParticlesBackground} />
     );
   }
 
@@ -452,80 +322,23 @@ export default function PrakrithiAnalysis() {
         className="flex flex-col items-center justify-center min-h-screen w-screen bg-gradient-to-br from-teal-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden p-4"
       >
         <ParticlesBackground />
-        <ResultsView />
-
-        {/* Similar Users Dialog */}
-        <Dialog
+        <PrakrithiResultView
+          responseData={responseData as { Dominant_Prakrithi: string }}
+          download={download}
+          sendEmail={sendEmail}
+          emailLoading={emailLoading}
+          findSimilarPkUsers={findSimilarPkUsers}
+          findSimilarPkUsersLoad={findSimilarPkUsersLoad}
+        />
+        <SimilarPkUserDialog
           open={similarUsersDialogOpen}
           onClose={() => setSimilarUsersDialogOpen(false)}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle className="flex justify-between items-center">
-            <span>People with Similar Prakriti</span>
-            <IconButton onClick={() => setSimilarUsersDialogOpen(false)}>
-              <Close />
-            </IconButton>
-          </DialogTitle>
-          <DialogContent>
-            {similarPkUsers.length > 0 && (
-              <>
-                <Typography variant="body1" className="mb-4 text-center">
-                  <span className="font-bold text-teal-600">
-                    {similarPkUsers.length}
-                  </span>{" "}
-                  of people share similar Prakriti with you
-                </Typography>
-
-                <div className="space-y-4">
-                  {similarPkUsers.map((eachPkUser) => (
-                    <div
-                      key={eachPkUser.user._id}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Avatar
-                          src={eachPkUser.user._id}
-                          alt={eachPkUser.user.profile.fullName}
-                        />
-                        <div>
-                          <Typography variant="subtitle1">
-                            {eachPkUser.user.profile.fullName}
-                          </Typography>
-                          <Typography variant="body2" className="text-gray-500">
-                            {eachPkUser.similarityPercentage}%
-                          </Typography>
-                        </div>
-                      </div>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        startIcon={<Chat />}
-                        onClick={() => createNewChat(eachPkUser.user._id)}
-                        size="small"
-                        disabled={createChatLoad}
-                      >
-                        {createChatLoad ? (
-                          <Loader2 className="animate-spin" />
-                        ) : (
-                          "Chat"
-                        )}
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setSimilarUsersDialogOpen(false)}>
-              Close
-            </Button>
-          </DialogActions>
-        </Dialog>
-
+          similarPkUsers={similarPkUsers}
+          createNewChat={createNewChat}
+          createChatLoad={createChatLoad}
+        />
         {/* Download Complete Notification */}
-        <AnimatePresence>
+        {/* <AnimatePresence>
           {downloadComplete && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -538,178 +351,179 @@ export default function PrakrithiAnalysis() {
               <span>Report downloaded successfully!</span>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence> */}
       </motion.div>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8 relative overflow-hidden"
-    >
-      <ParticlesBackground />
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-indigo-50 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8 relative overflow-hidden"
+      >
+        <ParticlesBackground />
 
-      <div className="w-full max-w-5xl space-y-6 relative z-10">
-        <motion.div
-          ref={headerRef}
-          initial={{ y: -50, opacity: 0 }}
-          animate={headerInView ? { y: 0, opacity: 1 } : {}}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="text-center"
-        >
-          <Typography
-            variant="h2"
-            className="mb-4 font-bold text-teal-800 dark:text-teal-300 bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-indigo-600"
-          >
-            Discover Your Ayurvedic Constitution
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
-          >
-            Complete this assessment to understand your unique Prakriti and
-            receive personalized health recommendations.
-          </Typography>
-        </motion.div>
-
-        <motion.div
-          initial={{ scale: 0.95, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <Card
-            ref={cardRef}
-            className="w-full shadow-2xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-3xl"
-            component={motion.div}
-            whileHover={{ y: -5 }}
-          >
-            <CardHeader
-              title={
-                <div className="flex items-center justify-center space-x-2">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 20,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="text-teal-500"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
-                      <path d="M12 2v8"></path>
-                      <path d="M20 12h-8"></path>
-                    </svg>
-                  </motion.div>
-                  <span>Prakriti Analysis</span>
-                </div>
-              }
-              titleTypographyProps={{
-                variant: "h4",
-                className:
-                  "text-center font-bold text-teal-700 dark:text-teal-300",
-              }}
-              className="p-6 border-b border-teal-100/50 dark:border-gray-700/50 bg-gradient-to-r from-teal-50/50 to-indigo-50/50 dark:from-gray-700/50 dark:to-gray-700/50"
-            />
-
-            <div className="px-6 pb-4">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 0.8 }}
-              >
-                <LinearProgress
-                  variant="determinate"
-                  value={(currentSection / TOTAL_SECTIONS) * 100}
-                  className="h-3 rounded-full bg-teal-100/50 dark:bg-gray-600/50"
-                  sx={{
-                    "& .MuiLinearProgress-bar": {
-                      borderRadius: "999px",
-                      background: "linear-gradient(90deg, #0d9488, #4f46e5)",
-                    },
-                  }}
-                />
-              </motion.div>
-              <div className="flex justify-between mt-3">
-                <Typography
-                  variant="body2"
-                  className="text-teal-700 dark:text-teal-300 font-medium"
-                >
-                  Progress:{" "}
-                  {Math.round((currentSection / TOTAL_SECTIONS) * 100)}%
-                </Typography>
-                <Typography
-                  variant="body2"
-                  className="text-gray-600 dark:text-gray-300"
-                >
-                  Section {currentSection} of {TOTAL_SECTIONS}
-                </Typography>
-              </div>
-            </div>
-
-            <CardContent className="p-4 md:p-8">
-              <PrakrithiForm
-                generatePDF={generatePDF}
-                currentSection={currentSection}
-                setCurrentSection={setCurrentSection}
-                TOTAL_SECTIONS={TOTAL_SECTIONS}
-                setLoading={setLoading}
-                setAnalysisComplete={setAnalysisComplete}
-                setResponseData={setResponseData}
-              />
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="text-center"
-        >
-          <Typography
-            variant="body2"
-            className="text-gray-500 dark:text-gray-400"
-          >
-            Your responses will help us provide accurate Ayurvedic insights.
-          </Typography>
-          <Typography
-            variant="body2"
-            className="text-gray-500 dark:text-gray-400"
-          >
-            All information is kept confidential.
-          </Typography>
-        </motion.div>
-      </div>
-
-      {/* Download complete notification */}
-      <AnimatePresence>
-        {downloadComplete && (
+        <div className="w-full max-w-5xl space-y-6 relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50"
+            ref={headerRef}
+            initial={{ y: -50, opacity: 0 }}
+            animate={headerInView ? { y: 0, opacity: 1 } : {}}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="text-center"
           >
-            <CloudDownload className="text-white" />
-            <span>Report downloaded successfully!</span>
+            <Typography
+              variant="h2"
+              className="mb-4 font-bold text-teal-800 dark:text-teal-300 bg-clip-text text-transparent bg-gradient-to-r from-teal-600 to-indigo-600"
+            >
+              Discover Your Ayurvedic Constitution
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto"
+            >
+              Complete this assessment to understand your unique Prakriti and
+              receive personalized health recommendations.
+            </Typography>
           </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
+
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.5 }}
+          >
+            <Card
+              ref={cardRef}
+              className="w-full shadow-2xl border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl overflow-hidden transition-all duration-300 hover:shadow-3xl"
+              component={motion.div}
+              whileHover={{ y: -5 }}
+            >
+              <CardHeader
+                title={
+                  <div className="flex items-center justify-center space-x-2">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{
+                        duration: 20,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                      className="text-teal-500"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5"></path>
+                        <path d="M12 2v8"></path>
+                        <path d="M20 12h-8"></path>
+                      </svg>
+                    </motion.div>
+                    <span>Prakriti Analysis</span>
+                  </div>
+                }
+                titleTypographyProps={{
+                  variant: "h4",
+                  className:
+                    "text-center font-bold text-teal-700 dark:text-teal-300",
+                }}
+                className="p-6 border-b border-teal-100/50 dark:border-gray-700/50 bg-gradient-to-r from-teal-50/50 to-indigo-50/50 dark:from-gray-700/50 dark:to-gray-700/50"
+              />
+
+              <div className="px-6 pb-4">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.8 }}
+                >
+                  <LinearProgress
+                    variant="determinate"
+                    value={(currentSection / TOTAL_SECTIONS) * 100}
+                    className="h-3 rounded-full bg-teal-100/50 dark:bg-gray-600/50"
+                    sx={{
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: "999px",
+                        background: "linear-gradient(90deg, #0d9488, #4f46e5)",
+                      },
+                    }}
+                  />
+                </motion.div>
+                <div className="flex justify-between mt-3">
+                  <Typography
+                    variant="body2"
+                    className="text-teal-700 dark:text-teal-300 font-medium"
+                  >
+                    Progress:{" "}
+                    {Math.round((currentSection / TOTAL_SECTIONS) * 100)}%
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    className="text-gray-600 dark:text-gray-300"
+                  >
+                    Section {currentSection} of {TOTAL_SECTIONS}
+                  </Typography>
+                </div>
+              </div>
+
+              <CardContent className="p-4 md:p-8">
+                <PrakrithiForm
+                  generatePDF={generatePDF}
+                  currentSection={currentSection}
+                  setCurrentSection={setCurrentSection}
+                  TOTAL_SECTIONS={TOTAL_SECTIONS}
+                  setLoading={setLoading}
+                  setAnalysisComplete={setAnalysisComplete}
+                  setResponseData={setResponseData}
+                />
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-center"
+          >
+            <Typography
+              variant="body2"
+              className="text-gray-500 dark:text-gray-400"
+            >
+              Your responses will help us provide accurate Ayurvedic insights.
+            </Typography>
+            <Typography
+              variant="body2"
+              className="text-gray-500 dark:text-gray-400"
+            >
+              All information is kept confidential.
+            </Typography>
+          </motion.div>
+        </div>
+
+        {/* Download complete notification */}
+        <AnimatePresence>
+          {downloadComplete && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              className="fixed bottom-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 z-50"
+            >
+              <span>Report downloaded successfully!</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </>
   );
 }
