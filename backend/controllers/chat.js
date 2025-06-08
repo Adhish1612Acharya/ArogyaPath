@@ -278,7 +278,7 @@ export const rejectChatRequest = async (req, res) => {
 
 export default {
   getChatMessages,
-  createChat,
+  // createChat,
   createChatRequest,
   acceptChatRequest,
   rejectChatRequest,

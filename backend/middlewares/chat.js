@@ -3,6 +3,7 @@ import User from "../models/User/User.js";
 import ExpressError from "../utils/expressError.js";
 import mongoose from "mongoose";
 import ChatRequest from "../models/ChatRequest/ChatRequest.js";
+import Expert from "../models/Expert/Expert.js";
 
 export const checkChatOwnership = async (req, res, next) => {
   const chatId = req.params.id;
@@ -46,11 +47,14 @@ export const checkIncludesCurrChatUser = (req, res, next) => {
 export const checkChatUsersExists = async (req, res, next) => {
   const { users } = req.body;
 
-  const userIds = users?.map((eachParticipant) => eachParticipant.user);
-
   await Promise.all(
-    userIds.map(async (userId) => {
-      const foundUser = await User.findById(userId);
+    users.map(async (user) => {
+      const userId = user.user;
+      if (!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new ExpressError(400, `Invalid user ID: ${userId}`);
+      }
+      const Model = user.userType === "Expert" ? Expert : User;
+      const foundUser = await Model.findById(userId);
 
       if (!foundUser) {
         throw new ExpressError(404, `User with ID ${userId} does not exist`);

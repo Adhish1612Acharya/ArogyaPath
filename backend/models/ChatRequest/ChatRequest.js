@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const chatRequestSchema = new Schema({
   ownerType: {
@@ -61,3 +61,5 @@ const chatRequestSchema = new Schema({
 });
 
 const ChatRequest = mongoose.model("ChatRequest", chatRequestSchema);
+
+export default ChatRequest;

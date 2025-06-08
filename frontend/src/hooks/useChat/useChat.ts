@@ -29,9 +29,52 @@ const useChat = () => {
     }
   };
 
+  const sendChatRequest = async (data: any) => {
+    try {
+      const response = await post(
+        `${import.meta.env.VITE_SERVER_URL}/api/chat/request`,
+        data
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
+  const acceptChatRequest = async (chatRequestId: string) => {
+    try {
+      const response = await post(
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/api/chat/request/${chatRequestId}/accept`,
+        {}
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
+  const rejectChatRequest = async (chatRequestId: string) => {
+    try {
+      const response = await post(
+        `${
+          import.meta.env.VITE_SERVER_URL
+        }/api/chat/request/${chatRequestId}/reject`,
+        {}
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
   return {
     fetchChatMessages,
     createChat,
+    sendChatRequest,
+    acceptChatRequest,
+    rejectChatRequest,
   };
 };
 

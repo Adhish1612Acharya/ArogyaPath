@@ -1,5 +1,10 @@
 import { z } from "zod";
 
+const objectIdRegex = /^[a-f\d]{24}$/i;
+const objectIdSchema = z
+  .string()
+  .regex(objectIdRegex, "Invalid MongoDB ObjectId");
+
 // -------------------- User Schema --------------------
 export const userSchemaZod = z.object({
   fullname: z.string().min(1, "Full name is required").max(50),
@@ -144,11 +149,6 @@ export const userProfileSchema = z.object({
   healthGoal: z.string().optional().or(z.literal("")),
   // bio: z.string().optional().or(z.literal("")),
 });
-
-const objectIdRegex = /^[a-f\d]{24}$/i;
-const objectIdSchema = z
-  .string()
-  .regex(objectIdRegex, "Invalid MongoDB ObjectId");
 
 export const chatRequestSchemaZod = z
   .object({
