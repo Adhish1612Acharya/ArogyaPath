@@ -17,9 +17,9 @@ import usePrakrithi from "@/hooks/usePrakrithi/usePrakrithi";
 import { UserOrExpertDetailsType } from "@/types";
 import useChat from "@/hooks/useChat/useChat";
 import { toast } from "react-toastify";
-import SimilarPkUserDialog from "@/components/SimilarPkUserDialog/SimilarPkUserDialog";
-import PrakritiAnalysisLoading from "../../../components/PrakritiAnalysisLoading/PrakritiAnalysisLoading";
-import PrakrithiResultView from "@/components/PrakrithiResultView/PrakrithiResultView";
+import SimilarPkUserDialog from "@/components/PrakrithiAnalysis/SimilarPkUserDialog/SimilarPkUserDialog";
+import PrakritiAnalysisLoading from "../../../components/PrakrithiAnalysis/PrakritiAnalysisLoading/PrakritiAnalysisLoading";
+import PrakrithiResultView from "@/components/PrakrithiAnalysis/PrakrithiResultView/PrakrithiResultView";
 
 // Particles background component
 const ParticlesBackground = () => {
