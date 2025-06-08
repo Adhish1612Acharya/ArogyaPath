@@ -66,5 +66,7 @@ router.put(
   wrapAsync(checkIsTaggedAndVerified),
   wrapAsync(successStoryControllers.verifySuccessStory)
 );
+router.post("/:id/reject", checkExpertLogin, wrapAsync(successStoryControllers.rejectedSuccessStory));
+
 
 export default router;
