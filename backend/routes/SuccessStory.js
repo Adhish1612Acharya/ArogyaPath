@@ -6,6 +6,7 @@ import {
   updateSuccessStory,
   deleteSuccessStory,
   verifySuccessStory,
+  rejectedSuccessStory
 } from "../controllers/successStory.js";
 import { checkUserLogin } from "../middlewares/users/auth.js";
 import { isLoggedIn } from "../middlewares/commonAuth.js";
@@ -19,6 +20,8 @@ import {
   parseFormdata,
 } from "../middlewares/cloudinaryMiddleware.js";
 import { checkIsTaggedAndVerified } from "../middlewares/experts/postTagged.js";
+import SuccessStory from "../models/SuccessStory/SuccessStory.js";
+
 const upload = multer({ storage });
 
 const router = express.Router();
@@ -59,5 +62,7 @@ router.put(
   checkIsTaggedAndVerified,
   wrapAsync(verifySuccessStory)
 );
+router.post("/:id/reject", checkExpertLogin, wrapAsync(rejectedSuccessStory));
+
 
 export default router;
