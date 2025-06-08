@@ -1,23 +1,34 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose, { Schema } from "mongoose";
 const commentSchema = new mongoose.Schema(
-    {
-      owner: {
-        type:Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
+  {
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-      content: {
-        type: String,
-        required: true,
-      }, 
-      post:{
-      type:Schema.Types.ObjectId,
-      ref:"Post"
-      },
+    content: {
+      type: String,
+      required: true,
     },
-   
-    { timestamps: true } // Adds createdAt and updatedAt automatically
-  );
-  
-  const Comment = mongoose.model('Comment', commentSchema);
-  export default Comment;
+    postType: {
+      type: String,
+      enum: ["Post", "SuccessStory", "Routine"],
+    },
+    post: {
+      type: Schema.Types.ObjectId,
+      refPath: postType,
+    },
+    repliedTo: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+    },
+    repliesCount: {
+      type: Number,
+    },
+  },
+
+  { timestamps: true } // Adds createdAt and updatedAt automatically
+);
+
+const Comment = mongoose.model("Comment", commentSchema);
+export default Comment;

@@ -1,41 +1,40 @@
-import { useState } from 'react';
-import { Navbar } from '@/components/layout/navbar';
-import { Footer } from '@/components/layout/footer';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Bot, Send, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Bot, Send, Loader2 } from "lucide-react";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from "@/components/ui/card";
 
 interface Message {
-  type: 'user' | 'bot';
+  type: "user" | "bot";
   content: string;
 }
 
 export function AIConsultPage() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = { type: 'user' as const, content: input };
+    const userMessage = { type: "user" as const, content: input };
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    setInput("");
     setIsLoading(true);
 
     // Simulate AI response
     setTimeout(() => {
       const botMessage = {
-        type: 'bot' as const,
-        content: 'This is a simulated AI response. In production, this would be connected to an actual AI service.',
+        type: "bot" as const,
+        content:
+          "This is a simulated AI response. In production, this would be connected to an actual AI service.",
       };
       setMessages((prev) => [...prev, botMessage]);
       setIsLoading(false);
@@ -44,7 +43,7 @@ export function AIConsultPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white">
-      <Navbar userType="patient" />
+  
 
       <main className="container mx-auto px-4 py-24">
         <Card className="max-w-4xl mx-auto">
@@ -69,14 +68,14 @@ export function AIConsultPage() {
                   <div
                     key={index}
                     className={`flex ${
-                      message.type === 'user' ? 'justify-end' : 'justify-start'
+                      message.type === "user" ? "justify-end" : "justify-start"
                     }`}
                   >
                     <div
                       className={`max-w-[80%] p-4 rounded-lg ${
-                        message.type === 'user'
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-100 text-gray-800'
+                        message.type === "user"
+                          ? "bg-green-600 text-white"
+                          : "bg-gray-100 text-gray-800"
                       }`}
                     >
                       {message.content}
@@ -112,7 +111,6 @@ export function AIConsultPage() {
         </Card>
       </main>
 
-      <Footer userType="patient" />
     </div>
   );
 }

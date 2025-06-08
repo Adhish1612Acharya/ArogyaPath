@@ -1,153 +1,374 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import {
+  Button,
+  TextField,
+  CircularProgress,
+  Box,
+  Typography,
+  Chip,
+} from "@mui/material";
+import {
+  Search as SearchIcon,
+  Mic as MicIcon,
+  MicOff as MicOffIcon,
+} from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
-import { GeneralPostCard } from "@/components/PostCards/GeneralPostCard";
-import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
-import { SuccessStoryCard } from "@/components/PostCards/SuccessStoryCard";
+
 import {
   GeneralPostCardSkeleton,
   RoutinePostCardSkeleton,
   SuccessStoryCardSkeleton,
 } from "@/components/PostCards/PostCardSkeletons";
-import useGetPost from "@/hooks/useGetPost/useGetPost";
-import axios from "axios";
-
-type PostType = "posts" | "routines" | "successstories";
-
-type CategoryKeyMap = {
-  posts: "generalPosts";
-  routines: "routines";
-  successstories: "successStories";
-};
+import { useNavigate } from "react-router-dom";
+import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
+import useAiSearch from "@/hooks/useAiSearch/useAiSearch";
+import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
+import SuccessStoryPostCard from "@/components/PostCards/SuccessStoryPostCard/SuccessStoryPostCard";
+import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
+import { UserOrExpertDetailsType } from "@/types";
 
 const AISearchPage = () => {
-  const { getAllTypesOfPosts } = useGetPost();
+  const { searchWithAi } = useAiSearch();
+  const navigate = useNavigate();
+  const recognitionRef = useRef<any>(null);
 
+  const [userId, setUserId] = useState<string>("");
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [transcript, setTranscript] = useState("");
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const [isBrowserSupported, setIsBrowserSupported] = useState(true);
   const [results, setResults] = useState<{
     generalPosts: any[];
     routines: any[];
     successStories: any[];
   } | null>(null);
-  const [allPosts, setAllPosts] = useState<{
-    generalPosts: any[];
-    routines: any[];
-    successStories: any[];
-  } | null>(null);
+
+  const [openMediaDialog, setOpenMediaDialog] = useState(false);
+  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
+    number | null
+  >(null);
+  const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
+
+  useEffect(() => {
+    // Initialize speech recognition
+    if (!("webkitSpeechRecognition" in window)) {
+      setSpeechError("Your browser doesn't support speech recognition");
+      setIsBrowserSupported(false);
+      return;
+    }
+
+    // @ts-ignore - TypeScript doesn't know about webkitSpeechRecognition
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.continuous = false;
+    recognitionRef.current.interimResults = false;
+    recognitionRef.current.lang = "en-US";
+
+    recognitionRef.current.onstart = () => {
+      setIsListening(true);
+      setSpeechError(null);
+    };
+
+    recognitionRef.current.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setTranscript(transcript);
+    };
+
+    recognitionRef.current.onerror = (event: any) => {
+      setIsListening(false);
+      setSpeechError(`Error occurred in recognition: ${event.error}`);
+    };
+
+    recognitionRef.current.onend = () => {
+      setIsListening(false);
+    };
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (transcript) {
+      setQuery(transcript);
+    }
+  }, [transcript]);
+
+  const startListening = () => {
+    try {
+      setTranscript("");
+      setSpeechError(null);
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+      }
+    } catch (err) {
+      setSpeechError("Could not start microphone. Please check permissions.");
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+  };
+
+  const toggleListening = () => {
+    if (isListening) {
+      stopListening();
+    } else {
+      startListening();
+    }
+  };
 
   const handleSearch = async () => {
-    if (!query.trim()) return;
+    try {
+      if (!query.trim()) return;
 
-    setIsLoading(true);
-    setResults(null);
+      setIsLoading(true);
+      setResults(null);
 
-    const resp = await getAllTypesOfPosts();
+      const results = await searchWithAi(query);
 
-    setAllPosts(resp.allPosts);
+      setResults(results.filteredPosts);
+      setUserId(results.userId);
+    } catch (error: any) {
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    const unifiedPosts = resp.unifiedPosts;
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
-    const aiBody = {
-      prompt: query,
-      posts: unifiedPosts,
-    };
+  const openMediaViewer = (mediaIndex: number, images: string[]) => {
+    setSelectedMediaImageIndex(mediaIndex);
+    setMediaDialogImages(images);
+    setOpenMediaDialog(true);
+  };
 
-    //  API call to Gemini
-    const aiResponse: any = await axios.post(
-      "https://pranavpai0309-ai-query-search.hf.space/search",
-      aiBody
-    );
+  const closeMediaViewer = () => {
+    setSelectedMediaImageIndex(null);
+    setMediaDialogImages([]);
+    setOpenMediaDialog(false);
+  };
 
-    console.log("Ai Reponse : ", aiResponse);
+  const handleNextImage = () => {
+    if (mediaDialogImages.length > 0) {
+      setSelectedMediaImageIndex(
+        (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
+      );
+    }
+  };
 
-    // STEP 3: Filter matching posts from original allPosts
-    const filteredResults: {
-      generalPosts: any[];
-      routines: any[];
-      successStories: any[];
-    } = {
-      generalPosts: [],
-      routines: [],
-      successStories: [],
-    };
+  const handlePrevImage = () => {
+    if (mediaDialogImages.length > 0) {
+      setSelectedMediaImageIndex(
+        (prev) =>
+          (prev ? prev - 1 + mediaDialogImages.length : 0) %
+          mediaDialogImages.length
+      );
+    }
+  };
 
-    aiResponse.data.results.forEach(
-      ({ postId, type }: { postId: string; type: PostType }) => {
-        const categoryKeyMap: CategoryKeyMap = {
-          posts: "generalPosts",
-          routines: "routines",
-          successstories: "successStories",
-        };
+  const addVerifiedExpert = (
+    postId: string,
+    expert: UserOrExpertDetailsType
+  ) => {
+    setResults((prev) => {
+      if (!prev) return prev;
 
-        const category = categoryKeyMap[type];
-
-        const matchedPost = allPosts?.[category]?.find(
-          (post) =>
-            post._id?.toString() === postId || post.id?.toString() === postId
-        );
-
-        if (matchedPost) {
-          filteredResults[category].push(matchedPost);
+      const updatedSuccessStories = prev.successStories.map((post) => {
+        if (post._id === postId) {
+          return {
+            ...post,
+            verified: [...post.verified, expert],
+          };
         }
-      }
-    );
+        return post;
+      });
 
-    console.log("Filtered Results : ", filteredResults);
-
-    setResults(filteredResults);
-    setIsLoading(false);
+      return {
+        ...prev,
+        successStories: updatedSuccessStories,
+      };
+    });
   };
 
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-green-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        width: "100vw",
+        background: "linear-gradient(135deg, #f0fdf4 0%, #f0f9ff 100%)",
+        py: 12,
+        px: { xs: 2, sm: 3, md: 4 },
+      }}
+    >
+      <Box sx={{ maxWidth: "1536px", mx: "auto" }}>
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-12 text-center"
         >
-          <h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-blue-600 mb-3">
+          <Typography
+            variant="h3"
+            component="h1"
+            sx={{
+              textAlign: "center",
+              mb: 2,
+              background: "linear-gradient(90deg, #16a34a 0%, #2563eb 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontWeight: "bold",
+              fontSize: { xs: "2rem", sm: "2.5rem" },
+            }}
+          >
             Ayurvedic AI Search
-          </h1>
-          <p className="text-lg text-gray-600">
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              textAlign: "center",
+              color: "text.secondary",
+              fontSize: "1.125rem",
+            }}
+          >
             Ask any health-related question and get personalized Ayurvedic
             insights
-          </p>
+          </Typography>
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="mb-12"
+          style={{ marginBottom: "3rem" }}
         >
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Input
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              gap: 2,
+              mb: 2,
+            }}
+          >
+            <TextField
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Ask about symptoms, remedies, routines..."
-              className="h-14 text-lg px-6 py-4 shadow-lg border-2 border-gray-200 focus:border-green-500 rounded-xl"
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              onKeyDown={handleKeyDown}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  height: "56px",
+                  fontSize: "1.125rem",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                  "& fieldset": {
+                    borderWidth: "2px",
+                    borderColor: "grey.300",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "grey.400",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "success.main",
+                  },
+                },
+              }}
+              fullWidth
             />
-            <Button
-              onClick={handleSearch}
-              disabled={isLoading || !query.trim()}
-              className="h-14 px-8 text-lg bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 shadow-lg"
-            >
-              {isLoading ? (
-                <Loader2 className="h-5 w-5 animate-spin" />
-              ) : (
-                <>
-                  <Search className="mr-2 h-5 w-5" />
-                  Search
-                </>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Button
+                onClick={handleSearch}
+                disabled={isLoading || !query.trim()}
+                variant="contained"
+                sx={{
+                  height: "56px",
+                  px: 4,
+                  fontSize: "1.125rem",
+                  background:
+                    "linear-gradient(90deg, #16a34a 0%, #2563eb 100%)",
+                  "&:hover": {
+                    background:
+                      "linear-gradient(90deg, #15803d 0%, #1e40af 100%)",
+                  },
+                  boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                }}
+                startIcon={
+                  isLoading ? (
+                    <CircularProgress size={20} color="inherit" />
+                  ) : (
+                    <SearchIcon />
+                  )
+                }
+              >
+                Search
+              </Button>
+              {isBrowserSupported && (
+                <Button
+                  onClick={toggleListening}
+                  variant={isListening ? "contained" : "outlined"}
+                  color={isListening ? "error" : "primary"}
+                  sx={{
+                    height: "56px",
+                    px: 2,
+                    fontSize: "1.125rem",
+                    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                    borderWidth: "2px",
+                    minWidth: "auto",
+                  }}
+                  startIcon={isListening ? <MicOffIcon /> : <MicIcon />}
+                >
+                  {isListening ? "Stop" : "Speak"}
+                </Button>
               )}
-            </Button>
-          </div>
+            </Box>
+          </Box>
+
+          {isListening && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+                <Chip
+                  icon={
+                    <Box
+                      sx={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: "50%",
+                        bgcolor: "error.main",
+                        animation: "pulse 1.5s infinite",
+                        "@keyframes pulse": {
+                          "0%": { opacity: 1 },
+                          "50%": { opacity: 0.5 },
+                          "100%": { opacity: 1 },
+                        },
+                      }}
+                    />
+                  }
+                  label="Listening..."
+                  sx={{ bgcolor: "primary.light", color: "primary.dark" }}
+                />
+              </Box>
+            </motion.div>
+          )}
+
+          {speechError && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <Typography color="error" sx={{ textAlign: "center", mt: 2 }}>
+                {speechError}
+              </Typography>
+            </motion.div>
+          )}
         </motion.div>
 
         <AnimatePresence>
@@ -156,39 +377,51 @@ const AISearchPage = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="space-y-12"
+              style={{ display: "flex", flexDirection: "column", gap: "3rem" }}
             >
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  sx={{ mb: 3, fontWeight: "bold", color: "text.primary" }}
+                >
                   General Posts
-                </h2>
-                <div className="grid gap-6">
+                </Typography>
+                <Box sx={{ display: "grid", gap: 3 }}>
                   {[1, 2, 3].map((i) => (
                     <GeneralPostCardSkeleton key={i} />
                   ))}
-                </div>
+                </Box>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  sx={{ mb: 3, fontWeight: "bold", color: "text.primary" }}
+                >
                   Routines
-                </h2>
-                <div className="grid gap-6">
+                </Typography>
+                <Box sx={{ display: "grid", gap: 3 }}>
                   {[1, 2, 3].map((i) => (
                     <RoutinePostCardSkeleton key={i} />
                   ))}
-                </div>
+                </Box>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  sx={{ mb: 3, fontWeight: "bold", color: "text.primary" }}
+                >
                   Success Stories
-                </h2>
-                <div className="grid gap-6">
+                </Typography>
+                <Box sx={{ display: "grid", gap: 3 }}>
                   {[1, 2, 3].map((i) => (
                     <SuccessStoryCardSkeleton key={i} />
                   ))}
-                </div>
+                </Box>
               </div>
             </motion.div>
           )}
@@ -199,73 +432,109 @@ const AISearchPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="space-y-12"
+            style={{ display: "flex", flexDirection: "column", gap: "3rem" }}
           >
             {results.generalPosts.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  sx={{ mb: 3, fontWeight: "bold", color: "text.primary" }}
+                >
                   Recommended Posts
-                </h2>
-                <div className="grid gap-6">
+                </Typography>
+                <Box sx={{ display: "grid", gap: 3 }}>
                   {results.generalPosts.map((post) => (
                     <GeneralPostCard
-                      key={post.id}
+                      key={post._id}
                       post={post}
-                      liked={false}
-                      saved={false}
-                      onLike={() => {}}
-                      onSave={() => {}}
+                      isLiked={
+                        Math.floor(Math.random() * 2) === 1 ? true : false
+                      }
+                      isSaved={
+                        Math.floor(Math.random() * 2) === 1 ? true : false
+                      }
+                      currentUserId={userId}
+                      onMediaClick={openMediaViewer}
+                      menuItems={[]}
                     />
                   ))}
-                </div>
+                </Box>
               </div>
             )}
 
             {results.routines.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  sx={{ mb: 3, fontWeight: "bold", color: "text.primary" }}
+                >
                   Suggested Routines
-                </h2>
-                <div className="grid gap-6">
+                </Typography>
+                <Box sx={{ display: "grid", gap: 3 }}>
                   {results.routines.map((routine) => (
                     <RoutinePostCard
-                      key={routine.id}
+                      key={routine._id}
                       post={routine}
-                      liked={false}
-                      saved={false}
-                      onLike={() => {}}
-                      onSave={() => {}}
+                      isLiked={
+                        Math.floor(Math.random() * 2) === 1 ? true : false
+                      }
+                      isSaved={
+                        Math.floor(Math.random() * 2) === 1 ? true : false
+                      }
+                      currentUserId={userId}
+                      onMediaClick={openMediaViewer}
+                      menuItems={[]}
                     />
                   ))}
-                </div>
+                </Box>
               </div>
             )}
 
             {results.successStories.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                <Typography
+                  variant="h5"
+                  component="h2"
+                  sx={{ mb: 3, fontWeight: "bold", color: "text.primary" }}
+                >
                   Inspiring Stories
-                </h2>
-                <div className="grid gap-6">
+                </Typography>
+                <Box sx={{ display: "grid", gap: 3 }}>
                   {results.successStories.map((story, index) => (
-                    <SuccessStoryCard
-                      key={story.id}
+                    <SuccessStoryPostCard
+                      key={index}
                       post={story}
-                      liked={false}
-                      saved={false}
-                      onLike={() => {}}
-                      onSave={() => {}}
-                      setPost={index}
-                      index={index}
+                      isLiked={
+                        Math.floor(Math.random() * 2) === 1 ? true : false
+                      }
+                      isSaved={
+                        Math.floor(Math.random() * 2) === 1 ? true : false
+                      }
+                      addVerifiedExpert={addVerifiedExpert}
+                      currentUserId={userId}
+                      onMediaClick={openMediaViewer}
+                      menuItems={[]}
                     />
                   ))}
-                </div>
+                </Box>
               </div>
             )}
           </motion.div>
         )}
-      </div>
-    </div>
+      </Box>
+      {/* Media Viewer Dialog */}
+      <MediaViewerDialog
+        open={openMediaDialog}
+        images={mediaDialogImages}
+        title={""}
+        selectedImageIndex={selectedMediaImageIndex || 0}
+        onClose={closeMediaViewer}
+        onNext={handleNextImage}
+        onPrev={handlePrevImage}
+      />
+    </Box>
   );
 };
 

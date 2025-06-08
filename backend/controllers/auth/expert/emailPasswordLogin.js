@@ -3,20 +3,14 @@ import Expert from "../../../models/Expert/Expert.js";
 export const signUp = async (req, res) => {
   let signUpError = false;
   let error = "";
-  const { username, email, password } = req.body;
-
-  console.log("Body : ", req.body);
+  const { fullName, email, password } = req.body;
 
   const newExpert = new Expert({
-    username,
+    username: fullName,
     email,
-    // profile: {
-    //   fullname: req.body.profile.fullname,
-    //   experience: Number(req.body.profile.experience),
-    //   qualification: req.body.profile.qualification,
-    //   expertType: req.body.profile.expertType,
-    //   contact: req.body.profile.contact,
-    // },
+    profile: {
+      fullName: fullName,
+    },
   });
 
   const registeredExpert = await Expert.register(newExpert, password).catch(
@@ -68,26 +62,8 @@ export const failureLogin = async (req, res) => {
   });
 };
 
-export const logout = (req, res) => {
-  req.logout((err) => {
-    if (err) {
-      console.log(err);
-      res.status(500).json({
-        success: false,
-        message: err.message,
-      });
-    } else {
-      res.status(200).json({
-        success: true,
-        message: "successLogOut",
-      });
-    }
-  });
-};
-
 export default {
   signUp,
   login,
   failureLogin,
-  logout,
 };

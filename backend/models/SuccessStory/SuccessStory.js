@@ -47,27 +47,25 @@ const SuccessStorySchema = new Schema(
     status: {
       type: String,
       enum: ["pending", "verified", "rejected"],
-      default: "pending"
+      default: "pending",
     },
-    
     rejections: [
-    {
-    expert: {
-      type: Schema.Types.ObjectId,
-      ref: "Expert",
-      required: true,
-    },
-    reason: {
-      type: String,
-      required: true,
-    },
-    date: {
-      type: Date,
-      default: Date.now,
-    }
-    }
+      {
+        expert: {
+          type: Schema.Types.ObjectId,
+          ref: "Expert",
+          required: true,
+        },
+        reason: {
+          type: String,
+          required: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+      },
     ],
-   
     routines: {
       type: [
         {

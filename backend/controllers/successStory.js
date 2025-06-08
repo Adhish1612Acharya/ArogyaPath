@@ -1,17 +1,17 @@
-import axios from "axios";
 import Expert from "../models/Expert/Expert.js";
 import SuccessStory from "../models/SuccessStory/SuccessStory.js";
 import User from "../models/User/User.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
 import transformSuccessStory from "../utils/transformSuccessStory.js";
+import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
+import { sendEmail } from "../utils/sendEmail.js";
+import ExpressError from "../utils/expressError.js";
 
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
-  const { title, description, filters, routines = [], tagged = [] } = req.body;
-  const mediaFiles = req.files;
+  const { title, description, routines, tagged } = req.body;
+  const mediaFiles = req.cloudinaryFiles;
   const readTime = calculateReadTime({ title, description, routines });
-
-  console.log("Success stories filter : ", filters);
 
   const media = {
     images: [],
@@ -19,18 +19,20 @@ export const createSuccessStory = async (req, res) => {
     document: null,
   };
 
-  // Process media files
-  mediaFiles.forEach((file) => {
-    const mimeType = file.mimetype;
-
-    if (mimeType.startsWith("image/")) {
-      media.images.push(file.path); // Cloudinary URL
-    } else if (mimeType.startsWith("video/")) {
-      media.video = file.path;
-    } else if (mimeType === "application/pdf") {
-      media.document = file.path;
+  //Cloudinary stores file URLs in `path`
+  mediaFiles?.forEach((file) => {
+    // Determine file type from Cloudinary response
+    if (file.resource_type === "image") {
+      media.images.push(file.secure_url);
+    } else if (file.resource_type === "video") {
+      media.video = file.secure_url;
+    } else if (file.format === "pdf") {
+      media.document = file.secure_url;
     }
   });
+
+  //Generate categories using ONLY the description
+  const filters = await generateFilters(title, description, routines);
 
   const newSuccessStory = await SuccessStory.create({
     title,
@@ -53,36 +55,38 @@ export const createSuccessStory = async (req, res) => {
 
   // Update current user
   await User.findByIdAndUpdate(req.user._id, {
-    $push: { taggedPosts: newSuccessStory._id },
+    $push: { successStories: newSuccessStory._id },
   });
 
   // Notify each expert via email
   const expertsData = await Expert.find({ _id: { $in: tagged } });
 
   for (const [index, eachExpert] of expertsData.entries()) {
-    try {
-      const formData = new FormData();
-      formData.append("recipient_name", eachExpert.username);
-      formData.append("recipient_email", eachExpert.email);
-      formData.append(
-        "post_link",
-        `${process.env.VITE_API_URL}/success-stories/${newSuccessStory._id}`
-      );
+    const emailSubject = "You've Been Tagged - Please Verify a Success Story";
 
-      const email_response = await axios.post(
-        "https://post-tagging-email-automation-aakrithi.onrender.com/send_email",
-        formData
-      );
-      console.log(
-        `✅ Email sent to ${eachExpert.username}:`,
-        email_response.data
-      );
-    } catch (emailErr) {
-      console.error(
-        `❌ Failed to send email to ${eachExpert.username}:`,
-        emailErr.message
-      );
-    }
+    const emailContent = `
+  <h3>Hello Dr. ${eachExpert.profile?.fullName || eachExpert.username},</h3>
+  <p>
+    You've been <strong>tagged</strong> in a user's success story on <strong>ArogyaPath</strong>.
+  </p>
+  <p>
+    We value your expertise and kindly request you to <strong>review and verify</strong> the story by visiting the link below:
+  </p>
+  <p>
+    <a href="${process.env.VITE_API_URL}/success-stories/${
+      newSuccessStory._id
+    }" target="_blank">
+      View and Verify the Story
+    </a>
+  </p>
+  <p>
+    If you believe this was an error or do not wish to be tagged, you may ignore this email.
+  </p>
+  <br />
+  <p>Thank you,<br/>ArogyaPath Team</p>
+`;
+
+    await sendEmail(eachExpert.email, emailSubject, emailContent, null);
   }
 
   // Success response
@@ -97,10 +101,16 @@ export const createSuccessStory = async (req, res) => {
 // 2. Get All Success Stories
 export const getAllSuccessStories = async (req, res) => {
   const stories = await SuccessStory.find()
-    .populate("owner")
-    .populate("verified")
-    .populate("tagged");
-
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage")
+    .populate(
+      "tagged",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    )
+    .populate(
+      "verified",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    );
   const userId = req.user._id.toString();
 
   const transformedSuccessStories = stories.map((story) => {
@@ -119,7 +129,7 @@ export const getAllSuccessStories = async (req, res) => {
       (req.user.role === "expert" && isTagged && !alreadyVerified);
 
     return {
-      ...transformSuccessStory(story),
+      ...story.toObject(),
       verifyAuthorization,
       alreadyVerified,
     };
@@ -129,6 +139,7 @@ export const getAllSuccessStories = async (req, res) => {
     message: "Success stories retrieved successfully",
     success: true,
     successStories: transformedSuccessStories,
+    userId: req.user._id,
   });
 };
 
@@ -137,9 +148,16 @@ export const getSingleSuccessStory = async (req, res) => {
   const { id } = req.params;
 
   const successStory = await SuccessStory.findById(id)
-    .populate("owner")
-    .populate("verified")
-    .populate("tagged");
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage")
+    .populate(
+      "tagged",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    )
+    .populate(
+      "verified",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    );
 
   if (!successStory) {
     return res.status(404).json({ message: "Success story not found" });
@@ -162,7 +180,7 @@ export const getSingleSuccessStory = async (req, res) => {
     (isTagged && !alreadyVerified);
 
   const transformedSuccessStory = {
-    ...transformSuccessStory(successStory),
+    ...successStory.toObject(),
     verifyAuthorization,
     alreadyVerified,
   };
@@ -171,6 +189,8 @@ export const getSingleSuccessStory = async (req, res) => {
     message: "Success story retrieved successfully",
     success: true,
     successStory: transformedSuccessStory,
+    userId: req.user._id,
+    userRole: req.user.role,
   });
 };
 
@@ -216,7 +236,13 @@ export const verifySuccessStory = async (req, res) => {
   const { id } = req.params;
   const expertId = req.user._id;
 
-  const successStory = await SuccessStory.findById(id);
+  const successStory = await SuccessStory.findByIdAndUpdate(
+    id,
+    {
+      $addToSet: { verified: expertId },
+    },
+    { new: true } // So we get the updated doc with the new `verified` list
+  );
 
   if (!successStory) {
     return res.status(404).json({
@@ -225,20 +251,15 @@ export const verifySuccessStory = async (req, res) => {
     });
   }
 
-  // Push expert to verified list
-  successStory.verified.push(expertId);
-  console.log("Success Story : ", successStory);
-  await successStory.save();
-
   // Update Expert - push to verifiedPosts, remove from taggedPosts
   const expertDetails = await Expert.findByIdAndUpdate(
     expertId,
     {
-      $push: { verifiedPosts: id },
+      $addToSet: { verifiedPosts: id },
       $pull: { taggedPosts: id },
     },
     { new: true }
-  );
+  ).select("_id profile.fullName profile.profileImage profile.expertType");
 
   return res.status(200).json({
     success: true,
@@ -246,15 +267,39 @@ export const verifySuccessStory = async (req, res) => {
     data: {
       id: successStory._id,
       verifiedCount: successStory.verified.length,
-      expertDetails: {
-        name: expertDetails.username,
-        avatar: expertDetails.profile.profileImage,
-      },
+      expertDetails: expertDetails,
     },
   });
 };
 
-export const rejectedSuccessStory =async (req, res) => {
+const filterSuccessStories = async (req, res) => {
+  const { filters } = req.query;
+  if (!filters) {
+    throw new ExpressError(400, "Filters not provided");
+  }
+
+  const categoryArray = filters
+    .split(",")
+    .map((cat) => cat.toLowerCase().trim());
+
+  console.log("Ctegory array : ", categoryArray);
+  const successStories = await SuccessStory.find({
+    filters: { $in: categoryArray },
+  })
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage")
+    .populate(
+      "tagged",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    )
+    .populate(
+      "verified",
+      "_id profile.fullName profile.profileImage profile.expertType"
+    );
+
+  res.json({ success: true, message: "Filtered posts", successStories });
+};
+ const rejectedSuccessStory = async (req, res) => {
   const { id } = req.params;
   const expertId = req.user._id;
   const { reason } = req.body;
@@ -268,7 +313,6 @@ export const rejectedSuccessStory =async (req, res) => {
     throw new ExpressError("Success Story not found", 404);
   }
 
-  // Update status and push rejection reason
   post.status = "rejected";
   post.rejections.push({
     expert: expertId,
@@ -278,4 +322,15 @@ export const rejectedSuccessStory =async (req, res) => {
   await post.save();
 
   res.json({ message: "Success story rejected", post });
-}
+};
+
+export default {
+  createSuccessStory,
+  getAllSuccessStories,
+  getSingleSuccessStory,
+  updateSuccessStory,
+  deleteSuccessStory,
+  verifySuccessStory,
+  filterSuccessStories,
+  rejectedSuccessStory,
+};

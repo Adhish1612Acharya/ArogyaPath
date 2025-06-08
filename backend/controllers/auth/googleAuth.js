@@ -2,12 +2,7 @@ import Expert from "../../models/Expert/Expert.js";
 import expressError from "../../utils/expressError.js";
 import User from "../../models/User/User.js";
 
-export const handleGoogleAuthError = (
-  err,
-  req,
-  res,
-  next
-) => {
+export const handleGoogleAuthError = (err, req, res, next) => {
   if (err) {
     console.error(`Error during Google authentication: ${err.message}`);
     next(err);
@@ -15,7 +10,17 @@ export const handleGoogleAuthError = (
 };
 
 export const handleGoogleCallback = (req, res) => {
-  res.redirect(`${process.env.VITE_API_URL}/posts`);
+  const role = req.user.role;
+  console.log("User Role: ", role);
+  const completeProfile = req.user.completeProfile;
+
+  if (role === "expert" && !completeProfile) {
+    res.redirect(`${process.env.VITE_API_URL}/complete-profile/expert`);
+  } else if (role === "user" && !completeProfile) {
+    res.redirect(`${process.env.VITE_API_URL}/complete-profile/user`);
+  } else {
+    res.redirect(`${process.env.VITE_API_URL}/gposts`);
+  }
 };
 
 export const handleGoogleAuthFailiure = (req, res) => {
@@ -36,6 +41,7 @@ export const googleCallBackFunctionForExpert = async (
     if (user) {
       done(null, user);
     } else {
+      const { expertType } = req.query;
       const email =
         profile.emails && profile.emails.length > 0
           ? profile.emails[0].value
@@ -49,7 +55,8 @@ export const googleCallBackFunctionForExpert = async (
         googleId,
         profile: {
           profileImage: profileImage,
-          fullname: profile.displayName,
+          fullName: profile.displayName,
+          expertType: expertType,
         },
       });
       done(null, newUser);
@@ -87,9 +94,7 @@ export const googleCallBackFunctionForUser = async (
         googleId,
         profile: {
           profileImage: profileImage,
-          fullname: profile.displayName,
-          age: 0,
-          contact: -1,
+          fullName: profile.displayName,
         },
       });
       done(null, newUser);

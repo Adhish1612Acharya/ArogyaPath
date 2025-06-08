@@ -117,7 +117,7 @@ const generateFilters = async (title, description, routines) => {
     const parsedAiResponse = parseAiJsonResponse(responseText);
 
     console.log("Classified Filters:", parsedAiResponse);
-    return parsedAiResponse.tags;
+    return parsedAiResponse.tags.map((filter) => filter.toLowerCase());
   } catch (error) {
     console.error("Error generating content:", error);
     return []; // Return an empty array in case of error

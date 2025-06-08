@@ -1,39 +1,47 @@
 import React, { useRef, useState } from "react";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate } from "react-router-dom";
-import { X, Plus, Loader2 } from "lucide-react";
+import dayjs from "dayjs";
 
-// ShadCN components
+// Material UI Components
 import {
-  Form,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Divider,
   FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
-// Material UI
-import MuiButton from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
-import UploadIcon from "@mui/icons-material/Upload";
-import DeleteIcon from "@mui/icons-material/Delete";
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputLabel,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
+  Upload as UploadIcon,
+  Schedule as ScheduleIcon,
+} from "@mui/icons-material";
+import { LoadingButton } from "@mui/lab";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
 // Custom logic
-import usePost from "@/hooks/usePost/usePost";
 import addRoutineFormSchema from "./AddRoutineFormSchema";
-import dayjs from "dayjs";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import useRoutines from "@/hooks/useRoutine/useRoutine";
 
 type RoutineFormSchema = z.infer<typeof addRoutineFormSchema>;
 
 const AddRoutineForm = () => {
-  const { submitRoutinePost } = usePost();
+  const { submitRoutinePost } = useRoutines();
   const navigate = useNavigate();
+  const theme = useTheme();
 
   const form = useForm<RoutineFormSchema>({
     resolver: zodResolver(addRoutineFormSchema),
@@ -63,211 +71,258 @@ const AddRoutineForm = () => {
       form.setValue("thumbnail", file);
       setThumbnailPreview(URL.createObjectURL(file));
     }
-    thumbnailRef.current!.value = ""; // Clear the input value to allow re-uploading the same file
+    if (thumbnailRef.current) thumbnailRef.current.value = "";
   };
 
   const cancelThumbnail = () => {
-    URL.revokeObjectURL(thumbnailPreview!); // Revoke the object URL to free up memory
+    if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
     form.setValue("thumbnail", null);
     setThumbnailPreview(null);
   };
 
-  const onSubmit = async (newPostData: RoutineFormSchema) => {
+  const onSubmit = async (newRoutinePostData: RoutineFormSchema) => {
     try {
-      const newPost = {
-        ...newPostData,
-        filters: ["all", "ayurveda"],
-      };
-
-      console.log("New Post : ", newPost);
-      const response = await submitRoutinePost(newPost);
-
+      const response = await submitRoutinePost(newRoutinePostData);
       if (response?.success) {
         form.reset();
         navigate(`/routines/${response?.postId}`);
       }
     } catch (error: any) {
       console.error("Post failed:", error.message);
-      if (error.status === 401) {
-        navigate("/auth");
-      } else if (error.status === 403) {
-        navigate("/");
-      }
+      if (error.status === 401) navigate("/auth");
+      else if (error.status === 403) navigate("/");
     }
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-8"
-      >
-        {/* Title */}
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold">
-                Routine Title
-              </FormLabel>
-              <FormControl>
-                <Input placeholder="Enter routine title" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Box
+      component="form"
+      onSubmit={form.handleSubmit(onSubmit)}
+      sx={{
+        maxWidth: "100%",
 
-        {/* Description */}
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="text-base font-semibold">
-                Description
-              </FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Describe the purpose of this routine..."
-                  className="min-h-[120px]"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      }}
+    >
+          <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600 }}>
+            Create New Routine
+          </Typography>
+          
+          <Divider sx={{ my: 3 }} />
 
-        {/* Thumbnail */}
-        <input
-          type="file"
-          accept="image/*"
-          ref={thumbnailRef}
-          onChange={handleThumbnailChange}
-          className="hidden"
-        />
-        <MuiButton
-          variant="outlined"
-          startIcon={<UploadIcon />}
-          onClick={() => thumbnailRef.current?.click()}
-        >
-          Upload Thumbnail
-        </MuiButton>
-        {thumbnailPreview && (
-          <div className="relative mt-4 w-full sm:w-64">
-            <img
-              src={thumbnailPreview}
-              alt="Thumbnail preview"
-              className="w-full h-40 object-cover border rounded-md"
+          <Stack spacing={4}>
+            {/* Title */}
+            <TextField
+              fullWidth
+              label="Routine Title"
+              variant="outlined"
+              error={!!form.formState.errors.title}
+              helperText={form.formState.errors.title?.message}
+              {...form.register("title")}
+              InputProps={{
+                sx: { borderRadius: 2 },
+              }}
             />
-            <button
-              type="button"
-              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1"
-              onClick={cancelThumbnail}
-            >
-              <X size={16} className="text-black" />
-            </button>
-          </div>
-        )}
 
-        {/* Routine Entries */}
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Routine Entries</h3>
-            <MuiButton
-              variant="text"
-              size="small"
-              startIcon={<AddIcon />}
-              onClick={() => append({ time: "", content: "" })}
-            >
-              Add Entry
-            </MuiButton>
-          </div>
+            {/* Description */}
+            <TextField
+              fullWidth
+              label="Description"
+              variant="outlined"
+              multiline
+              rows={4}
+              error={!!form.formState.errors.description}
+              helperText={form.formState.errors.description?.message}
+              {...form.register("description")}
+              InputProps={{
+                sx: { borderRadius: 2 },
+              }}
+            />
 
-          {routineFields.map((routine, index) => (
-            <div
-              key={routine.id}
-              className="p-4 border rounded-md bg-muted/10 relative space-y-4"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* TIME PICKER */}
-                <FormField
-                  control={form.control}
-                  name={`routines.${index}.time`}
-                  render={({ field, fieldState }) => (
-                    <FormItem>
-                      <FormLabel>Time</FormLabel>
-                      <TimePicker
-                        ampm
-                        value={
-                          field.value ? dayjs(field.value, "hh:mm A") : null
-                        }
-                        onChange={(val) =>
-                          field.onChange(val ? val.format("hh:mm A") : null)
-                        }
-                        slotProps={{
-                          textField: {
-                            fullWidth: true,
-                            variant: "outlined",
-                            placeholder: "e.g. 08:00 AM",
-                            error: !!fieldState.error,
-                            helperText: fieldState.error?.message,
+            {/* Thumbnail Upload */}
+            <Box>
+              <input
+                type="file"
+                accept="image/*"
+                ref={thumbnailRef}
+                onChange={handleThumbnailChange}
+                style={{ display: "none" }}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<UploadIcon />}
+                onClick={() => thumbnailRef.current?.click()}
+                sx={{ borderRadius: 2 }}
+              >
+                Upload Thumbnail
+              </Button>
+              
+              {thumbnailPreview && (
+                <Box sx={{ mt: 2, position: "relative", width: "100%", maxWidth: 300 }}>
+                  <Box
+                    component="img"
+                    src={thumbnailPreview}
+                    alt="Thumbnail preview"
+                    sx={{
+                      width: "100%",
+                      height: 200,
+                      objectFit: "cover",
+                      borderRadius: 2,
+                      border: `1px solid ${theme.palette.divider}`,
+                    }}
+                  />
+                  <IconButton
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      bgcolor: "error.main",
+                      color: "white",
+                      "&:hover": {
+                        bgcolor: "error.dark",
+                      },
+                    }}
+                    onClick={cancelThumbnail}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+
+            {/* Routine Entries */}
+            <Box>
+              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                <Typography variant="h6" component="h3" sx={{ fontWeight: 500 }}>
+                  Routine Entries
+                </Typography>
+                <Button
+                  variant="text"
+                  size="small"
+                  startIcon={<AddIcon />}
+                  onClick={() => append({ time: "", content: "" })}
+                  sx={{ textTransform: "none" }}
+                >
+                  Add Entry
+                </Button>
+              </Box>
+
+              <Stack spacing={3}>
+                {routineFields.map((routine, index) => (
+                  <Paper
+                    key={routine.id}
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      borderRadius: 2,
+                      border: `1px solid ${theme.palette.divider}`,
+                      position: "relative",
+                      bgcolor: theme.palette.background.paper,
+                    }}
+                  >
+                    <Grid container spacing={3}>
+                      {/* Time Picker */}
+                      <Grid item xs={12} sm={6}>
+                        <FormControl fullWidth error={!!form.formState.errors.routines?.[index]?.time}>
+                          <TimePicker
+                            label="Time"
+                            ampm
+                            value={
+                              form.watch(`routines.${index}.time`)
+                                ? dayjs(form.watch(`routines.${index}.time`), "hh:mm A")
+                                : null
+                            }
+                            onChange={(val) =>
+                              form.setValue(
+                                `routines.${index}.time`,
+                                val ? val.format("hh:mm A") : ""
+                              )
+                            }
+                            slots={{
+                              openPickerIcon: ScheduleIcon,
+                            }}
+                            slotProps={{
+                              textField: {
+                                fullWidth: true,
+                                variant: "outlined",
+                                error: !!form.formState.errors.routines?.[index]?.time,
+                              },
+                            }}
+                          />
+                          {form.formState.errors.routines?.[index]?.time && (
+                            <FormHelperText>
+                              {form.formState.errors.routines[index]?.time?.message}
+                            </FormHelperText>
+                          )}
+                        </FormControl>
+                      </Grid>
+
+                      {/* Content Field */}
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          label="Content"
+                          variant="outlined"
+                          multiline
+                          rows={2}
+                          error={!!form.formState.errors.routines?.[index]?.content}
+                          helperText={form.formState.errors.routines?.[index]?.content?.message}
+                          {...form.register(`routines.${index}.content`)}
+                        />
+                      </Grid>
+                    </Grid>
+
+                    {/* Remove Button */}
+                    {routineFields.length > 1 && (
+                      <IconButton
+                        size="small"
+                        sx={{
+                          position: "absolute",
+                          top: 8,
+                          right: 8,
+                          bgcolor: "error.main",
+                          color: "white",
+                          "&:hover": {
+                            bgcolor: "error.dark",
                           },
                         }}
-                      />
-                    </FormItem>
-                  )}
-                />
+                        onClick={() => remove(index)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    )}
+                  </Paper>
+                ))}
+              </Stack>
+            </Box>
 
-                {/* CONTENT FIELD */}
-                <FormField
-                  control={form.control}
-                  name={`routines.${index}.content`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Content</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="What should be done at this time?"
-                          className="min-h-[80px]"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* REMOVE BUTTON */}
-              {routineFields.length > 1 && (
-                <button
-                  type="button"
-                  className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 hover:bg-red-700 transition text-white rounded-full-full p-1.5 shadow"
-                  onClick={() => remove(index)}
-                >
-                  <DeleteIcon fontSize="small" />
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Submit */}
-        <MuiButton
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          size="large"
-          style={{ marginTop: "20px" }}
-        >
-          {form.formState.isSubmitting ? <Loader2 /> : "Post Routine"}
-        </MuiButton>
-      </form>
-    </Form>
+            {/* Submit Button */}
+            <LoadingButton
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              size="large"
+              loading={form.formState.isSubmitting}
+              loadingPosition="start"
+              startIcon={<></>}
+              sx={{
+                mt: 2,
+                py: 1.5,
+                borderRadius: 2,
+                fontWeight: "bold",
+                fontSize: "1rem",
+                textTransform: "none",
+                boxShadow: "none",
+                "&:hover": {
+                  boxShadow: theme.shadows[2],
+                },
+              }}
+            >
+              {form.formState.isSubmitting ? "Creating Routine..." : "Create Routine"}
+            </LoadingButton>
+          </Stack>
+    </Box>
   );
 };
 

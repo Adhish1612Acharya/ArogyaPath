@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogTitle, 
+import { FC, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
   DialogActions,
   Autocomplete,
   TextField,
@@ -11,366 +11,490 @@ import {
   Tab,
   Box,
   Checkbox,
-  FormControlLabel
-} from '@mui/material';
-import { Button } from '@/components/ui/button';
+  FormControlLabel,
+  Button,
+  Fade,
+  Grow,
+  Slide,
+  CircularProgress,
+} from "@mui/material";
+import { motion } from "framer-motion";
 
-export const Filter = () => {
+
+
+import { ayurvedicMedicines } from "@/constants/ayurvedicMedicines";
+import { diseasesList } from "@/constants/diseasesList";
+
+
+interface FilterProps {
+  applyFilters: (filters: string) => Promise<void>;
+  getAllPosts: () => Promise<void>;
+}
+
+export const Filter: FC<FilterProps> = ({ applyFilters, getAllPosts }) => {
   const [open, setOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [selectedDiseases, setSelectedDiseases] = useState<string[]>([]);
   const [selectedMedicines, setSelectedMedicines] = useState<string[]>([]);
-  const [activeFilter, setActiveFilter] = useState('Therapies');
+  const [activeFilter] = useState("Therapies");
+  const [medicines, setMedicines] = useState<string[]>([]);
+  const [diseases, setDiseases] = useState<string[]>([]);
+  const [loadingDiseases, setLoadingDiseases] = useState(false);
+  const [loadingMedicines, setLoadingMedicines] = useState(false);
 
-  const [selectedCategories, setSelectedCategories] = useState<Record<string, boolean>>({
-    Panchakarma: false,
-    Shirodhara: false,
-    Abhyanga: false,
-    Nasya: false,
-    Dinacharya: false,
-    Ratricharya: false,
-    Ritucharya: false,
-    vata: false,
-    pitta: false,
-    kapha: false,
-    'Sattvic Diet': false,
-    'Spicy Foods': false,
-    'Cooling Foods': false,
-    'Detox Recipes': false
+  const [selectedCategories, setSelectedCategories] = useState<
+    Record<string, boolean>
+  >({
+    herbs: false,
+    routines: false,
+    wellnessTips: false,
+    diet: false,
+    yoga: false,
+    detox: false,
+    seasonal: false,
   });
-  
-  
-
-  const diseases = [
-    'Diabetes',
-    'Hypertension',
-    'Arthritis',
-    'Asthma',
-    'Migraine',
-    'Digestive Disorders',
-    'Skin Diseases',
-    'Respiratory Issues'
-  ];
-
-  const medicines = [
-    'Ashwagandha',
-    'Turmeric',
-    'Giloy',
-    'Neem',
-    'Tulsi',
-    'Amla',
-    'Shilajit',
-    'Brahmi'
-  ];
 
   const categories = [
-    { id: 'herbs', label: 'Herbs & Remedies' },
-    { id: 'routines', label: 'Daily Routines' },
-    { id: 'wellnessTips', label: 'Wellness Tips' },
-    { id: 'diet', label: 'Diet & Nutrition' },
-    { id: 'yoga', label: 'Yoga & Pranayama' },
-    { id: 'detox', label: 'Detox & Cleansing' },
-    { id: 'seasonal', label: 'Seasonal Care' }
+    { id: "herbs", label: "Herbs & Remedies" },
+    { id: "routines", label: "Daily Routines" },
+    { id: "wellnessTips", label: "Wellness Tips" },
+    { id: "diet", label: "Diet & Nutrition" },
+    { id: "yoga", label: "Yoga & Pranayama" },
+    { id: "detox", label: "Detox & Cleansing" },
+    { id: "seasonal", label: "Seasonal Care" },
   ];
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const getAllDiseasesList = () => {
+    setLoadingDiseases(true);
+    setTimeout(() => {
+      setDiseases(diseasesList);
+      setLoadingDiseases(false);
+    }, 500);
+  };
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
   };
 
   const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories(prev => ({
+    setSelectedCategories((prev) => ({
       ...prev,
-      [categoryId]: !prev[categoryId]
+      [categoryId]: !prev[categoryId],
     }));
   };
 
-  const handleApplyFilters = () => {
-    console.log('Applied Filters:', {
-      categories: Object.entries(selectedCategories)
-        .filter(([_, value]) => value)
-        .map(([key]) => key),
-      diseases: selectedDiseases,
-      medicines: selectedMedicines
-    });
-    setOpen(false);
+  const handleApplyFilters = async () => {
+    try {
+      const filters = {
+        categories: Object.entries(selectedCategories)
+          .filter(([_, value]) => value)
+          .map(([key]) => key),
+        diseases: selectedDiseases,
+        medicines: selectedMedicines,
+      };
+
+      const queryString = Object.entries(filters)
+        .map(([_key, value]) => value.join(","))
+        .filter((filter) => filter !== "")
+        .join(",");
+
+      setOpen(false);
+      await applyFilters(queryString);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const applyGetAllPosts = async () => {
+    try {
+      setOpen(false);
+      await getAllPosts();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const getAyurvedicMedicinesList = async () => {
+    try {
+      if (medicines.length > 0) return;
+      setLoadingMedicines(true);
+      setTimeout(() => {
+        setMedicines(ayurvedicMedicines);
+        setLoadingMedicines(false);
+      }, 500);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
     <>
-      <Button
-        variant="outline"
-        className="border-green-600 text-green-600 hover:bg-green-50"
-        onClick={() => setOpen(true)}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
       >
-        Filter
-      </Button>
-      
-      <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="md">
-        <DialogContent className="sm:max-w-lg">
-          <DialogTitle className="text-lg font-semibold text-gray-800">
-            Filter Posts
-          </DialogTitle>
-          
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-            <Tabs value={tabValue} onChange={handleTabChange} aria-label="filter tabs">
-              <Tab label="By Category" sx={{ textTransform: 'none', fontWeight: 500 }} />
-              <Tab label="By Disease" sx={{ textTransform: 'none', fontWeight: 500 }} />
-              <Tab label="By Medicine" sx={{ textTransform: 'none', fontWeight: 500 }} />
-            </Tabs>
+        <Button
+          variant="outlined"
+          className="border-green-600 text-green-600 hover:bg-green-50 hover:border-green-700 hover:text-green-700"
+          onClick={() => setOpen(true)}
+          sx={{
+            px: 3,
+            py: 1,
+            borderRadius: "8px",
+            fontWeight: 600,
+            letterSpacing: "0.5px",
+            transition: "all 0.3s ease",
+          }}
+        >
+          Filter
+        </Button>
+      </motion.div>
+
+      <Dialog
+        open={open}
+        onClose={() => setOpen(false)}
+        fullWidth
+        maxWidth="md"
+        TransitionComponent={Slide}
+        transitionDuration={300}
+      >
+        <DialogContent className="sm:max-w-lg" sx={{ p: 0 }}>
+          <Box
+            sx={{
+              background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+              p: 3,
+              borderBottom: "1px solid #e5e7eb",
+            }}
+          >
+            <DialogTitle
+              sx={{
+                fontSize: "1.5rem",
+                fontWeight: 700,
+                color: "#065f46",
+                p: 0,
+                mb: 1,
+              }}
+            >
+              Filter Posts
+            </DialogTitle>
+            <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 2 }}>
+              <Tabs
+                value={tabValue}
+                onChange={handleTabChange}
+                aria-label="filter tabs"
+                sx={{
+                  "& .MuiTabs-indicator": {
+                    backgroundColor: "#059669",
+                    height: 3,
+                  },
+                }}
+              >
+                <Tab
+                  label="By Category"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: tabValue === 0 ? "#065f46" : "#6b7280",
+                    "&:hover": {
+                      color: "#059669",
+                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                    },
+                  }}
+                />
+                <Tab
+                  label="By Disease"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: tabValue === 1 ? "#065f46" : "#6b7280",
+                    "&:hover": {
+                      color: "#059669",
+                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                    },
+                  }}
+                />
+                <Tab
+                  label="By Medicine"
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: tabValue === 2 ? "#065f46" : "#6b7280",
+                    "&:hover": {
+                      color: "#059669",
+                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                    },
+                  }}
+                />
+              </Tabs>
+            </Box>
           </Box>
 
-          {tabValue === 0 && (
-  <div className="flex h-full">
-    {/* Left Column: Filter Categories */}
-    <div className="w-1/4 border-r pr-4">
-      <ul className="space-y-2 text-sm text-gray-700 font-medium">
-        {[
-          'Therapies',
-          'Lifestyle Type',
-          'Dominant Dosha',
-          'Diet & Food',
-        ].map((category) => (
-          <li
-            key={category}
-            className={`cursor-pointer px-3 py-2 rounded hover:bg-gray-100 ${
-              activeFilter === category ? 'bg-gray-100 font-semibold' : ''
-            }`}
-            onClick={() => setActiveFilter(category)}
-          >
-            {category}
-          </li>
-        ))}
-      </ul>
-    </div>
+          <Box sx={{ p: 3 }}>
+            {tabValue === 0 && (
+              <Fade in={tabValue === 0} timeout={300}>
+                <div className="flex h-full">
+                  <div className="w-full space-y-6">
+                    {activeFilter === "Therapies" && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {categories.map((category) => (
+                          <motion.div
+                            key={category.id}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={selectedCategories[category.id]}
+                                  onChange={() =>
+                                    handleCategoryChange(category.id)
+                                  }
+                                  color="primary"
+                                  sx={{
+                                    color: "#059669",
+                                    "&.Mui-checked": {
+                                      color: "#059669",
+                                    },
+                                    "&:hover": {
+                                      backgroundColor: "rgba(5, 150, 105, 0.08)",
+                                    },
+                                  }}
+                                />
+                              }
+                              label={
+                                <span className="text-gray-700">
+                                  {category.label}
+                                </span>
+                              }
+                              sx={{
+                                "& .MuiFormControlLabel-label": {
+                                  fontSize: "0.9rem",
+                                  fontWeight: 500,
+                                },
+                                backgroundColor: selectedCategories[category.id]
+                                  ? "#f0fdf4"
+                                  : "transparent",
+                                borderRadius: "8px",
+                                px: 2,
+                                py: 1,
+                                transition: "all 0.3s ease",
+                                "&:hover": {
+                                  backgroundColor: "rgba(5, 150, 105, 0.05)",
+                                },
+                              }}
+                            />
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </Fade>
+            )}
 
-    {/* Right Column: Filter Options */}
-    <div className="w-3/4 pl-6 space-y-6">
-      {activeFilter === 'Therapies' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {['Panchakarma', 'Shirodhara', 'Abhyanga', 'Nasya'].map((therapy) => (
-            <FormControlLabel
-              key={therapy}
-              control={
-                <Checkbox
-                  checked={selectedCategories[therapy]}
-                  onChange={() =>
-                    setSelectedCategories((prev) => ({
-                      ...prev,
-                      [therapy]: !prev[therapy],
-                    }))
-                  }
-                  color="primary"
-                  sx={{
-                    color: '#059669',
-                    '&.Mui-checked': {
-                      color: '#059669',
-                    },
-                  }}
-                />
-              }
-              label={therapy}
-              sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-            />
-          ))}
-        </div>
-      )}
+            {tabValue === 1 && (
+              <Grow in={tabValue === 1} timeout={300}>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Select diseases to filter relevant Ayurvedic posts:
+                  </p>
+                  <Autocomplete
+                    multiple
+                    loading={loadingDiseases}
+                    options={diseases}
+                    value={selectedDiseases}
+                    onChange={(_event, newValue) => {
+                      setSelectedDiseases(newValue);
+                    }}
+                    renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500 }}
+                        >
+                          <Chip
+                            variant="outlined"
+                            label={option}
+                            {...getTagProps({ index })}
+                            className="m-1"
+                            sx={{
+                              backgroundColor: "#f0fdf4",
+                              borderColor: "#059669",
+                              color: "#059669",
+                              "&:hover": {
+                                backgroundColor: "#dcfce7",
+                              },
+                            }}
+                          />
+                        </motion.div>
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Select Diseases"
+                        placeholder="Search diseases..."
+                        onFocus={getAllDiseasesList}
+                        InputProps={{
+                          ...params.InputProps,
+                          sx: {
+                            borderRadius: "8px",
+                            "&:hover fieldset": {
+                              borderColor: "#059669 !important",
+                            },
+                          },
+                          endAdornment: (
+                            <>
+                              {loadingDiseases ? (
+                                <CircularProgress
+                                  color="success"
+                                  size={20}
+                                  sx={{ mr: 1 }}
+                                />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+              </Grow>
+            )}
 
-      {activeFilter === 'Lifestyle Type' && (
-        <div className="flex flex-wrap gap-4">
-          {['Dinacharya', 'Ratricharya', 'Ritucharya'].map((type) => (
-            <FormControlLabel
-              key={type}
-              control={
-                <Checkbox
-                  checked={selectedCategories[type]}
-                  onChange={() =>
-                    setSelectedCategories((prev) => ({
-                      ...prev,
-                      Dinacharya: false,
-                      Ratricharya: false,
-                      Ritucharya: false,
-                      [type]: true,
-                    }))
-                  }
-                  color="primary"
-                  sx={{
-                    color: '#059669',
-                    '&.Mui-checked': {
-                      color: '#059669',
-                    },
-                  }}
-                />
-              }
-              label={type}
-              sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-            />
-          ))}
-        </div>
-      )}
+            {tabValue === 2 && (
+              <Fade in={tabValue === 2} timeout={300}>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600 mb-3">
+                    Select medicines to filter related Ayurvedic content:
+                  </p>
+                  <Autocomplete
+                    multiple
+                    loading={loadingMedicines}
+                    options={medicines}
+                    value={selectedMedicines}
+                    onChange={(_event, newValue) => {
+                      setSelectedMedicines(newValue);
+                    }}
+                    renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ type: "spring", stiffness: 500 }}
+                        >
+                          <Chip
+                            variant="outlined"
+                            label={option}
+                            {...getTagProps({ index })}
+                            className="m-1"
+                            sx={{
+                              backgroundColor: "#ecfdf5",
+                              borderColor: "#10b981",
+                              color: "#10b981",
+                              "&:hover": {
+                                backgroundColor: "#d1fae5",
+                              },
+                            }}
+                          />
+                        </motion.div>
+                      ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        label="Select Medicines"
+                        placeholder="Search medicines..."
+                        onFocus={getAyurvedicMedicinesList}
+                        InputProps={{
+                          ...params.InputProps,
+                          sx: {
+                            borderRadius: "8px",
+                            "&:hover fieldset": {
+                              borderColor: "#10b981 !important",
+                            },
+                          },
+                          endAdornment: (
+                            <>
+                              {loadingMedicines ? (
+                                <CircularProgress
+                                  color="success"
+                                  size={20}
+                                  sx={{ mr: 1 }}
+                                />
+                              ) : null}
+                              {params.InputProps.endAdornment}
+                            </>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+              </Fade>
+            )}
 
-{activeFilter === 'Dominant Dosha' && (
-  <div className="space-y-4">
-    <h4 className="font-medium">Select Dominant Dosha</h4>
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {['Vata', 'Pitta', 'Kapha'].map((dosha) => (
-        <FormControlLabel
-          key={dosha}
-          control={
-            <Checkbox
-              checked={selectedCategories[dosha.toLowerCase()]}
-              onChange={() =>
-                setSelectedCategories((prev) => ({
-                  ...prev,
-                  vata: false,
-                  pitta: false,
-                  kapha: false,
-                  [dosha.toLowerCase()]: true,
-                }))
-              }
-              color="primary"
+            <DialogActions
               sx={{
-                color: '#059669',
-                '&.Mui-checked': {
-                  color: '#059669',
-                },
+                mt: 4,
+                px: 0,
+                justifyContent: "space-between",
               }}
-            />
-          }
-          label={dosha}
-          sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-        />
-      ))}
-    </div>
-  </div>
-)}
-
-      {activeFilter === 'Diet & Food' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {['Sattvic Diet', 'Spicy Foods', 'Cooling Foods', 'Detox Recipes'].map((item) => (
-            <FormControlLabel
-              key={item}
-              control={
-                <Checkbox
-                  checked={selectedCategories[item]}
-                  onChange={() =>
-                    setSelectedCategories((prev) => ({
-                      ...prev,
-                      [item]: !prev[item],
-                    }))
-                  }
-                  color="primary"
+            >
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
+                  variant="outlined"
+                  onClick={applyGetAllPosts}
                   sx={{
-                    color: '#059669',
-                    '&.Mui-checked': {
-                      color: '#059669',
+                    color: "#6b7280",
+                    borderColor: "#e5e7eb",
+                    fontWeight: 600,
+                    px: 3,
+                    py: 1,
+                    borderRadius: "8px",
+                    "&:hover": {
+                      backgroundColor: "#f3f4f6",
+                      borderColor: "#d1d5db",
                     },
                   }}
-                />
-              }
-              label={item}
-              sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.875rem' } }}
-            />
-          ))}
-        </div>
-      )}
-    </div>
-  </div>
-)}
-
-
-          {tabValue === 1 && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Select diseases to filter relevant Ayurvedic posts:
-              </p>
-              <Autocomplete
-                multiple
-                options={diseases}
-                value={selectedDiseases}
-                onChange={(event, newValue) => {
-                  setSelectedDiseases(newValue);
-                }}
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      variant="outlined"
-                      label={option}
-                      {...getTagProps({ index })}
-                      className="m-1"
-                      sx={{ 
-                        backgroundColor: '#f0fdf4',
-                        borderColor: '#059669',
-                        color: '#059669'
-                      }}
-                    />
-                  ))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Select Diseases"
-                    placeholder="Search diseases..."
-                  />
-                )}
-              />
-            </div>
-          )}
-
-          {tabValue === 2 && (
-            <div className="space-y-4">
-              <p className="text-sm text-gray-600">
-                Select medicines to filter related Ayurvedic content:
-              </p>
-              <Autocomplete
-                multiple
-                options={medicines}
-                value={selectedMedicines}
-                onChange={(event, newValue) => {
-                  setSelectedMedicines(newValue);
-                }}
-                renderTags={(value, getTagProps) =>
-                  value.map((option, index) => (
-                    <Chip
-                      variant="outlined"
-                      label={option}
-                      {...getTagProps({ index })}
-                      className="m-1"
-                      sx={{ 
-                        backgroundColor: '#ecfdf5',
-                        borderColor: '#10b981',
-                        color: '#10b981'
-                      }}
-                    />
-                  ))
-                }
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    variant="outlined"
-                    label="Select Medicines"
-                    placeholder="Search medicines..."
-                  />
-                )}
-              />
-            </div>
-          )}
-
-          <DialogActions className="mt-6">
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-              className="text-gray-600 hover:bg-gray-100"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleApplyFilters}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              Apply Filters
-            </Button>
-          </DialogActions>
+                >
+                  Reset Filters
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
+                  variant="contained"
+                  onClick={handleApplyFilters}
+                  sx={{
+                    backgroundColor: "#059669",
+                    color: "white",
+                    fontWeight: 600,
+                    px: 3,
+                    py: 1,
+                    borderRadius: "8px",
+                    "&:hover": {
+                      backgroundColor: "#047857",
+                    },
+                  }}
+                >
+                  Apply Filters
+                </Button>
+              </motion.div>
+            </DialogActions>
+          </Box>
         </DialogContent>
       </Dialog>
     </>

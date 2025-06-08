@@ -3,34 +3,37 @@ import Expert from "../models/Expert/Expert.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
 import transformPost from "../utils/transformPost.js";
 import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
+import ExpressError from "../utils/expressError.js";
 
 // Handler functions
 const getAllPosts = async (req, res) => {
-  const rawPosts = await Post.find().populate("owner");
-
-  const transformedPosts = rawPosts.map((post) => transformPost(post));
+  const posts = await Post.find()
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   res.status(200).json({
     message: "All posts retrieved",
     success: true,
-    posts: transformedPosts,
+    posts: posts,
+    userId: req.user._id,
   });
 };
 
 const getPostById = async (req, res) => {
   const { postId } = req.params;
-  const post = await Post.findById(postId).populate("owner");
+  const post = await Post.findById(postId)
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   if (!post) {
-    return res.status(404).json({ message: "Post not found", success: false });
+    throw new ExpressError(404, "Post not found");
   }
-
-  const transformedPost = transformPost(post);
 
   res.status(200).json({
     message: "Post retrieved",
     success: true,
-    post: transformedPost,
+    post: post,
+    userId: req.user._id,
   });
 };
 
@@ -47,15 +50,17 @@ const createPost = async (req, res) => {
     document: null,
   };
 
-  //Cloudinary stores file URLs in `path`
-  mediaFiles.forEach((file) => {
-    // Determine file type from Cloudinary response
-    if (file.resource_type === "image") {
-      media.images.push(file.secure_url);
-    } else if (file.resource_type === "video") {
-      media.video = file.secure_url;
-    } else if (file.format === "pdf") {
+  // Cloudinary stores file URLs in `secure_url`
+  mediaFiles?.forEach((file) => {
+    const resourceType = file.resource_type.toLowerCase();
+
+    if (resourceType === "raw") {
+      // PDFs and other non-image/video files are uploaded as "raw"
       media.document = file.secure_url;
+    } else if (resourceType === "video") {
+      media.video = file.secure_url;
+    } else if (resourceType === "image") {
+      media.images.push(file.secure_url);
     }
   });
 
@@ -91,7 +96,7 @@ const createPost = async (req, res) => {
   return res.status(200).json({
     message: "Post created",
     success: true,
-    postId: " post._id",
+    postId: post._id,
     userId: req.user._id,
   });
 };
@@ -113,18 +118,21 @@ const updatePost = async (req, res) => {
 };
 
 const filterPosts = async (req, res) => {
-  const { categories } = req.query;
-  if (!categories)
-    return res
-      .status(400)
-      .json({ message: "Provide categories" })
-      .populate("owner")
-      .populate("tags")
-      .populate("verified");
-  const categoryArray = categories.split(",").map((cat) => cat.trim());
-  const posts = await Post.find({ category: { $in: categoryArray } });
-  res.json({ message: "Filtered posts", posts });
+  const { filters } = req.query;
+  if (!filters) {
+    throw new ExpressError(400, "Filters not provided");
+  }
+
+  const categoryArray = filters
+    .split(",")
+    .map((cat) => cat.toLowerCase().trim());
+
+  const posts = await Post.find({ filters: { $in: categoryArray } })
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
+  res.json({ success: true, message: "Filtered posts", posts });
 };
+
 const verifyPost = async (req, res) => {
   const { id } = req.params; // Post ID
   const doctorId = req.user._id; // Doctor's (Expert's) ID from the authenticated user

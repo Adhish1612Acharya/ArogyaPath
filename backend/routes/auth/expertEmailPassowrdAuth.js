@@ -8,12 +8,10 @@ const router = express.Router();
 
 router.get("/failureLogin", emailPasswordExpertAuthController.failureLogin);
 
-router.get("/logout",
-     emailPasswordExpertAuthController.logout);
 
 router.post(
   "/signUp",
-  // isAlreadyLoggedIn,
+  isAlreadyLoggedIn,
   // checkSignUpForm,
   wrapAsync(   emailPasswordExpertAuthController.signUp)
 );

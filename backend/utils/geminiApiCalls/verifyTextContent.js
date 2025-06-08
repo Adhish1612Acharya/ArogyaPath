@@ -1,4 +1,5 @@
 import { geminiFlashModel } from "../../lib/geminiModel.js";
+import ExpressError from "../expressError.js";
 import parseAiJsonResponse from "../parseAiResponse.js";
 
 const textPrompt = `
@@ -89,6 +90,9 @@ export const verifyTextContent = async (textContent) => {
     return parsed?.valid === true || parsed?.valid === "true";
   } catch (error) {
     console.error("Error verifying text content:", error);
-    return false;
+    throw new ExpressError(
+      500,
+      "Failed to verify text content due to an internal error"
+    );
   }
 };

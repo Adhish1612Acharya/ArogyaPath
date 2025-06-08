@@ -1,143 +1,337 @@
-// src/pages/RoutinePostsPage.tsx
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Button,
+  Typography,
+  Box,
+  Container,
+  TextField,
+  useMediaQuery,
+  useTheme,
+  InputAdornment,
+  Paper,
+} from "@mui/material";
+import { Add, Edit, Delete } from "@mui/icons-material";
 import { Filter } from "@/components/Filter/Filter";
-import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
-import { motion } from "framer-motion";
-import useApi from "@/hooks/useApi/useApi";
+import { motion, AnimatePresence } from "framer-motion";
+import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
+import useRoutines from "@/hooks/useRoutine/useRoutine";
+import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
+import { RoutinePostType } from "@/types/RoutinesPost.types";
+import { useAuth } from "@/context/AuthContext";
+import SearchIcon from "@mui/icons-material/Search";
+import { styled } from "@mui/material/styles";
 
-interface Author {
-  name: string;
-  avatar: string;
-  // credentials: string;
-  // experience: string;
-}
+const HeroSection = styled(Box)(({ theme }) => ({
+  textAlign: "center",
+  marginBottom: theme.spacing(8),
+  padding: theme.spacing(4),
+  background: "linear-gradient(135deg, #f5f7fa 0%, #e4f0f9 100%)",
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: theme.shadows[2],
+}));
 
-interface Activity {
-  time: string;
-  content: string;
-}
+const SearchContainer = styled(Paper)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: theme.spacing(2),
+  padding: theme.spacing(3),
+  borderRadius: theme.shape.borderRadius * 2,
+  boxShadow: theme.shadows[3],
+  marginBottom: theme.spacing(4),
+  background: "white",
+  maxWidth: 700,
+  marginLeft: "auto",
+  marginRight: "auto",
+}));
 
-export interface RoutinePostType {
-  id: string;
-  author: Author;
-  title: string;
-  content: string;
-  thumbnail: string;
-  activities: Activity[];
-  likes: number;
-  comments: number;
-  readTime: string;
-  tags: string[];
-  createdAt: Date;
-}
+const PostsContainer = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: theme.spacing(4),
+  width: "100%",
+}));
 
 export function AllRoutinePosts() {
-  const { get } = useApi<{
-    message: string;
-    success: boolean;
-    routines: RoutinePostType[];
-  }>();
+  const navigate = useNavigate();
+  const { role } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [userType] = useState<"expert" | "patient">("patient");
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
+  const { getAllRoutinesPost, filterSearch } = useRoutines();
+
+  const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [currentPost, setCurrentPost] = useState<RoutinePostType | null>(null);
+  const [openMediaDialog, setOpenMediaDialog] = useState(false);
+  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<number | null>(null);
+  const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
   const [routinePosts, setRoutinePosts] = useState<RoutinePostType[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchAllPosts = async () => {
+    try {
+      setIsLoading(true);
+      const response = await getAllRoutinesPost();
+      setRoutinePosts(response.routines);
+      setUserId(response.userId);
+      setIsLoading(false);
+    } catch (error: any) {
+      console.error(error.message);
+      if (error.status === 401) navigate("/auth");
+    }
+  };
 
   useEffect(() => {
-    async function getRoutinePosts() {
-      const response = await get(
-        `${import.meta.env.VITE_SERVER_URL}/api/routines`
-      );
-      setRoutinePosts(response.routines);
-      setIsLoading(false);
-    }
-    getRoutinePosts();
+    fetchAllPosts();
   }, []);
 
-  const toggleLike = (postId: string) => {
-    setLikedPosts((prev) => {
-      const newLiked = new Set(prev);
-      if (newLiked.has(postId)) {
-        newLiked.delete(postId);
-      } else {
-        newLiked.add(postId);
-      }
-      return newLiked;
-    });
+  const handleEdit = (post: RoutinePostType) => {
+    setCurrentPost(post);
+    setOpenEditDialog(true);
   };
 
-  const toggleSave = (postId: string) => {
-    setSavedPosts((prev) => {
-      const newSaved = new Set(prev);
-      if (newSaved.has(postId)) {
-        newSaved.delete(postId);
-      } else {
-        newSaved.add(postId);
-      }
-      return newSaved;
-    });
+  const handleDelete = (postId: string) => {
+    setRoutinePosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
   };
+
+  const openMediaViewer = (mediaIndex: number, images: string[]) => {
+    setSelectedMediaImageIndex(mediaIndex);
+    setMediaDialogImages(images);
+    setOpenMediaDialog(true);
+  };
+
+  const closeMediaViewer = () => {
+    setSelectedMediaImageIndex(null);
+    setMediaDialogImages([]);
+    setOpenMediaDialog(false);
+  };
+
+  const isPostAuthor = (post: RoutinePostType) => {
+    return post.owner._id === userId;
+  };
+
+  const applyFilters = async (filters: string) => {
+    try {
+      setIsLoading(true);
+      const response = await filterSearch(filters);
+      setRoutinePosts(response.posts);
+      setIsLoading(false);
+    } catch (error: any) {
+      console.error("Filter failed:", error.message);
+      if (error.status === 401) navigate("/auth");
+    }
+  };
+
+  const filteredPosts = routinePosts.filter((post) =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.filters.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
-    <div className="min-h-screen w-screen bg-gray-50 flex flex-col">
-      <Navbar userType={userType} />
-      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-12">
+    <Box sx={{
+      background: "linear-gradient(to bottom, #f8fafc, #f1f5f9)",
+      py: 6,
+      width: '100vw',
+      px: 0,
+    }}>
+      <Container maxWidth={false}>
+        {/* Hero Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="max-w-7xl mx-auto"
+          transition={{ duration: 0.5 }}
         >
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                Ayurvedic Routines
-              </h1>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base">
-                Discover daily routines for optimal health
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Filter />
-              <Button
-                asChild
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md !text-white"
-              >
-                <Link to="/posts/create" className="flex items-center gap-1">
-                  <Plus className="h-4 w-4" />
-                  <span className="hidden sm:inline">Create Post</span>
-                </Link>
-              </Button>
-            </div>
-          </div>
+          <HeroSection>
+            <Typography
+              variant="h1"
+              sx={{
+                fontWeight: 800,
+                fontSize: { xs: "2.5rem", md: "3.5rem" },
+                mb: 3,
+                background: "linear-gradient(45deg, #059669 30%, #10b981 90%)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+                lineHeight: 1.2,
+              }}
+            >
+              Ayurvedic Routines
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              sx={{
+                color: "text.secondary",
+                fontSize: { xs: "1rem", md: "1.25rem" },
+                maxWidth: "800px",
+                mx: "auto",
+              }}
+            >
+              Discover daily routines for optimal health based on authentic Ayurvedic wisdom
+            </Typography>
+          </HeroSection>
 
-          <div className="mt-6 space-y-6">
-            {isLoading
-              ? Array(3)
-                  .fill(0)
-                  .map((_, index) => <PostCardSkeleton key={index} />)
-              : routinePosts.map((routinePost) => (
-                  <RoutinePostCard
-                    key={routinePost.id}
-                    post={routinePost}
-                    liked={likedPosts.has(routinePost.id)}
-                    saved={savedPosts.has(routinePost.id)}
-                    onLike={() => toggleLike(routinePost.id)}
-                    onSave={() => toggleSave(routinePost.id)}
-                  />
-                ))}
-          </div>
+          {/* Search and Action Bar */}
+          <SearchContainer elevation={3}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search routines by title, content or tags..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon color="action" />
+                  </InputAdornment>
+                ),
+                sx: {
+                  borderRadius: 2,
+                  backgroundColor: "background.paper",
+                }
+              }}
+              sx={{
+                flexGrow: 1,
+                maxWidth: { md: "600px" },
+              }}
+            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <Filter applyFilters={applyFilters} getAllPosts={fetchAllPosts} />
+              {role === "expert" && (
+                <Button
+                  component={Link}
+                  to="/posts/create"
+                  variant="contained"
+                  color="primary"
+                  startIcon={<Add />}
+                  size={isMobile ? "medium" : "large"}
+                  sx={{
+                    background: "linear-gradient(45deg, #059669 30%, #10b981 90%)",
+                    boxShadow: "0 4px 6px rgba(5, 150, 105, 0.2)",
+                    "&:hover": {
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 6px 8px rgba(5, 150, 105, 0.3)",
+                    },
+                    transition: "all 0.3s ease",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {isMobile ? "Create" : "Create Routine"}
+                </Button>
+              )}
+            </Box>
+          </SearchContainer>
         </motion.div>
-      </main>
-      <Footer userType={userType} />
-    </div>
+
+        {/* Posts Container */}
+        <PostsContainer>
+          {isLoading ? (
+            Array(4)
+              .fill(0)
+              .map((_, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <PostCardSkeleton />
+                </motion.div>
+              ))
+          ) : filteredPosts.length > 0 ? (
+            <AnimatePresence>
+              {filteredPosts.map((post) => (
+                <motion.div
+                  key={post._id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Box sx={{ maxWidth: 700, mx: "auto", width: "100%" }}>
+                    <RoutinePostCard
+                      post={post}
+                      isLiked={Math.floor(Math.random() * 2) === 1}
+                      isSaved={Math.floor(Math.random() * 2) === 1}
+                      currentUserId={userId}
+                      onMediaClick={openMediaViewer}
+                      onEdit={isPostAuthor(post) ? () => handleEdit(post) : undefined}
+                      onDelete={isPostAuthor(post) ? () => handleDelete(post._id) : undefined}
+                    />
+                  </Box>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="col-span-full text-center py-16"
+            >
+              <Box sx={{
+                maxWidth: "500px",
+                mx: "auto",
+                p: 4,
+                borderRadius: 3,
+                backgroundColor: "background.paper",
+                boxShadow: 1,
+              }}>
+                <Box sx={{
+                  width: 120,
+                  height: 120,
+                  mx: "auto",
+                  mb: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  backgroundColor: "grey.100",
+                  borderRadius: "50%",
+                }}>
+                  <SearchIcon sx={{ fontSize: 60, color: "grey.400" }} />
+                </Box>
+                <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                  No routines found
+                </Typography>
+                <Typography variant="body1" sx={{ color: "text.secondary", mb: 3 }}>
+                  Try adjusting your search or filters to find what you're looking for.
+                </Typography>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => {
+                    setSearchQuery("");
+                    fetchAllPosts();
+                  }}
+                  sx={{
+                    borderColor: "primary.main",
+                    color: "primary.main",
+                    "&:hover": {
+                      backgroundColor: "primary.light",
+                      borderColor: "primary.dark",
+                    },
+                  }}
+                >
+                  Clear search
+                </Button>
+              </Box>
+            </motion.div>
+          )}
+        </PostsContainer>
+      </Container>
+
+      {/* Media Viewer Dialog */}
+      <MediaViewerDialog
+        open={openMediaDialog}
+        images={mediaDialogImages}
+        selectedImageIndex={selectedMediaImageIndex || 0}
+        onClose={closeMediaViewer}
+      />
+    </Box>
   );
 }

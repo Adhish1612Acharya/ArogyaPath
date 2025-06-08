@@ -3,10 +3,9 @@ import Expert from "../models/Expert/Expert.js";
 
 import wrapAsync from "../utils/wrapAsync.js";
 import { isLoggedIn } from "../middlewares/commonAuth.js";
-import { searchDoctors } from "../controllers/expert.js";
-
-// //search doctors
-// router.get("/search/doctors", isLoggedIn, wrapAsync(searchDoctors));
+import expertProfileController from "../controllers/expert.js";
+import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
+import { checkExpertLogin } from "../middlewares/experts/auth.js";
 
 // // Get all experts
 // router.get(
@@ -75,13 +74,27 @@ import { searchDoctors } from "../controllers/expert.js";
 
 const router = express.Router();
 
+router.patch(
+  "/complete-profile",
+  checkExpertLogin,
+  validateExpertCompleteProfile,
+  wrapAsync(expertProfileController.completeProfile)
+);
+
+//search doctors
 router.get(
-  "/expert/:id",
+  "/search/doctors",
+  isLoggedIn,
+  wrapAsync(expertProfileController.searchDoctors)
+);
+
+router.get(
+  "/:id",
   wrapAsync(async (req, res) => {
     // const expert = await Expert.findById(req.params.id)
     //   .select("-posts -routinePosts -taggedPosts -verifiedPosts -salt -hash");//specifies the feild that needs to be sent
 
-    const expert= await Expert.findById(req.params._id);
+    const expert = await Expert.findById(req.params._id);
     if (!expert) {
       return res.status(404).json({ message: "Expert not found" });
     }
@@ -91,7 +104,7 @@ router.get(
 );
 
 router.put(
-  "/expert/edit/:id",
+  "/edit/:id",
   wrapAsync(async (req, res) => {
     const { username, email, role, profile } = req.body;
 
@@ -101,9 +114,9 @@ router.put(
         username: username,
         email: email,
         role: role,
-        profile: profile, 
+        profile: profile,
       },
-      { new: true, runValidators: true } 
+      { new: true, runValidators: true }
     );
 
     if (!updatedExpert) {
@@ -111,27 +124,7 @@ router.put(
     }
 
     res.json(updatedExpert);
-  })
+  })
 );
 
-router.post(
-  "/expert/:id",
-  wrapAsync(async (req, res) => {
-    const { username, email, role, profile } = req.body;
-
-    // Create the expert with completeProfile set to true
-    const newExpert = new Expert({
-      username: username,
-      email: email,
-      role: role || "expert", 
-      profile: profile,
-      completeProfile: true, 
-    });
-
-    await newExpert.save();
-
-    res.json(newExpert);
-  })
-);
-
-export default router;
+export default router;

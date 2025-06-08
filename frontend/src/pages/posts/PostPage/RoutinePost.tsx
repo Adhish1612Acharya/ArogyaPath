@@ -1,32 +1,95 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
-import { RoutinePostCard } from "@/components/PostCards/RoutinePostCard";
 import { RoutinePostCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
-import useGetPost from "@/hooks/useGetPost/useGetPost";
-import { RoutinePostType } from "../RoutinesPosts";
+import useRoutines from "@/hooks/useRoutine/useRoutine";
+import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
+import { RoutinePostType } from "@/types/RoutinesPost.types";
+import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
+import { Delete, Edit } from "@mui/icons-material";
 
 export function RoutinePost() {
-  const { getRoutinesPostById } = useGetPost();
+  const { getRoutinesPostById } = useRoutines();
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [post, setPost] = useState<RoutinePostType | null>(null);
   const [loading, setLoading] = useState(true);
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [openMediaDialog, setOpenMediaDialog] = useState(false);
+  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
+    number | null
+  >(null);
+  const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
+
+  const [_openEditDialog, setOpenEditDialog] = useState(false);
+  const [_currentPost, setCurrentPost] = useState<RoutinePostType | null>(null);
+  const [userId, setUserId] = useState<string>("");
 
   useEffect(() => {
     const fetchPost = async () => {
-      if (!id) return;
-      const ssData = await getRoutinesPostById(id);
+      try {
+        if (!id) return;
+        const routine = await getRoutinesPostById(id);
 
-      setPost(ssData.routine);
-      setLoading(false);
+        setUserId(routine.userId);
+
+        setPost(routine.routine);
+        setLoading(false);
+      } catch (error: any) {
+        console.log("Error : ", error);
+        if (error.status === 400)
+          navigate(`/auth?redirect=${encodeURIComponent(location.pathname)}`);
+      }
     };
 
     fetchPost();
   }, [id]);
+
+  const handleEdit = (post: RoutinePostType) => {
+    setCurrentPost(post);
+    setOpenEditDialog(true);
+  };
+
+  const handleDelete = (_postId: string) => {
+    // setSuccessStor((prevPosts) =>
+    //   prevPosts.filter((post) => post._id !== postId)
+    // );
+  };
+
+  const openMediaViewer = (mediaIndex: number, images: string[]) => {
+    setSelectedMediaImageIndex(mediaIndex);
+    setMediaDialogImages(images);
+    setOpenMediaDialog(true);
+  };
+
+  const closeMediaViewer = () => {
+    setSelectedMediaImageIndex(null);
+    setMediaDialogImages([]);
+    setOpenMediaDialog(false);
+  };
+
+  const isPostAuthor = (post: RoutinePostType) => {
+    return post.owner._id === userId;
+  };
+
+  const handleNextImage = () => {
+    if (mediaDialogImages.length > 0) {
+      setSelectedMediaImageIndex(
+        (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
+      );
+    }
+  };
+
+  const handlePrevImage = () => {
+    if (mediaDialogImages.length > 0) {
+      setSelectedMediaImageIndex(
+        (prev) =>
+          (prev ? prev - 1 + mediaDialogImages.length : 0) %
+          mediaDialogImages.length
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -60,14 +123,40 @@ export function RoutinePost() {
 
         <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
           <RoutinePostCard
+            key={post._id}
             post={post}
-            liked={liked}
-            saved={saved}
-            onLike={() => setLiked(!liked)}
-            onSave={() => setSaved(!saved)}
+            isLiked={Math.floor(Math.random() * 2) === 1 ? true : false}
+            isSaved={Math.floor(Math.random() * 2) === 1 ? true : false}
+            currentUserId={userId}
+            onMediaClick={openMediaViewer}
+            menuItems={[
+              ...(isPostAuthor(post)
+                ? [
+                    {
+                      label: "Edit",
+                      icon: <Edit fontSize="small" />,
+                      action: () => handleEdit(post),
+                    },
+                    {
+                      label: "Delete",
+                      icon: <Delete fontSize="small" />,
+                      action: () => handleDelete(post._id),
+                    },
+                  ]
+                : []),
+            ]}
           />
         </div>
       </div>
+      <MediaViewerDialog
+        open={openMediaDialog}
+        images={mediaDialogImages}
+        title={""}
+        selectedImageIndex={selectedMediaImageIndex || 0}
+        onClose={closeMediaViewer}
+        onNext={handleNextImage}
+        onPrev={handlePrevImage}
+      />
     </div>
   );
 }

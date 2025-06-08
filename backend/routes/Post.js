@@ -24,11 +24,13 @@ router.post(
   memoryUpload.array("media", 5),
   parseFormdata,
   validatePost,
-  verifyPostData,
-  handleCloudinaryUpload,
+  wrapAsync(verifyPostData),
+  wrapAsync(handleCloudinaryUpload),
   cloudinaryErrorHandler,
   wrapAsync(postController.createPost)
 );
+
+router.get("/filter", isLoggedIn, wrapAsync(postController.filterPosts));
 
 router.get("/:postId", isLoggedIn, wrapAsync(postController.getPostById));
 
@@ -44,8 +46,6 @@ router.put(
   validatePost,
   wrapAsync(postController.updatePost)
 );
-
-router.get("/filter", isLoggedIn, wrapAsync(postController.filterPosts));
 
 router.post(
   "/verify/:id",

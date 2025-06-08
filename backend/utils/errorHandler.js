@@ -1,9 +1,4 @@
-const errorHandler = (
-  err,
-  req,
-  res,
-  next,
-) => {
+const errorHandler = (err, req, res, next) => {
   if (err) {
     const statusNumber = err.status || 500;
     const Msg = err.errMsg || "Internal server error";
@@ -11,7 +6,7 @@ const errorHandler = (
     console.log(`${statusNumber} , ${Msg}`);
     res.status(statusNumber).json({
       success: false,
-      status: 500,
+      status: statusNumber,
       message: Msg,
     });
   } else {

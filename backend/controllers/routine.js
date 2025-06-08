@@ -1,14 +1,23 @@
 import Expert from "../models/Expert/Expert.js";
 import Routines from "../models/Routines/Routines.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
-import transformRoutine from "../utils/transformRoutinePost.js";
+import ExpressError from "../utils/expressError.js";
+import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
-  const { title, description, routines, filters } = req.body;
-  const thumbnail = req.file ? req.file.path : null;
+  const { title, description, routines } = req.body;
+  const mediaFiles = req.cloudinaryFiles;
+  console.log("req.body", req.body);
+  console.log("Media Files:", mediaFiles);
+
+  const thumbnail =
+    mediaFiles?.[0].resource_type === "image" ? mediaFiles[0].secure_url : null;
 
   const readTime = calculateReadTime({ title, description, routines });
+
+  //Generate categories using ONLY the description
+  const filters = await generateFilters(title, description, routines || []);
 
   const newRoutine = new Routines({
     title,
@@ -17,7 +26,7 @@ export const createRoutine = async (req, res) => {
     thumbnail,
     owner: req.user._id,
     readTime,
-    filters: filters, // Optional: Populate dynamically
+    filters: filters,
   });
 
   await newRoutine.save();
@@ -37,32 +46,34 @@ export const createRoutine = async (req, res) => {
 
 // ------------------------ Get All Routines ------------------------
 export const getAllRoutines = async (req, res) => {
-  const routines = await Routines.find().populate("owner");
-
-  const transformedRoutinePosts = routines.map(transformRoutine);
+  const routines = await Routines.find()
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   return res.status(200).json({
     message: "Routines fetched successfully",
     success: true,
-    routines: transformedRoutinePosts,
+    routines: routines,
+    userId: req.user._id,
   });
 };
 
 // ------------------------ Get Routine By ID ------------------------
 export const getRoutineById = async (req, res) => {
   const { id } = req.params;
-  const routine = await Routines.findById(id).populate("owner");
+  const routine = await Routines.findById(id)
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
 
   if (!routine) {
-    return res.status(404).json({ message: "Routine not found" });
+    throw new ExpressError(404, "Routine not found");
   }
-
-  const transformedRoutinePost = transformRoutine(routine);
 
   return res.status(200).json({
     message: "Routine fetched successfully",
     success: true,
-    routine: transformedRoutinePost,
+    routine: routine,
+    userId: req.user._id,
   });
 };
 
@@ -76,7 +87,7 @@ export const updateRoutine = async (req, res) => {
   });
 
   if (!updatedRoutine) {
-    return res.status(404).json({ message: "Routine not found" });
+    throw new ExpressError(404, "Routine not found");
   }
 
   return res.status(200).json({
@@ -92,10 +103,37 @@ export const deleteRoutine = async (req, res) => {
   const deletedRoutine = await Routines.findByIdAndDelete(id);
 
   if (!deletedRoutine) {
-    return res.status(404).json({ message: "Routine not found" });
+    throw new ExpressError(404, "Routine not found");
   }
 
   return res.status(200).json({
+    success: true,
     message: "Routine deleted successfully",
   });
+};
+
+const filterRoutines = async (req, res) => {
+  const { filters } = req.query;
+  if (!filters) {
+    throw new ExpressError(400, "Filters not provided");
+  }
+
+  const categoryArray = filters
+    .split(",")
+    .map((cat) => cat.toLowerCase().trim());
+
+  const routines = await Routines.find({ filters: { $in: categoryArray } })
+    .select("-updatedAt")
+    .populate("owner", "_id profile.fullName profile.profileImage");
+
+  res.json({ success: true, message: "Filtered routines", routines });
+};
+
+export default {
+  createRoutine,
+  getAllRoutines,
+  getRoutineById,
+  updateRoutine,
+  deleteRoutine,
+  filterRoutines,
 };

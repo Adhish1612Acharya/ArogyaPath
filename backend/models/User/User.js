@@ -7,12 +7,19 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    googleId: { type: String, unique: true, sparse: true, default: null },
     email: { type: String, required: true, unique: true },
     profile: {
+      fullName: { type: String, default: "" },
       profileImage: { type: String, default: "" },
-      fullname: { type: String, default: "" },
-      age: { type: Number, min: 1, max: 120, default: 1 },
-      contact: { type: String, default: 0 },
+      age: { type: Number, default: null },
+      contactNo: { type: String, default: 0 },
+      healthGoal: { type: String, default: "" },
+      bio: { type: String, default: "" },
+      gender: {
+        type: String,
+        enum: ["male", "female", "other"],
+      },
     },
     successStories: [
       { type: Schema.Types.ObjectId, ref: "SuccessStory", default: [] },
@@ -26,11 +33,30 @@ const userSchema = new Schema(
       type: String,
       default: "user",
     },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
+    premiumUser: {
+      type: Boolean,
+      default: false,
+    },
+    sentChatRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ChatRequest",
+      },
+    ],
+    receivedChatRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "ChatRequest",
+      },
+    ],
   },
+
   { timestamps: true }
 );
 
-userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(passportLocalMongoose, { usernameField: "email" });
 
 // Define the model with TypeScript type
 const User = mongoose.model("User", userSchema);

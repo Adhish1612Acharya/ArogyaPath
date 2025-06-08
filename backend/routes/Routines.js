@@ -1,12 +1,6 @@
 import express from "express";
 import wrapAsync from "../utils/wrapAsync.js";
-import {
-  createRoutine,
-  getAllRoutines,
-  getRoutineById,
-  updateRoutine,
-  deleteRoutine,
-} from "../controllers/routine.js";
+import routineController from "../controllers/routine.js";
 import { validateRoutine } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { storage } from "../cloudConfig.js";
@@ -16,33 +10,41 @@ import {
   cloudinaryErrorHandler,
   parseFormdata,
 } from "../middlewares/cloudinaryMiddleware.js";
-const upload = multer({ storage });
+import { verifyPostData } from "../middlewares/verifyPostMiddleware.js";
+import { handleCloudinaryUpload } from "../middlewares/cloudinary/handleCloudinaryUpload.js";
+const memoryUpload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
 
 router.post(
   "/",
   checkExpertLogin,
-  upload.single("thumbnail"),
-  cloudinaryErrorHandler,
+  memoryUpload.array("media", 1),
   parseFormdata,
   validateRoutine,
-  wrapAsync(createRoutine)
+  wrapAsync(verifyPostData),
+  wrapAsync(handleCloudinaryUpload),
+  cloudinaryErrorHandler,
+  wrapAsync(routineController.createRoutine)
 );
 
-router.get("/", isLoggedIn, wrapAsync(getAllRoutines));
+router.get("/", isLoggedIn, wrapAsync(routineController.getAllRoutines));
 
-router.get("/:id", isLoggedIn, wrapAsync(getRoutineById));
+router.get("/filter", isLoggedIn, wrapAsync(routineController.filterRoutines));
+
+router.get("/:id", isLoggedIn, wrapAsync(routineController.getRoutineById));
 
 router.put(
   "/:id",
   checkExpertLogin,
-  upload.single("thumbnail"),
-  cloudinaryErrorHandler,
-  parseFormdata,
   validateRoutine,
-  wrapAsync(updateRoutine)
+  wrapAsync(routineController.updateRoutine)
 );
-router.delete("/:id", checkExpertLogin, wrapAsync(deleteRoutine));
+
+router.delete(
+  "/:id",
+  checkExpertLogin,
+  wrapAsync(routineController.deleteRoutine)
+);
 
 export default router;
