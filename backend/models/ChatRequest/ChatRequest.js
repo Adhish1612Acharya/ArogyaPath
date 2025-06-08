@@ -28,10 +28,10 @@ const chatRequestSchema = new Schema({
         enum: ["pending", "accepted", "rejected"],
         default: "pending",
       },
-      similarPrakrithiPercenatge:{
+      similarPrakrithiPercenatge: {
         type: Number,
         default: null,
-      }
+      },
     },
   ],
   chatType: {
@@ -52,6 +52,11 @@ const chatRequestSchema = new Schema({
       type: String,
       default: null,
     },
+  },
+  chat: {
+    type: Schema.Types.ObjectId,
+    ref: "Chat",
+    default: null,
   },
 });
 

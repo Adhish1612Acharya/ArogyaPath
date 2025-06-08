@@ -35,19 +35,19 @@ export const getChatMessages = async (req, res) => {
   });
 };
 
-export const createChat = async (req, res) => {
-  let { participants } = req.body;
+// export const createChat = async (req, res) => {
+//   let { participants } = req.body;
 
-  participants.push({
-    user: req.user._id,
-    userType: req.user.role === "expert" ? "Expert" : "User",
-  });
+//   participants.push({
+//     user: req.user._id,
+//     userType: req.user.role === "expert" ? "Expert" : "User",
+//   });
 
-  console.log("Participants:", participants);
+//   console.log("Participants:", participants);
 
-  const chat = await Chat.create({ participants });
-  res.status(201).json({ success: true, chat });
-};
+//   const chat = await Chat.create({ participants });
+//   res.status(201).json({ success: true, chat });
+// };
 
 // 1. Create a chat request
 export const createChatRequest = async (req, res) => {
@@ -159,13 +159,10 @@ export const acceptChatRequest = async (req, res) => {
   // Check if a chat already exists for this chatRequest (by groupName or participants)
   let chat = null;
   if (chatRequest.chatType === "group") {
-    // Count accepted users
     const acceptedUsers = chatRequest.users.filter(
       (u) => u.status === "accepted"
     );
-    // If this is the second user to accept, create the chat
     if (acceptedUsers.length === 2) {
-      // Create chat with both participants
       const participants = acceptedUsers.map((u) => ({
         user: u.user,
         userType: u.userType,
@@ -175,15 +172,19 @@ export const acceptChatRequest = async (req, res) => {
         groupChat: true,
         groupChatName: chatRequest.groupName || "",
       });
-      // Optionally, update user models to reference this chat if needed
+      chatRequest.chat = chat._id;
+      await chatRequest.save();
+      // Push chat id to each user's chats field
+      for (const u of acceptedUsers) {
+        const Model = u.userType === "Expert" ? Expert : User;
+        await Model.findByIdAndUpdate(u.user, {
+          $addToSet: { chats: chat._id },
+        });
+      }
     } else if (acceptedUsers.length > 2) {
-      // Try to find an existing chat for this group
-      chat = await Chat.findOne({
-        groupChat: true,
-        groupChatName: chatRequest.groupName,
-      });
+      // Find the chat using chatRequest.chat
+      chat = await Chat.findById(chatRequest.chat);
       if (chat) {
-        // Add the current user to the chat participants if not already present
         const alreadyInChat = chat.participants.some(
           (p) => p.user.toString() === receiverId.toString()
         );
@@ -191,6 +192,11 @@ export const acceptChatRequest = async (req, res) => {
           chat.participants.push({ user: receiverId, userType: receiverType });
           await chat.save();
         }
+        // Push chat id to this user's chats field
+        const Model = receiverType === "Expert" ? Expert : User;
+        await Model.findByIdAndUpdate(receiverId, {
+          $addToSet: { chats: chat._id },
+        });
       } else {
         // If for some reason the chat doesn't exist, create it with all accepted users
         const participants = acceptedUsers.map((u) => ({
@@ -202,6 +208,14 @@ export const acceptChatRequest = async (req, res) => {
           groupChat: true,
           groupChatName: chatRequest.groupName || "",
         });
+        chatRequest.chat = chat._id;
+        await chatRequest.save();
+        for (const u of acceptedUsers) {
+          const Model = u.userType === "Expert" ? Expert : User;
+          await Model.findByIdAndUpdate(u.user, {
+            $addToSet: { chats: chat._id },
+          });
+        }
       }
     }
     // If only one user has accepted, do not create the chat yet
@@ -220,6 +234,14 @@ export const acceptChatRequest = async (req, res) => {
         groupChat: false,
         groupChatName: "",
       });
+      chatRequest.chat = chat._id;
+      await chatRequest.save();
+      for (const u of acceptedUsers) {
+        const Model = u.userType === "Expert" ? Expert : User;
+        await Model.findByIdAndUpdate(u.user, {
+          $addToSet: { chats: chat._id },
+        });
+      }
     }
   }
 

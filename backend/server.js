@@ -269,6 +269,9 @@ io.on("connection", (socket) => {
 
     await newMessage.save();
 
+    chat.latestMessage = newMessage._id;
+    await chat.save();
+
     // Emit to all clients in the room
     io.to(roomId).emit("newMessage", {
       _id: newMessage._id,

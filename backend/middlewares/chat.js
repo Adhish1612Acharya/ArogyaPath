@@ -2,6 +2,7 @@ import Chat from "../models/Chat/Chat.js";
 import User from "../models/User/User.js";
 import ExpressError from "../utils/expressError.js";
 import mongoose from "mongoose";
+import ChatRequest from "../models/ChatRequest/ChatRequest.js";
 
 export const checkChatOwnership = async (req, res, next) => {
   const chatId = req.params.id;
@@ -43,9 +44,9 @@ export const checkIncludesCurrChatUser = (req, res, next) => {
 };
 
 export const checkChatUsersExists = async (req, res, next) => {
-  const { participants } = req.body;
+  const { users } = req.body;
 
-  const userIds = participants?.map((eachParticipant) => eachParticipant.user);
+  const userIds = users?.map((eachParticipant) => eachParticipant.user);
 
   await Promise.all(
     userIds.map(async (userId) => {
@@ -56,5 +57,24 @@ export const checkChatUsersExists = async (req, res, next) => {
       }
     })
   );
+  next();
+};
+
+export const checkUserInChatRequest = async (req, res, next) => {
+  const chatRequestId = req.params.id;
+  const currUserId = req.user._id.toString();
+  const chatRequest = await ChatRequest.findById(chatRequestId);
+  if (!chatRequest) {
+    throw new ExpressError(404, "Chat request not found");
+  }
+  const isUserInRequest = chatRequest.users.some(
+    (u) => u.user.toString() === currUserId
+  );
+  if (!isUserInRequest) {
+    throw new ExpressError(
+      403,
+      "You are not a participant in this chat request"
+    );
+  }
   next();
 };
