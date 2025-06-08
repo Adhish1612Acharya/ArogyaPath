@@ -299,6 +299,30 @@ const filterSuccessStories = async (req, res) => {
 
   res.json({ success: true, message: "Filtered posts", successStories });
 };
+ const rejectedSuccessStory = async (req, res) => {
+  const { id } = req.params;
+  const expertId = req.user._id;
+  const { reason } = req.body;
+
+  if (!reason || reason.trim().length === 0) {
+    throw new ExpressError("Rejection reason is required", 400);
+  }
+
+  const post = await SuccessStory.findById(id);
+  if (!post) {
+    throw new ExpressError("Success Story not found", 404);
+  }
+
+  post.status = "rejected";
+  post.rejections.push({
+    expert: expertId,
+    reason: reason.trim(),
+  });
+
+  await post.save();
+
+  res.json({ message: "Success story rejected", post });
+};
 
 export default {
   createSuccessStory,
@@ -308,4 +332,5 @@ export default {
   deleteSuccessStory,
   verifySuccessStory,
   filterSuccessStories,
+  rejectedSuccessStory,
 };
