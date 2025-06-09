@@ -29,6 +29,8 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
   const [groupName, setGroupName] = useState("");
   const [groupError, setGroupError] = useState("");
   const [sending, setSending] = useState(false);
+  // Track which users have had a chat request sent (private or group)
+  const [sentRequests, setSentRequests] = useState<string[]>([]); // user ids for private, group: 'group'
 
   const handleUserSelect = (userId: string) => {
     setSelectedUsers((prev) =>
@@ -61,6 +63,7 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
     };
     await sendChatRequest(data);
     setSending(false);
+    setSentRequests((prev) => [...prev, "group"]);
     setSelectedUsers([]);
     setGroupName("");
     setGroupMode(false);
@@ -76,6 +79,7 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
     };
     await sendChatRequest(data);
     setSending(false);
+    setSentRequests((prev) => [...prev, userId]);
     onClose();
   };
 
@@ -148,9 +152,19 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
                         handleSendPrivateChatRequest(eachPkUser.user._id)
                       }
                       size="small"
-                      disabled={sending || createChatLoad}
+                      disabled={
+                        sending ||
+                        createChatLoad ||
+                        sentRequests.includes(eachPkUser.user._id)
+                      }
                     >
-                      {sending ? <Loader2 className="animate-spin" /> : "Chat"}
+                      {sentRequests.includes(eachPkUser.user._id) ? (
+                        "Chat Request Sent"
+                      ) : sending ? (
+                        <Loader2 className="animate-spin" />
+                      ) : (
+                        "Chat"
+                      )}
                     </Button>
                   )}
                 </div>
@@ -175,12 +189,17 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
                   color="primary"
                   fullWidth
                   disabled={
-                    sending || createChatLoad || selectedUsers.length < 2
+                    sending ||
+                    createChatLoad ||
+                    selectedUsers.length < 2 ||
+                    sentRequests.includes("group")
                   }
                   onClick={handleSendGroupChatRequest}
                   startIcon={<Chat />}
                 >
-                  {sending ? (
+                  {sentRequests.includes("group") ? (
+                    "Chat Request Sent"
+                  ) : sending ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Send Chat Request"
