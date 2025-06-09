@@ -28,9 +28,12 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [groupName, setGroupName] = useState("");
   const [groupError, setGroupError] = useState("");
-  const [sending, setSending] = useState(false);
+  const [sending, setSending] = useState<string>("");
   // Track which users have had a chat request sent (private or group)
-  const [sentRequests, setSentRequests] = useState<string[]>([]); // user ids for private, group: 'group'
+  const [sentSentPrivateRequests, setSentPrivateRequests] = useState<string[]>(
+    []
+  ); // user ids for private, group: 'group'
+  const [groupRequestSent, setGroupRequesSent] = useState<boolean>(false);
 
   const handleUserSelect = (userId: string) => {
     setSelectedUsers((prev) =>
@@ -41,6 +44,11 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
   };
 
   const handleSendGroupChatRequest = async () => {
+    try{
+
+    }catch (error) {
+      
+    }
     if (!groupName.trim()) {
       setGroupError("Group name is required");
       return;
@@ -50,7 +58,7 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
       return;
     }
     setGroupError("");
-    setSending(true);
+    setSending("group");
     const users: ChatRequestUser[] = selectedUsers.map((id) => ({
       user: id,
       userType: "User",
@@ -62,24 +70,25 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
       chatReason: { similarPrakrithi: true },
     };
     await sendChatRequest(data);
-    setSending(false);
-    setSentRequests((prev) => [...prev, "group"]);
+    setSending("");
+
     setSelectedUsers([]);
     setGroupName("");
     setGroupMode(false);
+    setGroupRequesSent(true);
     onClose();
   };
 
   const handleSendPrivateChatRequest = async (userId: string) => {
-    setSending(true);
+    setSending(userId);
     const data: ChatRequestData = {
       chatType: "private",
       users: [{ user: userId, userType: "User" }],
       chatReason: { similarPrakrithi: true },
     };
     await sendChatRequest(data);
-    setSending(false);
-    setSentRequests((prev) => [...prev, userId]);
+    setSending("");
+    setSentPrivateRequests((prev) => [...prev, userId]);
     onClose();
   };
 
@@ -101,6 +110,7 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
               setSelectedUsers([]);
               setGroupName("");
               setGroupError("");
+              setGroupRequesSent(false);
             }}
             size="small"
           >
@@ -153,14 +163,14 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
                       }
                       size="small"
                       disabled={
-                        sending ||
+                        sending.includes(eachPkUser.user._id) ||
                         createChatLoad ||
-                        sentRequests.includes(eachPkUser.user._id)
+                        sentSentPrivateRequests.includes(eachPkUser.user._id)
                       }
                     >
-                      {sentRequests.includes(eachPkUser.user._id) ? (
+                      {sentSentPrivateRequests.includes(eachPkUser.user._id) ? (
                         "Chat Request Sent"
-                      ) : sending ? (
+                      ) : sending.includes(eachPkUser.user._id) ? (
                         <Loader2 className="animate-spin" />
                       ) : (
                         "Chat"
@@ -189,17 +199,16 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
                   color="primary"
                   fullWidth
                   disabled={
-                    sending ||
+                    sending === "group" ||
                     createChatLoad ||
-                    selectedUsers.length < 2 ||
-                    sentRequests.includes("group")
+                    selectedUsers.length < 2
                   }
                   onClick={handleSendGroupChatRequest}
                   startIcon={<Chat />}
                 >
-                  {sentRequests.includes("group") ? (
+                  {sentSentPrivateRequests ? (
                     "Chat Request Sent"
-                  ) : sending ? (
+                  ) : sending==="group" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Send Chat Request"
