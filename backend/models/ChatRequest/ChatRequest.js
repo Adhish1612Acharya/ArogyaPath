@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { boolean } from "zod";
 
 const chatRequestSchema = new Schema({
   ownerType: {
@@ -45,8 +46,8 @@ const chatRequestSchema = new Schema({
   },
   chatReason: {
     similarPrakrithi: {
-      type: Number,
-      default: null,
+      type: Boolean,
+      default: false,
     },
     otherReason: {
       type: String,

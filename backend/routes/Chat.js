@@ -4,6 +4,7 @@ import { isLoggedIn } from "../middlewares/commonAuth.js";
 import {
   checkChatOwnership,
   checkChatUsersExists,
+  checkDuplicatePrivateChatRequest,
   checkIncludesCurrChatUser,
   checkUserInChatRequest,
 } from "../middlewares/chat.js";
@@ -41,6 +42,7 @@ router.post(
   validateChatRequest,
   checkChatRequestDoesNotContainCurrentUser,
   wrapAsync(checkChatUsersExists),
+  wrapAsync(checkDuplicatePrivateChatRequest),
   wrapAsync(chatController.createChatRequest)
 );
 

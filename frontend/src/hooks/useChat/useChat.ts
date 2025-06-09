@@ -1,7 +1,7 @@
 import React from "react";
 import useApi from "../useApi/useApi";
 import { handleAxiosError } from "@/utils/handleAxiosError";
-import { ChatParticipants } from "./useChat.types";
+import { ChatParticipants, ChatRequestData } from "./useChat.types";
 
 const useChat = () => {
   const { get, post } = useApi();
@@ -29,7 +29,7 @@ const useChat = () => {
     }
   };
 
-  const sendChatRequest = async (data: any) => {
+  const sendChatRequest = async (data: ChatRequestData) => {
     try {
       const response = await post(
         `${import.meta.env.VITE_SERVER_URL}/api/chat/request`,
