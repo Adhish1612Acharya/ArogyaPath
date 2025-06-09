@@ -82,3 +82,30 @@ export const checkUserInChatRequest = async (req, res, next) => {
   }
   next();
 };
+
+// Middleware to check if a private chat request already exists between owner and a single user
+export const checkDuplicatePrivateChatRequest = async (req, res, next) => {
+  const { chatType, users } = req.body;
+  if (chatType !== "private" || !Array.isArray(users) || users.length !== 1) {
+    return next(); // Only applies to private chat requests
+  }
+
+  const currUserId = req.user._id.toString(); // owner
+  const otherUserId = users[0].user;
+
+  // Find any existing private chat request where owner is currUserId and users[0].user is otherUserId
+  const existingRequest = await ChatRequest.findOne({
+    chatType: "private",
+    owner: currUserId,
+    "users.user": otherUserId,
+    $or: [{ "users.status": "pending" }, { "users.status": "accepted" }],
+  });
+
+  if (existingRequest) {
+    throw new ExpressError(
+      409,
+      "A private chat request to this user already exists and is pending or accepted."
+    );
+  }
+  next();
+};

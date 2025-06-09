@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 import SimilarPkUserDialog from "@/components/PrakrithiAnalysis/SimilarPkUserDialog/SimilarPkUserDialog";
 import PrakritiAnalysisLoading from "../../../components/PrakrithiAnalysis/PrakritiAnalysisLoading/PrakritiAnalysisLoading";
 import PrakrithiResultView from "@/components/PrakrithiAnalysis/PrakrithiResultView/PrakrithiResultView";
+import { CloudDownload } from "lucide-react";
 
 // Particles background component
 const ParticlesBackground = () => {
@@ -62,7 +63,7 @@ export default function PrakrithiAnalysis() {
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState<boolean>(false);
-  const [analysisComplete, setAnalysisComplete] = useState<boolean>(false);
+  const [analysisComplete, setAnalysisComplete] = useState<boolean>(true);
 
   const [similarUsersDialogOpen, setSimilarUsersDialogOpen] = useState(false);
   const [similarPkUsers, setSimilarPkUsers] = useState<
@@ -338,7 +339,7 @@ export default function PrakrithiAnalysis() {
           createChatLoad={createChatLoad}
         />
         {/* Download Complete Notification */}
-        {/* <AnimatePresence>
+        <AnimatePresence>
           {downloadComplete && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -351,7 +352,7 @@ export default function PrakrithiAnalysis() {
               <span>Report downloaded successfully!</span>
             </motion.div>
           )}
-        </AnimatePresence> */}
+        </AnimatePresence>
       </motion.div>
     );
   }
@@ -510,7 +511,7 @@ export default function PrakrithiAnalysis() {
         </div>
 
         {/* Download complete notification */}
-        <AnimatePresence>
+        {/* <AnimatePresence>
           {downloadComplete && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -522,7 +523,7 @@ export default function PrakrithiAnalysis() {
               <span>Report downloaded successfully!</span>
             </motion.div>
           )}
-        </AnimatePresence>
+        </AnimatePresence> */}
       </motion.div>
     </>
   );
