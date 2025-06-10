@@ -159,6 +159,7 @@ export const acceptChatRequest = async (req, res) => {
   // Check if a chat already exists for this chatRequest (by groupName or participants)
   let chat = null;
   if (chatRequest.chatType === "group") {
+    console.log("Group chat");
     const acceptedUsers = chatRequest.users.filter(
       (u) => u.status === "accepted"
     );
@@ -221,10 +222,11 @@ export const acceptChatRequest = async (req, res) => {
     // If only one user has accepted, do not create the chat yet
   } else {
     // Private chat: create chat when both have accepted
+    console.log("private chat");
     const acceptedUsers = chatRequest.users.filter(
       (u) => u.status === "accepted"
     );
-    if (acceptedUsers.length === 2) {
+    if (acceptedUsers.length === 1) {
       const participants = acceptedUsers.map((u) => ({
         user: u.user,
         userType: u.userType,
@@ -276,10 +278,56 @@ export const rejectChatRequest = async (req, res) => {
   res.status(200).json({ success: true, message: "Chat request rejected" });
 };
 
+// Unified controller for sent chat requests (all or filtered by type)
+export const getSentChatRequests = async (req, res) => {
+  const userId = req.user._id;
+  const type = req.query.type; // 'private' or 'group' or undefined
+  const userType = req.user.role === "expert" ? "Expert" : "User";
+  const Model = userType === "Expert" ? Expert : User;
+  const user = await Model.findById(userId)
+    .select("sentChatRequests")
+    .populate({
+      path: "sentChatRequests",
+      match: type ? { chatType: type } : {},
+      populate: {
+        path: "users.user",
+        select: "_id profile.fullName profile.profileImage",
+      },
+    });
+  res.status(200).json({
+    success: true,
+    sentChatRequests: user.sentChatRequests,
+    currUser: req.user._id.toString(),
+  });
+};
+
+// Unified controller for received chat requests (all or filtered by type)
+export const getReceivedChatRequests = async (req, res) => {
+  const userId = req.user._id;
+  const type = req.query.type; // 'private' or 'group' or undefined
+  const userType = req.user.role === "expert" ? "Expert" : "User";
+  const Model = userType === "Expert" ? Expert : User;
+  const user = await Model.findById(userId).populate({
+    path: "receivedChatRequests",
+    match: type ? { chatType: type } : {},
+    populate: {
+      path: "owner users.user",
+      select: "_id profile.fullName profile.profileImage",
+    },
+  });
+  res.status(200).json({
+    success: true,
+    receivedChatRequests: user.receivedChatRequests,
+    currUser: req.user._id.toString(),
+  });
+};
+
 export default {
   getChatMessages,
   // createChat,
   createChatRequest,
   acceptChatRequest,
   rejectChatRequest,
+  getSentChatRequests,
+  getReceivedChatRequests,
 };

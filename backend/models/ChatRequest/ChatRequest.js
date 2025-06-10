@@ -59,7 +59,7 @@ const chatRequestSchema = new Schema({
     ref: "Chat",
     default: null,
   },
-});
+},{timestamps: true});
 
 const ChatRequest = mongoose.model("ChatRequest", chatRequestSchema);
 

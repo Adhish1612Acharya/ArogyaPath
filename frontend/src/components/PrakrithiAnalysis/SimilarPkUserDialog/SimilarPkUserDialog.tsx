@@ -44,52 +44,58 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
   };
 
   const handleSendGroupChatRequest = async () => {
-    try{
+    try {
+      if (!groupName.trim()) {
+        setGroupError("Group name is required");
+        return;
+      }
+      if (selectedUsers.length < 2) {
+        setGroupError("Select at least 2 users for a group chat");
+        return;
+      }
+      setGroupError("");
+      setSending("group");
+      const users: ChatRequestUser[] = selectedUsers.map((id) => ({
+        user: id,
+        userType: "User",
+      }));
+      const data: ChatRequestData = {
+        chatType: "group",
+        groupName,
+        users,
+        chatReason: { similarPrakrithi: true },
+      };
+      await sendChatRequest(data);
+      setSending("");
 
-    }catch (error) {
-      
+      setSelectedUsers([]);
+      setGroupName("");
+      // setGroupMode(false);
+      setGroupRequesSent(true);
+      // onClose();
+    } catch (error) {
+      console.error("Error sending group chat request:", error);
+      setGroupError("Failed to send group chat request. Please try again.");
+    } finally {
+      setSending("");
     }
-    if (!groupName.trim()) {
-      setGroupError("Group name is required");
-      return;
-    }
-    if (selectedUsers.length < 2) {
-      setGroupError("Select at least 2 users for a group chat");
-      return;
-    }
-    setGroupError("");
-    setSending("group");
-    const users: ChatRequestUser[] = selectedUsers.map((id) => ({
-      user: id,
-      userType: "User",
-    }));
-    const data: ChatRequestData = {
-      chatType: "group",
-      groupName,
-      users,
-      chatReason: { similarPrakrithi: true },
-    };
-    await sendChatRequest(data);
-    setSending("");
-
-    setSelectedUsers([]);
-    setGroupName("");
-    setGroupMode(false);
-    setGroupRequesSent(true);
-    onClose();
   };
 
   const handleSendPrivateChatRequest = async (userId: string) => {
-    setSending(userId);
-    const data: ChatRequestData = {
-      chatType: "private",
-      users: [{ user: userId, userType: "User" }],
-      chatReason: { similarPrakrithi: true },
-    };
-    await sendChatRequest(data);
-    setSending("");
-    setSentPrivateRequests((prev) => [...prev, userId]);
-    onClose();
+    try {
+      setSending(userId);
+      const data: ChatRequestData = {
+        chatType: "private",
+        users: [{ user: userId, userType: "User" }],
+        chatReason: { similarPrakrithi: true },
+      };
+      await sendChatRequest(data);
+      setSending("");
+      setSentPrivateRequests((prev) => [...prev, userId]);
+      // onClose();
+    } finally {
+      setSending("");
+    }
   };
 
   return (
@@ -208,7 +214,7 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
                 >
                   {sentSentPrivateRequests ? (
                     "Chat Request Sent"
-                  ) : sending==="group" ? (
+                  ) : sending === "group" ? (
                     <Loader2 className="animate-spin" />
                   ) : (
                     "Send Chat Request"
