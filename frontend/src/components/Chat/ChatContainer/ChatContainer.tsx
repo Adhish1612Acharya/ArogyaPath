@@ -1,7 +1,7 @@
 import React from "react";
 import { Box } from "@mui/material";
 import ChatMessage from "../ChatMessage/ChatMessage";
-import ChatContainerProps from "./ChatContainerType";
+import ChatContainerProps from "./ChatContainer.types";
 
 const ChatContainer: React.FC<ChatContainerProps> = ({
   messages,
@@ -18,7 +18,7 @@ const ChatContainer: React.FC<ChatContainerProps> = ({
       }}
       key={"conatiner"}
     >
-      {messages.map((message: any) => (
+      {messages.map((message) => (
         <ChatMessage key={message._id} currUser={currUser} message={message} />
       ))}
     </Box>

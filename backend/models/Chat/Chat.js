@@ -31,6 +31,21 @@ const chatSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    ownerType: {
+      type: String,
+      default: null,
+      enum: ["User", "Expert"],
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      refPath: "ownerType",
+      default: null,
+    },
+    chatRequest: {
+      type: Schema.Types.ObjectId,
+      ref: "ChatRequest",
+      default: null,
+    },
   },
   { timestamps: true }
 );

@@ -16,15 +16,15 @@ export const checkChatOwnership = async (req, res, next) => {
   const chat = await Chat.findOne({
     _id: chatId,
     participants: { $elemMatch: { user: userId } },
-  }).populate("participants.user", "_id profile.fullName profile.profileImage");
+  }).populate("participants.user", "_id profile.fullName profile.profileImage").populate("owner", "_id profile.fullName profile.profileImage");
 
   if (!chat) {
     throw new ExpressError(403, "Chat not found or unauthorized access");
   }
 
-  chat.participants = chat.participants.filter(
-    (participant) => participant.user._id.toString() !== req.user._id.toString()
-  );
+  // chat.participants = chat.participants.filter(
+  //   (participant) => participant.user._id.toString() !== req.user._id.toString()
+  // );
 
   // Attach chat to request
   req.chat = chat;
@@ -96,8 +96,8 @@ export const checkDuplicatePrivateChatRequest = async (req, res, next) => {
   // Find any existing private chat request where owner is currUserId and users[0].user is otherUserId
   const existingRequest = await ChatRequest.findOne({
     chatType: "private",
-    owner: currUserId,
-    "users.user": otherUserId,
+    owner: { $in: [currUserId, otherUserId] },
+    "users.user": { $in: [currUserId, otherUserId] },
     $or: [{ "users.status": "pending" }, { "users.status": "accepted" }],
   });
 
@@ -106,6 +106,46 @@ export const checkDuplicatePrivateChatRequest = async (req, res, next) => {
       409,
       "A private chat request to this user already exists and is pending or accepted."
     );
+  }
+  next();
+};
+
+// Middleware to check if a group chat with the same name already exists
+export const checkDuplicateGroupChatName = async (req, res, next) => {
+  const { chatType, groupName } = req.body;
+  if (chatType !== "group" || !groupName) {
+    return next(); // Only applies to group chat requests
+  }
+  // Check for existing group chat with the same name (case-insensitive)
+  const existingGroup = await ChatRequest.findOne({
+    chatType: "group",
+    groupName: { $regex: new RegExp(`^${groupName.trim()}$`, "i") },
+  });
+  if (existingGroup) {
+    throw new ExpressError(
+      409,
+      "A group chat with this name already exists and is pending or active."
+    );
+  }
+  next();
+};
+
+// Middleware to check if user has already accepted or rejected the chat request
+export const checkNotAlreadyRespondedToChatRequest = async (req, res, next) => {
+  const chatRequestId = req.params.id;
+  const currUserId = req.user._id.toString();
+  const chatRequest = await ChatRequest.findById(chatRequestId);
+  if (!chatRequest) {
+    throw new ExpressError(404, "Chat request not found");
+  }
+  const userEntry = chatRequest.users.find(
+    (u) => u.user.toString() === currUserId
+  );
+  if (userEntry.status === "accepted") {
+    throw new ExpressError(409, "You have already accepted this chat request.");
+  }
+  if (userEntry.status === "rejected") {
+    throw new ExpressError(409, "You have already rejected this chat request.");
   }
   next();
 };

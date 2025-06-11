@@ -11,7 +11,7 @@ export interface ChatRequestUser {
   similarPrakrithiPercenatge?: number | null;
 }
 
-export interface ChatRequest {
+export interface ReceivedChatRequest {
   _id: string;
   ownerType: "User" | "Expert";
   owner: {
@@ -20,13 +20,13 @@ export interface ChatRequest {
       fullName: string;
       profileImage: string;
     };
-  };
+  } | null;
   users: ChatRequestUser[];
   chatType: "private" | "group";
-  groupName?: string | null;
-  chatReason?: {
-    similarPrakrithi?: boolean;
-    otherReason?: string | null;
+  groupName: string | null;
+  chatReason: {
+    similarPrakrithi: boolean;
+    otherReason: string | null;
   };
   chat: string | null;
   createdAt: string;

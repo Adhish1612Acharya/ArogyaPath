@@ -38,7 +38,9 @@ import PageFooter from "./components/PageFooter";
 import PageNavBar from "./components/PageNavBar";
 import PrakrithiAnalysis from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 import ChatPage from "./pages/ChatPage/ChatPage";
-import ChatRequestsPage from "./pages/ChatRequest/ChatRequest";
+import SentChatRequest from "./pages/SentChatRequest/SentChatRequest";
+import ReceivedChatRequestPage from "./pages/ReceivedChatRequest/ReceivedChatRequest";
+import YourChats from "./pages/YourChats/YourChats";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -122,8 +124,10 @@ const App = () => {
             />
             <Route
               path="/u/chat-requests/received"
-              element={<ChatRequestsPage />}
+              element={<ReceivedChatRequestPage />}
             />
+            <Route path="/u/chat-requests/sent" element={<SentChatRequest />} />
+            <Route path="/u/chats" element={<YourChats />} />
           </Route>
 
           <Route path="*" element={<PageNotFound />} />

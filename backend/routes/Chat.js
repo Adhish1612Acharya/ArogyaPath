@@ -5,8 +5,10 @@ import {
   checkChatOwnership,
   checkChatUsersExists,
   checkDuplicatePrivateChatRequest,
+  checkDuplicateGroupChatName,
   checkIncludesCurrChatUser,
   checkUserInChatRequest,
+  checkNotAlreadyRespondedToChatRequest,
 } from "../middlewares/chat.js";
 import chatController from "../controllers/chat.js";
 import {
@@ -35,6 +37,7 @@ router.post(
   checkChatRequestDoesNotContainCurrentUser,
   wrapAsync(checkChatUsersExists),
   wrapAsync(checkDuplicatePrivateChatRequest),
+  wrapAsync(checkDuplicateGroupChatName),
   wrapAsync(chatController.createChatRequest)
 );
 
@@ -43,6 +46,7 @@ router.post(
   "/request/:id/accept",
   isLoggedIn,
   wrapAsync(checkUserInChatRequest),
+  wrapAsync(checkNotAlreadyRespondedToChatRequest),
   wrapAsync(chatController.acceptChatRequest)
 );
 
@@ -51,6 +55,7 @@ router.post(
   "/request/:id/reject",
   isLoggedIn,
   wrapAsync(checkUserInChatRequest),
+  wrapAsync(checkNotAlreadyRespondedToChatRequest),
   wrapAsync(chatController.rejectChatRequest)
 );
 
@@ -67,6 +72,9 @@ router.get(
   isLoggedIn,
   wrapAsync(chatController.getReceivedChatRequests)
 );
+
+// Get all chats for the current user
+router.get("/my-chats", isLoggedIn, wrapAsync(chatController.getMyChats));
 
 // Get all chat messages between the current user and a specific receiver
 router.get(

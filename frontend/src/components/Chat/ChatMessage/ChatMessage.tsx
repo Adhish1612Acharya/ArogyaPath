@@ -1,21 +1,45 @@
 import React from "react";
-import { Paper, Typography, Box } from "@mui/material";
+import { Paper, Typography, Box, Avatar } from "@mui/material";
 import { format } from "date-fns";
 import { ChatMessageProps } from "./ChatMessage.types";
 
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, currUser }) => {
-  const isUser = message.sender._id === currUser._id;
+  const isUser = message.sender._id === currUser?._id;
 
   return (
     <Box
       sx={{
         display: "flex",
-        justifyContent: isUser ? "flex-end" : "flex-start",
+        flexDirection: "column",
+        alignItems: isUser ? "flex-end" : "flex-start",
         mb: 2,
         width: "100%",
       }}
       key={message._id}
     >
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          mb: 0.5,
+          flexDirection: isUser ? "row-reverse" : "row",
+          gap: 1,
+        }}
+      >
+        <Avatar
+          src={message.sender.profile?.profileImage}
+          sx={{ width: 28, height: 28 }}
+        />
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+            color: isUser ? "primary.main" : "text.secondary",
+          }}
+        >
+          {message.sender.profile.fullName}
+        </Typography>
+      </Box>
       <Paper
         elevation={1}
         sx={{

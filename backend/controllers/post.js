@@ -1,7 +1,6 @@
 import Post from "../models/Post/Post.js";
 import Expert from "../models/Expert/Expert.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
-import transformPost from "../utils/transformPost.js";
 import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 import ExpressError from "../utils/expressError.js";
 

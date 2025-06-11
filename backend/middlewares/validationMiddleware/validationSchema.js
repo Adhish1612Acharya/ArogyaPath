@@ -180,6 +180,16 @@ export const chatRequestSchemaZod = z
       });
     }
 
+    // Check for valid MongoDB ObjectIds
+    const invalidUserIds = userIds?.filter((id) => !objectIdRegex.test(id));
+    if (invalidUserIds && invalidUserIds.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `Invalid user ID(s): ${invalidUserIds.join(", ")}`,
+        path: ["users"],
+      });
+    }
+
     if (data.chatType === "group") {
       if (!data.users || data.users.length < 2) {
         ctx.addIssue({

@@ -2,7 +2,6 @@ import Expert from "../models/Expert/Expert.js";
 import SuccessStory from "../models/SuccessStory/SuccessStory.js";
 import User from "../models/User/User.js";
 import calculateReadTime from "../utils/calculateReadTime.js";
-import transformSuccessStory from "../utils/transformSuccessStory.js";
 import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import ExpressError from "../utils/expressError.js";
@@ -299,6 +298,7 @@ const filterSuccessStories = async (req, res) => {
 
   res.json({ success: true, message: "Filtered posts", successStories });
 };
+
  const rejectedSuccessStory = async (req, res) => {
   const { id } = req.params;
   const expertId = req.user._id;
