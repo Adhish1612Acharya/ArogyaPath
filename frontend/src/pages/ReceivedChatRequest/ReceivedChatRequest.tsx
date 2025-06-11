@@ -1,5 +1,5 @@
 import useChat from "../../hooks/useChat/useChat";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Paper,
@@ -10,13 +10,10 @@ import {
   CardContent,
   Tabs,
   Tab,
-  TextField,
-  InputAdornment,
   Grid,
 } from "@mui/material";
 import {
   Notifications,
-  Search,
   FilterList,
   Group,
   Person,
@@ -28,19 +25,32 @@ import {
   isValid,
   parseISO,
 } from "date-fns";
-import { ChatRequest } from "./ChatRequest.types";
-import ChatRequestCard from "../../components/ChatRequestCard/ChatRequestCard";
-import ChatRequestCardSkeleton from "../../components/ChatRequestCardSkeleton/ChatRequestCardSkeleton";
 
-const ChatRequestsPage = () => {
+import GroupChatMembersDialog from "../../components/GroupChatMembersDialog/GroupChatMembersDialog";
+import { ReceivedChatRequest } from "./ReceivedChatRequest.types";
+import ReceivedChatRequestCard from "@/components/ReceivedChatRequestCard/ReceivedChatRequestCard";
+import ReceivedChatRequestCardSkeleton from "@/components/ReceivedChatRequestCardSkeleton/ReceivedChatRequestCardSkeleton ";
+import countPendingRequests from "@/utils/countPendingRequests";
+import countGroupRequests from "@/utils/countGroupRequests";
+import countPrivateRequests from "@/utils/countPrivateRequests";
+
+const ReceivedChatRequestPage = () => {
   const { getReceivedChatRequests, acceptChatRequest, rejectChatRequest } =
     useChat();
 
-  const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState(0); // 0: All, 1: Group, 2: Private
-  const [requests, setRequests] = useState<ChatRequest[]>([]);
+  const [requests, setRequests] = useState<ReceivedChatRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [currUser, setCurrUser] = useState<string>(""); // Assuming you have a way to get the current user
+  const [groupDialogOpen, setGroupDialogOpen] = useState(false);
+  const [groupDialogRequest, setGroupDialogRequest] =
+    useState<ReceivedChatRequest | null>(null);
+
+  const [pendingCount, setPendingCount] = useState(0);
+  const [groupCount, setGroupCount] = useState(0);
+  const [privateCount, setPrivateCount] = useState(0);
+
+
 
   // Fetch chat requests on mount and when tab changes
   useEffect(() => {
@@ -56,10 +66,11 @@ const ChatRequestsPage = () => {
         } else if (activeTab === 2) {
           response = await getReceivedChatRequests("private");
         }
+
         if (isMounted && response?.receivedChatRequests) {
           setRequests(response.receivedChatRequests);
+          setCurrUser(response?.currUser); // Trigger counting in the other effect
         }
-        setCurrUser(response?.currentUser); // Set current user ID
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -70,35 +81,19 @@ const ChatRequestsPage = () => {
     };
   }, [activeTab]);
 
-  // Filter requests based on search and tab
-  const filteredRequests = useMemo(() => {
-    let filtered = requests;
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter((req) => {
-        if (req.chatType === "group") {
-          return (
-            req.groupName?.toLowerCase().includes(searchLower) ||
-            req.owner?.profile?.fullName?.toLowerCase().includes(searchLower) ||
-            req.chatReason?.otherReason?.toLowerCase().includes(searchLower)
-          );
-        } else {
-          // private
-          // Find the other user (not the current user)
-          const otherUser = req.users?.find(
-            (u: any) => u.user && u.user._id !== req.owner?._id
-          );
-          return (
-            otherUser?.user?.profile?.fullName
-              ?.toLowerCase()
-              .includes(searchLower) ||
-            req.chatReason?.otherReason?.toLowerCase().includes(searchLower)
-          );
-        }
-      });
+  useEffect(() => {
+    if (!currUser || requests.length === 0) return;
+
+    if (activeTab === 0) {
+      setPendingCount(countPendingRequests(requests, currUser));
+      setGroupCount(countGroupRequests(requests, currUser));
+      setPrivateCount(countPrivateRequests(requests, currUser));
+    } else if (activeTab === 1) {
+      setGroupCount(countGroupRequests(requests, currUser));
+    } else if (activeTab === 2) {
+      setPrivateCount(countPrivateRequests(requests, currUser));
     }
-    return filtered;
-  }, [requests, searchTerm]);
+  }, [currUser, requests, activeTab]);
 
   const formatTimestamp = (timestamp: string | Date) => {
     if (!timestamp) return "";
@@ -121,7 +116,8 @@ const ChatRequestsPage = () => {
   // Accept chat request
   const handleAccept = async (requestId: string) => {
     try {
-      await acceptChatRequest(requestId);
+      const result = await acceptChatRequest(requestId);
+      const chat: string = result?.chat || null;
       setRequests((prev) =>
         prev.map((req) =>
           req._id === requestId
@@ -130,13 +126,16 @@ const ChatRequestsPage = () => {
                 users: req.users.map((u: any) =>
                   u.user._id === currUser ? { ...u, status: "accepted" } : u
                 ),
+                chat: chat || null,
               }
             : req
         )
       );
+      setPendingCount((prev) => prev - 1);
+      return { chat };
     } catch {
       // Optionally show error feedback
-      console.log("Failed to accept chat request");
+      return {};
     }
   };
 
@@ -152,12 +151,17 @@ const ChatRequestsPage = () => {
                 users: req.users.map((u: any) =>
                   u.user._id === currUser ? { ...u, status: "rejected" } : u
                 ),
+                chat: null,
               }
             : req
         )
       );
-    } catch {
+      setPendingCount((prev) => prev - 1);
+      return { rejected: true };
+    } catch (error) {
       // Optionally show error feedback
+      console.log("Error rejecting request:", error);
+      return { rejected: false };
     }
   };
 
@@ -167,26 +171,13 @@ const ChatRequestsPage = () => {
     // In real app: navigate(`/profile/${userId}`);
   };
 
-  // Count logic (pending, group, private)
-  const pendingCount = requests.filter((req) =>
-    req.users?.some(
-      (u: any) => u.user._id === currUser && u.status === "pending"
-    )
-  ).length;
-  const groupCount = requests.filter(
-    (req) =>
-      req.chatType === "group" &&
-      req.users?.some(
-        (u: any) => u.user._id === currUser && u.status === "pending"
-      )
-  ).length;
-  const privateCount = requests.filter(
-    (req) =>
-      req.chatType === "private" &&
-      req.users?.some(
-        (u: any) => u.user._id === currUser && u.status === "pending"
-      )
-  ).length;
+  const handleGroupDialogOpen = (
+    open: boolean,
+    request?: ReceivedChatRequest
+  ) => {
+    setGroupDialogOpen(open);
+    setGroupDialogRequest(open && request ? request : null);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -203,7 +194,7 @@ const ChatRequestsPage = () => {
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Box>
             <Typography variant="h4" component="h1" gutterBottom>
-              Chat Requests
+              Received Chat Requests
             </Typography>
             <Typography variant="body1" sx={{ opacity: 0.9 }}>
               Manage your incoming chat requests and connect with your community
@@ -224,20 +215,6 @@ const ChatRequestsPage = () => {
             gap={2}
             alignItems="center"
           >
-            <TextField
-              fullWidth
-              placeholder="Search requests..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
-              sx={{ maxWidth: { md: 400 } }}
-            />
             <Box display="flex" alignItems="center" gap={1}>
               <FilterList />
               <Tabs
@@ -283,9 +260,9 @@ const ChatRequestsPage = () => {
       <Grid container spacing={3}>
         {loading ? (
           Array.from({ length: 4 }).map((_, idx) => (
-            <ChatRequestCardSkeleton key={idx} />
+            <ReceivedChatRequestCardSkeleton key={idx} />
           ))
-        ) : filteredRequests.length === 0 ? (
+        ) : requests.length === 0 ? (
           <Grid>
             <Card>
               <CardContent sx={{ textAlign: "center", py: 6 }}>
@@ -295,40 +272,41 @@ const ChatRequestsPage = () => {
                 <Typography variant="h6" gutterBottom>
                   No chat requests found
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {searchTerm
-                    ? "Try adjusting your search terms"
-                    : "You have no pending chat requests"}
-                </Typography>
+               
               </CardContent>
             </Card>
           </Grid>
         ) : (
-          filteredRequests.map((request: any) => {
+          requests.map((request: any) => {
             const myUserObj = request.users?.find(
               (u: any) => u.user && u.user._id === currUser
             );
             const myStatus = myUserObj?.status || "pending";
             return (
               <Grid key={request._id}>
-                <ChatRequestCard
+                <ReceivedChatRequestCard
                   request={request}
                   myStatus={myStatus}
-                  currUser={currUser}
                   formatTimestamp={(ts: string | Date) =>
                     formatTimestamp(ts || "")
                   }
                   handleAccept={handleAccept}
                   handleReject={handleReject}
                   handleProfileClick={handleProfileClick}
+                  setGroupDialogOpen={handleGroupDialogOpen}
                 />
               </Grid>
             );
           })
         )}
       </Grid>
+      <GroupChatMembersDialog
+        open={groupDialogOpen}
+        onClose={() => setGroupDialogOpen(false)}
+        request={groupDialogRequest as ReceivedChatRequest}
+      />
     </Container>
   );
 };
 
-export default ChatRequestsPage;
+export default ReceivedChatRequestPage;

@@ -3,7 +3,11 @@ import { AppBar, Box } from "@mui/material";
 import ChatHeaderUserInfo from "../ChatHeaderUserInfo/ChatHeaderUserInfo";
 import { ChatHeaderProps } from "./ChatHeader.types";
 
-export const ChatHeader: React.FC<ChatHeaderProps> = ({ users }) => {
+export const ChatHeader: React.FC<ChatHeaderProps> = ({
+  users,
+  groupName,
+  owner,
+}) => {
   return (
     <AppBar
       position="static"
@@ -24,7 +28,7 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ users }) => {
           py: 1,
         }}
       >
-        <ChatHeaderUserInfo users={users} />
+        <ChatHeaderUserInfo users={users} groupName={groupName} owner={owner} />
         {/* <ChatActions /> */}
       </Box>
     </AppBar>

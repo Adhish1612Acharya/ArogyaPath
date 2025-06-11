@@ -3,7 +3,7 @@ import { Card, CardContent, Skeleton, Grid } from "@mui/material";
 
 
 
-const ChatRequestCardSkeleton: React.FC = () => (
+const ReceivedChatRequestCardSkeleton : React.FC = () => (
   <Grid>
     <Card>
       <CardContent>
@@ -21,4 +21,4 @@ const ChatRequestCardSkeleton: React.FC = () => (
   </Grid>
 );
 
-export default ChatRequestCardSkeleton;
+export default ReceivedChatRequestCardSkeleton ;

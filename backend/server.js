@@ -278,8 +278,8 @@ io.on("connection", (socket) => {
       sender: {
         _id: user._id,
         profile: {
-          fullName: user.fullName,
-          profilePicture: user.profilePicture,
+          fullName: user.profile.fullName,
+          profilePicture: user.profile.profilePicture,
         },
       },
       content: message,

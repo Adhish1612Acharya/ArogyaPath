@@ -24,6 +24,10 @@ const ChatPage = () => {
   const [currUser, setCurrUser] = useState<UserOrExpertDetailsType | null>(
     null
   );
+  const [groupName, setGroupName] = useState<string>("");
+  const [chatOwner, setChatOwner] = useState<UserOrExpertDetailsType | null>(
+    null
+  );
 
   const { socket, socketConnected, onNewMessage, sendMessage } = useSocket(
     id || "",
@@ -41,8 +45,9 @@ const ChatPage = () => {
         const response = await fetchChatMessages(id);
         console.log("Chat response:", response);
 
-        const participants = response.chatInfo.participants;
-
+        const participants = response.chatInfo.participants.filter(
+          (participant: any) => participant.user._id !== response.currUser._id
+          );
         const chatUsers = participants.map((participant: any) => ({
           _id: participant.user._id,
           profile: {
@@ -51,6 +56,8 @@ const ChatPage = () => {
           },
         }));
 
+        setGroupName(response.chatInfo.groupChatName || "");
+        setChatOwner(response.chatInfo.owner);
         console.log("Response success");
         setChatUsers(chatUsers);
         setMessages(response.messages);
@@ -78,7 +85,7 @@ const ChatPage = () => {
 
   return (
     <ChatLayout>
-      <ChatHeader users={chatUsers} />
+      <ChatHeader users={chatUsers} groupName={groupName} owner={chatOwner} />
       <ChatContainer messages={messages} currUser={currUser} />
       <Box sx={{ p: 2, bgcolor: "background.paper" }}>
         <ChatInput

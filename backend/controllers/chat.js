@@ -6,6 +6,8 @@ import Expert from "../models/Expert/Expert.js";
 import calculateSimilarPrakrithiUsers from "../utils/similarPkUsers.js";
 import Prakrithi from "../models/Prakrathi/Prakrathi.js";
 import ChatRequest from "../models/ChatRequest/ChatRequest.js";
+import linkChatToUsers from "../utils/linkChatToUsers.js";
+import path from "path";
 
 export const getChatMessages = async (req, res) => {
   const chatId = req.params.id;
@@ -34,20 +36,6 @@ export const getChatMessages = async (req, res) => {
     currUser,
   });
 };
-
-// export const createChat = async (req, res) => {
-//   let { participants } = req.body;
-
-//   participants.push({
-//     user: req.user._id,
-//     userType: req.user.role === "expert" ? "Expert" : "User",
-//   });
-
-//   console.log("Participants:", participants);
-
-//   const chat = await Chat.create({ participants });
-//   res.status(201).json({ success: true, chat });
-// };
 
 // 1. Create a chat request
 export const createChatRequest = async (req, res) => {
@@ -136,19 +124,19 @@ export const createChatRequest = async (req, res) => {
   res.status(201).json({ success: true, chatRequest });
 };
 
-// 2. Accept chat request
+// Controller: Accept a chat request and create or update chat accordingly
 export const acceptChatRequest = async (req, res) => {
   const chatRequestId = req.params.id;
   const receiverId = req.user._id;
   const receiverType = req.user.role === "expert" ? "Expert" : "User";
 
-  // Find the chat request
-  const chatRequest = await ChatRequest.findById(chatRequestId);
-  if (!chatRequest) {
-    throw new ExpressError(404, "Chat request not found");
-  }
+  // 1. Find the chat request by ID
+  const chatRequest = await ChatRequest.findById(chatRequestId).populate(
+    "owner"
+  );
+  if (!chatRequest) throw new ExpressError(404, "Chat request not found");
 
-  // Update status for this user in the chatRequest users array
+  // 2. Mark the current user’s status as "accepted" in the chatRequest
   chatRequest.users = chatRequest.users.map((u) =>
     u.user.toString() === receiverId.toString()
       ? { ...u.toObject(), status: "accepted" }
@@ -156,97 +144,106 @@ export const acceptChatRequest = async (req, res) => {
   );
   await chatRequest.save();
 
-  // Check if a chat already exists for this chatRequest (by groupName or participants)
+  // 3. Filter users who have accepted the chat request
+  const acceptedUsers = chatRequest.users.filter(
+    (u) => u.status === "accepted"
+  );
+
   let chat = null;
+
+  // 4. Handle group chat creation or update
   if (chatRequest.chatType === "group") {
-    console.log("Group chat");
-    const acceptedUsers = chatRequest.users.filter(
-      (u) => u.status === "accepted"
-    );
     if (acceptedUsers.length === 2) {
-      const participants = acceptedUsers.map((u) => ({
-        user: u.user,
-        userType: u.userType,
-      }));
+      // 4a. First two accepted users trigger group chat creation
+
+      const participants = [
+        ...acceptedUsers.map((u) => ({ user: u.user, userType: u.userType })),
+        { user: chatRequest.owner._id, userType: chatRequest.ownerType },
+      ];
+
       chat = await Chat.create({
         participants,
         groupChat: true,
         groupChatName: chatRequest.groupName || "",
+        owner: chatRequest.owner._id,
+        ownerType: chatRequest.ownerType,
+        chatRequest: chatRequest._id,
       });
+
+      // Link chat to users and owner
+      await linkChatToUsers(chat, participants);
+
       chatRequest.chat = chat._id;
       await chatRequest.save();
-      // Push chat id to each user's chats field
-      for (const u of acceptedUsers) {
-        const Model = u.userType === "Expert" ? Expert : User;
-        await Model.findByIdAndUpdate(u.user, {
-          $addToSet: { chats: chat._id },
-        });
-      }
     } else if (acceptedUsers.length > 2) {
-      // Find the chat using chatRequest.chat
+      // 4b. More users are joining an existing group chat
+
       chat = await Chat.findById(chatRequest.chat);
+
       if (chat) {
+        // Add current user to participants if not already present
         const alreadyInChat = chat.participants.some(
           (p) => p.user.toString() === receiverId.toString()
         );
+
         if (!alreadyInChat) {
           chat.participants.push({ user: receiverId, userType: receiverType });
           await chat.save();
         }
-        // Push chat id to this user's chats field
-        const Model = receiverType === "Expert" ? Expert : User;
-        await Model.findByIdAndUpdate(receiverId, {
-          $addToSet: { chats: chat._id },
-        });
+
+        // Add chat reference to user's profile
+        await linkChatToUsers(chat, [
+          {
+            user: receiverId,
+            userType: receiverType,
+          },
+        ]);
       } else {
-        // If for some reason the chat doesn't exist, create it with all accepted users
-        const participants = acceptedUsers.map((u) => ({
-          user: u.user,
-          userType: u.userType,
-        }));
+        // Fallback: Recreate the group chat if it was deleted or not yet created
+
+        const participants = [
+          ...acceptedUsers.map((u) => ({ user: u.user, userType: u.userType })),
+          { user: chatRequest.owner._id, userType: chatRequest.ownerType },
+        ];
+
         chat = await Chat.create({
           participants,
           groupChat: true,
           groupChatName: chatRequest.groupName || "",
+          owner: chatRequest.owner._id,
+          ownerType: chatRequest.ownerType,
+          chatRequest: chatRequest._id,
         });
+
+        await linkChatToUsers(chat, participants);
+
         chatRequest.chat = chat._id;
         await chatRequest.save();
-        for (const u of acceptedUsers) {
-          const Model = u.userType === "Expert" ? Expert : User;
-          await Model.findByIdAndUpdate(u.user, {
-            $addToSet: { chats: chat._id },
-          });
-        }
       }
     }
-    // If only one user has accepted, do not create the chat yet
   } else {
-    // Private chat: create chat when both have accepted
-    console.log("private chat");
-    const acceptedUsers = chatRequest.users.filter(
-      (u) => u.status === "accepted"
-    );
+    // 5. Handle private chat (1-to-1)
     if (acceptedUsers.length === 1) {
-      const participants = acceptedUsers.map((u) => ({
-        user: u.user,
-        userType: u.userType,
-      }));
+      const participants = [
+        ...acceptedUsers.map((u) => ({ user: u.user, userType: u.userType })),
+        { user: chatRequest.owner._id, userType: chatRequest.ownerType },
+      ];
+
       chat = await Chat.create({
         participants,
         groupChat: false,
         groupChatName: "",
+        chatRequest: chatRequest._id,
       });
+
+      await linkChatToUsers(chat, participants);
+
       chatRequest.chat = chat._id;
       await chatRequest.save();
-      for (const u of acceptedUsers) {
-        const Model = u.userType === "Expert" ? Expert : User;
-        await Model.findByIdAndUpdate(u.user, {
-          $addToSet: { chats: chat._id },
-        });
-      }
     }
   }
 
+  // 6. Respond to the client with success and chat info
   res.status(201).json({
     success: true,
     message:
@@ -322,12 +319,68 @@ export const getReceivedChatRequests = async (req, res) => {
   });
 };
 
+// Controller: Fetch all chats for the current user (from user's/expert's 'chats' field)
+export const getMyChats = async (req, res) => {
+  const userId = req.user._id;
+  const userType = req.user.role === "expert" ? "Expert" : "User";
+  const Model = userType === "Expert" ? Expert : User;
+  // Fetch the user/expert with their chats array, and deeply populate all relevant fields
+  const userDoc = await Model.findById(userId).populate({
+    path: "chats",
+    populate: [
+      // Populate each participant's user profile (name, image)
+      {
+        path: "participants.user",
+        select: "_id profile.fullName profile.profileImage",
+      },
+      // Populate the latest message and its sender's profile
+      {
+        path: "latestMessage",
+        select: "content createdAt sender",
+        populate: {
+          path: "sender",
+          select: "_id profile.fullName profile.profileImage",
+        },
+      },
+      // Populate the owner of the chat (for group chats)
+      {
+        path: "owner",
+        select: "_id profile.fullName profile.profileImage",
+      },
+      // Populate the chatRequest, including users and owner
+      {
+        path: "chatRequest",
+        select: "users chatReason owner",
+        populate:
+          // Populate each user in the chatRequest
+          {
+            path: "users.user",
+            select: "_id profile.fullName profile.profileImage",
+          },
+      },
+    ],
+    options: { sort: { updatedAt: -1 } },
+  });
+
+  // 🧠 Populate chatRequest.owner with correct model using refPath
+  await Chat.populate(userDoc.chats, {
+    path: "chatRequest.owner",
+    select: "_id profile.fullName profile.profileImage",
+  });
+  const chats = userDoc?.chats || [];
+  res.status(200).json({
+    success: true,
+    chats,
+    currUser: req.user._id.toString(),
+  });
+};
+
 export default {
   getChatMessages,
-  // createChat,
   createChatRequest,
   acceptChatRequest,
   rejectChatRequest,
   getSentChatRequests,
   getReceivedChatRequests,
+  getMyChats,
 };

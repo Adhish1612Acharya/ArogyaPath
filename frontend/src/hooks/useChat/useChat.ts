@@ -1,4 +1,3 @@
-import React from "react";
 import useApi from "../useApi/useApi";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import { ChatParticipants, ChatRequestData } from "./useChat.types";
@@ -95,6 +94,18 @@ const useChat = () => {
     }
   };
 
+  // Fetch all chats for the current user
+  const getMyChats = async () => {
+    try {
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/chat/my-chats`
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
   return {
     fetchChatMessages,
     createChat,
@@ -103,6 +114,7 @@ const useChat = () => {
     rejectChatRequest,
     getSentChatRequests,
     getReceivedChatRequests,
+    getMyChats,
   };
 };
 

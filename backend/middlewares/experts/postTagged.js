@@ -17,6 +17,7 @@ export const checkIsTaggedAndVerified = async (req, res, next) => {
   const isAlreadyVerified = successPost.verified.some((expertId) =>
     expertId.equals(req.user._id)
   );
+  
 
   const isTaggingEnabled = successPost.tagged.length > 0;
 
