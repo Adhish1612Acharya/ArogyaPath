@@ -1,25 +1,63 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@mui/material';
 import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardFooter 
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Loader2, Edit2, Mail } from 'lucide-react';
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Divider,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+  useTheme,
+  Fade,
+  Zoom,
+  Slide,
+  Grow,
+  CircularProgress
+} from '@mui/material';
+import { 
+  Email as EmailIcon,
+  Edit as EditIcon,
+  CheckCircle as CheckCircleIcon,
+  Error as ErrorIcon,
+  Send as SendIcon,
+  ArrowBack as ArrowBackIcon
+} from '@mui/icons-material';
+import { keyframes } from '@emotion/react';
+
+const pulse = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 export default function EmailVerify() {
+  const theme = useTheme();
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const [email, setEmail] = useState('user@example.com'); // Default or from state
+  const [email, setEmail] = useState('user@example.com');
   const [showEditEmail, setShowEditEmail] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(false);
   const [countdown, setCountdown] = useState(30);
+
+  useEffect(() => {
+    if (resendDisabled && countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      setResendDisabled(false);
+      setCountdown(30);
+    }
+  }, [countdown, resendDisabled]);
 
   const handleChange = (index: number, value: string) => {
     if (/^\d*$/.test(value)) {
@@ -46,20 +84,8 @@ export default function EmailVerify() {
   const handleResend = () => {
     setIsLoading(true);
     setResendDisabled(true);
+    setCountdown(30);
     
-    // Start countdown
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          setResendDisabled(false);
-          return 30;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       setOtp(['', '', '', '', '', '']);
@@ -73,211 +99,305 @@ export default function EmailVerify() {
   };
 
   return (
-    <div className="min-h-screen w-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-50 p-4">
-      <Card className="w-full max-w-md shadow-lg border-0">
-        <CardHeader className="text-center space-y-1">
-          <CardTitle className="text-2xl font-bold text-green-800">
-            Verify Your Email Address
-          </CardTitle>
-          
-          {!showEditEmail ? (
-            <div className="flex items-center justify-center gap-2">
-              <p className="text-sm text-gray-600">
-                We've sent a 6-digit OTP to {email}
-              </p>
-              <button
-  onClick={() => setShowEditEmail(true)}
-  className="text-sm font-medium text-amber-600 hover:text-amber-800 flex items-center gap-1"
->
-  <Edit2 className="h-4 w-4" />
-  Change Email?
-</button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-700 text-left">
-                Enter your email address
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1"
-                  placeholder="your@email.com"
-                />
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={handleUpdateEmail}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Update
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardHeader>
-
-        <CardContent className="space-y-6">
-          {verificationStatus === 'success' ? (
-            <div className="text-center space-y-4">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <svg
-                  className="h-6 w-6 text-green-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-green-800">
-                Email Verified Successfully!
-              </h3>
-              <p className="text-sm text-gray-600">
-                Your account has been verified. You can now access all features.
-              </p>
-              <Button
-                component={Link}
-                to="/dashboard"
-                variant="contained"
-                color="success"
-                fullWidth
-                className="mt-4 bg-green-600 hover:bg-green-700"
-              >
-                Go to Dashboard
-              </Button>
-            </div>
-          ) : verificationStatus === 'error' ? (
-            <div className="text-center space-y-4">
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <svg
-                  className="h-6 w-6 text-red-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-red-800">
-                Verification Failed
-              </h3>
-              <p className="text-sm text-gray-600">
-                The OTP you entered is incorrect. Please try again.
-              </p>
-              <div className="flex space-x-2">
-                <Button
-                  variant="outlined"
-                  color="error"
-                  fullWidth
-                  onClick={() => {
-                    setVerificationStatus('idle');
-                    setOtp(['', '', '', '', '', '']);
-                  }}
-                >
-                  Try Again
-                </Button>
-                <Button
-                  variant="contained"
-                  color="error"
-                  fullWidth
-                  onClick={handleResend}
-                  disabled={isLoading || resendDisabled}
-                >
-                  {isLoading ? 'Sending...' : resendDisabled ? `Resend in ${countdown}s` : 'Resend OTP'}
-                </Button>
-              </div>
-            </div>
-          ) : !showEditEmail ? (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="otp" className="text-gray-700">
-                  Enter 6-digit OTP
-                </Label>
-                <div className="flex justify-between space-x-2">
-                  {otp.map((digit, index) => (
-                    <Input
-                      key={index}
-                      id={`otp-${index}`}
-                      type="text"
-                      maxLength={1}
-                      value={digit}
-                      onChange={(e) => handleChange(index, e.target.value)}
-                      className="h-14 w-14 text-center text-2xl font-semibold"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <button
-                  onClick={handleResend}
-                  disabled={isLoading || resendDisabled}
-                  className={`text-sm font-medium flex items-center gap-1 ${
-                    resendDisabled 
-                      ? 'text-gray-400' 
-                      : 'text-green-600 hover:text-green-800'
-                  }`}
-                >
-                  <Mail className="h-4 w-4" />
-                  {isLoading ? (
-                    'Sending...'
-                  ) : resendDisabled ? (
-                    `Resend OTP in ${countdown}s`
-                  ) : (
-                    'Resend OTP'
-                  )}
-                </button>
-              </div>
-
-              <Button
-                variant="contained"
-                color="success"
-                fullWidth
-                onClick={handleVerify}
-                disabled={isLoading || otp.some(d => d === '')}
-                className="bg-green-600 hover:bg-green-700 mt-4"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verifying...
-                  </>
-                ) : (
-                  'Verify Email'
-                )}
-              </Button>
-            </>
-          ) : null}
-        </CardContent>
-
-        {!showEditEmail && verificationStatus === 'idle' && (
-          <CardFooter className="flex justify-center">
-            <button
-              onClick={() => setShowEditEmail(true)}
-              className="text-sm font-medium text-green-600 hover:text-green-800 flex items-center gap-1"
+    <Box
+      sx={{
+        minHeight: '100vh',
+        minWidth: '100vw',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: `linear-gradient(135deg, ${theme.palette.background.default} 0%, ${theme.palette.primary.light} 100%)`,
+        p: 2,
+        animation: `${fadeIn} 0.5s ease-out`
+      }}
+    >
+      <Slide direction="up" in={true} mountOnEnter unmountOnExit>
+        <Card
+          sx={{
+            width: '100%',
+            maxWidth: 480,
+            borderRadius: 4,
+            boxShadow: theme.shadows[10],
+            overflow: 'visible',
+            position: 'relative',
+            '&:before': {
+              content: '""',
+              position: 'absolute',
+              top: -2,
+              left: -2,
+              right: -2,
+              bottom: -2,
+              background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+              borderRadius: 8,
+              zIndex: -1,
+              opacity: 0.7,
+              animation: `${pulse} 4s infinite ease-in-out`
+            }
+          }}
+        >
+          {verificationStatus === 'idle' && !showEditEmail && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: -40,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: 80,
+                height: 80,
+                borderRadius: '50%',
+                bgcolor: 'background.paper',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: theme.shadows[4],
+                border: `4px solid ${theme.palette.primary.main}`
+              }}
             >
-              <Edit2 className="h-4 w-4" />
-              Not your email? Edit email address
-            </button>
-          </CardFooter>
-        )}
-      </Card>
-    </div>
+              <EmailIcon 
+                sx={{ 
+                  fontSize: 40,
+                  color: theme.palette.primary.main 
+                }} 
+              />
+            </Box>
+          )}
+
+          <CardHeader
+            title={
+              <Typography 
+                variant="h4" 
+                component="h1" 
+                align="center" 
+                sx={{ 
+                  fontWeight: 700,
+                  mt: verificationStatus === 'idle' && !showEditEmail ? 2 : 0,
+                  color: theme.palette.mode === 'dark' ? 'text.primary' : 'primary.main'
+                }}
+              >
+                {verificationStatus === 'success' ? 'Email Verified!' : 
+                 verificationStatus === 'error' ? 'Verification Failed' : 
+                 showEditEmail ? 'Update Email' : 'Verify Your Email'}
+              </Typography>
+            }
+            subheader={
+              verificationStatus === 'idle' && !showEditEmail ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                  <Typography variant="body2" color="text.secondary" align="center">
+                    We've sent a 6-digit OTP to {email}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => setShowEditEmail(true)}
+                    sx={{ color: 'secondary.main' }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              ) : verificationStatus === 'idle' && showEditEmail ? (
+                <Typography variant="body2" color="text.secondary" align="center">
+                  Enter your new email address to receive a new OTP
+                </Typography>
+              ) : null
+            }
+            sx={{ pt: verificationStatus === 'idle' && !showEditEmail ? 6 : 4 }}
+          />
+
+          <CardContent>
+            {verificationStatus === 'success' ? (
+              <Fade in={true}>
+                <Box sx={{ textAlign: 'center', py: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      borderRadius: '50%',
+                      p: 2,
+                      bgcolor: 'success.light',
+                      mb: 3,
+                      animation: `${pulse} 2s infinite`
+                    }}
+                  >
+                    <CheckCircleIcon 
+                      sx={{ 
+                        fontSize: 60, 
+                        color: 'success.main' 
+                      }} 
+                    />
+                  </Box>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                    Email Verified Successfully!
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    Your account has been verified. You can now access all features.
+                  </Typography>
+                  <Button
+                    component={Link}
+                    to="/dashboard"
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    sx={{ mt: 2, py: 1.5 }}
+                  >
+                    Go to Dashboard
+                  </Button>
+                </Box>
+              </Fade>
+            ) : verificationStatus === 'error' ? (
+              <Fade in={true}>
+                <Box sx={{ textAlign: 'center', py: 2 }}>
+                  <Box
+                    sx={{
+                      display: 'inline-flex',
+                      borderRadius: '50%',
+                      p: 2,
+                      bgcolor: 'error.light',
+                      mb: 3
+                    }}
+                  >
+                    <ErrorIcon 
+                      sx={{ 
+                        fontSize: 60, 
+                        color: 'error.main' 
+                      }} 
+                    />
+                  </Box>
+                  <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
+                    Verification Failed
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                    The OTP you entered is incorrect. Please try again.
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      fullWidth
+                      onClick={() => {
+                        setVerificationStatus('idle');
+                        setOtp(['', '', '', '', '', '']);
+                      }}
+                      sx={{ py: 1.5 }}
+                    >
+                      Try Again
+                    </Button>
+                    <Button
+                      variant="contained"
+                      color="error"
+                      fullWidth
+                      onClick={handleResend}
+                      disabled={isLoading || resendDisabled}
+                      startIcon={isLoading ? <CircularProgress size={20} /> : <SendIcon />}
+                      sx={{ py: 1.5 }}
+                    >
+                      {resendDisabled ? `Resend (${countdown})` : 'Resend OTP'}
+                    </Button>
+                  </Box>
+                </Box>
+              </Fade>
+            ) : showEditEmail ? (
+              <Grow in={true}>
+                <Box sx={{ mt: 2 }}>
+                  <TextField
+                    fullWidth
+                    label="Email Address"
+                    variant="outlined"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <EmailIcon color="primary" />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{ mb: 3 }}
+                  />
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    onClick={handleUpdateEmail}
+                    startIcon={<ArrowBackIcon />}
+                    sx={{ py: 1.5 }}
+                  >
+                    Update Email
+                  </Button>
+                </Box>
+              </Grow>
+            ) : (
+              <Zoom in={true}>
+                <Box>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    Enter the 6-digit verification code
+                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mb: 3 }}>
+                    {otp.map((digit, index) => (
+                      <TextField
+                        key={index}
+                        id={`otp-${index}`}
+                        type="text"
+                        inputProps={{
+                          maxLength: 1,
+                          style: { textAlign: 'center', fontSize: '1.5rem' }
+                        }}
+                        value={digit}
+                        onChange={(e) => handleChange(index, e.target.value)}
+                        variant="outlined"
+                        sx={{
+                          width: 56,
+                          '& .MuiOutlinedInput-root': {
+                            height: 56
+                          }
+                        }}
+                      />
+                    ))}
+                  </Box>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    size="large"
+                    onClick={handleVerify}
+                    disabled={isLoading || otp.some(d => d === '')}
+                    startIcon={isLoading ? <CircularProgress size={20} /> : null}
+                    sx={{ py: 1.5, mb: 2 }}
+                  >
+                    {isLoading ? 'Verifying...' : 'Verify Email'}
+                  </Button>
+                  <Divider sx={{ my: 2 }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <Button
+                      onClick={handleResend}
+                      disabled={isLoading || resendDisabled}
+                      color="secondary"
+                      startIcon={<SendIcon />}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      {isLoading ? 'Sending...' : 
+                       resendDisabled ? `Resend OTP in ${countdown}s` : 
+                       'Resend Verification Code'}
+                    </Button>
+                  </Box>
+                </Box>
+              </Zoom>
+            )}
+          </CardContent>
+
+          {verificationStatus === 'idle' && !showEditEmail && (
+            <CardContent sx={{ textAlign: 'center', pt: 0 }}>
+              <Button
+                onClick={() => setShowEditEmail(true)}
+                color="primary"
+                startIcon={<EditIcon />}
+                sx={{ textTransform: 'none' }}
+              >
+                Not your email? Update email address
+              </Button>
+            </CardContent>
+          )}
+        </Card>
+      </Slide>
+    </Box>
   );
 }
