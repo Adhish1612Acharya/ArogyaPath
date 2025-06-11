@@ -69,12 +69,40 @@ const useChat = () => {
     }
   };
 
+  // Fetch received chat requests, optionally filtered by type
+  const getReceivedChatRequests = async (type?: "private" | "group") => {
+    try {
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/chat/received-requests`,
+        { params: { type } }
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
+  // Fetch sent chat requests, optionally filtered by type
+  const getSentChatRequests = async (type?: "private" | "group") => {
+    try {
+      const response = await get(
+        `${import.meta.env.VITE_SERVER_URL}/api/chat/sent-requests`,
+        { params: { type } }
+      );
+      return response;
+    } catch (error: any) {
+      handleAxiosError(error);
+    }
+  };
+
   return {
     fetchChatMessages,
     createChat,
     sendChatRequest,
     acceptChatRequest,
     rejectChatRequest,
+    getSentChatRequests,
+    getReceivedChatRequests,
   };
 };
 

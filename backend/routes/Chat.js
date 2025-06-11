@@ -17,14 +17,6 @@ import {
 
 const router = express.Router();
 
-// Get all chat messages between the current user and a specific receiver
-router.get(
-  "/:id",
-  isLoggedIn,
-  wrapAsync(checkChatOwnership),
-  wrapAsync(chatController.getChatMessages)
-);
-
 // Create a new chat
 // router.post(
 //   "/",
@@ -60,6 +52,28 @@ router.post(
   isLoggedIn,
   wrapAsync(checkUserInChatRequest),
   wrapAsync(chatController.rejectChatRequest)
+);
+
+// Unified route for sent chat requests (all or filtered by type)
+router.get(
+  "/sent-requests",
+  isLoggedIn,
+  wrapAsync(chatController.getSentChatRequests)
+);
+
+// Unified route for received chat requests (all or filtered by type)
+router.get(
+  "/received-requests",
+  isLoggedIn,
+  wrapAsync(chatController.getReceivedChatRequests)
+);
+
+// Get all chat messages between the current user and a specific receiver
+router.get(
+  "/:id",
+  isLoggedIn,
+  wrapAsync(checkChatOwnership),
+  wrapAsync(chatController.getChatMessages)
 );
 
 export default router;

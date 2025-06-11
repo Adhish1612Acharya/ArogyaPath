@@ -38,6 +38,7 @@ import PageFooter from "./components/PageFooter";
 import PageNavBar from "./components/PageNavBar";
 import PrakrithiAnalysis from "./pages/User/PrakrithiAnalysis/PrakritiAnalysis";
 import ChatPage from "./pages/ChatPage/ChatPage";
+import ChatRequestsPage from "./pages/ChatRequest/ChatRequest";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -63,8 +64,6 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
           <Route element={<GuestProtectedRoute />}>
-            <Route path="/verify-email" element={<EmailVerify />} />
-            <Route path="/verify-mobile" element={<MobileVerify />} />
             <Route path="/expert/login" element={<LoginExpert />} />
             <Route path="/expert/register" element={<RegisterExpert />} />
             <Route path="/user/login" element={<LoginUser />} />
@@ -107,6 +106,8 @@ const App = () => {
           </Route>
 
           <Route element={<ProtectedRoute />}>
+            <Route path="/verify-email" element={<EmailVerify />} />
+            <Route path="/verify-mobile" element={<MobileVerify />} />
             <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
             <Route path="/chats/:id" element={<ChatPage />} />
@@ -118,6 +119,10 @@ const App = () => {
             <Route
               path="/success-stories"
               element={<AllSuccessStoriesPosts />}
+            />
+            <Route
+              path="/u/chat-requests/received"
+              element={<ChatRequestsPage />}
             />
           </Route>
 
