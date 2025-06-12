@@ -35,10 +35,10 @@ import passport from "passport";
 import MongoStore from "connect-mongo";
 
 import aiFeaturesRoute from "./routes/aiFeature.js";
+import premiumRoute from "./routes/premium.js";
+
 import Message from "./models/Message/Message.js";
-import ExpressError from "./utils/expressError.js";
 import Chat from "./models/Chat/Chat.js";
-import { profile } from "console";
 
 const app = express();
 
@@ -181,6 +181,8 @@ app.use("/api/prakrithi", prakrathiRoutes);
 app.use("/api/healthChallenge", healthChallenge);
 
 app.use("/api/chat", chatRoutes);
+
+app.use("/api/premium", premiumRoute);
 
 // -------------------Deployment------------------//
 

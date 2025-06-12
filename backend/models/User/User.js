@@ -25,9 +25,20 @@ const userSchema = new Schema(
       { type: Schema.Types.ObjectId, ref: "SuccessStory", default: [] },
     ],
     bookmarks: [{ type: Schema.Types.ObjectId, ref: "Post", default: [] }],
-    completeProfile: {
-      type: Boolean,
-      default: false,
+
+    verifications: {
+      email: {
+        type: Boolean,
+        default: false,
+      },
+      phoneNumber: {
+        type: Boolean,
+        default: false,
+      },
+      completeProfile: {
+        type: Boolean,
+        default: false,
+      },
     },
     role: {
       type: String,

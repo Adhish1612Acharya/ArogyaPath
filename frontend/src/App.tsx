@@ -41,6 +41,7 @@ import ChatPage from "./pages/ChatPage/ChatPage";
 import SentChatRequest from "./pages/SentChatRequest/SentChatRequest";
 import ReceivedChatRequestPage from "./pages/ReceivedChatRequest/ReceivedChatRequest";
 import YourChats from "./pages/YourChats/YourChats";
+import Premium from "./pages/Premium/Premium";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -65,6 +66,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+
           <Route element={<GuestProtectedRoute />}>
             <Route path="/expert/login" element={<LoginExpert />} />
             <Route path="/expert/register" element={<RegisterExpert />} />
@@ -126,6 +128,7 @@ const App = () => {
               path="/u/chat-requests/received"
               element={<ReceivedChatRequestPage />}
             />
+            <Route path="/premium" element={<Premium />} />
             <Route path="/u/chat-requests/sent" element={<SentChatRequest />} />
             <Route path="/u/chats" element={<YourChats />} />
           </Route>

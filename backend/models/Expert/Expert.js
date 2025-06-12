@@ -45,7 +45,24 @@ const ExpertSchema = new Schema(
         default: [],
       },
     ],
-    completeProfile: { type: Boolean, default: false },
+    verifications: {
+      email: {
+        type: Boolean,
+        default: false,
+      },
+      phoneNumber: {
+        type: Boolean,
+        default: false,
+      },
+      completeProfile: {
+        type: Boolean,
+        default: false,
+      },
+      isDoctor: {
+        type: Boolean,
+        default: false,
+      },
+    },
     role: { type: String, enum: ["expert"], default: "expert" },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },

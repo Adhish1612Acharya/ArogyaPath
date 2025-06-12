@@ -1,5 +1,5 @@
 import express from 'express';
-import HealthChallenge from '../models/HelathChallenge/healthChallenge.js';
+import HealthChallenge from '../models/HealthChallenge/healthChallenge.js';
 import wrapAsync from '../utils/wrapAsync.js';
 
 const router = express.Router();
