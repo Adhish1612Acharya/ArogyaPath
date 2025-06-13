@@ -1,49 +1,68 @@
 import Expert from "../models/Expert/Expert.js";
+import ExpressError from "../utils/expressError.js";
 
-export const searchDoctors = async (req, res) => {
-  const { q: searchQuery } = req.query;
+// PATCH /experts/complete-profile
+const completeProfile = async (req, res) => {
+  const expertId = req.user._id;
+  const { profile, completeProfileDetails } = req.body;
 
-  if (!searchQuery) {
-    return res.status(400).json({ error: "Search query is required" });
-  }
+  const expert = await Expert.findById(expertId);
+  if (!expert) throw new ExpressError("Expert not found", 404);
 
-  const doctors = await Expert.find({
-    username: new RegExp(searchQuery, "i"),
-    // "profile.expertType": { $in: ["ayurvedic", "naturopathy"] },
+  // Update profile first
+  expert.profile = {
+    ...expert.profile,
+    ...profile,
+  };
+  
+  // Update completeProfileDetails
+  expert.completeProfileDetails = {
+    ...expert.completeProfileDetails,
+    ...completeProfileDetails,
+  };
+  
+  expert.verifications.completeProfile = true;
+  expert.verifications.isDoctor = true;
 
-  }).select("_id username profile.expertType profile.profileImage");
+  await expert.save();
 
-  console.log("Doctors : ", doctors);
-
-  res.status(200).json({
-    message: "Search results",
-    success: true,
-    doctors: doctors,
-    userId: req.user._id,
-  });
+  res.status(200).json({ message: "Profile completed successfully", expert });
 };
 
-export const completeProfile = async (req, res) => {
-  const profileData = req.body;
+// GET /experts/search/doctors
+const searchDoctors = async (req, res) => {
+  const doctors = await Expert.find({ "verifications.isDoctor": true }).select(
+    "profile.fullName profile.profileImage profile.expertType"
+  );
+  res.status(200).json({ doctors });
+};
 
-  const updates = {};
-  for (const key in profileData) {
-    updates[`profile.${key}`] = profileData[key];
-  }
+// GET /experts/:id
+const getExpertById = async (req, res) => {
+  const expert = await Expert.findById(req.params.id);
+  if (!expert) throw new ExpressError("Expert not found", 404);
 
-  updates.completeProfile = true;
+  res.json(expert);
+};
 
-  await Expert.findByIdAndUpdate(req.user?._id, {
-    $set: updates,
-  });
+// PUT /experts/edit/:id
+const editExpert = async (req, res) => {
+  const { username, email, role, profile } = req.body;
 
-  res.status(200).json({
-    success: true,
-    message: "profileComplete",
-  });
+  const updatedExpert = await Expert.findByIdAndUpdate(
+    req.params.id,
+    { username, email, role, profile },
+    { new: true, runValidators: true }
+  );
+
+  if (!updatedExpert) throw new ExpressError("Expert not found", 404);
+  res.json(updatedExpert);
 };
 
 export default {
-  searchDoctors,
   completeProfile,
+  searchDoctors,
+  getExpertById,
+  editExpert,
 };
+
