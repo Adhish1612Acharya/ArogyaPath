@@ -26,6 +26,8 @@ router.post(
 
 router.get("/check", isAlreadyLoggedIn, emailPasswordUserAuthController.login);
 
-
+// Email verification routes
+import emailVerificationRoutes from "./emailVerification.js";
+router.use("/verify", emailVerificationRoutes);
 
 export default router;
