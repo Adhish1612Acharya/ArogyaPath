@@ -7,7 +7,7 @@ import {
 } from "./useExpertAuth.types";
 
 const useExpertAuth = () => {
-  const { post,  patch } = useApi();
+  const { post, patch } = useApi();
 
   const expertLogin = async (email: string, password: string) => {
     try {
@@ -16,7 +16,8 @@ const useExpertAuth = () => {
         {
           email,
           password,
-        }
+          role: "Expert",
+        },
       );
       if (response.success) {
         toast.success("Logged in successfully");

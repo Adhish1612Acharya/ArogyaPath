@@ -2,32 +2,33 @@ import Expert from "../../../models/Expert/Expert.js";
 import Token from "../../../models/Token/Token.js";
 import User from "../../../models/User/User.js";
 import ExpressError from "../../../utils/expressError.js";
-import { sendEmailVerificationLink } from "../../../utils/sendEmailVerificationLink.js";
 import crypto from "crypto";
+import { sendEmailVerificationLink } from "../../../utils/sendEmailVerificationLink.js";
 
 export const signUp = async (req, res) => {
   let signUpError = false;
   let error = "";
-  const { fullName, email, password } = req.body;
+  const { fullName, email, password, expertType } = req.body;
 
-  const expert = await Expert.findOne({ email: email });
+  const user = await User.findOne({ email: email });
 
-  if (expert) {
+  if (user) {
     throw new ExpressError(
       400,
-      "Expert with this email is registered"
+      "User with this email is registered as another role"
     );
   }
 
-  const newExpert = new User({
+  const newExpert = new Expert({
     username: fullName,
     email,
     profile: {
       fullName: fullName,
+      expertType: expertType,
     },
   });
 
-  const registeredUser = await User.register(newExpert, password).catch(
+  const registeredExpert = await Expert.register(newExpert, password).catch(
     (err) => {
       console.log("signUpError");
       console.log(err);
@@ -41,11 +42,12 @@ export const signUp = async (req, res) => {
       }
     }
   );
-  if (!signUpError && registeredUser) {
+
+  if (!signUpError && registeredExpert) {
     // Create verification token
     const token = await new Token({
-      userType: "User",
-      userId: registeredUser._id,
+      userType: "Expert",
+      userId: registeredExpert._id,
       token: crypto.randomBytes(32).toString("hex"),
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     }).save();
@@ -54,9 +56,9 @@ export const signUp = async (req, res) => {
     try {
       await sendEmailVerificationLink(
         email,
-        registeredUser._id,
-        "User",
-        token._id,
+        registeredExpert._id,
+        "Expert",
+        token.token,
         fullName
       );
     } catch (err) {
@@ -72,7 +74,7 @@ export const signUp = async (req, res) => {
         : "Sign-up successful. Verification email sent.",
       verificationEmailSent: emailError === null ? true : false,
       verified: false,
-      userId: registeredUser._id,
+      userId: registeredExpert._id,
     });
   } else {
     throw new ExpressError(400, error);
@@ -87,6 +89,7 @@ export const login = async (req, res) => {
 };
 
 export const failureLogin = async (req, res) => {
+  console.log("failure");
   res.status(401).json({
     success: false,
     message: "failureLogin",

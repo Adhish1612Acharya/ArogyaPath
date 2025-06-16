@@ -4,15 +4,16 @@ import { toast } from "react-toastify";
 
 export const handleAxiosError = (error: any) => {
   if (error.isAxiosError) {
+    const status = error.status;
 
-    const status =  error.status;
+    console.log('handleAxisError : ',error.message);
 
     switch (status) {
       case 401:
         toast.error("Either email or passowrd is incorrect");
         break;
       case 403:
-        toast.error("You are not authorized to perform this action.");
+        toast.error(error.message);
         break;
       case 404:
         toast.error("Resource not found.");
@@ -27,10 +28,7 @@ export const handleAxiosError = (error: any) => {
         toast.error(error.message);
     }
   } else {
-    toast.error(
-      error.message ||
-        "An unknown error occurred"
-    );
+    toast.error(error.message || "An unknown error occurred");
   }
 
   throw error;

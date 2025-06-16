@@ -2,6 +2,7 @@ export interface ExpertRegisterFormData {
   fullName: string;
   email: string;
   password: string;
+  expertType: "ayurvedic" | "naturopathy";
 }
 
 export interface ExpertCompleteProfileData {

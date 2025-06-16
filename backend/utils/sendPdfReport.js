@@ -23,11 +23,15 @@ export const sendPdfReport = async (toEmail, pdfBuffer, userName) => {
     </div>
   `;
 
-  return await sendEmail(toEmail, subject, emailBody, [
-    {
-      filename: `Prakriti-Analysis-${userName}.pdf`,
-      content: pdfBuffer,
-      contentType: "application/pdf",
-    },
-  ]);
+  try {
+    await sendEmail(toEmail, subject, emailBody, [
+      {
+        filename: `Prakriti-Analysis-${userName}.pdf`,
+        content: pdfBuffer,
+        contentType: "application/pdf",
+      },
+    ]);
+  } catch (error) {
+    throw error;
+  }
 };

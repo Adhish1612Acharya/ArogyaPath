@@ -84,7 +84,7 @@ const NavButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
   letterSpacing: "0.02em",
   padding: theme.spacing(1, 2),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   position: "relative",
   overflow: "hidden",
   transition: "all 0.3s ease",
@@ -194,7 +194,7 @@ const MobileMenuItem = styled(Button)<RouterButtonProps>(({ theme }) => ({
   justifyContent: "flex-start",
   padding: theme.spacing(1.5, 2),
   marginBottom: theme.spacing(1),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   fontWeight: 600,
   fontSize: "1rem",
   textTransform: "none",
@@ -265,7 +265,7 @@ const PageNavBar: FC = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { role, isLoggedIn } = useAuth();
+  const { role, isLoggedIn, setRole, setIsLoggedIn } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationsAnchorEl, setNotificationsAnchorEl] =
     useState<null | HTMLElement>(null);
@@ -400,14 +400,29 @@ const PageNavBar: FC = () => {
       }
       setLogOutLoad(false);
       handleMenuClose();
+      setRole(undefined);
+      setIsLoggedIn(false);
       navigate("/");
     } catch (error) {
       handleAxiosError(error);
       setLogOutLoad(false);
     }
   };
-
   const isActive = (path: string) => {
+    // Check for sign-up paths
+    if (
+      path === "/auth?signUpRedirect=true" &&
+      location.search.includes("signUpRedirect=true")
+    ) {
+      return true;
+    } // Check for regular paths
+    if (path === "/auth") {
+      return (
+        location.pathname === "/auth" &&
+        !location.search.includes("signUpRedirect")
+      );
+    }
+
     return location.pathname === path;
   };
 

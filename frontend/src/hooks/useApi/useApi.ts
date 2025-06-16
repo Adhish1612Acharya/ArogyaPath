@@ -1,7 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, Method } from "axios";
 import { ErrorResponse, RequestOptions } from "./useApi.types"; // Import types
 
-
 const useApi = <T = any>() => {
   const request = async (
     method: Method,
@@ -25,10 +24,8 @@ const useApi = <T = any>() => {
 
     try {
       const response = await axios.request<T>(config);
-      console.log("Response:", response); // Log the response data
       return response.data as T;
     } catch (err: any) {
-      console.log(err);
       console.log("Error : ", err);
       const error = err as AxiosError<ErrorResponse>;
       const status = error.response?.status;
@@ -47,6 +44,7 @@ const useApi = <T = any>() => {
 
         case 403:
           errorMessage =
+            error.response?.data?.message ||
             "Forbidden. You don't have permission for this action.";
           break;
         case 404:

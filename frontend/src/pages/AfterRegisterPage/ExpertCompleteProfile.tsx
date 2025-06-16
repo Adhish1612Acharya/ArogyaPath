@@ -4,7 +4,6 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { useAuth } from "../../context/AuthContext";
 import "./ExpertCompleteProfile.css";
 import {
   Box,
@@ -120,7 +119,6 @@ const steps = [
 
 const ExpertCompleteProfile: React.FC = () => {
   // const { expertCompleteProfile } = useExpertAuth();
-  const {} = useAuth();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeStep, setActiveStep] = React.useState(0);
@@ -294,7 +292,7 @@ const ExpertCompleteProfile: React.FC = () => {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid >
                 <Card variant="outlined" sx={{ 
                   p: 2,
                   borderLeft: `4px solid ${theme.palette.primary.main}`,
@@ -312,7 +310,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                     
                     <Grid container spacing={2}>
-                      <Grid item xs={12} md={6}>
+                      <Grid >
                         <Controller
                           name="dateOfBirth"
                           control={control}
@@ -342,7 +340,7 @@ const ExpertCompleteProfile: React.FC = () => {
                         />
                       </Grid>
                       
-                      <Grid item xs={12} md={6}>
+                      <Grid>
                         <Controller
                           name="gender"
                           control={control}
@@ -373,7 +371,7 @@ const ExpertCompleteProfile: React.FC = () => {
                         />
                       </Grid>
                       
-                      <Grid item xs={12}>
+                      <Grid >
                         <Controller
                           name="mobileNumber"
                           control={control}
@@ -402,7 +400,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Card>
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid>
                 <Card variant="outlined" sx={{ 
                   p: 2,
                   borderLeft: `4px solid ${theme.palette.primary.main}`,
@@ -420,7 +418,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                     
                     <Grid container spacing={2}>
-                      <Grid item xs={12}>
+                      <Grid >
                         <Controller
                           name="street"
                           control={control}
@@ -438,7 +436,7 @@ const ExpertCompleteProfile: React.FC = () => {
                         />
                       </Grid>
                       
-                      <Grid item xs={12} md={4}>
+                      <Grid >
                         <Controller
                           name="city"
                           control={control}
@@ -456,7 +454,7 @@ const ExpertCompleteProfile: React.FC = () => {
                         />
                       </Grid>
                       
-                      <Grid item xs={12} md={4}>
+                      <Grid >
                         <Controller
                           name="state"
                           control={control}
@@ -474,7 +472,7 @@ const ExpertCompleteProfile: React.FC = () => {
                         />
                       </Grid>
                       
-                      <Grid item xs={12} md={4}>
+                      <Grid >
                         <Controller
                           name="pinCode"
                           control={control}
@@ -522,7 +520,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Typography>
                 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid>
                     <Controller
                       name="ayushRegistrationNumber"
                       control={control}
@@ -541,7 +539,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     />
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid>
                     <Controller
                       name="registrationCouncil"
                       control={control}
@@ -575,7 +573,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     />
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid>
                     <Controller
                       name="yearOfRegistration"
                       control={control}
@@ -593,7 +591,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     />
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid>
                     <Controller
                       name="yearsOfExperience"
                       control={control}
@@ -632,7 +630,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Typography>
                 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid>
                     <FormControl fullWidth error={!!errors.specializations} variant="outlined" size="small">
                       <InputLabel>Area(s) of Specialization</InputLabel>
                       <Controller
@@ -671,7 +669,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </FormControl>
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid>
                     <FormControl fullWidth error={!!errors.languages} variant="outlined" size="small">
                       <InputLabel>Languages Spoken</InputLabel>
                       <Controller
@@ -749,7 +747,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Box>
                     
                     <Grid container spacing={2} sx={{ mb: 3 }}>
-                      <Grid item xs={12} md={4}>
+                      <Grid >
                         <Controller
                           name={`qualifications.${index}.degree`}
                           control={control}
@@ -768,7 +766,7 @@ const ExpertCompleteProfile: React.FC = () => {
                         />
                       </Grid>
                       
-                      <Grid item xs={12} md={5}>
+                      <Grid >
                         <Controller
                           name={`qualifications.${index}.college`}
                           control={control}
@@ -786,7 +784,7 @@ const ExpertCompleteProfile: React.FC = () => {
                         />
                       </Grid>
                       
-                      <Grid item xs={12} md={3}>
+                      <Grid >
                         <Controller
                           name={`qualifications.${index}.year`}
                           control={control}
@@ -833,7 +831,7 @@ const ExpertCompleteProfile: React.FC = () => {
             </Typography>
             
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid>
                 <Card variant="outlined" sx={{ 
                   height: '100%',
                   borderLeft: `4px solid ${theme.palette.primary.main}`
@@ -889,7 +887,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Card>
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid>
                 <Card variant="outlined" sx={{ 
                   height: '100%',
                   borderLeft: `4px solid ${theme.palette.primary.main}`
@@ -945,7 +943,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Card>
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid>
                 <Card variant="outlined" sx={{ 
                   height: '100%',
                   borderLeft: `4px solid ${theme.palette.primary.main}`
@@ -998,7 +996,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Card>
               </Grid>
               
-              <Grid item xs={12} md={6}>
+              <Grid >
                 <Card variant="outlined" sx={{ 
                   height: '100%',
                   borderLeft: `4px solid ${theme.palette.primary.main}`
@@ -1076,7 +1074,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Typography>
                 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={4}>
+                  <Grid>
                     <Typography variant="body2" color="text.secondary">
                       Date of Birth
                     </Typography>
@@ -1085,7 +1083,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12} md={4}>
+                  <Grid >
                     <Typography variant="body2" color="text.secondary">
                       Gender
                     </Typography>
@@ -1094,7 +1092,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12} md={4}>
+                  <Grid >
                     <Typography variant="body2" color="text.secondary">
                       Mobile Number
                     </Typography>
@@ -1103,11 +1101,11 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12}>
+                  <Grid >
                     <Divider sx={{ my: 2 }} />
                   </Grid>
                   
-                  <Grid item xs={12}>
+                  <Grid >
                     <Typography variant="body2" color="text.secondary">
                       Address
                     </Typography>
@@ -1135,7 +1133,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Typography>
                 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       AYUSH Registration
                     </Typography>
@@ -1144,7 +1142,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Registration Council
                     </Typography>
@@ -1153,7 +1151,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Year of Registration
                     </Typography>
@@ -1162,7 +1160,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Years of Experience
                     </Typography>
@@ -1171,11 +1169,11 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12}>
+                  <Grid >
                     <Divider sx={{ my: 2 }} />
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Specializations
                     </Typography>
@@ -1185,7 +1183,7 @@ const ExpertCompleteProfile: React.FC = () => {
                       ))}
                     </Box>
                   </Grid>
-                                    <Grid item xs={12} md={6}>
+                                    <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Languages Spoken
                     </Typography>
@@ -1243,7 +1241,7 @@ const ExpertCompleteProfile: React.FC = () => {
                 </Typography>
                 
                 <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Identity Proof
                     </Typography>
@@ -1256,7 +1254,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Degree Certificate
                     </Typography>
@@ -1269,7 +1267,7 @@ const ExpertCompleteProfile: React.FC = () => {
                     </Typography>
                   </Grid>
                   
-                  <Grid item xs={12} md={6}>
+                  <Grid  >
                     <Typography variant="body2" color="text.secondary">
                       Registration Certificate
                     </Typography>
@@ -1283,7 +1281,7 @@ const ExpertCompleteProfile: React.FC = () => {
                   </Grid>
                   
                   {watch("practiceProof") && (
-                    <Grid item xs={12} md={6}>
+                    <Grid  >
                       <Typography variant="body2" color="text.secondary">
                         Practice Proof
                       </Typography>

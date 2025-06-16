@@ -5,6 +5,33 @@ const objectIdSchema = z
   .string()
   .regex(objectIdRegex, "Invalid MongoDB ObjectId");
 
+// -------------------- Auth Schemas --------------------
+export const userSignupSchema = z.object({
+  fullName: z.string().min(1, "Full name is required").max(50),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  // .regex(
+  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+  //   "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character"
+  // ),
+});
+
+export const expertSignupSchema = z.object({
+  fullName: z.string().min(1, "Full name is required").max(50),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  // .regex(
+  //   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{3,}$/,
+  //   "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character"
+  // )
+  expertType: z.enum(["ayurvedic", "naturopathy"]),
+});
+
+export const loginSchema = z.object({
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(8, "Password is required"),
+});
+
 // -------------------- User Schema --------------------
 export const userSchemaZod = z.object({
   fullname: z.string().min(1, "Full name is required").max(50),
@@ -120,86 +147,61 @@ export const resetPasswordSchema = z.object({
 });
 
 // -------------------- expertProfileSchema --------------------
-import { z } from "zod";
 
 // Validation Schema for "POST /experts/complete-profile"
 
-export const expertProfileSchema = z.object({  
-  profile: z.object({  
-    fullName: z.string()
-      .min(1, "Full name is required"),
-    contactNo: z.number()
+// Expert profile validation schema
+export const expertProfileSchema = z.object({
+  profile: z.object({
+    fullName: z.string().min(1, "Full name is required"),
+    contactNo: z
+      .number()
       .min(1000000000, "Contact number must be a 10-digits number.")
       .max(9999999999, "Contact number must be a 10-digits number."),
     expertType: z.enum(["ayurvedic", "naturopathy"], {
       required_error: "expertType is required",
     }),
-    profileImage: z.string()
-      .url("Profile image must be a valid URL.")
-      .optional(),  
-    experience: z.number()
-      .min(0, "Experience must be non-neg.")
+    profileImage: z.string().optional().default(""),
+    experience: z
+      .number()
+      .min(0, "Experience must be non-negative.")
       .default(0),
-    qualification: z.string()
-      .optional()
-      .or(z.literal("")),
-    clinicAdress: z.string()
-      .optional()
-      .or(z.literal("")),
-    specialization: z.string()
-      .optional()
-      .or(z.literal("")),
-    bio: z.string()
-      .optional()
-      .or(z.literal(""))
+    qualifications: z.array(
+      z.object({
+        degree: z.string().min(1, "Degree is required"),
+        college: z.string().min(1, "College/Institution name is required"),
+        year: z.string().min(1, "Year of completion is required"),
+      })
+    ),
+    address: z.object({
+      country: z.string().default("Bharat"),
+      city: z.string().min(1, "City is required"),
+      state: z.string().min(1, "State is required"),
+      pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6-digits"),
+      clinicAddress: z.string().default(""),
+    }),
+    specialization: z.array(z.string()).default([]),
+    bio: z.string().default(""),
+    languagesSpoken: z.array(z.string()).default([]),
   }),
 
-  completeProfileDetails: z.object({  
-    dateOfBirth: z.string()
-      .datetime("Invalid ISO datetime"),
+  verificationDetails: z.object({
+    dateOfBirth: z.string().datetime("Invalid ISO datetime"),
     gender: z.enum(["male", "female", "other"], {
       required_error: "Gender is required",
     }),
-    registrationNumber: z.string()
-      .min(1, "Registration number is required"),
-    registrationCouncil: z.string()
-      .min(1, "Registration council is required"),
-    yearOfRegistration: z.number()
-      .min(1900, "Year must be valid.")
-      .max(new Date().getFullYear(), "Year must be <= current"),
-    yearsOfExperience: z.number()
-      .min(0, "Years of experience must be non-neg"),
-    areasOfSpecialization: z.array(z.string())  
-      .optional()
-      .default([]),
-    languagesSpoken: z.array(z.string())  
-      .min(1, "At least 1 language is required"),
-    qualifications: z.array(z.string())  
-      .optional()
-      .default([]),
-    documents: z.object({  
-      degreeCertificate: z.string()
-        .url("Degree certificate must be a valid URL"),
-      registrationProof: z.string()
-        .url("Registration proof must be a valid URL"),
-      practiceProof: z.string()
-        .url("Practice proof must be a valid URL")
-        .optional()
+    registrationDetails: z.object({
+      registrationNumber: z.string().min(1, "Registration number is required"),
+      registrationCouncil: z
+        .string()
+        .min(1, "Registration council is required"),
+      yearOfRegistration: z
+        .number()
+        .min(1900, "Year must be valid")
+        .max(new Date().getFullYear(), "Year must be <= current year"),
     }),
-    mobileNumber: z.number()
-      .min(1000000000, "Mobile number must be 10-digits.")
-      .max(9999999999, "Mobile number must be 10-digits."),
-    address: z.string()
-      .min(1, "Address is required"),
-    city: z.string()
-      .min(1, "City is required"),
-    state: z.string()
-      .min(1, "State is required"),
-    pincode: z.string()
-      .regex(/^\d{6}$/, "Pincode must be 6-digits.")
-  })
+  }),
 });
-
 
 // -------------------- userProfileSchema --------------------
 export const userProfileSchema = z.object({
