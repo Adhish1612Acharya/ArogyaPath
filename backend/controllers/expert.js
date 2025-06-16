@@ -4,23 +4,30 @@ import ExpressError from "../utils/expressError.js";
 // PATCH /experts/complete-profile
 const completeProfile = async (req, res) => {
   const expertId = req.user._id;
-  const { profile, completeProfileDetails } = req.body;
+  const { profile, verificationDetails } = req.body;
+  const documentUrls = req.documentUrls;
 
   const expert = await Expert.findById(expertId);
   if (!expert) throw new ExpressError("Expert not found", 404);
 
-  // Update profile first
+  // Update profile
   expert.profile = {
     ...expert.profile,
     ...profile,
   };
-  
-  // Update completeProfileDetails
-  expert.completeProfileDetails = {
-    ...expert.completeProfileDetails,
-    ...completeProfileDetails,
+
+  // Update verificationDetails with document URLs
+  expert.verificationDetails = {
+    ...verificationDetails,
+    documents: {
+      identityProof: documentUrls.identityProof,
+      degreeCertificate: documentUrls.degreeCertificate,
+      registrationProof: documentUrls.registrationProof,
+      practiceProof: documentUrls.practiceProof, // Required
+    },
   };
-  
+
+  // Update verification status
   expert.verifications.completeProfile = true;
   expert.verifications.isDoctor = true;
 
@@ -30,11 +37,28 @@ const completeProfile = async (req, res) => {
 };
 
 // GET /experts/search/doctors
-const searchDoctors = async (req, res) => {
-  const doctors = await Expert.find({ "verifications.isDoctor": true }).select(
-    "profile.fullName profile.profileImage profile.expertType"
-  );
-  res.status(200).json({ doctors });
+
+export const searchDoctors = async (req, res) => {
+  const { q: searchQuery } = req.query;
+
+  if (!searchQuery) {
+    return res.status(400).json({ error: "Search query is required" });
+  }
+
+  const doctors = await Expert.find({
+    username: new RegExp(searchQuery, "i"),
+    "verifications.isDoctor": true,
+    // "profile.expertType": { $in: ["ayurvedic", "naturopathy"] },
+  }).select("_id username profile.expertType profile.profileImage");
+
+  console.log("Doctors : ", doctors);
+
+  res.status(200).json({
+    message: "Search results",
+    success: true,
+    doctors: doctors,
+    userId: req.user._id,
+  });
 };
 
 // GET /experts/:id
@@ -65,4 +89,3 @@ export default {
   getExpertById,
   editExpert,
 };
-

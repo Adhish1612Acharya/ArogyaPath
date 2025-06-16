@@ -6,6 +6,10 @@ import {
   isAlreadyLoggedIn,
   isEmailVerified,
 } from "../../middlewares/commonAuth.js";
+import {
+  validateUserSignup,
+  validateLogin,
+} from "../../middlewares/validationMiddleware/validationMiddlewares.js";
 
 const router = express.Router();
 
@@ -14,13 +18,14 @@ router.get("/failureLogin", emailPasswordUserAuthController.failureLogin);
 router.post(
   "/signUp",
   isAlreadyLoggedIn,
-  // checkSignUpForm,
+  validateUserSignup,
   wrapAsync(emailPasswordUserAuthController.signUp)
 );
 
 router.post(
   "/login",
   isAlreadyLoggedIn,
+  validateLogin,
   wrapAsync(isEmailVerified),
   passport.authenticate("user", {
     failureRedirect: "/api/auth/user/failureLogin",

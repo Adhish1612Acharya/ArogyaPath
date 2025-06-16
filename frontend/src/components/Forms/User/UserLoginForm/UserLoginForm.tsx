@@ -8,7 +8,6 @@ import {
   Box,
   Typography,
   Divider,
-  IconButton,
   InputAdornment,
   Link,
   Stack,
@@ -19,12 +18,15 @@ import { Loader2, LogIn } from "lucide-react";
 import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
+import { useState } from "react";
 
 const UserLoginForm = () => {
   const { userLogin } = useUserAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect");
+
+  const [emailVerification, setEmailVerification] = useState<boolean>(false);
 
   const {
     register,
@@ -39,13 +41,20 @@ const UserLoginForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
-    const response = await userLogin(data.email, data.password);
+    try {
+      const response = await userLogin(data.email, data.password);
 
-    if (response.success) {
-      if (redirectPath) {
-        navigate(redirectPath);
-      } else {
-        navigate("/gposts");
+      if (response.success) {
+        if (redirectPath) {
+          navigate(redirectPath);
+        } else {
+          navigate("/gposts");
+        }
+      }
+    } catch (err: any) {
+      console.log(err);
+      if (err.status === 403 && err.message === "Email verification required") {
+        setEmailVerification(true);
       }
     }
   };
@@ -72,25 +81,51 @@ const UserLoginForm = () => {
             >
               Sign in to your account to continue
             </Typography>
-
-            <TextField
-              {...register("email")}
-              label="Email"
-              placeholder="user@example.com"
-              fullWidth
-              error={!!errors.email}
-              helperText={errors.email?.message}
-              InputProps={{
-                sx: {
-                  "&:hover fieldset": {
-                    borderColor: "success.main !important",
+            <Box sx={{ width: "100%" }}>
+              <TextField
+                {...register("email")}
+                label="Email"
+                placeholder="user@example.com"
+                fullWidth
+                error={!!errors.email}
+                helperText={errors.email?.message}
+                InputProps={{
+                  sx: {
+                    "&:hover fieldset": {
+                      borderColor: "success.main !important",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "success.main !important",
+                    },
                   },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "success.main !important",
-                  },
-                },
-              }}
-            />
+                }}
+              />
+              {emailVerification && (
+                <Box sx={{ mt: 1 }}>
+                  <Link
+                    component="button"
+                    type="button"
+                    variant="body2"
+                    onClick={() => {
+                      localStorage.setItem(
+                        "emailVerification",
+                        "sendVerification"
+                      );
+                      navigate("/email/verify");
+                    }}
+                    sx={{
+                      color: "primary.main",
+                      textDecoration: "none",
+                      "&:hover": {
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    Verify your email address
+                  </Link>
+                </Box>
+              )}
+            </Box>
 
             <TextField
               {...register("password")}
@@ -131,11 +166,7 @@ const UserLoginForm = () => {
               size="large"
               disabled={isSubmitting}
               startIcon={
-                isSubmitting ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <LogIn />
-                )
+                isSubmitting ? <Loader2 className="animate-spin" /> : <LogIn />
               }
               sx={{
                 py: 1.5,

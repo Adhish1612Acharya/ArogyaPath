@@ -27,11 +27,12 @@ import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
 import { amber } from "@mui/material/colors";
 
 const ExpertLoginForm: FC = () => {
-  const theme = useTheme();
+    const theme = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect");
   const { expertLogin } = useExpertAuth();
+  const [emailVerification, setEmailVerification] = useState<boolean>(false);
 
   const {
     handleSubmit,
@@ -46,11 +47,17 @@ const ExpertLoginForm: FC = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
-
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
-    const response = await expertLogin(data.email, data.password);
-    if (response.success) {
-      navigate(redirectPath || "/gposts");
+    try {
+      const response = await expertLogin(data.email, data.password);
+      if (response.success) {
+        navigate(redirectPath || "/gposts");
+      }
+    } catch (err: any) {
+      console.log(err);
+      if (err.status === 403 && err.message === "Email verification required") {
+        setEmailVerification(true);
+      }
     }
   };
 
@@ -102,27 +109,54 @@ const ExpertLoginForm: FC = () => {
       {/* Login Form */}
       <Box component="form" onSubmit={handleSubmit(onLoginSubmit)}>
         <Stack spacing={3}>
+          {" "}
           {/* Email Field */}
-          <TextField
-            {...register("email")}
-            label="Email"
-            variant="outlined"
-            placeholder="vaidya"
-            fullWidth
-            error={!!errors.email}
-            helperText={errors.email?.message}
-            InputProps={{
-              sx: {
-                "&:hover fieldset": {
-                  borderColor: amber[600],
+          <Box>
+            <TextField
+              {...register("email")}
+              label="Email"
+              variant="outlined"
+              placeholder="vaidya@email.com"
+              fullWidth
+              error={!!errors.email}
+              helperText={errors.email?.message}
+              InputProps={{
+                sx: {
+                  "&:hover fieldset": {
+                    borderColor: amber[600],
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: amber[600],
+                  },
                 },
-                "&.Mui-focused fieldset": {
-                  borderColor: amber[600],
-                },
-              },
-            }}
-          />
-
+              }}
+            />
+            {emailVerification && (
+              <Box sx={{ mt: 1 }}>
+                <Link
+                  component="button"
+                  type="button"
+                  variant="body2"
+                  onClick={() => {
+                    localStorage.setItem(
+                      "emailVerification",
+                      "sendVerification"
+                    );
+                    navigate("/email/verify");
+                  }}
+                  sx={{
+                    color: amber[700],
+                    textDecoration: "none",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                >
+                  Verify your email address
+                </Link>
+              </Box>
+            )}
+          </Box>
           {/* Password Field */}
           <TextField
             {...register("password")}
@@ -154,7 +188,6 @@ const ExpertLoginForm: FC = () => {
               },
             }}
           />
-
           <Box textAlign="right">
             <Link
               href="/expert/forgot-password"
@@ -165,7 +198,6 @@ const ExpertLoginForm: FC = () => {
               Forgot password?
             </Link>
           </Box>
-
           {/* Submit Button */}
           <LoadingButton
             type="submit"
@@ -187,14 +219,12 @@ const ExpertLoginForm: FC = () => {
           >
             Sign in
           </LoadingButton>
-
           {/* Divider */}
           <Divider sx={{ my: 2 }}>
             <Typography variant="body2" color="text.secondary">
               OR
             </Typography>
           </Divider>
-
           {/* Google Button */}
           <Button
             variant="outlined"

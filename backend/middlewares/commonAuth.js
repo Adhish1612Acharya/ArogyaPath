@@ -64,15 +64,24 @@ export const isEmailAlreadyVerified = async (req, res, next) => {
 
 export const isEmailVerified = async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const { email, role } = req.body;
+
+    if (!role || (role !== "User" && role !== "Expert")) {
+      throw new ExpressError(400, "correct role is required");
+    }
+
     if (!email) {
       throw new ExpressError("Email is required", 400);
     }
 
+    let foundUser = null;
+
     // Try to find user/expert with this email
-    const user = await User.findOne({ email });
-    const expert = await Expert.findOne({ email });
-    const foundUser = user || expert;
+    if (role === "User") {
+      foundUser = await User.findOne({ email });
+    } else {
+      foundUser = await Expert.findOne({ email });
+    }
 
     if (!foundUser) {
       return next();

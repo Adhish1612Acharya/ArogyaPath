@@ -7,6 +7,7 @@ import {
   Button,
   CircularProgress,
   Box,
+  Stack,
 } from "@mui/material";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import useEmailVerification from "@/hooks/auth/useEmailVerification";
@@ -73,21 +74,58 @@ const EmailVerificationPage: React.FC = () => {
     switch (status) {
       case "verified":
         return (
-          <Typography variant="h6" color="success.main">
-            ✅ Your email has been successfully verified!
-          </Typography>
+          <Stack spacing={2}>
+            <Typography variant="h6" color="success.main">
+              ✅ Your email has been successfully verified!
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate("/auth")}
+              fullWidth
+            >
+              Proceed to Login
+            </Button>
+          </Stack>
         );
       case "failedVerification":
         return (
-          <Typography variant="h6" color="error">
-            ❌ Email verification failed. Please try again.
-          </Typography>
+          <Stack spacing={2}>
+            <Typography variant="h6" color="error">
+              ❌ Email verification failed. Please try again.
+            </Typography>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                localStorage.setItem("emailVerification", "sendVerification");
+                setStatus("sendVerification");
+              }}
+              fullWidth
+            >
+              Resend Verification Email
+            </Button>
+          </Stack>
         );
       case "emailVerification":
         return (
-          <Typography variant="h6" color="primary">
-            📩 Verification email sent. Please check your inbox.
-          </Typography>
+          <Stack spacing={2}>
+            <Typography variant="h6" color="primary">
+              📩 Verification email sent. Please check your inbox.
+            </Typography>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => {
+                localStorage.setItem("emailVerification", "sendVerification");
+                setStatus("sendVerification");
+              }}
+              fullWidth
+              disabled={loading}
+            >
+              Resend Verification Email
+            </Button>
+          </Stack>
         );
       case "sendVerification":
       default:

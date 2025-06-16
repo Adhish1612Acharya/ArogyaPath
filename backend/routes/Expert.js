@@ -4,9 +4,13 @@ import { isLoggedIn } from "../middlewares/commonAuth.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import * as expertProfileController from "../controllers/expert.js";
+import {
+  documentUpload,
+  validateDocuments,
+} from "../middlewares/experts/documentUpload.js";
+import { handleDocumentUpload } from "../middlewares/experts/handleDocumentUpload.js";
 
 const router = express.Router();
-
 
 // ========== ACTIVE ROUTES ==========
 
@@ -14,7 +18,33 @@ const router = express.Router();
 router.patch(
   "/complete-profile",
   checkExpertLogin,
+  // Handle file uploads with multer
+  wrapAsync((req, res, next) =>
+    documentUpload(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          throw new ExpressError(
+            400,
+            "File size too large. Maximum size is 5MB"
+          );
+        }
+        if (err.code === "LIMIT_FILE_COUNT") {
+          throw new ExpressError(400, "Too many files. Maximum is 4 documents");
+        }
+        throw new ExpressError(400, err.message);
+      } else if (err) {
+        throw new ExpressError(400, err.message);
+      }
+      next();
+    })
+  ),
+  // Validate required documents are present
+  validateDocuments,
+  // Validate the request body
   validateExpertCompleteProfile,
+  // Upload documents to Cloudinary
+  wrapAsync(handleDocumentUpload),
+  // Complete the profile
   wrapAsync(expertProfileController.completeProfile)
 );
 
@@ -26,17 +56,10 @@ router.get(
 );
 
 // GET: Get expert by ID
-router.get(
-  "/:id",
-  wrapAsync(expertProfileController.getExpertById)
-);
+router.get("/:id", wrapAsync(expertProfileController.getExpertById));
 
 // PUT: Edit expert basic info
-router.put(
-  "/edit/:id",
-  wrapAsync(expertProfileController.editExpert)
-);
-
+router.put("/edit/:id", wrapAsync(expertProfileController.editExpert));
 
 // ========== COMMENTED ROUTES (AS-IS) ==========
 

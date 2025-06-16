@@ -401,15 +401,28 @@ const PageNavBar: FC = () => {
       setLogOutLoad(false);
       handleMenuClose();
       setRole(undefined);
-      setIsLoggedIn(undefined);
+      setIsLoggedIn(false);
       navigate("/");
     } catch (error) {
       handleAxiosError(error);
       setLogOutLoad(false);
     }
   };
-
   const isActive = (path: string) => {
+    // Check for sign-up paths
+    if (
+      path === "/auth?signUpRedirect=true" &&
+      location.search.includes("signUpRedirect=true")
+    ) {
+      return true;
+    } // Check for regular paths
+    if (path === "/auth") {
+      return (
+        location.pathname === "/auth" &&
+        !location.search.includes("signUpRedirect")
+      );
+    }
+
     return location.pathname === path;
   };
 
