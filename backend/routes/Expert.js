@@ -9,6 +9,7 @@ import {
   validateDocuments,
 } from "../middlewares/experts/documentUpload.js";
 import { handleDocumentUpload } from "../middlewares/experts/handleDocumentUpload.js";
+import ExpressError from "../utils/expressError.js";
 
 const router = express.Router();
 

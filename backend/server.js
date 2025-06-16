@@ -10,6 +10,7 @@ import mongoose from "mongoose";
 import session from "express-session";
 import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
+import { cleanupTempFiles } from "./utils/cleanupTempFiles.js";
 import chatRoutes from "./routes/Chat.js";
 import { Server, Socket } from "socket.io";
 
@@ -58,6 +59,14 @@ const app = express();
 main()
   .then(() => {
     console.log("DB connected successfully");
+
+    // Initialize temporary files cleanup
+    cleanupTempFiles(); // Run cleanup once at startup
+
+    // Schedule cleanup every 24 hours
+    setInterval(cleanupTempFiles, 24 * 60 * 60 * 1000);
+
+    console.log("Temporary files cleanup scheduler initialized");
   })
   .catch((err) => {
     console.log("DB connect error");
