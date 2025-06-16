@@ -1,11 +1,44 @@
 import express from "express";
-import Expert from "../models/Expert/Expert.js";
-
 import wrapAsync from "../utils/wrapAsync.js";
 import { isLoggedIn } from "../middlewares/commonAuth.js";
-import expertProfileController from "../controllers/expert.js";
-import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
+import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
+import * as expertProfileController from "../controllers/expert.js";
+
+const router = express.Router();
+
+
+// ========== ACTIVE ROUTES ==========
+
+// PATCH: Complete doctor profile
+router.patch(
+  "/complete-profile",
+  checkExpertLogin,
+  validateExpertCompleteProfile,
+  wrapAsync(expertProfileController.completeProfile)
+);
+
+// GET: Search doctors
+router.get(
+  "/search/doctors",
+  isLoggedIn,
+  wrapAsync(expertProfileController.searchDoctors)
+);
+
+// GET: Get expert by ID
+router.get(
+  "/:id",
+  wrapAsync(expertProfileController.getExpertById)
+);
+
+// PUT: Edit expert basic info
+router.put(
+  "/edit/:id",
+  wrapAsync(expertProfileController.editExpert)
+);
+
+
+// ========== COMMENTED ROUTES (AS-IS) ==========
 
 // // Get all experts
 // router.get(
@@ -69,62 +102,5 @@ import { checkExpertLogin } from "../middlewares/experts/auth.js";
 //     res.status(200).json({ message: "Expert updated", expert: updatedExpert });
 //   })
 // );
-
-// export default router;
-
-const router = express.Router();
-
-router.patch(
-  "/complete-profile",
-  checkExpertLogin,
-  validateExpertCompleteProfile,
-  wrapAsync(expertProfileController.completeProfile)
-);
-
-//search doctors
-router.get(
-  "/search/doctors",
-  isLoggedIn,
-  wrapAsync(expertProfileController.searchDoctors)
-);
-
-router.get(
-  "/:id",
-  wrapAsync(async (req, res) => {
-    // const expert = await Expert.findById(req.params.id)
-    //   .select("-posts -routinePosts -taggedPosts -verifiedPosts -salt -hash");//specifies the feild that needs to be sent
-
-    const expert = await Expert.findById(req.params._id);
-    if (!expert) {
-      return res.status(404).json({ message: "Expert not found" });
-    }
-
-    res.json(expert);
-  })
-);
-
-router.put(
-  "/edit/:id",
-  wrapAsync(async (req, res) => {
-    const { username, email, role, profile } = req.body;
-
-    const updatedExpert = await Expert.findByIdAndUpdate(
-      req.params.id,
-      {
-        username: username,
-        email: email,
-        role: role,
-        profile: profile,
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedExpert) {
-      return res.status(404).json({ message: "Expert not found" });
-    }
-
-    res.json(updatedExpert);
-  })
-);
 
 export default router;
