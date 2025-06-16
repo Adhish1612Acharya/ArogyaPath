@@ -120,19 +120,86 @@ export const resetPasswordSchema = z.object({
 });
 
 // -------------------- expertProfileSchema --------------------
-export const expertProfileSchema = z.object({
-  contactNo: z
-    .number()
-    .min(1000000000, "Contact number must be at least 10 digits")
-    .max(9999999999, "Contact number must be at most 10 digits"),
-  // expertType: z.enum(["ayurvedic", "naturopathy"]),
-  // profileImage: z.string().url().optional().or(z.literal("")),
-  experience: z.number().min(0, "Experience must be a non-negative number"),
-  // qualification: z.string().optional().or(z.literal("")),
-  clinicAdress: z.string().optional().or(z.literal("")),
-  specialization: z.string().optional().or(z.literal("")),
-  bio: z.string().optional().or(z.literal("")),
+import { z } from "zod";
+
+// Validation Schema for "POST /experts/complete-profile"
+
+export const expertProfileSchema = z.object({  
+  profile: z.object({  
+    fullName: z.string()
+      .min(1, "Full name is required"),
+    contactNo: z.number()
+      .min(1000000000, "Contact number must be a 10-digits number.")
+      .max(9999999999, "Contact number must be a 10-digits number."),
+    expertType: z.enum(["ayurvedic", "naturopathy"], {
+      required_error: "expertType is required",
+    }),
+    profileImage: z.string()
+      .url("Profile image must be a valid URL.")
+      .optional(),  
+    experience: z.number()
+      .min(0, "Experience must be non-neg.")
+      .default(0),
+    qualification: z.string()
+      .optional()
+      .or(z.literal("")),
+    clinicAdress: z.string()
+      .optional()
+      .or(z.literal("")),
+    specialization: z.string()
+      .optional()
+      .or(z.literal("")),
+    bio: z.string()
+      .optional()
+      .or(z.literal(""))
+  }),
+
+  completeProfileDetails: z.object({  
+    dateOfBirth: z.string()
+      .datetime("Invalid ISO datetime"),
+    gender: z.enum(["male", "female", "other"], {
+      required_error: "Gender is required",
+    }),
+    registrationNumber: z.string()
+      .min(1, "Registration number is required"),
+    registrationCouncil: z.string()
+      .min(1, "Registration council is required"),
+    yearOfRegistration: z.number()
+      .min(1900, "Year must be valid.")
+      .max(new Date().getFullYear(), "Year must be <= current"),
+    yearsOfExperience: z.number()
+      .min(0, "Years of experience must be non-neg"),
+    areasOfSpecialization: z.array(z.string())  
+      .optional()
+      .default([]),
+    languagesSpoken: z.array(z.string())  
+      .min(1, "At least 1 language is required"),
+    qualifications: z.array(z.string())  
+      .optional()
+      .default([]),
+    documents: z.object({  
+      degreeCertificate: z.string()
+        .url("Degree certificate must be a valid URL"),
+      registrationProof: z.string()
+        .url("Registration proof must be a valid URL"),
+      practiceProof: z.string()
+        .url("Practice proof must be a valid URL")
+        .optional()
+    }),
+    mobileNumber: z.number()
+      .min(1000000000, "Mobile number must be 10-digits.")
+      .max(9999999999, "Mobile number must be 10-digits."),
+    address: z.string()
+      .min(1, "Address is required"),
+    city: z.string()
+      .min(1, "City is required"),
+    state: z.string()
+      .min(1, "State is required"),
+    pincode: z.string()
+      .regex(/^\d{6}$/, "Pincode must be 6-digits.")
+  })
 });
+
 
 // -------------------- userProfileSchema --------------------
 export const userProfileSchema = z.object({

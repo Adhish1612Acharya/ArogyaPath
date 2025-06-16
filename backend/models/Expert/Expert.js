@@ -12,6 +12,7 @@ const ExpertSchema = new Schema(
       sparse: true,
       default: null,
     },
+
     profile: {
       fullName: { type: String, default: "" },
       contactNo: { type: Number, default: 0 },
@@ -27,6 +28,36 @@ const ExpertSchema = new Schema(
       specialization: { type: String, default: "" },
       bio: { type: String, default: "" },
     },
+
+    // 🆕 Doctor verification details
+    completeProfileDetails: {
+      dateOfBirth: { type: Date },
+      gender: {
+        type: String,
+        enum: ["male", "female", "other"],
+      },
+      registrationNumber: { type: String },
+      registrationCouncil: { type: String },
+      yearOfRegistration: { type: Number },
+      yearsOfExperience: { type: Number },
+
+      areasOfSpecialization: [{ type: String }],
+      languagesSpoken: [{ type: String }],
+      qualifications: [{ type: String }], // Optional list
+
+      documents: {
+        degreeCertificate: { type: String },      // URL/path to file
+        registrationProof: { type: String },       // URL/path to file
+        practiceProof: { type: String },           // Optional
+      },
+
+      mobileNumber: { type: Number },
+      address: { type: String },
+      city: { type: String },
+      state: { type: String },
+      pincode: { type: String },
+    },
+
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],
     routinePosts: [
       { type: mongoose.Schema.Types.ObjectId, ref: "Routine", default: [] },
@@ -45,6 +76,7 @@ const ExpertSchema = new Schema(
         default: [],
       },
     ],
+
     verifications: {
       email: {
         type: Boolean,
@@ -63,9 +95,11 @@ const ExpertSchema = new Schema(
         default: false,
       },
     },
+
     role: { type: String, enum: ["expert"], default: "expert" },
     resetPasswordToken: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },
+
     chats: [
       {
         type: Schema.Types.ObjectId,
