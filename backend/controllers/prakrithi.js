@@ -96,17 +96,22 @@ const sendPkPdfToMail = async (req, res) => {
     throw new ExpressError("PDF file is required", 400);
   }
 
-  // Get the uploaded PDF buffer
   const pdfBuffer = req.file.buffer;
 
-  // Send the PDF via email
-  await sendPdfReport(req.user?.email, pdfBuffer, req.user?.profile.fullName);
+  try {
+    await sendPdfReport(req.user?.email, pdfBuffer, req.user?.profile.fullName);
 
-  res.status(200).json({
-    success: true,
-    message: "PDF sent and analysis completed",
-  });
+    res.status(200).json({
+      success: true,
+      message: "PDF sent and analysis completed",
+    });
+  } catch (err) {
+    console.error("Error sending PDF email:", err.message);
+
+    throw new ExpressError("Failed to send PDF report via email", 500);
+  }
 };
+
 
 export default {
   findPrakrithi,

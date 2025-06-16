@@ -13,13 +13,13 @@ import {
   Stack,
   TextField,
   Typography,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import {
   Google as GoogleIcon,
   Login as LoginIcon,
   Visibility,
-  VisibilityOff
+  VisibilityOff,
 } from "@mui/icons-material";
 import { LoadingButton } from "@mui/lab";
 import loginSchema from "./ExpertLoginFormSchema";
@@ -32,11 +32,11 @@ const ExpertLoginForm: FC = () => {
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect");
   const { expertLogin } = useExpertAuth();
-  
+
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -62,179 +62,175 @@ const ExpertLoginForm: FC = () => {
   };
 
   return (
- 
+    <Stack spacing={4}>
+      {/* Header */}
+      <Box textAlign="center">
+        <Box
+          sx={{
+            width: 80,
+            height: 80,
+            bgcolor: amber[50],
+            borderRadius: "50%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            mx: "auto",
+            mb: 3,
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            style={{ width: 40, height: 40, color: amber[600] }}
+          >
+            <path d="M12 2v4M6 8l-3 3M21 11l-3-3M18 22v-4M15 15l3 3M9 15l-3 3" />
+          </svg>
+        </Box>
+        <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
+          Vaidya Login
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Access your Ayurvedic practice dashboard
+        </Typography>
+      </Box>
 
-        <Stack spacing={4}>
-          {/* Header */}
-          <Box textAlign="center">
-            <Box
-              sx={{
-                width: 80,
-                height: 80,
-                bgcolor: amber[50],
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mx: "auto",
-                mb: 3
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ width: 40, height: 40, color: amber[600] }}
-              >
-                <path d="M12 2v4M6 8l-3 3M21 11l-3-3M18 22v-4M15 15l3 3M9 15l-3 3" />
-              </svg>
-            </Box>
-            <Typography variant="h4" component="h1" fontWeight="bold" gutterBottom>
-              Vaidya Login
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              Access your Ayurvedic practice dashboard
-            </Typography>
-          </Box>
+      {/* Login Form */}
+      <Box component="form" onSubmit={handleSubmit(onLoginSubmit)}>
+        <Stack spacing={3}>
+          {/* Email Field */}
+          <TextField
+            {...register("email")}
+            label="Email"
+            variant="outlined"
+            placeholder="vaidya"
+            fullWidth
+            error={!!errors.email}
+            helperText={errors.email?.message}
+            InputProps={{
+              sx: {
+                "&:hover fieldset": {
+                  borderColor: amber[600],
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: amber[600],
+                },
+              },
+            }}
+          />
 
-          {/* Login Form */}
-          <Box component="form" onSubmit={handleSubmit(onLoginSubmit)}>
-            <Stack spacing={3}>
-              {/* Email Field */}
-              <TextField
-                {...register("email")}
-                label="Email"
-                variant="outlined"
-                placeholder="vaidya"
-                fullWidth
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                InputProps={{
-                  sx: {
-                    "&:hover fieldset": {
-                      borderColor: amber[600]
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: amber[600]
-                    }
-                  }
-                }}
-              />
+          {/* Password Field */}
+          <TextField
+            {...register("password")}
+            label="Password"
+            type={showPassword ? "text" : "password"}
+            variant="outlined"
+            placeholder="••••••••"
+            fullWidth
+            error={!!errors.password}
+            helperText={errors.password?.message}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+              sx: {
+                "&:hover fieldset": {
+                  borderColor: amber[600],
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: amber[600],
+                },
+              },
+            }}
+          />
 
-              {/* Password Field */}
-              <TextField
-                {...register("password")}
-                label="Password"
-                type={showPassword ? "text" : "password"}
-                variant="outlined"
-                placeholder="••••••••"
-                fullWidth
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton
-                        onClick={() => setShowPassword(!showPassword)}
-                        edge="end"
-                      >
-                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                  sx: {
-                    "&:hover fieldset": {
-                      borderColor: amber[600]
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: amber[600]
-                    }
-                  }
-                }}
-              />
-
-              <Box textAlign="right">
-                <Link
-                  href="/expert/forgot-password"
-                  color="amber.700"
-                  underline="hover"
-                  variant="body2"
-                >
-                  Forgot password?
-                </Link>
-              </Box>
-
-              {/* Submit Button */}
-              <LoadingButton
-                type="submit"
-                variant="contained"
-                color="warning"
-                fullWidth
-                size="large"
-                loading={isSubmitting}
-                loadingPosition="start"
-                startIcon={<LoginIcon />}
-                sx={{
-                  py: 1.5,
-                  textTransform: "none",
-                  fontWeight: "medium",
-                  "&:hover": {
-                    backgroundColor: amber[700]
-                  }
-                }}
-              >
-                Sign in
-              </LoadingButton>
-
-              {/* Divider */}
-              <Divider sx={{ my: 2 }}>
-                <Typography variant="body2" color="text.secondary">
-                  OR
-                </Typography>
-              </Divider>
-
-              {/* Google Button */}
-              <Button
-                variant="outlined"
-                fullWidth
-                size="large"
-                onClick={googleLogin}
-                startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
-                sx={{
-                  py: 1.5,
-                  textTransform: "none",
-                  fontWeight: "medium",
-                  borderColor: "grey.300",
-                  "&:hover": {
-                    borderColor: "grey.400",
-                    backgroundColor: "action.hover"
-                  }
-                }}
-              >
-                Continue with Google
-              </Button>
-            </Stack>
-          </Box>
-
-          {/* Footer */}
-          <Typography variant="body2" textAlign="center" color="text.secondary">
-            New to ArogyaPath?{" "}
+          <Box textAlign="right">
             <Link
-              href="/expert/register"
+              href="/expert/forgot-password"
               color="amber.700"
               underline="hover"
-              fontWeight="medium"
+              variant="body2"
             >
-              Create an account
+              Forgot password?
             </Link>
-          </Typography>
+          </Box>
+
+          {/* Submit Button */}
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            color="warning"
+            fullWidth
+            size="large"
+            loading={isSubmitting}
+            loadingPosition="start"
+            startIcon={<LoginIcon />}
+            sx={{
+              py: 1.5,
+              textTransform: "none",
+              fontWeight: "medium",
+              "&:hover": {
+                backgroundColor: amber[700],
+              },
+            }}
+          >
+            Sign in
+          </LoadingButton>
+
+          {/* Divider */}
+          <Divider sx={{ my: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              OR
+            </Typography>
+          </Divider>
+
+          {/* Google Button */}
+          <Button
+            variant="outlined"
+            fullWidth
+            size="large"
+            onClick={googleLogin}
+            startIcon={<GoogleIcon sx={{ color: "#EA4335" }} />}
+            sx={{
+              py: 1.5,
+              textTransform: "none",
+              fontWeight: "medium",
+              borderColor: "grey.300",
+              "&:hover": {
+                borderColor: "grey.400",
+                backgroundColor: "action.hover",
+              },
+            }}
+          >
+            Continue with Google
+          </Button>
         </Stack>
-  
-    
+      </Box>
+
+      {/* Footer */}
+      <Typography variant="body2" textAlign="center" color="text.secondary">
+        New to ArogyaPath?{" "}
+        <Link
+          href="/expert/register"
+          color="amber.700"
+          underline="hover"
+          fontWeight="medium"
+        >
+          Create an account
+        </Link>
+      </Typography>
+    </Stack>
   );
 };
 

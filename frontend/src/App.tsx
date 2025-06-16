@@ -42,6 +42,8 @@ import SentChatRequest from "./pages/SentChatRequest/SentChatRequest";
 import ReceivedChatRequestPage from "./pages/ReceivedChatRequest/ReceivedChatRequest";
 import YourChats from "./pages/YourChats/YourChats";
 import Premium from "./pages/Premium/Premium";
+import EmailVerificationPage from "./pages/auth/EmailVerificationPage/EmailVerificationPage";
+import VerifyingEmailPage from "./pages/auth/VerifyingEmailPage/VerifyingEmailPage";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -80,6 +82,11 @@ const App = () => {
             <Route
               path="/:role/reset-password/:token"
               element={<ResetPasswordPage />}
+            />
+            <Route path="/email/verify" element={<EmailVerificationPage />} />
+            <Route
+              path="/email/verify/:userId/:token"
+              element={<VerifyingEmailPage />}
             />
           </Route>
 

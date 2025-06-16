@@ -2,7 +2,10 @@ import express from "express";
 import passport from "passport";
 import emailPasswordUserAuthController from "../../controllers/auth/user/userEmailPasswordLogin.js";
 import wrapAsync from "../../utils/wrapAsync.js";
-import { isAlreadyLoggedIn } from "../../middlewares/commonAuth.js";
+import {
+  isAlreadyLoggedIn,
+  isEmailVerified,
+} from "../../middlewares/commonAuth.js";
 
 const router = express.Router();
 
@@ -18,6 +21,7 @@ router.post(
 router.post(
   "/login",
   isAlreadyLoggedIn,
+  wrapAsync(isEmailVerified),
   passport.authenticate("user", {
     failureRedirect: "/api/auth/user/failureLogin",
   }),

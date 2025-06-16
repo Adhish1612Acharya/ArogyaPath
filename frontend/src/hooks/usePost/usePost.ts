@@ -43,7 +43,7 @@ const usePost = () => {
         postData.append("media", formData.media.document);
       }
 
-      for (let [key, value] of postData.entries()) {
+      for (const [key, value] of postData.entries()) {
         console.log(`${key}:`, value);
       }
 

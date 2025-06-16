@@ -30,6 +30,7 @@ import userRoutes from "./routes/User.js";
 import prakrathiRoutes from "./routes/Prakrathi.js";
 import healthChallenge from "./routes/healthChallenge.js";
 import commonAuthRouter from "./routes/auth/commonAuth.js";
+import emailVerificationRouter from "./routes/auth/emailVerification.js";
 
 import passport from "passport";
 import MongoStore from "connect-mongo";
@@ -165,6 +166,7 @@ app.use("/api/ai", aiFeaturesRoute);
 app.use("/api/auth", commonAuthRouter);
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/auth/user", userEmailPasswordAuth);
+app.use("/api/auth/email", emailVerificationRouter);
 
 app.use("/api/auth/google/expert", expertGoogleAuth);
 app.use("/api/auth/google/user", userGoogleAuth);

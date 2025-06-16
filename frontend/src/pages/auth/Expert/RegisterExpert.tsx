@@ -87,7 +87,7 @@ const RegisterExpert: FC = () => {
           </Typography>
           <Grid container spacing={2}>
             {userTypeOptions.map(({ type, label, icon: Icon }) => (
-              <Grid item xs={12} sm={6} key={type}>
+              <Grid  key={type}>
                 <Card
                   onClick={() => setUserType(type)}
                   sx={{
@@ -97,7 +97,7 @@ const RegisterExpert: FC = () => {
                     transition: "all 0.3s ease",
                     "&:hover": {
                       borderColor: theme.palette.primary.main,
-                      backgroundColor: theme.palette.primary.lighter,
+                      backgroundColor: (theme.palette.primary as any).lighter,
                     },
                     display: "flex",
                     flexDirection: "column",
