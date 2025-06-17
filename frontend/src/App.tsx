@@ -44,6 +44,8 @@ import YourChats from "./pages/YourChats/YourChats";
 import Premium from "./pages/Premium/Premium";
 import EmailVerificationPage from "./pages/auth/EmailVerificationPage/EmailVerificationPage";
 import VerifyingEmailPage from "./pages/auth/VerifyingEmailPage/VerifyingEmailPage";
+import ExpertProfilePage from "./pages/AfterRegisterPage/ExpertProfilePage";
+import UserProfilePage from "./pages/AfterRegisterPage/UserProfilePage";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -100,6 +102,7 @@ const App = () => {
               path="/user/success-stories/create"
               element={<CreateSuccessStory />}
             />
+            <Route path="/user/profile" element={<UserProfilePage />} />
           </Route>
 
           <Route element={<ExpertProtectedRoute />}>
@@ -113,6 +116,7 @@ const App = () => {
             />
             <Route path="/expert/posts/create" element={<CreatePost />} />
             <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
+            <Route path="/expert/profile" element={<ExpertProfilePage />} />
             {/* <Route path="/posts/create" element={<CreatePost />} /> */}
           </Route>
 
