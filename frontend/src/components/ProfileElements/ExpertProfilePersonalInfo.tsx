@@ -12,23 +12,20 @@ import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 import HomeIcon from '@mui/icons-material/Home';
 import DateRangeIcon from '@mui/icons-material/DateRange';
+import { Controller, Control, FieldErrors } from "react-hook-form";
 
 interface ExpertProfilePersonalInfoProps {
+  control: Control<any>;
+  errors: FieldErrors<any>;
   isEditing: boolean;
 }
 
 export const ExpertProfilePersonalInfo = ({
+  control,
+  errors,
   isEditing
 }: ExpertProfilePersonalInfoProps) => {
   const theme = useTheme();
-
-  // Mock data for demonstration
-  const mockData = {
-    name: "Dr. John Doe",
-    phone: "9876543210",
-    address: "123 Main St, City",
-    dob: "1990-01-01"
-  };
 
   return (
     <Box sx={{ mt: 6 }}>
@@ -60,57 +57,89 @@ export const ExpertProfilePersonalInfo = ({
             </Typography>
 
             <Stack spacing={3}>
-              <TextField
-                label="Name"
-                value={mockData.name}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon />
-                    </InputAdornment>
-                  ),
-                  readOnly: !isEditing
-                }}
-                fullWidth
+              <Controller
+                name="name"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    label="Name"
+                    {...field}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PersonIcon />
+                        </InputAdornment>
+                      ),
+                      readOnly: !isEditing
+                    }}
+                    error={!!errors?.name}
+                    helperText={errors?.name?.message?.toString()}
+                    fullWidth
+                  />
+                )}
               />
-              <TextField
-                label="Phone"
-                value={mockData.phone}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PhoneIcon />
-                    </InputAdornment>
-                  ),
-                  readOnly: !isEditing
-                }}
-                fullWidth
+              <Controller
+                name="phone"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    label="Phone"
+                    {...field}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <PhoneIcon />
+                        </InputAdornment>
+                      ),
+                      readOnly: !isEditing
+                    }}
+                    error={!!errors?.phone}
+                    helperText={errors?.phone?.message?.toString()}
+                    fullWidth
+                  />
+                )}
               />
-              <TextField
-                label="Address"
-                value={mockData.address}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <HomeIcon />
-                    </InputAdornment>
-                  ),
-                  readOnly: !isEditing
-                }}
-                fullWidth
+              <Controller
+                name="address"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    label="Address"
+                    {...field}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <HomeIcon />
+                        </InputAdornment>
+                      ),
+                      readOnly: !isEditing
+                    }}
+                    error={!!errors?.address}
+                    helperText={errors?.address?.message?.toString()}
+                    fullWidth
+                  />
+                )}
               />
-              <TextField
-                label="Date of Birth"
-                value={mockData.dob}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <DateRangeIcon />
-                    </InputAdornment>
-                  ),
-                  readOnly: !isEditing
-                }}
-                fullWidth
+              <Controller
+                name="dob"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    label="Date of Birth"
+                    {...field}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <DateRangeIcon />
+                        </InputAdornment>
+                      ),
+                      readOnly: !isEditing
+                    }}
+                    error={!!errors?.dob}
+                    helperText={errors?.dob?.message?.toString()}
+                    fullWidth
+                  />
+                )}
               />
             </Stack>
           </CardContent>

@@ -1,5 +1,4 @@
 import {
-  Box,
   Card,
   CardContent,
   Typography,
@@ -22,7 +21,6 @@ interface ProfileDocumentsProps {
 
 export const ProfileDocuments = ({
   isEditing,
-  fieldName,
   label,
   description,
   accept = ".pdf,.jpg,.jpeg,.png"
