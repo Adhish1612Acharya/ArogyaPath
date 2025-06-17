@@ -4,12 +4,9 @@ import { isLoggedIn } from "../middlewares/commonAuth.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import * as expertProfileController from "../controllers/expert.js";
-import {
-  documentUpload,
-  validateDocuments,
-} from "../middlewares/experts/documentUpload.js";
-import { handleDocumentUpload } from "../middlewares/experts/handleDocumentUpload.js";
-import ExpressError from "../utils/expressError.js";
+import handleExpertDocumentUpload from "../middlewares/cloudinary/handleExpertDocumentUpload.js";
+import { handleCloudinaryDiskUpload } from "../middlewares/cloudinary/handleCloudinaryDiskUpload.js";
+import { validateExpertDocuments } from "../middlewares/experts/validateExpertDocument.js";
 
 const router = express.Router();
 
@@ -20,31 +17,13 @@ router.patch(
   "/complete-profile",
   checkExpertLogin,
   // Handle file uploads with multer
-  wrapAsync((req, res, next) =>
-    documentUpload(req, res, (err) => {
-      if (err instanceof multer.MulterError) {
-        if (err.code === "LIMIT_FILE_SIZE") {
-          throw new ExpressError(
-            400,
-            "File size too large. Maximum size is 5MB"
-          );
-        }
-        if (err.code === "LIMIT_FILE_COUNT") {
-          throw new ExpressError(400, "Too many files. Maximum is 4 documents");
-        }
-        throw new ExpressError(400, err.message);
-      } else if (err) {
-        throw new ExpressError(400, err.message);
-      }
-      next();
-    })
-  ),
+  handleCloudinaryDiskUpload,
   // Validate required documents are present
-  validateDocuments,
+  validateExpertDocuments,
   // Validate the request body
   validateExpertCompleteProfile,
   // Upload documents to Cloudinary
-  wrapAsync(handleDocumentUpload),
+  wrapAsync(handleExpertDocumentUpload),
   // Complete the profile
   wrapAsync(expertProfileController.completeProfile)
 );

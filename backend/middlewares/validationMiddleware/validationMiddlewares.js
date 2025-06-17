@@ -133,6 +133,7 @@ export const checkChatRequestDoesNotContainCurrentUser = (req, res, next) => {
   if (users && users.some((u) => u.user === currUserId)) {
     throw new ExpressError(400, "Current user cannot be in the users list");
   }
+  next()
 };
 
 export default {

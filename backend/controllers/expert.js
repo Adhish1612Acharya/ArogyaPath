@@ -2,7 +2,7 @@ import Expert from "../models/Expert/Expert.js";
 import ExpressError from "../utils/expressError.js";
 
 // PATCH /experts/complete-profile
-const completeProfile = async (req, res) => {
+export const completeProfile = async (req, res) => {
   const expertId = req.user._id;
   const { profile, verificationDetails } = req.body;
   const documentUrls = req.documentUrls;

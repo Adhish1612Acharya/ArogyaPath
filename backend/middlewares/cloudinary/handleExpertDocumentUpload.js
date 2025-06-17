@@ -1,15 +1,28 @@
 import { v2 as cloudinary } from "cloudinary";
-import ExpressError from "../../utils/expressError.js";
-import { getCloudinaryResourceType } from "../../utils/getCloudinaryResourceType.js";
 import fs from "fs/promises";
-import path from "path";
+import { getCloudinaryResourceType } from "../../utils/getCloudinaryResourceType.js";
+import ExpressError from "../../utils/expressError.js";
 
 /**
- * Uploads expert verification documents to Cloudinary from disk storage
- * Each document is uploaded to a specific folder based on its type
- * Cleans up temporary files after upload
+ * Handles the upload of expert verification documents to Cloudinary.
+ *
+ * This middleware function processes uploaded files, stores them in Cloudinary,
+ * and adds the resulting URLs to the request object for further processing.
+ * It also manages error handling and cleanup of both Cloudinary and local temporary files.
+ *
+ * @async
+ * @param {Object} req - Express request object
+ * @param {Object} req.files - Uploaded files from multer middleware
+ * @param {Object} req.user - User object from authentication middleware
+ * @param {Object} req.user.profile - User profile information
+ * @param {string} req.user.profile.fullName - Full name of the expert
+ * @param {string} req.user._id - User ID
+ * @param {Object} res - Express response object
+ * @param {function} next - Express next middleware function
+ * @throws {ExpressError} Throws a custom error if document upload fails
+ * @returns {void}
  */
-export const handleDocumentUpload = async (req, res, next) => {
+const handleExpertDocumentUpload = async (req, res, next) => {
   const tempFiles = [];
   try {
     const files = req.files;
@@ -72,3 +85,5 @@ export const handleDocumentUpload = async (req, res, next) => {
     }
   }
 };
+
+export default handleExpertDocumentUpload;
