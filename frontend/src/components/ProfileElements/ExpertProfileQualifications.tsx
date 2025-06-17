@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Box,
   TextField,
@@ -13,29 +12,23 @@ import {
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import SchoolIcon from '@mui/icons-material/School';
+import { Controller, useFieldArray, Control, FieldErrors } from "react-hook-form";
 
 interface ExpertProfileQualificationsProps {
+  control: Control<any>;
+  errors: FieldErrors<any>;
   isEditing: boolean;
 }
 
 export const ExpertProfileQualifications = ({
+  control,
   isEditing
 }: ExpertProfileQualificationsProps) => {
   const theme = useTheme();
-  // Mock qualifications data
-  const [qualifications, setQualifications] = React.useState([
-    { degree: "BAMS", college: "Ayurveda College", year: "2012" }
-  ]);
-
-  const handleAddQualification = () => {
-    setQualifications([...qualifications, { degree: "", college: "", year: "" }]);
-  };
-
-  const handleRemoveQualification = (index: number) => {
-    if (qualifications.length > 1) {
-      setQualifications(qualifications.filter((_, i) => i !== index));
-    }
-  };
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "qualifications"
+  });
 
   return (
     <Box sx={{ mt: 6 }}>
@@ -51,33 +44,51 @@ export const ExpertProfileQualifications = ({
       </Typography>
       <Card variant="outlined" sx={{ borderRadius: 2, borderColor: theme.palette.divider }}>
         <CardContent>
-          {qualifications.map((q, idx) => (
-            <Box key={idx} sx={{ mb: 2 }}>
+          {fields.map((q, idx) => (
+            <Box key={q.id} sx={{ mb: 2 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
                 Qualification {idx + 1}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
-                <TextField
-                  label="Degree"
-                  value={q.degree}
-                  InputProps={{ readOnly: !isEditing }}
-                  fullWidth
+                <Controller
+                  name={`qualifications.${idx}.degree`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      label="Degree"
+                      {...field}
+                      InputProps={{ readOnly: !isEditing }}
+                      fullWidth
+                    />
+                  )}
                 />
-                <TextField
-                  label="College"
-                  value={q.college}
-                  InputProps={{ readOnly: !isEditing }}
-                  fullWidth
+                <Controller
+                  name={`qualifications.${idx}.college`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      label="College"
+                      {...field}
+                      InputProps={{ readOnly: !isEditing }}
+                      fullWidth
+                    />
+                  )}
                 />
-                <TextField
-                  label="Year"
-                  value={q.year}
-                  InputProps={{ readOnly: !isEditing }}
-                  fullWidth
+                <Controller
+                  name={`qualifications.${idx}.year`}
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      label="Year"
+                      {...field}
+                      InputProps={{ readOnly: !isEditing }}
+                      fullWidth
+                    />
+                  )}
                 />
                 {isEditing && (
-                  <IconButton onClick={() => handleRemoveQualification(idx)} color="error">
+                  <IconButton onClick={() => remove(idx)} color="error">
                     <RemoveCircleOutlineIcon />
                   </IconButton>
                 )}
@@ -88,7 +99,7 @@ export const ExpertProfileQualifications = ({
             <Button
               variant="outlined"
               startIcon={<AddCircleOutlineIcon />}
-              onClick={handleAddQualification}
+              onClick={() => append({ degree: "", college: "", year: "" })}
               sx={{ mt: 2 }}
             >
               Add Qualification

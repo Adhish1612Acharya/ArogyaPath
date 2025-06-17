@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Divider,
   FormControlLabel,
   Checkbox,
   Stack,
@@ -12,23 +11,20 @@ import {
 } from "@mui/material";
 import HealthAndSafetyIcon from '@mui/icons-material/HealthAndSafety';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { Controller, Control, FieldErrors } from "react-hook-form";
 
 interface UserProfileWellnessInfoProps {
+  control: Control<any>;
+  errors: FieldErrors<any>;
   isEditing: boolean;
 }
 
 export const UserProfileWellnessInfo = ({
+  control,
+  errors,
   isEditing
 }: UserProfileWellnessInfoProps) => {
   const theme = useTheme();
-
-  // Mock data for demonstration
-  const mockData = {
-    currentCity: "Bangalore",
-    wellnessGoals: "Lose weight, Improve sleep",
-    isSmoker: false,
-    isAlcoholic: false
-  };
 
   return (
     <Box sx={{ mt: 6 }}>
@@ -42,7 +38,6 @@ export const UserProfileWellnessInfo = ({
       }}>
         <HealthAndSafetyIcon fontSize="medium" /> Wellness Information
       </Typography>
-
       <Card variant="outlined" sx={{
         mb: 3,
         borderRadius: 2,
@@ -51,31 +46,59 @@ export const UserProfileWellnessInfo = ({
         <CardContent>
           <Stack spacing={3}>
             <Box sx={{ display: 'flex', gap: 3 }}>
-              <TextField
-                label="Current City"
-                value={mockData.currentCity}
-                InputProps={{
-                  startAdornment: (
-                    <LocationOnIcon />
-                  ),
-                  readOnly: !isEditing
-                }}
-                fullWidth
+              <Controller
+                name="currentCity"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    label="Current City"
+                    {...field}
+                    InputProps={{
+                      startAdornment: (
+                        <LocationOnIcon />
+                      ),
+                      readOnly: !isEditing
+                    }}
+                    error={!!errors?.currentCity}
+                    helperText={errors?.currentCity?.message?.toString()}
+                    fullWidth
+                  />
+                )}
               />
             </Box>
-            <TextField
-              label="Wellness Goals"
-              value={mockData.wellnessGoals}
-              InputProps={{ readOnly: !isEditing }}
-              fullWidth
+            <Controller
+              name="wellnessGoals"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Wellness Goals"
+                  {...field}
+                  InputProps={{ readOnly: !isEditing }}
+                  error={!!errors?.wellnessGoals}
+                  helperText={errors?.wellnessGoals?.message?.toString()}
+                  fullWidth
+                />
+              )}
             />
-            <FormControlLabel
-              control={<Checkbox checked={mockData.isSmoker} disabled />}
-              label="Smoker"
+            <Controller
+              name="isSmoker"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={<Checkbox {...field} checked={!!field.value} disabled={!isEditing} />}
+                  label="Smoker"
+                />
+              )}
             />
-            <FormControlLabel
-              control={<Checkbox checked={mockData.isAlcoholic} disabled />}
-              label="Alcoholic"
+            <Controller
+              name="isAlcoholic"
+              control={control}
+              render={({ field }) => (
+                <FormControlLabel
+                  control={<Checkbox {...field} checked={!!field.value} disabled={!isEditing} />}
+                  label="Alcoholic"
+                />
+              )}
             />
           </Stack>
         </CardContent>

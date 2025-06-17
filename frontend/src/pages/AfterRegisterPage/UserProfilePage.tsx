@@ -71,12 +71,15 @@ const UserProfilePage = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Container maxWidth="md" sx={{ py: 6 }}>
+      <Container maxWidth={false} disableGutters sx={{ px: 0, py: 0, width: '100vw', minWidth: 0 }}>
         <Paper elevation={3} sx={{ 
-          p: 6, 
-          borderRadius: 4,
+          p: { xs: 2, sm: 4, md: 6 }, 
+          borderRadius: 0,
           background: theme.palette.background.paper,
-          boxShadow: theme.shadows[3]
+          boxShadow: theme.shadows[3],
+          width: '100vw',
+          minHeight: '100vh',
+          minWidth: 0
         }}>
           <Box sx={{ 
             display: 'flex', 
