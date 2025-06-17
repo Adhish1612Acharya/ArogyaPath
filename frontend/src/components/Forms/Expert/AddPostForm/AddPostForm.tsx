@@ -120,7 +120,8 @@ const PostForm = () => {
 
   const handleImagePreviewCancel = (i: number) => {
     URL.revokeObjectURL(mediaPreview.images[i]);
-    const newImages = mediaPreview.images?.filter((_, index) => index !== i) || [];
+    const newImages =
+      mediaPreview.images?.filter((_, index) => index !== i) || [];
     setMediaPreview((prev) => ({ ...prev, images: newImages }));
     const currentImages = form.getValues("media.images") || [];
     const newFiles = currentImages.filter((_, index) => index !== i);
@@ -162,260 +163,267 @@ const PostForm = () => {
         maxWidth: "100%",
       }}
     >
-          <Typography variant="h5" component="h2" gutterBottom sx={{ fontWeight: 600 }}>
-            Create New Post
-          </Typography>
-          
-          <Divider sx={{ my: 2 }} />
-          
-          <Stack spacing={3}>
-            <TextField
-              fullWidth
-              label="Title"
-              variant="outlined"
-              error={!!form.formState.errors.title}
-              helperText={form.formState.errors.title?.message}
-              {...form.register("title")}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Typography variant="body2" color="text.secondary">📝</Typography>
-                  </InputAdornment>
-                ),
-              }}
-            />
+      <Typography
+        variant="h5"
+        component="h2"
+        gutterBottom
+        sx={{ fontWeight: 600 }}
+      >
+        Create New Post
+      </Typography>
 
-            <TextField
-              fullWidth
-              label="Description"
-              variant="outlined"
-              multiline
-              rows={5}
-              error={!!form.formState.errors.description}
-              helperText={form.formState.errors.description?.message}
-              {...form.register("description")}
-            />
+      <Divider sx={{ my: 2 }} />
 
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              ref={imageInputRef}
-              onChange={handleImageChange}
-              style={{ display: "none" }}
-            />
-            <input
-              type="file"
-              accept="video/*"
-              ref={videoInputRef}
-              onChange={handleVideoChange}
-              style={{ display: "none" }}
-            />
-            <input
-              type="file"
-              accept=".pdf"
-              ref={docInputRef}
-              onChange={handleDocChange}
-              style={{ display: "none" }}
-            />
-
-            <Box>
-              <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
-                Add Media
-              </Typography>
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
-                <Button
-                  variant="outlined"
-                  startIcon={<Image />}
-                  onClick={() => imageInputRef.current?.click()}
-                  sx={{ flex: 1 }}
-                >
-                  Images
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<Movie />}
-                  onClick={() => videoInputRef.current?.click()}
-                  sx={{ flex: 1 }}
-                >
-                  Video
-                </Button>
-                <Button
-                  variant="outlined"
-                  startIcon={<Description />}
-                  onClick={() => docInputRef.current?.click()}
-                  sx={{ flex: 1 }}
-                >
-                  Document
-                </Button>
-              </Stack>
-              <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
-                {mediaPreview.images.length > 0
-                  ? `${mediaPreview.images.length} image(s) selected`
-                  : mediaPreview.video
-                  ? "1 video selected"
-                  : mediaPreview.document
-                  ? "1 document selected"
-                  : "No media selected"}
-              </Typography>
-            </Box>
-
-            {(mediaPreview.images.length > 0 || mediaPreview.video || mediaPreview.document) && (
-              <Paper elevation={0} sx={{ p: 2, bgcolor: theme.palette.grey[50], borderRadius: 2 }}>
-                <Typography variant="subtitle2" gutterBottom>
-                  Media Preview
+      <Stack spacing={3}>
+        <TextField
+          fullWidth
+          label="Title"
+          variant="outlined"
+          error={!!form.formState.errors.title}
+          helperText={form.formState.errors.title?.message}
+          {...form.register("title")}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Typography variant="body2" color="text.secondary">
+                  📝
                 </Typography>
-                
-                <Grid container spacing={2}>
-                  {mediaPreview.images?.map((img, i) => (
-                    <Grid item xs={12} sm={6} md={4} key={i}>
-                      <Box sx={{ position: "relative", height: "100%" }}>
-                        <Box
-                          component="img"
-                          src={img}
-                          alt={`preview-${i}`}
-                          sx={{
-                            width: "100%",
-                            height: "160px",
-                            objectFit: "cover",
-                            borderRadius: 1,
-                          }}
-                        />
-                        <IconButton
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            bgcolor: "rgba(0,0,0,0.5)",
-                            color: "white",
-                            "&:hover": {
-                              bgcolor: "rgba(0,0,0,0.8)",
-                            },
-                          }}
-                          onClick={() => handleImagePreviewCancel(i)}
-                        >
-                          <Close fontSize="small" />
-                        </IconButton>
-                        <Chip
-                          label={`Image ${i + 1}`}
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            bottom: 8,
-                            left: 8,
-                            bgcolor: "rgba(0,0,0,0.5)",
-                            color: "white",
-                          }}
-                        />
-                      </Box>
-                    </Grid>
-                  ))}
+              </InputAdornment>
+            ),
+          }}
+        />
 
-                  {mediaPreview.video && (
-                    <Grid item xs={12}>
-                      <Box sx={{ position: "relative" }}>
-                        <Box
-                          component="video"
-                          controls
-                          src={mediaPreview.video}
-                          sx={{
-                            width: "100%",
-                            maxHeight: "300px",
-                            borderRadius: 1,
-                          }}
-                        />
-                        <IconButton
-                          size="small"
-                          sx={{
-                            position: "absolute",
-                            top: 8,
-                            right: 8,
-                            bgcolor: "rgba(0,0,0,0.5)",
-                            color: "white",
-                            "&:hover": {
-                              bgcolor: "rgba(0,0,0,0.8)",
-                            },
-                          }}
-                          onClick={handleVideoPreviewCancel}
-                        >
-                          <Close fontSize="small" />
-                        </IconButton>
-                      </Box>
-                    </Grid>
-                  )}
+        <TextField
+          fullWidth
+          label="Description"
+          variant="outlined"
+          multiline
+          rows={5}
+          error={!!form.formState.errors.description}
+          helperText={form.formState.errors.description?.message}
+          {...form.register("description")}
+        />
 
-                  {mediaPreview.document && (
-                    <Grid item xs={12}>
-                      <Paper
-                        variant="outlined"
-                        sx={{
-                          p: 2,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          bgcolor: "background.paper",
-                        }}
-                      >
-                        <Stack direction="row" alignItems="center" spacing={1}>
-                          <Description color="primary" />
-                          <Typography variant="body2">
-                            {form.getValues("media.document")?.name || "Document"}
-                          </Typography>
-                        </Stack>
-                        <Stack direction="row" spacing={1}>
-                          <Button
-                            size="small"
-                            onClick={() => {
-                              window.open(mediaPreview.document || "", "_blank");
-                            }}
-                          >
-                            View
-                          </Button>
-                          <IconButton
-                            size="small"
-                            onClick={handleDocPreviewCancel}
-                          >
-                            <Close fontSize="small" />
-                          </IconButton>
-                        </Stack>
-                      </Paper>
-                    </Grid>
-                  )}
-                </Grid>
-              </Paper>
-            )}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          ref={imageInputRef}
+          onChange={handleImageChange}
+          style={{ display: "none" }}
+        />
+        <input
+          type="file"
+          accept="video/*"
+          ref={videoInputRef}
+          onChange={handleVideoChange}
+          style={{ display: "none" }}
+        />
+        <input
+          type="file"
+          accept=".pdf"
+          ref={docInputRef}
+          onChange={handleDocChange}
+          style={{ display: "none" }}
+        />
 
+        <Box>
+          <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 500 }}>
+            Add Media
+          </Typography>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
             <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              size="large"
-              fullWidth
-              disabled={form.formState.isSubmitting}
-              startIcon={
-                form.formState.isSubmitting ? (
-                  <CircularProgress size={20} color="inherit" />
-                ) : (
-                  <Send />
-                )
-              }
-              sx={{
-                py: 1.5,
-                fontWeight: "bold",
-                fontSize: "1rem",
-                textTransform: "none",
-                boxShadow: "none",
-                "&:hover": {
-                  boxShadow: theme.shadows[2],
-                },
-              }}
+              variant="outlined"
+              startIcon={<Image />}
+              onClick={() => imageInputRef.current?.click()}
+              sx={{ flex: 1 }}
             >
-              {form.formState.isSubmitting ? "Posting..." : "Publish Post"}
+              Images
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Movie />}
+              onClick={() => videoInputRef.current?.click()}
+              sx={{ flex: 1 }}
+            >
+              Video
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Description />}
+              onClick={() => docInputRef.current?.click()}
+              sx={{ flex: 1 }}
+            >
+              Document
             </Button>
           </Stack>
-        
-      
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+            {mediaPreview.images.length > 0
+              ? `${mediaPreview.images.length} image(s) selected`
+              : mediaPreview.video
+              ? "1 video selected"
+              : mediaPreview.document
+              ? "1 document selected"
+              : "No media selected"}
+          </Typography>
+        </Box>
+
+        {(mediaPreview.images.length > 0 ||
+          mediaPreview.video ||
+          mediaPreview.document) && (
+          <Paper
+            elevation={0}
+            sx={{ p: 2, bgcolor: theme.palette.grey[50], borderRadius: 2 }}
+          >
+            <Typography variant="subtitle2" gutterBottom>
+              Media Preview
+            </Typography>
+
+            <Grid container spacing={2}>
+              {mediaPreview.images?.map((img, i) => (
+                <Grid item xs={12} sm={6} md={4} key={i}>
+                  <Box sx={{ position: "relative", height: "100%" }}>
+                    <Box
+                      component="img"
+                      src={img}
+                      alt={`preview-${i}`}
+                      sx={{
+                        width: "100%",
+                        height: "160px",
+                        objectFit: "cover",
+                        borderRadius: 1,
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        bgcolor: "rgba(0,0,0,0.5)",
+                        color: "white",
+                        "&:hover": {
+                          bgcolor: "rgba(0,0,0,0.8)",
+                        },
+                      }}
+                      onClick={() => handleImagePreviewCancel(i)}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                    <Chip
+                      label={`Image ${i + 1}`}
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        bottom: 8,
+                        left: 8,
+                        bgcolor: "rgba(0,0,0,0.5)",
+                        color: "white",
+                      }}
+                    />
+                  </Box>
+                </Grid>
+              ))}
+
+              {mediaPreview.video && (
+                <Grid item xs={12}>
+                  <Box sx={{ position: "relative" }}>
+                    <Box
+                      component="video"
+                      controls
+                      src={mediaPreview.video}
+                      sx={{
+                        width: "100%",
+                        maxHeight: "300px",
+                        borderRadius: 1,
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        bgcolor: "rgba(0,0,0,0.5)",
+                        color: "white",
+                        "&:hover": {
+                          bgcolor: "rgba(0,0,0,0.8)",
+                        },
+                      }}
+                      onClick={handleVideoPreviewCancel}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                  </Box>
+                </Grid>
+              )}
+
+              {mediaPreview.document && (
+                <Grid item xs={12}>
+                  <Paper
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      bgcolor: "background.paper",
+                    }}
+                  >
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Description color="primary" />
+                      <Typography variant="body2">
+                        {form.getValues("media.document")?.name || "Document"}
+                      </Typography>
+                    </Stack>
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        size="small"
+                        onClick={() => {
+                          window.open(mediaPreview.document || "", "_blank");
+                        }}
+                      >
+                        View
+                      </Button>
+                      <IconButton size="small" onClick={handleDocPreviewCancel}>
+                        <Close fontSize="small" />
+                      </IconButton>
+                    </Stack>
+                  </Paper>
+                </Grid>
+              )}
+            </Grid>
+          </Paper>
+        )}
+
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          size="large"
+          fullWidth
+          disabled={form.formState.isSubmitting}
+          startIcon={
+            form.formState.isSubmitting ? (
+              <CircularProgress size={20} color="inherit" />
+            ) : (
+              <Send />
+            )
+          }
+          sx={{
+            py: 1.5,
+            fontWeight: "bold",
+            fontSize: "1rem",
+            textTransform: "none",
+            boxShadow: "none",
+            "&:hover": {
+              boxShadow: theme.shadows[2],
+            },
+          }}
+        >
+          {form.formState.isSubmitting ? "Posting..." : "Publish Post"}
+        </Button>
+      </Stack>
     </Box>
   );
 };
