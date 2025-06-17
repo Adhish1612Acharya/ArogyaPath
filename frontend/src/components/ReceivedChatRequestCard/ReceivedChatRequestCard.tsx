@@ -38,6 +38,7 @@ const ReceivedChatRequestCard: React.FC<ReceivedChatRequestCardProps> = ({
     setLoadingAction("accept");
     try {
       const result: { chat?: string } = (await handleAccept(request._id)) || {};
+  
       if (result.chat && result.chat) {
         setChatId(result.chat);
         setLocalStatus("accepted");
