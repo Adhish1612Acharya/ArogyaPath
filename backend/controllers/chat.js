@@ -249,7 +249,7 @@ export const acceptChatRequest = async (req, res) => {
     message:
       "Chat request accepted" +
       (chat ? ", chat created/updated" : ", waiting for more users to accept"),
-    chat: chat || null,
+    chat: chat._id || null,
   });
 };
 
