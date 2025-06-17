@@ -13,7 +13,7 @@ import CreateSuccessStory from "./pages/User/CreateSuccessStory/CreateSuccessSto
 import { PageNotFound } from "./pages/PageNotFound/PageNotFound";
 import EmailVerify from "./pages/AfterRegisterPage/EmailVerify";
 import MobileVerify from "./pages/AfterRegisterPage/MobileVerify";
-import ExpertCompleteProfile from "./pages/AfterRegisterPage/ExpertCompleteProfile";
+import ExpertCompleteProfile from "./pages/AfterRegisterPage/ExpertCompleteProfile/ExpertCompleteProfile";
 import UserCompleteProfile from "./pages/AfterRegisterPage/UserCompleteProfile";
 import { GeneralPost } from "./pages/posts/PostPage/GeneralPost";
 import { RoutinePost } from "./pages/posts/PostPage/RoutinePost";

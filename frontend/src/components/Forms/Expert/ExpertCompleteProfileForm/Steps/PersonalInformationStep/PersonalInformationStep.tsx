@@ -23,6 +23,7 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
   control,
   errors,
   defaultDate = new Date(1990, 0, 1),
+  trigger,
 }) => {
   const theme = useTheme();
 
@@ -71,7 +72,10 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
                       <DatePicker
                         label="Date of Birth"
                         value={field.value ?? defaultDate}
-                        onChange={field.onChange}
+                        onChange={(date) => {
+                          field.onChange(date);
+                          trigger("dateOfBirth");
+                        }}
                         slotProps={{
                           textField: {
                             fullWidth: true,
@@ -109,6 +113,10 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
                         helperText={errors.gender?.message}
                         size="small"
                         variant="outlined"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger("gender");
+                        }}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -140,10 +148,15 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
                         {...field}
                         fullWidth
                         label="Mobile Number"
+                        type="number"
                         error={!!errors.mobileNumber}
                         helperText={errors.mobileNumber?.message}
                         size="small"
                         variant="outlined"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger("mobileNumber");
+                        }}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -198,11 +211,14 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
                         helperText={errors.street?.message}
                         size="small"
                         variant="outlined"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger("street");
+                        }}
                       />
                     )}
                   />
                 </Box>
-
                 <Box
                   sx={{ flexBasis: { xs: "100%", md: "calc(33.33% - 8px)" } }}
                 >
@@ -218,11 +234,14 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
                         helperText={errors.city?.message}
                         size="small"
                         variant="outlined"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger("city");
+                        }}
                       />
                     )}
                   />
                 </Box>
-
                 <Box
                   sx={{ flexBasis: { xs: "100%", md: "calc(33.33% - 8px)" } }}
                 >
@@ -238,11 +257,14 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
                         helperText={errors.state?.message}
                         size="small"
                         variant="outlined"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger("state");
+                        }}
                       />
                     )}
                   />
                 </Box>
-
                 <Box
                   sx={{ flexBasis: { xs: "100%", md: "calc(33.33% - 8px)" } }}
                 >
@@ -258,11 +280,65 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
                         helperText={errors.pinCode?.message}
                         size="small"
                         variant="outlined"
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger("pinCode");
+                        }}
                       />
                     )}
                   />
-                </Box>
+                </Box>{" "}
               </Box>
+            </CardContent>
+          </Card>
+        </Box>
+
+        {/* Bio Section */}
+        <Box>
+          <Card
+            variant="outlined"
+            sx={{
+              p: 2,
+              borderLeft: `4px solid ${theme.palette.primary.main}`,
+              height: "100%",
+            }}
+          >
+            <CardContent>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  mb: 2,
+                  display: "flex",
+                  alignItems: "center",
+                  fontWeight: 600,
+                  color: theme.palette.text.primary,
+                }}
+              >
+                <PersonIcon color="primary" sx={{ mr: 1 }} /> Professional Bio
+              </Typography>
+
+              <Controller
+                name="bio"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    multiline
+                    rows={4}
+                    label="Bio"
+                    placeholder="Tell us about your practice, specialties, and approach to patient care..."
+                    error={!!errors.bio}
+                    helperText={
+                      errors.bio?.message ||
+                      `${field.value?.length || 0}/500 characters`
+                    }
+                    inputProps={{ maxLength: 500 }}
+                    size="small"
+                    variant="outlined"
+                  />
+                )}
+              />
             </CardContent>
           </Card>
         </Box>

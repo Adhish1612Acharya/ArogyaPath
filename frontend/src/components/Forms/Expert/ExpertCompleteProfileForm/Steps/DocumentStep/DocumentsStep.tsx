@@ -11,42 +11,14 @@ import { Controller } from "react-hook-form";
 import { useTheme } from "@mui/material/styles";
 import ArticleIcon from "@mui/icons-material/Article";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-import type { Control, FieldErrors } from "react-hook-form";
-import type { ExpertFormData } from "../../ExpertCompleteProfileForm.types";
+import { DocumentsStepProps } from "./DocumentStep.types";
+import { documentFields } from "@/constants/expertCompleteProfile";
 
-interface DocumentsStepProps {
-  control: Control<ExpertFormData>;
-  errors: FieldErrors<ExpertFormData>;
-}
-
-const DOCUMENT_FIELDS = [
-  {
-    name: "identityProof" as const,
-    label: "Identity Proof",
-    tooltip: "Government issued ID (Aadhaar, PAN, or Passport)",
-    description: "A clear scan/photo of any government-issued ID proof",
-  },
-  {
-    name: "degreeCertificate" as const,
-    label: "Degree Certificate",
-    tooltip: "Your highest medical/healthcare degree",
-    description: "Final year degree certificate from your institution",
-  },
-  {
-    name: "registrationProof" as const,
-    label: "Registration Proof",
-    tooltip: "Your professional registration certificate",
-    description: "Current registration with state medical council",
-  },
-  {
-    name: "practiceProof" as const,
-    label: "Practice Proof",
-    tooltip: "Proof of current practice",
-    description: "Clinic registration or employment certificate",
-  },
-] as const;
-
-const DocumentsStep: React.FC<DocumentsStepProps> = ({ control, errors }) => {
+const DocumentsStep: React.FC<DocumentsStepProps> = ({
+  control,
+  errors,
+  trigger,
+}) => {
   const theme = useTheme();
 
   return (
@@ -86,7 +58,7 @@ const DocumentsStep: React.FC<DocumentsStepProps> = ({ control, errors }) => {
           </Typography>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-            {DOCUMENT_FIELDS.map((field) => (
+            {documentFields.map((field) => (
               <Box
                 key={field.name}
                 sx={{ flexBasis: { xs: "100%", sm: "calc(50% - 8px)" } }}
@@ -114,9 +86,10 @@ const DocumentsStep: React.FC<DocumentsStepProps> = ({ control, errors }) => {
                             type="file"
                             hidden
                             accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) =>
-                              onChange(e.target.files?.[0] || null)
-                            }
+                            onChange={(e) => {
+                              onChange(e.target.files?.[0] || null);
+                              trigger(field.name);
+                            }}
                             {...fieldProps}
                           />
                         </Button>

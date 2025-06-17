@@ -16,10 +16,10 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import RemoveCircleOutlineIcon from "@mui/icons-material/RemoveCircleOutline";
 import { QualificationsStepProps } from "./QualificationsStep.types";
 
-
 const QualificationsStep: React.FC<QualificationsStepProps> = ({
   control,
   errors,
+  trigger,
 }) => {
   const theme = useTheme();
   const { fields, append, remove } = useFieldArray({
@@ -68,8 +68,10 @@ const QualificationsStep: React.FC<QualificationsStepProps> = ({
                 )}
               </Box>
 
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, mb: 3 }}>
-                <Box sx={{ flexBasis: { xs: '100%', sm: 'calc(33.33% - 8px)' } }}>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}>
+                <Box
+                  sx={{ flexBasis: { xs: "100%", sm: "calc(33.33% - 8px)" } }}
+                >
                   <Controller
                     name={`qualifications.${index}.degree`}
                     control={control}
@@ -83,6 +85,10 @@ const QualificationsStep: React.FC<QualificationsStepProps> = ({
                         helperText={
                           errors.qualifications?.[index]?.degree?.message
                         }
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger(field.name);
+                        }}
                         variant="outlined"
                         size="small"
                       />
@@ -90,7 +96,9 @@ const QualificationsStep: React.FC<QualificationsStepProps> = ({
                   />
                 </Box>
 
-                <Box sx={{ flexBasis: { xs: '100%', sm: 'calc(33.33% - 8px)' } }}>
+                <Box
+                  sx={{ flexBasis: { xs: "100%", sm: "calc(33.33% - 8px)" } }}
+                >
                   <Controller
                     name={`qualifications.${index}.college`}
                     control={control}
@@ -103,6 +111,10 @@ const QualificationsStep: React.FC<QualificationsStepProps> = ({
                         helperText={
                           errors.qualifications?.[index]?.college?.message
                         }
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger(field.name);
+                        }}
                         variant="outlined"
                         size="small"
                       />
@@ -110,7 +122,9 @@ const QualificationsStep: React.FC<QualificationsStepProps> = ({
                   />
                 </Box>
 
-                <Box sx={{ flexBasis: { xs: '100%', sm: 'calc(33.33% - 8px)' } }}>
+                <Box
+                  sx={{ flexBasis: { xs: "100%", sm: "calc(33.33% - 8px)" } }}
+                >
                   <Controller
                     name={`qualifications.${index}.year`}
                     control={control}
@@ -123,6 +137,10 @@ const QualificationsStep: React.FC<QualificationsStepProps> = ({
                         helperText={
                           errors.qualifications?.[index]?.year?.message
                         }
+                        onChange={(e) => {
+                          field.onChange(e.target.value);
+                          trigger(field.name);
+                        }}
                         variant="outlined"
                         size="small"
                       />

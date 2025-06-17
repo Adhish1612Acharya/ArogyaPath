@@ -153,15 +153,10 @@ export const resetPasswordSchema = z.object({
 // Expert profile validation schema
 export const expertProfileSchema = z.object({
   profile: z.object({
-    fullName: z.string().min(1, "Full name is required"),
     contactNo: z
       .number()
       .min(1000000000, "Contact number must be a 10-digits number.")
       .max(9999999999, "Contact number must be a 10-digits number."),
-    expertType: z.enum(["ayurvedic", "naturopathy"], {
-      required_error: "expertType is required",
-    }),
-    profileImage: z.string().optional().default(""),
     experience: z
       .number()
       .min(0, "Experience must be non-negative.")
