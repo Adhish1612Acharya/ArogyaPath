@@ -5,11 +5,9 @@ import {
   Button, 
   Container, 
   Typography, 
-  Grid, 
   Paper,
   useTheme,
-  Fade,
-  Grow
+  Fade
 } from "@mui/material";
 import { 
   Spa as LeafIcon, 
@@ -189,8 +187,16 @@ const RoleSelection = () => {
           </Typography>
         </Box>
 
-        <Grid container spacing={4} justifyContent="center" sx={{ px: { xs: 0, sm: 4 } }}>
-          <Grid item xs={12} sm={6} md={6}>
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', sm: 'row' }, 
+            gap: 4, 
+            justifyContent: 'center',
+            px: { xs: 0, sm: 4 } 
+          }}
+        >
+          <Box sx={{ width: { xs: '100%', sm: '50%', md: '50%' } }}>
             <RoleCard
               title="Ayurveda Seeker"
               description="Explore holistic wellness tips and routines for your well-being"
@@ -198,8 +204,8 @@ const RoleSelection = () => {
               selected={selectedRole === "farmer"}
               onClick={() => setSelectedRole("farmer")}
             />
-          </Grid>
-          <Grid item xs={12} sm={6} md={6}>
+          </Box>
+          <Box sx={{ width: { xs: '100%', sm: '50%', md: '50%' } }}>
             <RoleCard
               title="Ayurvedic Expert"
               description="Share natural healing practices and guide others toward balance"
@@ -207,8 +213,8 @@ const RoleSelection = () => {
               selected={selectedRole === "expert"}
               onClick={() => setSelectedRole("expert")}
             />
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         <Fade in={Boolean(selectedRole)}>
           <Box sx={{ 

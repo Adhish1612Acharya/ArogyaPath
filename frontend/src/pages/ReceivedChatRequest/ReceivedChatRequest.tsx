@@ -9,7 +9,6 @@ import {
   CardContent,
   Tabs,
   Tab,
-  Grid,
   Avatar,
   IconButton,
   InputAdornment,
@@ -289,8 +288,8 @@ const ReceivedChatRequestPage = () => {
       {/* Search and Filters */}
       <Card sx={{ mb: 4, borderRadius: 2 }}>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid>
+          <Box display="flex" flexDirection={isMobile ? "column" : "row"} gap={2}>
+            <Box width="100%">
               <TextField
                 fullWidth
                 placeholder="Search requests..."
@@ -317,8 +316,8 @@ const ReceivedChatRequestPage = () => {
                   },
                 }}
               />
-            </Grid>
-            <Grid>
+            </Box>
+            <Box width="100%">
               <Box
                 display="flex"
                 justifyContent={isMobile ? "flex-start" : "flex-end"}
@@ -381,8 +380,8 @@ const ReceivedChatRequestPage = () => {
                   />
                 </Tabs>
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </CardContent>
       </Card>
 
@@ -439,13 +438,13 @@ const ReceivedChatRequestPage = () => {
 
       {/* Chat Requests List */}
       {loading ? (
-        <Grid container spacing={3}>
+        <Box display="flex" flexWrap="wrap" gap={3}>
           {Array.from({ length: 6 }).map((_, _idx) => (
-            <Grid >
+            <Box key={_idx} width="100%">
               <ReceivedChatRequestCardSkeleton />
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       ) : filteredRequests.length === 0 ? (
         <Card sx={{ textAlign: "center", borderRadius: 3 }}>
           <CardContent sx={{ py: 8 }}>
@@ -475,14 +474,14 @@ const ReceivedChatRequestPage = () => {
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={3}>
+        <Box display="flex" flexWrap="wrap" gap={3}>
           {filteredRequests.map((request: any) => {
             const myUserObj = request.users?.find(
               (u: any) => u.user && u.user._id === currUser
             );
             const myStatus = myUserObj?.status || "pending";
             return (
-              <Grid  key={request._id}>
+              <Box key={request._id} width="100%">
                 <ReceivedChatRequestCard
                   request={request}
                   myStatus={myStatus}
@@ -492,10 +491,10 @@ const ReceivedChatRequestPage = () => {
                   handleProfileClick={handleProfileClick}
                   setGroupDialogOpen={handleGroupDialogOpen}
                 />
-              </Grid>
+              </Box>
             );
           })}
-        </Grid>
+        </Box>
       )}
 
       <GroupChatMembersDialog

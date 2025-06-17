@@ -27,7 +27,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid,
   Paper,
 } from "@mui/material";
 import {
@@ -401,127 +400,114 @@ export default function AddSuccessStoryForm() {
                   success story
                 </Typography>
 
-                <Grid container spacing={3} sx={{ mt: 2 }}>
+                <Box sx={{ 
+                  display: 'flex',
+                  flexDirection: { xs: 'column', md: 'row' },
+                  gap: 3,
+                  mt: 2
+                }}>
                   {/* Images Upload */}
-                  <Grid item xs={12} md={4}>
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 3,
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textAlign: "center",
-                        cursor: "pointer",
-                        "&:hover": {
-                          borderColor: "primary.main",
-                          backgroundColor: "action.hover",
-                        },
-                      }}
-                      onClick={() => imageInputRef.current?.click()}
-                    >
-                      <ImageIcon
-                        fontSize="large"
-                        color="action"
-                        sx={{ mb: 1 }}
-                      />
-                      <Typography variant="subtitle1">Upload Images</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Multiple allowed
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={imageInputRef}
-                        multiple
-                        accept="image/*"
-                        style={{ display: "none" }}
-                        onChange={handleImagesChange}
-                      />
-                    </Paper>
-                  </Grid>
+                  <Box sx={{ 
+                    width: { xs: '100%', md: '33.33%' },
+                    p: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      backgroundColor: 'action.hover',
+                    },
+                  }} onClick={() => imageInputRef.current?.click()}>
+                    <ImageIcon fontSize="large" color="action" sx={{ mb: 1 }} />
+                    <Typography variant="subtitle1">Upload Images</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Multiple allowed
+                    </Typography>
+                    <input
+                      type="file"
+                      ref={imageInputRef}
+                      multiple
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      title="Upload Images"
+                      onChange={handleImagesChange}
+                    />
+                  </Box>
 
                   {/* Video Upload */}
-                  <Grid item xs={12} md={4}>
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 3,
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textAlign: "center",
-                        cursor: "pointer",
-                        "&:hover": {
-                          borderColor: "primary.main",
-                          backgroundColor: "action.hover",
-                        },
-                      }}
-                      onClick={() => videoInputRef.current?.click()}
-                    >
-                      <VideoIcon
-                        fontSize="large"
-                        color="action"
-                        sx={{ mb: 1 }}
-                      />
-                      <Typography variant="subtitle1">Upload Video</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Single file
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={videoInputRef}
-                        accept="video/*"
-                        style={{ display: "none" }}
-                        onChange={handleVideoChange}
-                      />
-                    </Paper>
-                  </Grid>
+                  <Box sx={{ 
+                    width: { xs: '100%', md: '33.33%' },
+                    p: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      backgroundColor: 'action.hover',
+                    },
+                  }} onClick={() => videoInputRef.current?.click()}>
+                    <VideoIcon fontSize="large" color="action" sx={{ mb: 1 }} />
+                    <Typography variant="subtitle1">Upload Video</Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Single file
+                    </Typography>
+                    <input
+                      type="file"
+                      ref={videoInputRef}
+                      accept="video/*"
+                      style={{ display: "none" }}
+                      title="Upload Video"
+                      onChange={handleVideoChange}
+                    />
+                  </Box>
 
                   {/* Document Upload */}
-                  <Grid item xs={12} md={4}>
-                    <Paper
-                      variant="outlined"
-                      sx={{
-                        p: 3,
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        textAlign: "center",
-                        cursor: "pointer",
-                        "&:hover": {
-                          borderColor: "primary.main",
-                          backgroundColor: "action.hover",
-                        },
-                      }}
-                      onClick={() => docInputRef.current?.click()}
-                    >
-                      <FileTextIcon
-                        fontSize="large"
-                        color="action"
-                        sx={{ mb: 1 }}
-                      />
-                      <Typography variant="subtitle1">
-                        Upload Document
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        PDF only
-                      </Typography>
-                      <input
-                        type="file"
-                        ref={docInputRef}
-                        accept=".pdf"
-                        style={{ display: "none" }}
-                        onChange={handleDocumentChange}
-                      />
-                    </Paper>
-                  </Grid>
-                </Grid>
+                  <Box sx={{ 
+                    width: { xs: '100%', md: '33.33%' },
+                    p: 3,
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    borderRadius: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textAlign: 'center',
+                    cursor: 'pointer',
+                    '&:hover': {
+                      borderColor: 'primary.main',
+                      backgroundColor: 'action.hover',
+                    },
+                  }} onClick={() => docInputRef.current?.click()}>
+                    <FileTextIcon fontSize="large" color="action" sx={{ mb: 1 }} />
+                    <Typography variant="subtitle1">
+                      Upload Document
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      PDF only
+                    </Typography>
+                    <input
+                      type="file"
+                      ref={docInputRef}
+                      accept=".pdf"
+                      style={{ display: "none" }}
+                      title="Upload Document"
+                      onChange={handleDocumentChange}
+                    />
+                  </Box>
+                </Box>
 
                 {/* Media Previews */}
                 {mediaPreview.images?.length > 0 && (
@@ -529,9 +515,16 @@ export default function AddSuccessStoryForm() {
                     <Typography variant="subtitle2" gutterBottom>
                       Image Previews
                     </Typography>
-                    <Grid container spacing={2}>
+                    <Box sx={{ 
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: 2
+                    }}>
                       {mediaPreview.images?.map((url, index) => (
-                        <Grid item key={index} xs={6} sm={4} md={3}>
+                        <Box key={index} sx={{ 
+                          width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.33% - 16px)' },
+                          position: 'relative'
+                        }}>
                           <Box
                             sx={{
                               position: "relative",
@@ -566,9 +559,9 @@ export default function AddSuccessStoryForm() {
                               <CloseIcon fontSize="small" />
                             </IconButton>
                           </Box>
-                        </Grid>
+                        </Box>
                       ))}
-                    </Grid>
+                    </Box>
                   </Box>
                 )}
 
@@ -707,7 +700,7 @@ export default function AddSuccessStoryForm() {
                           onChange={(val) =>
                             form.setValue(
                               `routines.${index}.time`,
-                              val ? val.format("hh:mm A") : null
+                              val && typeof (val as any).format === 'function' ? (val as any).format("hh:mm A") : null
                             )
                           }
                           slotProps={{

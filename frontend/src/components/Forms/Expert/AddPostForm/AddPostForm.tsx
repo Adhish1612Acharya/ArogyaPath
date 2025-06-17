@@ -6,12 +6,9 @@ import { useNavigate } from "react-router-dom";
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
   CircularProgress,
   Divider,
-  Grid,
   IconButton,
   InputAdornment,
   Paper,
@@ -20,14 +17,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
-import {
-  Close,
-  CloudUpload,
-  Description,
-  Image,
-  Movie,
-  Send,
-} from "@mui/icons-material";
+import { Close, Description, Image, Movie, Send } from "@mui/icons-material";
 import postCreationSchema from "./AddPostFormSchema";
 import usePost from "@/hooks/usePost/usePost";
 
@@ -211,6 +201,7 @@ const PostForm = () => {
           ref={imageInputRef}
           onChange={handleImageChange}
           style={{ display: "none" }}
+          title="Upload image(s)"
         />
         <input
           type="file"
@@ -218,6 +209,7 @@ const PostForm = () => {
           ref={videoInputRef}
           onChange={handleVideoChange}
           style={{ display: "none" }}
+          title="Upload video"
         />
         <input
           type="file"
@@ -225,6 +217,7 @@ const PostForm = () => {
           ref={docInputRef}
           onChange={handleDocChange}
           style={{ display: "none" }}
+          title="Upload PDF document"
         />
 
         <Box>
@@ -279,9 +272,18 @@ const PostForm = () => {
               Media Preview
             </Typography>
 
-            <Grid container spacing={2}>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
               {mediaPreview.images?.map((img, i) => (
-                <Grid item xs={12} sm={6} md={4} key={i}>
+                <Box
+                  key={i}
+                  sx={{
+                    width: {
+                      xs: "100%",
+                      sm: "calc(50% - 16px)",
+                      md: "calc(33.33% - 16px)",
+                    },
+                  }}
+                >
                   <Box sx={{ position: "relative", height: "100%" }}>
                     <Box
                       component="img"
@@ -322,11 +324,11 @@ const PostForm = () => {
                       }}
                     />
                   </Box>
-                </Grid>
+                </Box>
               ))}
 
               {mediaPreview.video && (
-                <Grid item xs={12}>
+                <Box sx={{ width: "100%" }}>
                   <Box sx={{ position: "relative" }}>
                     <Box
                       component="video"
@@ -355,11 +357,11 @@ const PostForm = () => {
                       <Close fontSize="small" />
                     </IconButton>
                   </Box>
-                </Grid>
+                </Box>
               )}
 
               {mediaPreview.document && (
-                <Grid item xs={12}>
+                <Box sx={{ width: "100%" }}>
                   <Paper
                     variant="outlined"
                     sx={{
@@ -390,9 +392,9 @@ const PostForm = () => {
                       </IconButton>
                     </Stack>
                   </Paper>
-                </Grid>
+                </Box>
               )}
-            </Grid>
+            </Box>
           </Paper>
         )}
 
