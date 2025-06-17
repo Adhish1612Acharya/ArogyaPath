@@ -8,7 +8,6 @@ import {
   Box,
   Button,
   Divider,
-  Grid,
   TextField,
   Typography,
   useTheme,
@@ -88,7 +87,7 @@ export const UserRegisterForm = () => {
         <Stack spacing={3}>
           {/* Form Fields */}
 
-          <Grid>
+          <Box>
             <TextField
               fullWidth
               label="Full Name"
@@ -106,9 +105,9 @@ export const UserRegisterForm = () => {
                 },
               }}
             />
-          </Grid>
+          </Box>
 
-          <Grid>
+          <Box>
             <TextField
               fullWidth
               type="email"
@@ -127,9 +126,9 @@ export const UserRegisterForm = () => {
                 },
               }}
             />
-          </Grid>
+          </Box>
 
-          <Grid>
+          <Box>
             <TextField
               fullWidth
               type="password"
@@ -148,7 +147,7 @@ export const UserRegisterForm = () => {
                 },
               }}
             />
-          </Grid>
+          </Box>
 
           {/* Submit Button */}
           <Button

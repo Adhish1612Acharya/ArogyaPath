@@ -9,7 +9,6 @@ import {
   ListItem,
   ListItemAvatar,
   Collapse,
-  Badge,
 } from "@mui/material";
 import { Send, Reply, Favorite, FavoriteBorder, ExpandMore, ExpandLess } from "@mui/icons-material";
 import { useState, FC } from "react";

@@ -15,7 +15,7 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
     maxHeight: "90vh",
     maxWidth: "90vw",
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: typeof theme.shape.borderRadius === 'number' ? theme.shape.borderRadius * 2 : 16,
     overflow: "hidden",
     backgroundColor: theme.palette.grey[900],
   },
