@@ -7,7 +7,6 @@ import {
   Button,
   Card,
   Divider,
-  Grid,
   Stack,
   Typography,
   useTheme,
@@ -42,9 +41,9 @@ const RegisterExpert: FC = () => {
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, mb: 3 }}>
             Select your role
           </Typography>
-          <Grid container spacing={2}>
+          <Box sx={{ display: 'flex', gap: 2 }}>
             {userTypeOptions.map(({ type, label, icon: Icon }) => (
-              <Grid>
+              <Box sx={{ width: '50%' }}>
                 <Card
                   onClick={() =>
                     setUserType(type as "ayurvedic" | "naturopathy")
@@ -94,9 +93,9 @@ const RegisterExpert: FC = () => {
                     {label}
                   </Typography>
                 </Card>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </Box>
       ) : (
         <Box sx={{ width: "100%" }}>

@@ -11,7 +11,7 @@ import {
   InputAdornment,
   Paper,
 } from "@mui/material";
-import { Add, Edit, Delete } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { Filter } from "@/components/Filter/Filter";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
 import { motion, AnimatePresence } from "framer-motion";

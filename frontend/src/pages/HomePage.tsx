@@ -4,7 +4,6 @@ import {
   Button,
   Box,
   Container,
-  Grid,
   Typography,
   Paper,
   Avatar
@@ -156,7 +155,14 @@ const HomePage = () => {
             >
               Why Choose AyurCare?
             </Typography>
-            <Grid container spacing={4}>
+            <Box 
+              sx={{ 
+                display: "flex", 
+                flexWrap: "wrap", 
+                gap: 4,
+                justifyContent: "center"
+              }}
+            >
               {[
                 {
                   icon: <LeafIcon color="success" sx={{ fontSize: 32 }} />,
@@ -183,7 +189,13 @@ const HomePage = () => {
                     "Get customized wellness plans tailored to your needs.",
                 },
               ].map((feature, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
+                <Box 
+                  key={index}
+                  sx={{ 
+                    width: { xs: "100%", sm: "calc(50% - 32px)", md: "calc(25% - 32px)" },
+                    minWidth: { xs: "100%", sm: "300px", md: "auto" }
+                  }}
+                >
                   <Paper 
                     elevation={3} 
                     sx={{ 
@@ -229,9 +241,9 @@ const HomePage = () => {
                       {feature.description}
                     </Typography>
                   </Paper>
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           </Container>
         </Box>
       </main>
