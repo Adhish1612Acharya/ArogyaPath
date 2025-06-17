@@ -57,7 +57,10 @@ const GradientHeader = styled(Paper)(({ theme }) => ({
   marginBottom: theme.spacing(4),
   background: "linear-gradient(135deg, #6B73FF 0%, #000DFF 100%)",
   color: theme.palette.common.white,
-  borderRadius: typeof theme.shape.borderRadius === 'number' ? theme.shape.borderRadius * 2 : 16,
+  borderRadius:
+    typeof theme.shape.borderRadius === "number"
+      ? theme.shape.borderRadius * 2
+      : 16,
   boxShadow: theme.shadows[4],
 }));
 
@@ -230,17 +233,23 @@ const ReceivedChatRequestPage = () => {
   const filteredRequests = requests.filter((request) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
-    return (
-      request.users.some(
-        (u: any) =>
-          u.user._id !== currUser &&
-          u.user.username.toLowerCase().includes(query)
-      )
+    return request.users.some(
+      (u: any) =>
+        u.user._id !== currUser && u.user.username.toLowerCase().includes(query)
     );
   });
 
   return (
-    <Box sx={{ width: '100vw', minHeight: '100vh', px: { xs: 1, sm: 3, md: 6 }, mx: 0, overflowX: 'hidden', bgcolor: theme.palette.background.default }}>
+    <Box
+      sx={{
+        width: "100vw",
+        minHeight: "100vh",
+        px: { xs: 1, sm: 3, md: 6 },
+        mx: 0,
+        overflowX: "hidden",
+        bgcolor: theme.palette.background.default,
+      }}
+    >
       {/* Header */}
       <GradientHeader>
         <Box
@@ -281,7 +290,7 @@ const ReceivedChatRequestPage = () => {
       <Card sx={{ mb: 4, borderRadius: 2 }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={6}>
+            <Grid>
               <TextField
                 fullWidth
                 placeholder="Search requests..."
@@ -309,7 +318,7 @@ const ReceivedChatRequestPage = () => {
                 }}
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid>
               <Box
                 display="flex"
                 justifyContent={isMobile ? "flex-start" : "flex-end"}
@@ -401,18 +410,26 @@ const ReceivedChatRequestPage = () => {
         <Box display="flex" gap={1}>
           <Chip
             icon={<CheckCircle fontSize="small" />}
-            label={`${requests.filter(r => 
-              r.users.some((u: any) => u.user._id === currUser && u.status === "accepted")
-            ).length} accepted`}
+            label={`${
+              requests.filter((r) =>
+                r.users.some(
+                  (u: any) => u.user._id === currUser && u.status === "accepted"
+                )
+              ).length
+            } accepted`}
             variant="outlined"
             size="small"
             color="success"
           />
           <Chip
             icon={<Cancel fontSize="small" />}
-            label={`${requests.filter(r => 
-              r.users.some((u: any) => u.user._id === currUser && u.status === "rejected")
-            ).length} rejected`}
+            label={`${
+              requests.filter((r) =>
+                r.users.some(
+                  (u: any) => u.user._id === currUser && u.status === "rejected"
+                )
+              ).length
+            } rejected`}
             variant="outlined"
             size="small"
             color="error"
@@ -423,8 +440,8 @@ const ReceivedChatRequestPage = () => {
       {/* Chat Requests List */}
       {loading ? (
         <Grid container spacing={3}>
-          {Array.from({ length: 6 }).map((_, idx) => (
-            <Grid item xs={12} sm={6} md={4} key={idx}>
+          {Array.from({ length: 6 }).map((_, _idx) => (
+            <Grid >
               <ReceivedChatRequestCardSkeleton />
             </Grid>
           ))}
@@ -443,7 +460,10 @@ const ReceivedChatRequestPage = () => {
             <Typography variant="h5" gutterBottom>
               No chat requests found
             </Typography>
-            <Typography color="text.secondary" sx={{ maxWidth: 500, mx: "auto" }}>
+            <Typography
+              color="text.secondary"
+              sx={{ maxWidth: 500, mx: "auto" }}
+            >
               {searchQuery
                 ? "No requests match your search criteria"
                 : activeTab === 0
@@ -462,7 +482,7 @@ const ReceivedChatRequestPage = () => {
             );
             const myStatus = myUserObj?.status || "pending";
             return (
-              <Grid item xs={12} sm={6} md={4} key={request._id}>
+              <Grid  key={request._id}>
                 <ReceivedChatRequestCard
                   request={request}
                   myStatus={myStatus}
