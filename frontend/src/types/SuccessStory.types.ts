@@ -16,4 +16,5 @@ export interface SuccessStoryType {
   createdAt: Date | string;
   verifyAuthorization: boolean;
   alreadyVerified: boolean;
+  invalid?: { by: string; reason?: string }; // Added for post invalidation
 }
