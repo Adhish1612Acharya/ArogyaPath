@@ -56,7 +56,7 @@ export const signUp = async (req, res) => {
         email,
         registeredUser._id,
         "User",
-        token._id,
+        token.token,
         fullName
       );
     } catch (err) {
