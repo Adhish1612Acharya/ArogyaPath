@@ -1,4 +1,4 @@
-import { Control, FieldErrors } from "react-hook-form";
+import { Control, FieldErrors, UseFormTrigger } from "react-hook-form";
 import { ExpertFormData } from "../../ExpertCompleteProfileForm.types";
 import type { SelectChangeEvent } from "@mui/material";
 
@@ -8,6 +8,7 @@ export interface ProfessionalDetailsStepProps {
   councilOptions: string[];
   specializationsOptions: string[];
   languageOptions: string[];
-  handleSpecializationChange: (event: SelectChangeEvent) => void;
-  handleLanguageChange: (event: SelectChangeEvent) => void;
+  handleSpecializationChange: (event: SelectChangeEvent<string[]>) => void;
+  handleLanguageChange: (event: SelectChangeEvent<string[]>) => void;
+  trigger: UseFormTrigger<ExpertFormData>;
 }

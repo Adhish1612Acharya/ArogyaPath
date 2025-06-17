@@ -1,4 +1,5 @@
 import { documentUpload } from "./expertDocumentUploadConfig.js";
+import multer from "multer";
 
 export const handleCloudinaryDiskUpload = (req, res, next) =>
   documentUpload(req, res, (err) => {

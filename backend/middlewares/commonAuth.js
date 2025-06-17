@@ -133,6 +133,14 @@ export const isAlreadyVerified = (req, res, next) => {
   return next();
 };
 
+export const profileAlreadyCompleted =  (req, res, next) => {
+  if (req.user.verifications.completeProfile) {
+    throw new ExpressError(400, "Profile already completed");
+  }
+
+  next();
+};
+
 export default {
   isAlreadyLoggedIn,
   isLoggedIn,
@@ -140,4 +148,5 @@ export default {
   isAlreadyVerified,
   isExpert,
   isUser,
+  profileAlreadyCompleted,
 };

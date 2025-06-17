@@ -1,7 +1,8 @@
-import { Control, FieldErrors } from "react-hook-form";
+import { Control, FieldErrors, UseFormTrigger } from "react-hook-form";
 import { ExpertFormData } from "../../ExpertCompleteProfileForm.types";
 
 export interface QualificationsStepProps {
   control: Control<ExpertFormData>;
   errors: FieldErrors<ExpertFormData>;
+  trigger: UseFormTrigger<ExpertFormData>;
 }

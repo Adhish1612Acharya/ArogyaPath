@@ -1,10 +1,3 @@
-import {
-  Control,
-  FieldErrors,
-  UseFormSetValue,
-  UseFormTrigger,
-  UseFormWatch,
-} from "react-hook-form";
 import { z } from "zod";
 
 const FileSchema = z.custom<File>((val) => val instanceof File, {
@@ -74,35 +67,21 @@ export const expertProfileSchema = z.object({
   identityProof: FileSchema.refine(
     (file) => file instanceof File && file.size <= 5 * 1024 * 1024,
     "File must be less than 5MB"
-  ).nullable(),
+  ),
   degreeCertificate: FileSchema.refine(
     (file) => file instanceof File && file.size <= 5 * 1024 * 1024,
     "File must be less than 5MB"
-  ).nullable(),
+  ),
   registrationProof: FileSchema.refine(
     (file) => file instanceof File && file.size <= 5 * 1024 * 1024,
     "File must be less than 5MB"
-  ).nullable(),
+  ),
   practiceProof: FileSchema.refine(
     (file) => file instanceof File && file.size <= 5 * 1024 * 1024,
     "File must be less than 5MB"
-  ).nullable(),
+  ),
 
   bio: z.string().max(500, "Bio cannot exceed 500 characters").optional(),
 });
 
 export type ExpertFormData = z.infer<typeof expertProfileSchema>;
-
-export interface ExpertProfileFormProps {
-  activeStep: number;
-  control: Control<ExpertFormData>;
-  watch: UseFormWatch<ExpertFormData>;
-  errors: FieldErrors<ExpertFormData>;
-  setValue: UseFormSetValue<ExpertFormData>;
-  trigger: UseFormTrigger<ExpertFormData>;
-}
-
-export interface StepProps {
-  onNext?: () => void;
-  onBack?: () => void;
-}

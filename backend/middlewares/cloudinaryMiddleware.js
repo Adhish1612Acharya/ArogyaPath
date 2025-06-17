@@ -1,21 +1,35 @@
-export const parseFormdata = (req, res, next) => {
-  const fieldsToParse = ["filters", "routines", "tagged"]; // Add all array fields here
+import ExpressError from "../utils/expressError.js";
 
-  for (const field of fieldsToParse) {
-    if (req.body[field] && typeof req.body[field] === "string") {
-      try {
-        req.body[field] = JSON.parse(req.body[field]);
-      } catch (err) {
-        return res.status(400).json({
-          error: `${field} must be a valid JSON array`,
-        });
+export const parseFormdata = (req, res, next) => {
+  const arrayFields = ["filters", "routines", "tagged"];
+  const objectFields = ["profile", "verificationDetails"];
+
+  try {
+    for (const field of arrayFields) {
+      if (req.body[field] && typeof req.body[field] === "string") {
+        try {
+          req.body[field] = JSON.parse(req.body[field]);
+        } catch (err) {
+          throw new ExpressError(`${field} must be a valid JSON array`, 400);
+        }
       }
     }
+
+    for (const field of objectFields) {
+      if (req.body[field] && typeof req.body[field] === "string") {
+        try {
+          req.body[field] = JSON.parse(req.body[field]);
+        } catch (err) {
+          throw new ExpressError(`${field} must be a valid JSON object`, 400);
+        }
+      }
+    }
+
+    console.log("Parsed FormData:", req.body);
+    next();
+  } catch (err) {
+    next(err); // Pass to the central error handler
   }
-
-  console.log("Parse Data : ",req.body);
-
-  next();
 };
 
 // Custom error middleware for Cloudinary-related errors

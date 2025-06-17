@@ -33,7 +33,9 @@ export const completeProfile = async (req, res) => {
 
   await expert.save();
 
-  res.status(200).json({ message: "Profile completed successfully", expert });
+  res
+    .status(200)
+    .json({ success: true, message: "Profile completed successfully", expert });
 };
 
 // GET /experts/search/doctors

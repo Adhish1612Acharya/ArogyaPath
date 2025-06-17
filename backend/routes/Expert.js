@@ -1,12 +1,16 @@
 import express from "express";
 import wrapAsync from "../utils/wrapAsync.js";
-import { isLoggedIn } from "../middlewares/commonAuth.js";
+import {
+  isLoggedIn,
+  profileAlreadyCompleted,
+} from "../middlewares/commonAuth.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import * as expertProfileController from "../controllers/expert.js";
 import handleExpertDocumentUpload from "../middlewares/cloudinary/handleExpertDocumentUpload.js";
 import { handleCloudinaryDiskUpload } from "../middlewares/cloudinary/handleCloudinaryDiskUpload.js";
 import { validateExpertDocuments } from "../middlewares/experts/validateExpertDocument.js";
+import { parseFormdata } from "../middlewares/cloudinaryMiddleware.js";
 
 const router = express.Router();
 
@@ -16,10 +20,12 @@ const router = express.Router();
 router.patch(
   "/complete-profile",
   checkExpertLogin,
+  profileAlreadyCompleted,
   // Handle file uploads with multer
   handleCloudinaryDiskUpload,
   // Validate required documents are present
   validateExpertDocuments,
+  parseFormdata,
   // Validate the request body
   validateExpertCompleteProfile,
   // Upload documents to Cloudinary

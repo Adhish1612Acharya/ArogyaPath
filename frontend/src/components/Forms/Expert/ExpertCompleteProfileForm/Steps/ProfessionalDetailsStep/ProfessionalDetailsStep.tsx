@@ -5,7 +5,12 @@ import {
   Typography,
   TextField,
   FormControl,
+  MenuItem,
+  InputLabel,
+  OutlinedInput,
+  Chip,
 } from "@mui/material";
+import Select from "@mui/material/Select";
 import { Controller } from "react-hook-form";
 import { useTheme } from "@mui/material/styles";
 import WorkIcon from "@mui/icons-material/Work";
@@ -19,6 +24,7 @@ const ProfessionalDetailsStep: React.FC<ProfessionalDetailsStepProps> = ({
   languageOptions,
   handleSpecializationChange,
   handleLanguageChange,
+  trigger,
 }) => {
   const theme = useTheme();
 
@@ -71,6 +77,10 @@ const ProfessionalDetailsStep: React.FC<ProfessionalDetailsStepProps> = ({
                     }
                     variant="outlined"
                     size="small"
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      trigger("ayushRegistrationNumber");
+                    }}
                   />
                 )}
               />
@@ -90,22 +100,15 @@ const ProfessionalDetailsStep: React.FC<ProfessionalDetailsStepProps> = ({
                     helperText={errors.registrationCouncil?.message}
                     variant="outlined"
                     size="small"
-                    SelectProps={{
-                      native: true,
-                      MenuProps: {
-                        PaperProps: {
-                          style: {
-                            maxHeight: 300,
-                          },
-                        },
-                      },
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      trigger("registrationCouncil");
                     }}
                   >
-                    <option value="">Select Council</option>
                     {councilOptions.map((option) => (
-                      <option key={option} value={option}>
+                      <MenuItem key={option} value={option}>
                         {option}
-                      </option>
+                      </MenuItem>
                     ))}
                   </TextField>
                 )}
@@ -119,12 +122,17 @@ const ProfessionalDetailsStep: React.FC<ProfessionalDetailsStepProps> = ({
                 render={({ field }) => (
                   <TextField
                     {...field}
+                    type="number"
                     fullWidth
                     label="Year of Registration"
                     error={!!errors.yearOfRegistration}
                     helperText={errors.yearOfRegistration?.message}
                     variant="outlined"
                     size="small"
+                    onChange={(e) => {
+                      field.onChange(e.target.value);
+                      trigger("yearOfRegistration");
+                    }}
                   />
                 )}
               />
@@ -142,9 +150,10 @@ const ProfessionalDetailsStep: React.FC<ProfessionalDetailsStepProps> = ({
                     type="number"
                     error={!!errors.yearsOfExperience}
                     helperText={errors.yearsOfExperience?.message}
-                    onChange={(e) =>
-                      field.onChange(parseInt(e.target.value) || 0)
-                    }
+                    onChange={(e) => {
+                      field.onChange(parseInt(e.target.value) || 0);
+                      trigger("yearsOfExperience");
+                    }}
                     variant="outlined"
                     size="small"
                   />
@@ -177,78 +186,122 @@ const ProfessionalDetailsStep: React.FC<ProfessionalDetailsStepProps> = ({
           </Typography>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+            {/* Specializations Multi-Select */}
             <Box sx={{ flexBasis: { xs: "100%", sm: "calc(50% - 8px)" } }}>
-              <FormControl
-                fullWidth
-                error={!!errors.specializations}
-                variant="outlined"
-                size="small"
-              >
-                <Controller
-                  name="specializations"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      select
-                      fullWidth
-                      label="Specializations"
-                      error={!!errors.specializations}
-                      helperText={errors.specializations?.message}
-                      variant="outlined"
-                      size="small"
-                      SelectProps={{
-                        native: true,
-                        multiple: true,
-                        onChange: handleSpecializationChange as any,
+              <Controller
+                name="specializations"
+                control={control}
+                render={({ field }) => (
+                  <FormControl
+                    fullWidth
+                    error={!!errors.specializations}
+                    variant="outlined"
+                    size="small"
+                  >
+                    <InputLabel id="specializations-label">
+                      Specializations
+                    </InputLabel>
+                    <Select
+                      labelId="specializations-label"
+                      multiple
+                      value={field.value || []}
+                      onChange={(event) => {
+                        const {
+                          target: { value },
+                        } = event;
+                        const updatedValue =
+                          typeof value === "string" ? value.split(",") : value;
+                        field.onChange(updatedValue);
+                        handleSpecializationChange(event);
+                        trigger("specializations");
                       }}
+                      input={<OutlinedInput label="Specializations" />}
+                      renderValue={(selected) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                          }}
+                        >
+                          {(selected as string[]).map((val) => (
+                            <Chip key={val} label={val} />
+                          ))}
+                        </Box>
+                      )}
                     >
                       {specializationsOptions.map((option) => (
-                        <option key={option} value={option}>
+                        <MenuItem key={option} value={option}>
                           {option}
-                        </option>
+                        </MenuItem>
                       ))}
-                    </TextField>
-                  )}
-                />
-              </FormControl>
+                    </Select>
+                    {errors.specializations?.message && (
+                      <Typography color="error" variant="caption">
+                        {errors.specializations.message}
+                      </Typography>
+                    )}
+                  </FormControl>
+                )}
+              />
             </Box>
 
+            {/* Languages Multi-Select */}
             <Box sx={{ flexBasis: { xs: "100%", sm: "calc(50% - 8px)" } }}>
-              <FormControl
-                fullWidth
-                error={!!errors.languages}
-                variant="outlined"
-                size="small"
-              >
-                <Controller
-                  name="languages"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      select
-                      fullWidth
-                      label="Languages"
-                      error={!!errors.languages}
-                      helperText={errors.languages?.message}
-                      variant="outlined"
-                      size="small"
-                      SelectProps={{
-                        native: true,
-                        multiple: true,
-                        onChange: handleLanguageChange as any,
+              <Controller
+                name="languages"
+                control={control}
+                render={({ field }) => (
+                  <FormControl
+                    fullWidth
+                    error={!!errors.languages}
+                    variant="outlined"
+                    size="small"
+                  >
+                    <InputLabel id="languages-label">Languages</InputLabel>
+                    <Select
+                      labelId="languages-label"
+                      multiple
+                      value={field.value || []}
+                      onChange={(event) => {
+                        const {
+                          target: { value },
+                        } = event;
+                        const updatedValue =
+                          typeof value === "string" ? value.split(",") : value;
+                        field.onChange(updatedValue);
+                        handleLanguageChange(event);
+                        trigger("languages");
                       }}
+                      input={<OutlinedInput label="Languages" />}
+                      renderValue={(selected) => (
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 0.5,
+                          }}
+                        >
+                          {(selected as string[]).map((val) => (
+                            <Chip key={val} label={val} />
+                          ))}
+                        </Box>
+                      )}
                     >
                       {languageOptions.map((option) => (
-                        <option key={option} value={option}>
+                        <MenuItem key={option} value={option}>
                           {option}
-                        </option>
+                        </MenuItem>
                       ))}
-                    </TextField>
-                  )}
-                />
-              </FormControl>
+                    </Select>
+                    {errors.languages?.message && (
+                      <Typography color="error" variant="caption">
+                        {errors.languages.message}
+                      </Typography>
+                    )}
+                  </FormControl>
+                )}
+              />
             </Box>
           </Box>
         </CardContent>
