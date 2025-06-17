@@ -4,33 +4,23 @@ import {
   Card,
   CardContent,
   Typography,
-  Chip,
-  FormControl,
-  InputLabel,
-  Select,
-  OutlinedInput,
-  MenuItem,
-  FormHelperText,
   useTheme
 } from "@mui/material";
 import WorkIcon from '@mui/icons-material/Work';
+import { Controller, Control, FieldErrors } from "react-hook-form";
 
 interface ExpertProfileProfessionalInfoProps {
+  control: Control<any>;
+  errors: FieldErrors<any>;
   isEditing: boolean;
 }
 
 export const ExpertProfileProfessionalInfo = ({
+  control,
+  errors,
   isEditing
 }: ExpertProfileProfessionalInfoProps) => {
   const theme = useTheme();
-
-  // Mock data for demonstration
-  const mockData = {
-    council: "Central Council",
-    specializations: ["Ayurveda", "Panchakarma"],
-    languages: ["English", "Hindi"],
-    experience: "10 years"
-  };
 
   return (
     <Box sx={{ mt: 6 }}>
@@ -44,7 +34,6 @@ export const ExpertProfileProfessionalInfo = ({
       }}>
         <WorkIcon fontSize="medium" /> Professional Details
       </Typography>
-
       <Card variant="outlined" sx={{
         mb: 3,
         borderRadius: 2,
@@ -58,32 +47,64 @@ export const ExpertProfileProfessionalInfo = ({
           }}>
             Professional Info
           </Typography>
-          <TextField
-            label="Council"
-            value={mockData.council}
-            InputProps={{ readOnly: !isEditing }}
-            fullWidth
-            sx={{ mb: 2 }}
+          <Controller
+            name="council"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                label="Council"
+                {...field}
+                InputProps={{ readOnly: !isEditing }}
+                error={!!errors?.council}
+                helperText={errors?.council?.message?.toString()}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+            )}
           />
-          <TextField
-            label="Specializations"
-            value={mockData.specializations.join(", ")}
-            InputProps={{ readOnly: !isEditing }}
-            fullWidth
-            sx={{ mb: 2 }}
+          <Controller
+            name="specializations"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                label="Specializations"
+                {...field}
+                InputProps={{ readOnly: !isEditing }}
+                error={!!errors?.specializations}
+                helperText={errors?.specializations?.message?.toString()}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+            )}
           />
-          <TextField
-            label="Languages"
-            value={mockData.languages.join(", ")}
-            InputProps={{ readOnly: !isEditing }}
-            fullWidth
-            sx={{ mb: 2 }}
+          <Controller
+            name="languages"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                label="Languages"
+                {...field}
+                InputProps={{ readOnly: !isEditing }}
+                error={!!errors?.languages}
+                helperText={errors?.languages?.message?.toString()}
+                fullWidth
+                sx={{ mb: 2 }}
+              />
+            )}
           />
-          <TextField
-            label="Experience"
-            value={mockData.experience}
-            InputProps={{ readOnly: !isEditing }}
-            fullWidth
+          <Controller
+            name="experience"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                label="Experience"
+                {...field}
+                InputProps={{ readOnly: !isEditing }}
+                error={!!errors?.experience}
+                helperText={errors?.experience?.message?.toString()}
+                fullWidth
+              />
+            )}
           />
         </CardContent>
       </Card>

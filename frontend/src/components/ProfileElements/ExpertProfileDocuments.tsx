@@ -11,42 +11,41 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import BadgeIcon from '@mui/icons-material/Badge';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { Controller, Control, FieldErrors } from "react-hook-form";
 
-// Mock type for demonstration
 interface ExpertProfileDocumentsProps {
+  control: Control<any>;
+  errors: FieldErrors<any>;
   isEditing: boolean;
 }
 
 export const ExpertProfileDocuments = ({
+  control,
+  errors,
   isEditing
 }: ExpertProfileDocumentsProps) => {
   const theme = useTheme();
 
-  // Mock document data
   const documentCards = [
     {
       name: "identityProof",
       title: "Identity Proof",
       description: "(Aadhaar/Passport/Driving License/PAN)",
-      error: false
     },
     {
       name: "degreeCertificate",
       title: "Degree Certificate",
       description: "(BAMS/MD)",
-      error: false
     },
     {
       name: "registrationCertificate",
       title: "AYUSH Registration Certificate",
       description: "",
-      error: false
     },
     {
       name: "practiceProof",
       title: "Practice Proof (Optional)",
       description: "",
-      error: false
     }
   ];
 
@@ -70,19 +69,31 @@ export const ExpertProfileDocuments = ({
                 {doc.description}
               </Typography>
               <Stack direction="row" spacing={2} alignItems="center">
-                <Button
-                  variant="contained"
-                  component="label"
-                  startIcon={<CloudUploadIcon />}
-                  disabled={!isEditing}
-                >
-                  Upload
-                  <input type="file" hidden />
-                </Button>
-                <CheckCircleIcon color="success" />
+                <Controller
+                  name={doc.name}
+                  control={control}
+                  render={({ field }) => (
+                    <Button
+                      variant="contained"
+                      component="label"
+                      startIcon={<CloudUploadIcon />}
+                      disabled={!isEditing}
+                    >
+                      Upload
+                      <input
+                        type="file"
+                        hidden
+                        onChange={e => field.onChange(e.target.files?.[0])}
+                      />
+                    </Button>
+                  )}
+                />
+                {control._formValues && control._formValues[doc.name] && (
+                  <CheckCircleIcon color="success" />
+                )}
               </Stack>
-              {doc.error && (
-                <FormHelperText error>Document required</FormHelperText>
+              {errors && errors[doc.name] && (
+                <FormHelperText error>{errors[doc.name]?.message?.toString()}</FormHelperText>
               )}
             </CardContent>
           </Card>

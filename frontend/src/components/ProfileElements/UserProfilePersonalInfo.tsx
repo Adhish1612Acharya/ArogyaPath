@@ -13,23 +13,24 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import PhoneIcon from '@mui/icons-material/Phone';
 import EmailIcon from '@mui/icons-material/Email';
+import { Controller, Control, FieldErrors } from "react-hook-form";
 
 interface UserProfilePersonalInfoProps {
+  control: Control<any>;
+  errors: FieldErrors<any>;
   isEditing: boolean;
+  onAvatarChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  avatar: string | null;
 }
 
 export const UserProfilePersonalInfo = ({
-  isEditing
+  control,
+  errors,
+  isEditing,
+  onAvatarChange,
+  avatar
 }: UserProfilePersonalInfoProps) => {
   const theme = useTheme();
-
-  // Mock data for demonstration
-  const mockData = {
-    name: "Jane Doe",
-    phone: "9876543210",
-    email: "jane@example.com",
-    avatar: null as string | null
-  };
 
   return (
     <Box sx={{ mt: 6 }}>
@@ -40,7 +41,6 @@ export const UserProfilePersonalInfo = ({
       }}>
         Personal Information
       </Typography>
-
       <Card variant="outlined" sx={{
         mb: 3,
         borderRadius: 2,
@@ -55,55 +55,79 @@ export const UserProfilePersonalInfo = ({
             alignItems: 'center'
           }}>
             <Avatar
-              src={mockData.avatar || undefined}
+              src={avatar || undefined}
               sx={{ width: 80, height: 80, mb: 2 }}
             >
-              {mockData.name[0]}
+              {/* Optionally show initials */}
             </Avatar>
             <Button variant="outlined" component="label" disabled={!isEditing}>
               Upload Avatar
-              <input type="file" hidden />
+              <input type="file" hidden onChange={onAvatarChange} />
             </Button>
           </Box>
           <Stack spacing={3}>
-            <TextField
-              label="Name"
-              value={mockData.name}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon />
-                  </InputAdornment>
-                ),
-                readOnly: !isEditing
-              }}
-              fullWidth
+            <Controller
+              name="name"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Name"
+                  {...field}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon />
+                      </InputAdornment>
+                    ),
+                    readOnly: !isEditing
+                  }}
+                  error={!!errors?.name}
+                  helperText={errors?.name?.message?.toString()}
+                  fullWidth
+                />
+              )}
             />
-            <TextField
-              label="Phone"
-              value={mockData.phone}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PhoneIcon />
-                  </InputAdornment>
-                ),
-                readOnly: !isEditing
-              }}
-              fullWidth
+            <Controller
+              name="phone"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Phone"
+                  {...field}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PhoneIcon />
+                      </InputAdornment>
+                    ),
+                    readOnly: !isEditing
+                  }}
+                  error={!!errors?.phone}
+                  helperText={errors?.phone?.message?.toString()}
+                  fullWidth
+                />
+              )}
             />
-            <TextField
-              label="Email"
-              value={mockData.email}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <EmailIcon />
-                  </InputAdornment>
-                ),
-                readOnly: !isEditing
-              }}
-              fullWidth
+            <Controller
+              name="email"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  label="Email"
+                  {...field}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <EmailIcon />
+                      </InputAdornment>
+                    ),
+                    readOnly: !isEditing
+                  }}
+                  error={!!errors?.email}
+                  helperText={errors?.email?.message?.toString()}
+                  fullWidth
+                />
+              )}
             />
           </Stack>
         </CardContent>
