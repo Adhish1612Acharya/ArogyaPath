@@ -89,6 +89,10 @@ export const logout = (req, res) => {
 };
 
 const checkAuth = (req, res) => {
+  console.log("IsLoggedIn called");
+  console.log("Cookies received:", req.headers.cookie);
+  console.log("Session Data:", req.session);
+  console.log("Session Passport:", req.session.passport);
   const loggedIn = req.isAuthenticated();
   const userRole = req.user?.role || null;
 
