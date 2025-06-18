@@ -109,10 +109,12 @@ console.log("SessionOptions  : Secure :  ", sessionOptions.cookie.secure);
 console.log("SessionOptions  : SameSite :  ", sessionOptions.cookie.sameSite);
 console.log("Environment  : NODE_ENV :  ", process.env.NODE_ENV);
 
+app.set("trust proxy", 1);
+
 app.use(bodyParser.json());
 
 const corsOptions = {
-  origin: ["https://arogyapaths.netlify.app","http://localhost:5173"],
+  origin: ["https://arogyapaths.netlify.app", "http://localhost:5173"],
   credentials: true,
   methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
 };
