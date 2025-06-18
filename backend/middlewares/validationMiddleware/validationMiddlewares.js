@@ -79,6 +79,7 @@ export const validateResetPassword = (req, res, next) => {
 };
 
 export const validateExpertCompleteProfile = (req, res, next) => {
+   console.log("Expert Profile body : ", req.body);
   const result = expertProfileSchema.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
   next();

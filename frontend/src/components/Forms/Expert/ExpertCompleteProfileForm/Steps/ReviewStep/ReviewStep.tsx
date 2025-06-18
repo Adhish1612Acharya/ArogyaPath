@@ -48,6 +48,17 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
             icon={<PersonIcon color="primary" sx={{ mr: 1 }} />}
           >
             <List dense>
+              {" "}
+              <ListItem>
+                <ListItemText
+                  primary="Expert Type"
+                  secondary={
+                    formData.expertType === "ayurvedic"
+                      ? "Ayurvedic"
+                      : "Naturopathy"
+                  }
+                />
+              </ListItem>
               <ListItem>
                 <ListItemText
                   primary="Date of Birth"
@@ -72,7 +83,6 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
             </List>
           </InfoCard>
         </Box>
-
         {/* Professional Details */}
         <Box sx={{ flexBasis: { xs: "100%", md: "calc(50% - 12px)" } }}>
           <InfoCard
@@ -133,7 +143,6 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
             </List>
           </InfoCard>
         </Box>
-
         {/* Educational Qualifications */}
         <Box sx={{ flexBasis: { xs: "100%", md: "calc(50% - 12px)" } }}>
           <InfoCard
@@ -169,8 +178,7 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
               ))}
             </List>
           </InfoCard>
-        </Box>
-
+        </Box>{" "}
         {/* Documents */}
         <Box sx={{ flexBasis: { xs: "100%", md: "calc(50% - 12px)" } }}>
           <InfoCard
@@ -197,6 +205,42 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
             </List>
           </InfoCard>
         </Box>
+        {/* Bio Section */}
+        {formData.bio && (
+          <Box sx={{ flexBasis: "100%", mt: 3 }}>
+            <InfoCard
+              title="Professional Bio"
+              icon={<PersonIcon color="primary" sx={{ mr: 1 }} />}
+            >
+              <Box
+                sx={{ p: 2, bgcolor: "background.default", borderRadius: 1 }}
+              >
+                <Typography
+                  variant="body1"
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                    color: "text.primary",
+                    lineHeight: 1.6,
+                    fontStyle: "italic",
+                  }}
+                >
+                  "{formData.bio}"
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "block",
+                    textAlign: "right",
+                    mt: 1,
+                    color: "text.secondary",
+                  }}
+                >
+                  {formData.bio.length} / 500 characters
+                </Typography>
+              </Box>
+            </InfoCard>
+          </Box>
+        )}
       </Box>
     </Box>
   );

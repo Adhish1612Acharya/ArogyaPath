@@ -46,7 +46,7 @@ import { useTheme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   overflow: "hidden",
   transition: "all 0.3s ease",
   boxShadow: theme.shadows[2],
@@ -171,14 +171,14 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
         avatar={
           <Badge
             overlap="circular"
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             badgeContent={
               <Box
                 sx={{
                   width: 14,
                   height: 14,
-                  borderRadius: '50%',
-                  backgroundColor: '#4CAF50',
+                  borderRadius: "50%",
+                  backgroundColor: "#4CAF50",
                   border: `2px solid ${theme.palette.background.paper}`,
                 }}
               />
@@ -220,7 +220,11 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
             <Tooltip title="Posted time" arrow>
               <Typography
                 variant="caption"
-                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "grey.600",
+                }}
               >
                 <AccessTime fontSize="inherit" sx={{ mr: 0.5 }} />
                 {formatDistanceToNow(new Date(post.createdAt), {
@@ -234,7 +238,11 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
             <Tooltip title="Reading time" arrow>
               <Typography
                 variant="caption"
-                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "grey.600",
+                }}
               >
                 <MenuBook fontSize="inherit" sx={{ mr: 0.5 }} />
                 {post.readTime}
@@ -253,7 +261,7 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
       {/* Post content */}
       <CardContent sx={{ pt: 0, pb: 2 }}>
         <PostTitle>{post.title}</PostTitle>
-        
+
         <PostDescription>
           {post.description.length > 200
             ? `${post.description.substring(0, 200)}...`
@@ -268,7 +276,13 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
             style={{ marginBottom: theme.spacing(2) }}
           >
             <MediaPreview
-              media={{ images: [post.thumbnail], video: "", document: "" } as MediaUpload}
+              media={
+                {
+                  images: [post.thumbnail],
+                  video: "",
+                  document: "",
+                } as MediaUpload
+              }
               onMediaClick={onMediaClick}
             />
           </motion.div>
@@ -333,18 +347,22 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
       </CardContent>
 
       {/* Stats and Actions */}
-      <CardActions sx={{ 
-        px: 2,
-        py: 1,
-        bgcolor: "grey.50",
-        borderTop: `1px solid ${theme.palette.grey[200]}`,
-      }}>
-        <Box sx={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center",
-          width: "100%"
-        }}>
+      <CardActions
+        sx={{
+          px: 2,
+          py: 1,
+          bgcolor: "grey.50",
+          borderTop: `1px solid ${theme.palette.grey[200]}`,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
           {/* Left side - Like, Comment, Share */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
             <Tooltip title={liked ? "Unlike" : "Like"} arrow>
@@ -389,7 +407,7 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
               </ActionButton>
             </Tooltip>
           </Box>
-          
+
           {/* Right side - Bookmark and Views (only for author) */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Tooltip title={saved ? "Unsave" : "Save"} arrow>
@@ -403,15 +421,18 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
                 {saved ? <Bookmark /> : <BookmarkBorder />}
               </ActionButton>
             </Tooltip>
-            
+
             {post.owner._id === currentUserId && (
               <Tooltip title="Views" arrow>
-                <Typography variant="caption" sx={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  color: "grey.600",
-                  ml: 1,
-                }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    color: "grey.600",
+                    ml: 1,
+                  }}
+                >
                   <Visibility fontSize="small" sx={{ mr: 0.5 }} />
                   {viewCount}
                 </Typography>
@@ -425,11 +446,11 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
       <Collapse in={commentOpen} timeout="auto" unmountOnExit>
         <Divider />
         <CommentSection
-          comments={comments}
-          setComments={setComments}
-          postId={post._id}
+          comments={comments as any}
+          setComments={setComments as any}
+          // postId={post._id}
           currentUserId={currentUserId}
-          inputRef={commentInputRef}
+          inputRef={commentInputRef as any}
         />
       </Collapse>
 
@@ -469,7 +490,7 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
           </ListItemIcon>
           <ListItemText primary="Share" />
         </MenuItem>
-        
+
         <MenuItem
           onClick={handleReport}
           sx={{
@@ -483,7 +504,7 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
           </ListItemIcon>
           <ListItemText primary="Report" />
         </MenuItem>
-        
+
         {onEdit && (
           <MenuItem
             onClick={() => {
@@ -498,32 +519,32 @@ const RoutinePostCard: FC<RoutinePostCardProps> = ({
           >
             <ListItemIcon sx={{ color: "rgb(5, 150, 105)" }}>
               <Edit fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Edit" />
-        </MenuItem>
-      )}
-      
-      {onDelete && (
-        <MenuItem
-          onClick={() => {
-            handleMenuClose();
-            onDelete();
-          }}
-          sx={{
-            "&:hover": {
-              backgroundColor: "rgba(255, 0, 0, 0.08)",
-            },
-          }}
-        >
-          <ListItemIcon sx={{ color: "error.main" }}>
-            <Delete fontSize="small" />
-          </ListItemIcon>
-          <ListItemText primary="Delete" sx={{ color: "error.main" }} />
-        </MenuItem>
-      )}
-    </Menu>
-  </StyledCard>
-);
+            </ListItemIcon>
+            <ListItemText primary="Edit" />
+          </MenuItem>
+        )}
+
+        {onDelete && (
+          <MenuItem
+            onClick={() => {
+              handleMenuClose();
+              onDelete();
+            }}
+            sx={{
+              "&:hover": {
+                backgroundColor: "rgba(255, 0, 0, 0.08)",
+              },
+            }}
+          >
+            <ListItemIcon sx={{ color: "error.main" }}>
+              <Delete fontSize="small" />
+            </ListItemIcon>
+            <ListItemText primary="Delete" sx={{ color: "error.main" }} />
+          </MenuItem>
+        )}
+      </Menu>
+    </StyledCard>
+  );
 };
 
 export default RoutinePostCard;

@@ -45,7 +45,7 @@ import { useTheme } from "@mui/material/styles";
 import { styled } from "@mui/material/styles";
 
 const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   overflow: "hidden",
   transition: "all 0.3s ease",
   boxShadow: theme.shadows[2],
@@ -149,14 +149,14 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
         avatar={
           <Badge
             overlap="circular"
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
             badgeContent={
               <Box
                 sx={{
                   width: 14,
                   height: 14,
-                  borderRadius: '50%',
-                  backgroundColor: '#4CAF50',
+                  borderRadius: "50%",
+                  backgroundColor: "#4CAF50",
                   border: `2px solid ${theme.palette.background.paper}`,
                 }}
               />
@@ -198,7 +198,11 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
             <Tooltip title="Posted time" arrow>
               <Typography
                 variant="caption"
-                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "grey.600",
+                }}
               >
                 <AccessTime fontSize="inherit" sx={{ mr: 0.5 }} />
                 {formatDistanceToNow(new Date(post.createdAt), {
@@ -212,7 +216,11 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
             <Tooltip title="Reading time" arrow>
               <Typography
                 variant="caption"
-                sx={{ display: "flex", alignItems: "center", color: "grey.600" }}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  color: "grey.600",
+                }}
               >
                 <MenuBook fontSize="inherit" sx={{ mr: 0.5 }} />
                 {post.readTime}
@@ -231,7 +239,7 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
       {/* Post content */}
       <CardContent sx={{ pt: 0, pb: 2 }}>
         <PostTitle>{post.title}</PostTitle>
-        
+
         <PostDescription>
           {post.description.length > 200
             ? `${post.description.substring(0, 200)}...`
@@ -274,18 +282,22 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
       </CardContent>
 
       {/* Stats and Actions */}
-      <CardActions sx={{ 
-        px: 2,
-        py: 1,
-        bgcolor: "grey.50",
-        borderTop: `1px solid ${theme.palette.grey[200]}`,
-      }}>
-        <Box sx={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center",
-          width: "100%"
-        }}>
+      <CardActions
+        sx={{
+          px: 2,
+          py: 1,
+          bgcolor: "grey.50",
+          borderTop: `1px solid ${theme.palette.grey[200]}`,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            width: "100%",
+          }}
+        >
           {/* Left side - Like, Comment, Share */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 0 }}>
             <Tooltip title={liked ? "Unlike" : "Like"} arrow>
@@ -330,7 +342,7 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
               </ActionButton>
             </Tooltip>
           </Box>
-          
+
           {/* Right side - Bookmark and Views (only for author) */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Tooltip title={saved ? "Unsave" : "Save"} arrow>
@@ -344,15 +356,18 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
                 {saved ? <Bookmark /> : <BookmarkBorder />}
               </ActionButton>
             </Tooltip>
-            
+
             {post.owner._id === currentUserId && (
               <Tooltip title="Views" arrow>
-                <Typography variant="caption" sx={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  color: "grey.600",
-                  ml: 1,
-                }}>
+                <Typography
+                  variant="caption"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    color: "grey.600",
+                    ml: 1,
+                  }}
+                >
                   <Visibility fontSize="small" sx={{ mr: 0.5 }} />
                   {viewCount}
                 </Typography>
@@ -366,11 +381,11 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
       <Collapse in={commentOpen} timeout="auto" unmountOnExit>
         <Divider />
         <CommentSection
-          comments={comments}
-          setComments={setComments}
-          postId={post._id}
+          comments={comments as any}
+          setComments={setComments as any}
+          // postId={post._id}
           currentUserId={currentUserId}
-          inputRef={commentInputRef}
+          inputRef={commentInputRef as any}
         />
       </Collapse>
 
@@ -410,7 +425,7 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
           </ListItemIcon>
           <ListItemText primary="Share" />
         </MenuItem>
-        
+
         <MenuItem
           onClick={handleReport}
           sx={{
@@ -424,7 +439,7 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
           </ListItemIcon>
           <ListItemText primary="Report" />
         </MenuItem>
-        
+
         {onEdit && (
           <MenuItem
             onClick={() => {
@@ -443,7 +458,7 @@ const GeneralPostCard: FC<GeneralPostCardProps> = ({
             <ListItemText primary="Edit" />
           </MenuItem>
         )}
-        
+
         {onDelete && (
           <MenuItem
             onClick={() => {
