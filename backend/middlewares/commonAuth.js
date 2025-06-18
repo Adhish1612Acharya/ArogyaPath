@@ -13,6 +13,10 @@ export const isAlreadyLoggedIn = (req, res, next) => {
 };
 
 export const isLoggedIn = (req, res, next) => {
+  console.log("IsLoggedIn called");
+  console.log("Cookies received:", req.headers.cookie);
+  console.log("Session Data:", req.session);
+  console.log("Session Passport:", req.session.passport);
   if (req.isAuthenticated()) {
     return next();
   } else {
@@ -133,7 +137,7 @@ export const isAlreadyVerified = (req, res, next) => {
   return next();
 };
 
-export const profileAlreadyCompleted =  (req, res, next) => {
+export const profileAlreadyCompleted = (req, res, next) => {
   if (req.user.verifications.completeProfile) {
     throw new ExpressError(400, "Profile already completed");
   }

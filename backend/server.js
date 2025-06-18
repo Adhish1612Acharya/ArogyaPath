@@ -104,8 +104,10 @@ const sessionOptions = {
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
 };
-// const server = http.createServer(app);
-// const io = new Server(server);
+
+console.log("SessionOptions  : Secure :  ", sessionOptions.cookie.secure);
+console.log("SessionOptions  : SameSite :  ", sessionOptions.cookie.sameSite);
+console.log("Environment  : NODE_ENV :  ", process.env.NODE_ENV);
 
 app.use(bodyParser.json());
 
