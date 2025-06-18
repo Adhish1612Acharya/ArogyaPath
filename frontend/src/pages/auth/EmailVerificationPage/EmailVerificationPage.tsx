@@ -16,7 +16,7 @@ const EmailVerificationPage: React.FC = () => {
   const [email, setEmail] = useState("");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { sendVerificationEmail, verifyEmail } = useEmailVerification();
+  const { sendVerificationEmail } = useEmailVerification();
   const [status, setStatus] = useState<
     "verified" | "failedVerification" | "emailVerification" | "sendVerification"
   >();
@@ -25,7 +25,7 @@ const EmailVerificationPage: React.FC = () => {
   // Get verification parameters from URL if they exist
   const id = searchParams.get("id");
   const token = searchParams.get("token");
-  const type = (searchParams.get("type") as "User" | "Expert") || "User";
+  // const type = (searchParams.get("type") as "User" | "Expert") || "User";
 
   useEffect(() => {
     const localStatus = localStorage.getItem("emailVerification") || "";
@@ -37,20 +37,20 @@ const EmailVerificationPage: React.FC = () => {
     }
   }, [id, token]);
 
-  const handleVerifyEmail = async () => {
-    if (!id || !token) return;
+  // const handleVerifyEmail = async () => {
+  //   if (!id || !token) return;
 
-    const response = await verifyEmail({
-      id,
-      token,
-      type,
-    });
+  //   const response = await verifyEmail({
+  //     id,
+  //     token,
+  //     type,
+  //   });
 
-    if (response?.success) {
-      // Redirect to a success page or home page
-      navigate("/verification-success");
-    }
-  };
+  //   if (response?.success) {
+  //     // Redirect to a success page or home page
+  //     navigate("/verification-success");
+  //   }
+  // };
 
   const handleSendVerification = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,15 +2,15 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { 
-  Box, 
-  Container, 
-  Paper, 
+import {
+  Box,
+  Container,
+  Paper,
   Avatar,
   Button,
-  Typography,
+  // Typography,
   Divider,
-  useTheme
+  useTheme,
 } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -35,12 +35,12 @@ const UserProfilePage = () => {
     handleSubmit,
     formState: { errors },
     reset,
-    watch
+    // watch,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
       // Initial values from API or empty
-    }
+    },
   });
 
   const handleEdit = () => {
@@ -71,22 +71,31 @@ const UserProfilePage = () => {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Container maxWidth={false} disableGutters sx={{ px: 0, py: 0, width: '100vw', minWidth: 0 }}>
-        <Paper elevation={3} sx={{ 
-          p: { xs: 2, sm: 4, md: 6 }, 
-          borderRadius: 0,
-          background: theme.palette.background.paper,
-          boxShadow: theme.shadows[3],
-          width: '100vw',
-          minHeight: '100vh',
-          minWidth: 0
-        }}>
-          <Box sx={{ 
-            display: 'flex', 
-            justifyContent: 'flex-end',
-            mb: 4
-          }}>
-            <ProfileEditButton 
+      <Container
+        maxWidth={false}
+        disableGutters
+        sx={{ px: 0, py: 0, width: "100vw", minWidth: 0 }}
+      >
+        <Paper
+          elevation={3}
+          sx={{
+            p: { xs: 2, sm: 4, md: 6 },
+            borderRadius: 0,
+            background: theme.palette.background.paper,
+            boxShadow: theme.shadows[3],
+            width: "100vw",
+            minHeight: "100vh",
+            minWidth: 0,
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              mb: 4,
+            }}
+          >
+            <ProfileEditButton
               isEditing={isEditing}
               onEdit={handleEdit}
               onSave={handleSubmit(handleSave)}
@@ -99,20 +108,22 @@ const UserProfilePage = () => {
             subtitle="Manage your personal information and wellness preferences"
           />
 
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: 'column',
-            alignItems: 'center', 
-            mb: 6,
-            position: 'relative'
-          }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              mb: 6,
+              position: "relative",
+            }}
+          >
             <Avatar
               src={avatar || "/default-avatar.jpg"}
-              sx={{ 
-                width: 140, 
+              sx={{
+                width: 140,
                 height: 140,
                 border: `4px solid ${theme.palette.primary.main}`,
-                mb: 3
+                mb: 3,
               }}
             />
             {isEditing && (
@@ -124,11 +135,11 @@ const UserProfilePage = () => {
                   borderRadius: 2,
                   bgcolor: theme.palette.primary.main,
                   color: theme.palette.primary.contrastText,
-                  cursor: 'pointer',
+                  cursor: "pointer",
                   fontWeight: 500,
-                  '&:hover': {
-                    bgcolor: theme.palette.primary.dark
-                  }
+                  "&:hover": {
+                    bgcolor: theme.palette.primary.dark,
+                  },
                 }}
               >
                 Change Photo
@@ -137,19 +148,21 @@ const UserProfilePage = () => {
             )}
           </Box>
 
-          <UserProfilePersonalInfo 
-            control={control} 
-            errors={errors} 
+          <UserProfilePersonalInfo
+            control={control}
+            errors={errors}
             isEditing={isEditing}
             onAvatarChange={handleAvatarChange}
             avatar={avatar}
           />
 
-          <Divider sx={{ 
-            my: 6,
-            borderColor: theme.palette.divider,
-            borderWidth: 1
-          }} />
+          <Divider
+            sx={{
+              my: 6,
+              borderColor: theme.palette.divider,
+              borderWidth: 1,
+            }}
+          />
 
           <UserProfileWellnessInfo
             control={control}
@@ -157,26 +170,29 @@ const UserProfilePage = () => {
             isEditing={isEditing}
           />
 
-          <Box sx={{ mt: 4, textAlign: 'center' }}>
-            {watch("governmentId") && (
-              <Typography variant="body2" sx={{ 
-                color: theme.palette.text.secondary,
-                mb: 2
-              }}>
+          <Box sx={{ mt: 4, textAlign: "center" }}>
+            {/* {(watch("governmentId") as any) && (
+              <Typography
+                variant="body2"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  mb: 2,
+                }}
+              >
                 Document uploaded: {watch("governmentId")}
               </Typography>
-            )}
-            
+            )} */}
+
             {isEditing && (
               <Button
                 component="label"
                 variant="outlined"
-                sx={{ 
+                sx={{
                   borderRadius: 2,
                   px: 4,
                   py: 1.5,
-                  textTransform: 'none',
-                  fontWeight: 500
+                  textTransform: "none",
+                  fontWeight: 500,
                 }}
               >
                 Upload Verification Document

@@ -3,7 +3,7 @@ if (process.env.NODE_ENV !== "production") {
   dotEnvConfig();
 }
 
-import path from "path";
+// import path from "path";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -12,7 +12,7 @@ import bodyParser from "body-parser";
 import errorHandler from "./utils/errorHandler.js";
 import { cleanupTempFiles } from "./utils/cleanupTempFiles.js";
 import chatRoutes from "./routes/Chat.js";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 
 import successStoryRoute from "./routes/SuccessStory.js";
 
@@ -61,12 +61,12 @@ main()
     console.log("DB connected successfully");
 
     // Initialize temporary files cleanup
-     cleanupTempFiles(); // Run cleanup once at startup
+    cleanupTempFiles(); // Run cleanup once at startup
 
     // Schedule cleanup every 24 hours
-   setInterval(cleanupTempFiles, 24 * 60 * 60 * 1000);
+    setInterval(cleanupTempFiles, 24 * 60 * 60 * 1000);
 
-     console.log("Temporary files cleanup scheduler initialized");
+    console.log("Temporary files cleanup scheduler initialized");
   })
   .catch((err) => {
     console.log("DB connect error");
@@ -164,6 +164,10 @@ passport.deserializeUser((obj, done) => {
   }
 });
 
+app.get("/", (req, res) => {
+  res.json("Success");
+});
+
 app.get("/api/user/data", (req, res) => {
   res.status(200).json({
     userEmail: req.user.email,
@@ -197,19 +201,19 @@ app.use("/api/premium", premiumRoute);
 
 // -------------------Deployment------------------//
 
-const __dirname1 = path.resolve();
+// const __dirname1 = path.resolve();
 
-if (process.env.NODE_ENV === "local") {
-  app.use(express.static(path.join(__dirname1, "/frontend/dist")));
+// if (process.env.NODE_ENV === "local") {
+//   app.use(express.static(path.join(__dirname1, "/frontend/dist")));
 
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname1, "frontend", "dist", "index.html"));
-  });
-} else {
-  app.get("/", (req, res) => {
-    res.json("Success");
-  });
-}
+//   app.get("*", (req, res) => {
+//     res.sendFile(path.join(__dirname1, "frontend", "dist", "index.html"));
+//   });
+// } else {
+//   app.get("/", (req, res) => {
+//     res.json("Success");
+//   });
+// }
 
 // -------------------Deployment------------------//
 

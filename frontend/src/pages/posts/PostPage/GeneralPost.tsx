@@ -8,7 +8,7 @@ import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostC
 import usePost from "@/hooks/usePost/usePost";
 import { GeneralPostType } from "@/types/GeneralPost.types";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
-import { Delete, Edit } from "@mui/icons-material";
+// import { Delete, Edit } from "@mui/icons-material";
 
 export function GeneralPost() {
   const { getPostById } = usePost();
@@ -81,27 +81,27 @@ export function GeneralPost() {
     setOpenMediaDialog(false);
   };
 
-  const isPostAuthor = (post: GeneralPostType) => {
-    return post.owner._id === userId;
-  };
+  // const isPostAuthor = (post: GeneralPostType) => {
+  //   return post.owner._id === userId;
+  // };
 
-  const handleNextImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
-      );
-    }
-  };
+  // const handleNextImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
-  const handlePrevImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) =>
-          (prev ? prev - 1 + mediaDialogImages.length : 0) %
-          mediaDialogImages.length
-      );
-    }
-  };
+  // const handlePrevImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) =>
+  //         (prev ? prev - 1 + mediaDialogImages.length : 0) %
+  //         mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -141,22 +141,24 @@ export function GeneralPost() {
             isSaved={Math.floor(Math.random() * 2) === 1 ? true : false}
             currentUserId={userId}
             onMediaClick={openMediaViewer}
-            menuItems={[
-              ...(isPostAuthor(post)
-                ? [
-                    {
-                      label: "Edit",
-                      icon: <Edit fontSize="small" />,
-                      action: () => handleEdit(post),
-                    },
-                    {
-                      label: "Delete",
-                      icon: <Delete fontSize="small" />,
-                      action: () => handleDelete(post._id),
-                    },
-                  ]
-                : []),
-            ]}
+            // menuItems={[
+            //   ...(isPostAuthor(post)
+            //     ? [
+            //         {
+            //           label: "Edit",
+            //           icon: <Edit fontSize="small" />,
+            //           action: () => handleEdit(post),
+            //         },
+            //         {
+            //           label: "Delete",
+            //           icon: <Delete fontSize="small" />,
+            //           action: () => handleDelete(post._id),
+            //         },
+            //       ]
+            //     : []),
+            // ]}
+            onDelete={handleDelete}
+            onEdit={handleEdit}
           />
         </div>
       </div>
@@ -168,8 +170,8 @@ export function GeneralPost() {
         title={""}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
-        onNext={handleNextImage}
-        onPrev={handlePrevImage}
+        // onNext={handleNextImage}
+        // onPrev={handlePrevImage}
       />
     </div>
   );

@@ -4,6 +4,6 @@ export interface MediaViewerDialogProps {
   title?: string;
   selectedImageIndex: number;
   onClose: () => void;
-  onNext: () => void;
-  onPrev: () => void;
+  // onNext: () => void;
+  // onPrev: () => void;
 }

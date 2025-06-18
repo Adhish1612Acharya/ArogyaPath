@@ -1,5 +1,5 @@
+import { ExpertFormData } from "@/pages/AfterRegisterPage/ExpertCompleteProfile/ExpertCompleteProfile.types";
 import { Control, FieldErrors, UseFormTrigger } from "react-hook-form";
-import { ExpertFormData } from "../../ExpertCompleteProfileForm.types";
 
 export interface DocumentsStepProps {
   control: Control<ExpertFormData>;

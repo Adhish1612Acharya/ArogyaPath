@@ -8,7 +8,7 @@ import useRoutines from "@/hooks/useRoutine/useRoutine";
 import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
 import { RoutinePostType } from "@/types/RoutinesPost.types";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
-import { Delete, Edit } from "@mui/icons-material";
+// import { Delete, Edit } from "@mui/icons-material";
 
 export function RoutinePost() {
   const { getRoutinesPostById } = useRoutines();
@@ -69,27 +69,27 @@ export function RoutinePost() {
     setOpenMediaDialog(false);
   };
 
-  const isPostAuthor = (post: RoutinePostType) => {
-    return post.owner._id === userId;
-  };
+  // const isPostAuthor = (post: RoutinePostType) => {
+  //   return post.owner._id === userId;
+  // };
 
-  const handleNextImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
-      );
-    }
-  };
+  // const handleNextImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
-  const handlePrevImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) =>
-          (prev ? prev - 1 + mediaDialogImages.length : 0) %
-          mediaDialogImages.length
-      );
-    }
-  };
+  // const handlePrevImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) =>
+  //         (prev ? prev - 1 + mediaDialogImages.length : 0) %
+  //         mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
   if (loading) {
     return (
@@ -129,22 +129,24 @@ export function RoutinePost() {
             isSaved={Math.floor(Math.random() * 2) === 1 ? true : false}
             currentUserId={userId}
             onMediaClick={openMediaViewer}
-            menuItems={[
-              ...(isPostAuthor(post)
-                ? [
-                    {
-                      label: "Edit",
-                      icon: <Edit fontSize="small" />,
-                      action: () => handleEdit(post),
-                    },
-                    {
-                      label: "Delete",
-                      icon: <Delete fontSize="small" />,
-                      action: () => handleDelete(post._id),
-                    },
-                  ]
-                : []),
-            ]}
+            // menuItems={[
+            //   ...(isPostAuthor(post)
+            //     ? [
+            //         {
+            //           label: "Edit",
+            //           icon: <Edit fontSize="small" />,
+            //           action: () => handleEdit(post),
+            //         },
+            //         {
+            //           label: "Delete",
+            //           icon: <Delete fontSize="small" />,
+            //           action: () => handleDelete(post._id),
+            //         },
+            //       ]
+            //     : []),
+            // ]}
+            onEdit={() => handleEdit(post)}
+            onDelete={() => handleDelete(post._id)}
           />
         </div>
       </div>
@@ -154,8 +156,8 @@ export function RoutinePost() {
         title={""}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
-        onNext={handleNextImage}
-        onPrev={handlePrevImage}
+        // onNext={handleNextImage}
+        // onPrev={handlePrevImage}
       />
     </div>
   );

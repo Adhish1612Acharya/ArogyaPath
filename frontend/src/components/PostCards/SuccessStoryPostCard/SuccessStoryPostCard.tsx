@@ -130,11 +130,11 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
       <Collapse in={commentOpen} timeout="auto" unmountOnExit>
         <Divider />
         <CommentSection
-          comments={comments}
-          setComments={setComments}
-          postId={post._id}
+          comments={comments as any}
+          setComments={setComments as any}
+          // postId={post._id}
           currentUserId={currentUserId}
-          inputRef={commentInputRef}
+          inputRef={commentInputRef as any}
         />
       </Collapse>
 

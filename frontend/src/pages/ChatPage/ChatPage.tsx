@@ -1,7 +1,15 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { Box, useTheme, useMediaQuery, IconButton, Tooltip, Avatar, Typography } from "@mui/material";
+import {
+  Box,
+  useTheme,
+  useMediaQuery,
+  IconButton,
+  Tooltip,
+  Avatar,
+  Typography,
+} from "@mui/material";
 import {
   ArrowBack as ArrowBackIcon,
   MoreVert as MoreVertIcon,
@@ -29,10 +37,12 @@ const ChatPage = () => {
 
   const [chatUsers, setChatUsers] = useState<UserOrExpertDetailsType[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [currUser, setCurrUser] = useState<UserOrExpertDetailsType | null>(null);
+  const [currUser, setCurrUser] = useState<UserOrExpertDetailsType | null>(
+    null
+  );
   const [groupName, setGroupName] = useState<string>("");
   const [inputMessage, setInputMessage] = useState("");
-  const { socket, socketConnected, onNewMessage, sendMessage } = useSocket(
+  const { socketConnected, onNewMessage, sendMessage } = useSocket(
     id || "",
     currUser
   );
@@ -103,12 +113,12 @@ const ChatPage = () => {
   return (
     <Box
       sx={{
-        width: '100vw',
-        minHeight: '100vh',
+        width: "100vw",
+        minHeight: "100vh",
         px: { xs: 1, sm: 3, md: 6 }, // responsive horizontal padding
         bgcolor: theme.palette.background.default,
-        display: 'flex',
-        flexDirection: 'column',
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <ChatLayout>
@@ -127,10 +137,13 @@ const ChatPage = () => {
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <IconButton onClick={() => navigate("/chats")} sx={{ display: { xs: 'flex', md: 'none' } }}>
+            <IconButton
+              onClick={() => navigate("/chats")}
+              sx={{ display: { xs: "flex", md: "none" } }}
+            >
               <ArrowBackIcon />
             </IconButton>
-            
+
             {chatUsers.length > 0 && (
               <Avatar
                 src={chatUsers[0]?.profile.profileImage}
@@ -138,17 +151,17 @@ const ChatPage = () => {
                 sx={{ width: 40, height: 40 }}
               />
             )}
-            
+
             <Box>
               <Typography variant="subtitle1" fontWeight={600}>
-                {groupName || (chatUsers[0]?.profile.fullName || "Chat")}
+                {groupName || chatUsers[0]?.profile.fullName || "Chat"}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 {socketConnected ? "online" : "offline"}
               </Typography>
             </Box>
           </Box>
-          
+
           <Box>
             <Tooltip title="Search">
               <IconButton>
@@ -174,16 +187,14 @@ const ChatPage = () => {
             flex: 1,
             overflowY: "auto",
             p: isMobile ? 1 : 3,
-            backgroundImage: theme.palette.mode === "dark"
-              ? "radial-gradient(circle at center, #2a2a2a, #1e1e1e)"
-              : "radial-gradient(circle at center, #f5f5f5, #e0e0e0)",
+            backgroundImage:
+              theme.palette.mode === "dark"
+                ? "radial-gradient(circle at center, #2a2a2a, #1e1e1e)"
+                : "radial-gradient(circle at center, #f5f5f5, #e0e0e0)",
             backgroundAttachment: "fixed",
           }}
         >
-          <ChatContainer 
-            messages={messages} 
-            currUser={currUser} 
-          />
+          <ChatContainer messages={messages} currUser={currUser} />
         </Box>
 
         {/* Enhanced Input Area */}
@@ -210,7 +221,7 @@ const ChatPage = () => {
                 <AttachFileIcon />
               </IconButton>
             </Tooltip>
-            
+
             <Box
               sx={{
                 flex: 1,
@@ -226,7 +237,7 @@ const ChatPage = () => {
                   <MoodIcon />
                 </IconButton>
               </Tooltip>
-              
+
               <input
                 type="text"
                 value={inputMessage}
@@ -235,16 +246,16 @@ const ChatPage = () => {
                 placeholder="Type a message..."
                 className="message-input"
               />
-              
+
               {inputMessage ? (
                 <Tooltip title="Send">
-                  <IconButton 
+                  <IconButton
                     onClick={handleSendMessage}
-                    sx={{ 
+                    sx={{
                       color: theme.palette.primary.main,
                       "&:hover": {
                         bgcolor: "transparent",
-                      }
+                      },
                     }}
                   >
                     <SendIcon />

@@ -1,5 +1,5 @@
 import useApi from "@/hooks/useApi/useApi";
-import React, { useEffect, useState } from "react";
+import  { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface UserProfile {
@@ -10,7 +10,7 @@ interface UserProfile {
 
 const Premium = () => {
   const { post } = useApi();
-  const [userProfile, setUserProfile] = useState<UserProfile>({
+  const [userProfile, _setUserProfile] = useState<UserProfile>({
     fullName: "",
     email: "",
     phone: "",
@@ -98,7 +98,7 @@ const Premium = () => {
       };
 
       const rzp = new (window as any).Razorpay(options);
-      rzp.on("payment.failed", function (response: any) {
+      rzp.on("payment.failed", function (_response: any) {
         toast.error("Payment failed. Please try again.");
       });
 
