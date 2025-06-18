@@ -110,7 +110,7 @@ const sessionOptions = {
 app.use(bodyParser.json());
 
 const corsOptions = {
-  origin: "http://localhost:5173",
+  origin: ["http://localhost:5173", process.env.VITE_API_URL],
   credentials: true,
   methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
 };
