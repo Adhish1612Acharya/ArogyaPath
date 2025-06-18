@@ -41,6 +41,7 @@ const ExpertCompleteProfile: React.FC = () => {
   const methods = useForm<ExpertFormData>({
     resolver: zodResolver(expertProfileSchema),
     defaultValues: {
+      expertType: "ayurvedic",
       dateOfBirth: new Date(1990, 0, 1),
       gender: "",
       mobileNumber: "",

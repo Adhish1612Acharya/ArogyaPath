@@ -6,6 +6,9 @@ const FileSchema = z.custom<File>((val) => val instanceof File, {
 
 export const expertProfileSchema = z.object({
   // Personal Details
+  expertType: z.enum(["ayurvedic", "naturopathy"], {
+    required_error: "Expert type is required",
+  }),
   dateOfBirth: z.date().refine((date) => {
     const today = new Date();
     const minDate = new Date();

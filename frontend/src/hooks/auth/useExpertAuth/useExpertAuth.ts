@@ -63,6 +63,7 @@ const useExpertAuth = () => {
       const profileData = {
         profile: {
           contactNo: parseInt(formData.mobileNumber),
+          expertType: formData.expertType,
           experience: formData.yearsOfExperience,
           qualifications: formData.qualifications.map((q) => ({
             degree: q.degree,

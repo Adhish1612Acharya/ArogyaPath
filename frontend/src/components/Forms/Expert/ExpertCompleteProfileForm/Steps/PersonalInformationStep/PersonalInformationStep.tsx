@@ -48,6 +48,7 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
             }}
           >
             <CardContent>
+              {" "}
               <Typography
                 variant="subtitle1"
                 sx={{
@@ -60,8 +61,30 @@ const PersonalInformationStep: React.FC<PersonalInformationStepProps> = ({
               >
                 <PersonIcon color="primary" sx={{ mr: 1 }} /> Basic Details
               </Typography>
-
               <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                <Box
+                  sx={{ flexBasis: { xs: "100%", md: "calc(33.33% - 8px)" } }}
+                >
+                  <Controller
+                    name="expertType"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        select
+                        fullWidth
+                        label="Expert Type"
+                        error={!!errors.expertType}
+                        helperText={errors.expertType?.message}
+                        size="small"
+                        variant="outlined"
+                      >
+                        <MenuItem value="ayurvedic">Ayurvedic</MenuItem>
+                        <MenuItem value="naturopathy">Naturopathy</MenuItem>
+                      </TextField>
+                    )}
+                  />
+                </Box>
                 <Box
                   sx={{ flexBasis: { xs: "100%", md: "calc(33.33% - 8px)" } }}
                 >
