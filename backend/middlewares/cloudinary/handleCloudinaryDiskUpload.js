@@ -1,3 +1,4 @@
+import ExpressError from "../../utils/expressError.js";
 import { documentUpload } from "./expertDocumentUploadConfig.js";
 import multer from "multer";
 

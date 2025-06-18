@@ -1,5 +1,5 @@
 import { Control, FieldErrors, UseFormTrigger } from "react-hook-form";
-import { ExpertFormData } from "../../ExpertCompleteProfileForm.types";
+import { ExpertFormData } from "@/pages/AfterRegisterPage/ExpertCompleteProfile/ExpertCompleteProfile.types";
 import type { SelectChangeEvent } from "@mui/material";
 
 export interface ProfessionalDetailsStepProps {

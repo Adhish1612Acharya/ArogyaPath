@@ -10,11 +10,18 @@ import {
   ListItemAvatar,
   Collapse,
 } from "@mui/material";
-import { Send, Reply, Favorite, FavoriteBorder, ExpandMore, ExpandLess } from "@mui/icons-material";
+import {
+  Send,
+  Reply,
+  Favorite,
+  FavoriteBorder,
+  ExpandMore,
+  ExpandLess,
+} from "@mui/icons-material";
 import { useState, FC } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
-import { CommentSectionProps } from "./CommentSection.types";
+// import { CommentSectionProps } from "./CommentSection.types";
 import { styled } from "@mui/material/styles";
 
 const CommentContainer = styled(Box)(({ theme }) => ({
@@ -29,7 +36,7 @@ const CommentForm = styled("form")(({ theme }) => ({
 
 const CommentTextField = styled(TextField)(({ theme }) => ({
   "& .MuiOutlinedInput-root": {
-    borderRadius: theme.shape.borderRadius * 2,
+    borderRadius: (theme.shape.borderRadius as any) * 2,
     backgroundColor: theme.palette.background.paper,
     "& fieldset": {
       borderColor: theme.palette.grey[300],
@@ -53,7 +60,7 @@ const CommentItem = styled(ListItem)(({ theme }) => ({
   "&:hover": {
     boxShadow: theme.shadows[2],
   },
-  transition: theme.transitions.create(['box-shadow'], {
+  transition: theme.transitions.create(["box-shadow"], {
     duration: theme.transitions.duration.shorter,
   }),
 }));
@@ -68,7 +75,7 @@ const ReplyItem = styled(ListItem)(({ theme }) => ({
   borderLeft: `3px solid ${theme.palette.grey[300]}`,
 }));
 
-const CommentContent = styled(Box)(({ theme }) => ({
+const CommentContent = styled(Box)(() => ({
   flex: 1,
   minWidth: 0,
 }));
@@ -109,29 +116,33 @@ interface CommentType {
   likedBy: string[];
 }
 
-const CommentSection: FC<CommentSectionProps> = ({
-  comments,
-  setComments,
-  postId,
-  currentUserId,
-  inputRef,
-}: {
+const CommentSection: FC<
+//CommentSectionProps:
+ {
   comments: CommentType[];
   setComments: React.Dispatch<React.SetStateAction<CommentType[]>>;
-  postId: string;
+  // postId: string;
   currentUserId: string;
   inputRef?: React.RefObject<HTMLInputElement>;
+}> = ({
+  comments,
+  setComments,
+  currentUserId,
+  // postId,
+  inputRef,
 }) => {
   const [newComment, setNewComment] = useState("");
   const [replyingTo, setReplyingTo] = useState<{
     commentId: string;
     ownerName: string;
   } | null>(null);
-  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(new Set());
+  const [expandedReplies, setExpandedReplies] = useState<Set<string>>(
+    new Set()
+  );
 
   const onComment = (text: string) => {
     if (!text.trim()) return;
-    
+
     // Simulate API call
     const newCommentObj = {
       _id: `comment-${Date.now()}`,
@@ -140,7 +151,9 @@ const CommentSection: FC<CommentSectionProps> = ({
         _id: currentUserId,
         profile: {
           fullName: "You",
-          profileImage: `https://i.pravatar.cc/150?img=${currentUserId.slice(-2)}`,
+          profileImage: `https://i.pravatar.cc/150?img=${currentUserId.slice(
+            -2
+          )}`,
         },
       },
       createdAt: new Date().toISOString(),
@@ -149,17 +162,17 @@ const CommentSection: FC<CommentSectionProps> = ({
       likes: 0,
       likedBy: [],
     };
-    
+
     setComments((prev) => [...prev, newCommentObj]);
     setNewComment("");
   };
 
   const onReply = (text: string, commentId: string) => {
     if (!text.trim()) return;
-    
-    const parentComment = comments.find(c => c._id === commentId);
+
+    const parentComment = comments.find((c) => c._id === commentId);
     if (!parentComment) return;
-    
+
     const newReply = {
       _id: `reply-${Date.now()}`,
       content: text,
@@ -167,7 +180,9 @@ const CommentSection: FC<CommentSectionProps> = ({
         _id: currentUserId,
         profile: {
           fullName: "You",
-          profileImage: `https://i.pravatar.cc/150?img=${currentUserId.slice(-2)}`,
+          profileImage: `https://i.pravatar.cc/150?img=${currentUserId.slice(
+            -2
+          )}`,
         },
       },
       createdAt: new Date().toISOString(),
@@ -178,24 +193,24 @@ const CommentSection: FC<CommentSectionProps> = ({
       likes: 0,
       likedBy: [],
     };
-    
-    setComments(prev => 
-      prev.map(comment => 
+
+    setComments((prev) =>
+      prev.map((comment) =>
         comment._id === commentId
-          ? { 
-              ...comment, 
+          ? {
+              ...comment,
               replies: [...comment.replies, newReply],
-              repliesCount: comment.repliesCount + 1
+              repliesCount: comment.repliesCount + 1,
             }
           : comment
       )
     );
     setReplyingTo(null);
     setNewComment("");
-    
+
     // Expand replies if not already expanded
     if (!expandedReplies.has(commentId)) {
-      setExpandedReplies(prev => new Set(prev).add(commentId));
+      setExpandedReplies((prev) => new Set(prev).add(commentId));
     }
   };
 
@@ -219,49 +234,49 @@ const CommentSection: FC<CommentSectionProps> = ({
     }
   };
 
-  const toggleExpandReplies = (commentId: string) => {
-    setExpandedReplies(prev => {
+  const toggleExpandReplies = (_commentId: string) => {
+    setExpandedReplies((prev) => {
       const newSet = new Set(prev);
-      newSet.has(commentId) ? newSet.delete(commentId) : newSet.add(commentId);
+      // newSet.has(commentId) ? newSet.delete(commentId) : newSet.add(commentId);
       return newSet;
     });
   };
 
   const handleLikeComment = (commentId: string, isReply = false) => {
-    setComments(prev =>
-      prev.map(comment => {
+    setComments((prev) =>
+      prev.map((comment) => {
         if (comment._id === commentId) {
           const isLiked = comment.likedBy.includes(currentUserId);
           return {
             ...comment,
             likedBy: isLiked
-              ? comment.likedBy.filter(id => id !== currentUserId)
+              ? comment.likedBy.filter((id) => id !== currentUserId)
               : [...comment.likedBy, currentUserId],
             likes: isLiked ? comment.likes - 1 : comment.likes + 1,
           };
         }
-        
+
         if (isReply) {
-          const updatedReplies = comment.replies.map(reply => {
+          const updatedReplies = comment.replies.map((reply) => {
             if (reply._id === commentId) {
               const isLiked = reply.likedBy.includes(currentUserId);
               return {
                 ...reply,
                 likedBy: isLiked
-                  ? reply.likedBy.filter(id => id !== currentUserId)
+                  ? reply.likedBy.filter((id) => id !== currentUserId)
                   : [...reply.likedBy, currentUserId],
                 likes: isLiked ? reply.likes - 1 : reply.likes + 1,
               };
             }
             return reply;
           });
-          
+
           return {
             ...comment,
             replies: updatedReplies,
           };
         }
-        
+
         return comment;
       })
     );
@@ -352,7 +367,9 @@ const CommentSection: FC<CommentSectionProps> = ({
                   />
                 </ListItemAvatar>
                 <CommentContent>
-                  <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "space-between" }}
+                  >
                     <Typography variant="subtitle2" fontWeight={600}>
                       {comment.owner.profile.fullName}
                     </Typography>
@@ -362,16 +379,21 @@ const CommentSection: FC<CommentSectionProps> = ({
                       })}
                     </Typography>
                   </Box>
-                  <Typography variant="body2" sx={{ mt: 1, whiteSpace: "pre-wrap" }}>
+                  <Typography
+                    variant="body2"
+                    sx={{ mt: 1, whiteSpace: "pre-wrap" }}
+                  >
                     {comment.content}
                   </Typography>
-                  
+
                   <CommentActions>
                     <IconButton
                       size="small"
                       onClick={() => handleLikeComment(comment._id)}
                       sx={{
-                        color: isCommentLiked(comment) ? "error.main" : "text.secondary",
+                        color: isCommentLiked(comment)
+                          ? "error.main"
+                          : "text.secondary",
                         p: 0.5,
                       }}
                     >
@@ -384,10 +406,12 @@ const CommentSection: FC<CommentSectionProps> = ({
                         {comment.likes}
                       </Typography>
                     </IconButton>
-                    
+
                     <Button
                       size="small"
-                      onClick={() => toggleReply(comment._id, comment.owner.profile.fullName)}
+                      onClick={() =>
+                        toggleReply(comment._id, comment.owner.profile.fullName)
+                      }
                       sx={{
                         color: "text.secondary",
                         minWidth: 0,
@@ -444,31 +468,55 @@ const CommentSection: FC<CommentSectionProps> = ({
                               />
                             </ListItemAvatar>
                             <CommentContent>
-                              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                }}
+                              >
                                 <Box>
-                                  <Typography variant="subtitle2" fontWeight={600}>
+                                  <Typography
+                                    variant="subtitle2"
+                                    fontWeight={600}
+                                  >
                                     {reply.owner.profile.fullName}
                                   </Typography>
-                                  <Typography variant="caption" color="text.secondary">
+                                  <Typography
+                                    variant="caption"
+                                    color="text.secondary"
+                                  >
                                     Replying to {reply.repliedTo.ownerName}
                                   </Typography>
                                 </Box>
-                                <Typography variant="caption" color="text.secondary">
-                                  {formatDistanceToNow(new Date(reply.createdAt), {
-                                    addSuffix: true,
-                                  })}
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                >
+                                  {formatDistanceToNow(
+                                    new Date(reply.createdAt),
+                                    {
+                                      addSuffix: true,
+                                    }
+                                  )}
                                 </Typography>
                               </Box>
-                              <Typography variant="body2" sx={{ mt: 1, whiteSpace: "pre-wrap" }}>
+                              <Typography
+                                variant="body2"
+                                sx={{ mt: 1, whiteSpace: "pre-wrap" }}
+                              >
                                 {reply.content}
                               </Typography>
-                              
+
                               <CommentActions>
                                 <IconButton
                                   size="small"
-                                  onClick={() => handleLikeComment(reply._id, true)}
+                                  onClick={() =>
+                                    handleLikeComment(reply._id, true)
+                                  }
                                   sx={{
-                                    color: isCommentLiked(reply) ? "error.main" : "text.secondary",
+                                    color: isCommentLiked(reply)
+                                      ? "error.main"
+                                      : "text.secondary",
                                     p: 0.5,
                                   }}
                                 >
@@ -477,7 +525,10 @@ const CommentSection: FC<CommentSectionProps> = ({
                                   ) : (
                                     <FavoriteBorder fontSize="small" />
                                   )}
-                                  <Typography variant="caption" sx={{ ml: 0.5 }}>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{ ml: 0.5 }}
+                                  >
                                     {reply.likes}
                                   </Typography>
                                 </IconButton>

@@ -79,23 +79,23 @@ export function SuccessStoryPost() {
     return post.owner._id === userId;
   };
 
-  const handleNextImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
-      );
-    }
-  };
+  // const handleNextImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
-  const handlePrevImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) =>
-          (prev ? prev - 1 + mediaDialogImages.length : 0) %
-          mediaDialogImages.length
-      );
-    }
-  };
+  // const handlePrevImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) =>
+  //         (prev ? prev - 1 + mediaDialogImages.length : 0) %
+  //         mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
   const addVerifiedExpert = (
     _postId: string,
@@ -180,8 +180,8 @@ export function SuccessStoryPost() {
         title={""}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
-        onNext={handleNextImage}
-        onPrev={handlePrevImage}
+        // onNext={handleNextImage}
+        // onPrev={handlePrevImage}
       />
     </div>
   );

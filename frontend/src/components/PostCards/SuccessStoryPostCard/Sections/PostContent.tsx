@@ -9,7 +9,7 @@ export const PostContent = ({
   onMediaClick 
 }: { 
   post: SuccessStoryCardProps['post'], 
-  onMediaClick?: SuccessStoryCardProps['onMediaClick'] 
+  onMediaClick: SuccessStoryCardProps['onMediaClick'] 
 }) => {
   return (
     <CardContent sx={{ pt: 0, pb: 2 }}>

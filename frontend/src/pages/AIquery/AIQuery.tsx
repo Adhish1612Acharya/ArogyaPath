@@ -59,7 +59,6 @@ const AISearchPage = () => {
       return;
     }
 
-    // @ts-ignore - TypeScript doesn't know about webkitSpeechRecognition
     const SpeechRecognition =
       (window as any).SpeechRecognition || window.webkitSpeechRecognition;
     recognitionRef.current = new SpeechRecognition();
@@ -107,6 +106,7 @@ const AISearchPage = () => {
         recognitionRef.current.start();
       }
     } catch (err) {
+      console.error(err);
       setSpeechError("Could not start microphone. Please check permissions.");
     }
   };
@@ -162,23 +162,23 @@ const AISearchPage = () => {
     setOpenMediaDialog(false);
   };
 
-  const handleNextImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
-      );
-    }
-  };
+  // const handleNextImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) => (prev ? prev + 1 : 0) % mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
-  const handlePrevImage = () => {
-    if (mediaDialogImages.length > 0) {
-      setSelectedMediaImageIndex(
-        (prev) =>
-          (prev ? prev - 1 + mediaDialogImages.length : 0) %
-          mediaDialogImages.length
-      );
-    }
-  };
+  // const handlePrevImage = () => {
+  //   if (mediaDialogImages.length > 0) {
+  //     setSelectedMediaImageIndex(
+  //       (prev) =>
+  //         (prev ? prev - 1 + mediaDialogImages.length : 0) %
+  //         mediaDialogImages.length
+  //     );
+  //   }
+  // };
 
   const addVerifiedExpert = (
     postId: string,
@@ -456,7 +456,13 @@ const AISearchPage = () => {
                       }
                       currentUserId={userId}
                       onMediaClick={openMediaViewer}
-                      menuItems={[]}
+                      onDelete={() => {
+                        return;
+                      }}
+                      onEdit={() => {
+                        return;
+                      }}
+                      // menuItems={[]}
                     />
                   ))}
                 </Box>
@@ -485,7 +491,13 @@ const AISearchPage = () => {
                       }
                       currentUserId={userId}
                       onMediaClick={openMediaViewer}
-                      menuItems={[]}
+                      // menuItems={[]}
+                      onDelete={() => {
+                        return;
+                      }}
+                      onEdit={() => {
+                        return;
+                      }}
                     />
                   ))}
                 </Box>
@@ -531,8 +543,8 @@ const AISearchPage = () => {
         title={""}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
-        onNext={handleNextImage}
-        onPrev={handlePrevImage}
+        // onNext={handleNextImage}
+        // onPrev={handlePrevImage}
       />
     </Box>
   );

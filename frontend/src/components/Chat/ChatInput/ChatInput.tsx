@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import { FC } from "react";
 import { Paper, InputBase, IconButton } from "@mui/material";
 import { Send } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -6,7 +6,6 @@ import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-toastify";
 import { ChatInputProps } from "./ChatInput.types";
-import useSocket from "@/hooks/useSocket/useSocket";
 
 const sendMessageInputSchema = z.object({
   msg: z.string().min(1),
