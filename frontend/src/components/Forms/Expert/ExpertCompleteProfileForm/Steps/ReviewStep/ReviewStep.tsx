@@ -48,6 +48,17 @@ const ReviewStep: React.FC<ReviewStepProps> = ({ formData }) => {
             icon={<PersonIcon color="primary" sx={{ mr: 1 }} />}
           >
             <List dense>
+              {" "}
+              <ListItem>
+                <ListItemText
+                  primary="Expert Type"
+                  secondary={
+                    formData.expertType === "ayurvedic"
+                      ? "Ayurvedic"
+                      : "Naturopathy"
+                  }
+                />
+              </ListItem>
               <ListItem>
                 <ListItemText
                   primary="Date of Birth"

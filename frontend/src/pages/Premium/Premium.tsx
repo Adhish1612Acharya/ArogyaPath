@@ -1,5 +1,5 @@
 import useApi from "@/hooks/useApi/useApi";
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
 interface UserProfile {
@@ -80,7 +80,6 @@ const Premium = () => {
         name: "ArogyaPath Premium",
         description: "Premium Membership Access",
         handler: function (response: any) {
-            console.log("Payment reponse : ",response);
           verifyPayment({
             razorpay_payment_id: response.razorpay_payment_id,
             razorpay_order_id: response.razorpay_order_id,

@@ -157,6 +157,7 @@ export const expertProfileSchema = z.object({
       .number()
       .min(1000000000, "Contact number must be a 10-digits number.")
       .max(9999999999, "Contact number must be a 10-digits number."),
+    expertType: z.enum(["ayurvedic", "naturopathy"]),
     experience: z
       .number()
       .min(0, "Experience must be non-negative.")

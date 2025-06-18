@@ -8,8 +8,6 @@ const ExpertSchema = new Schema(
     email: { type: String, required: true, unique: true },
     googleId: {
       type: String,
-      unique: true,
-      sparse: true,
       default: null,
     },
     profile: {
@@ -18,7 +16,7 @@ const ExpertSchema = new Schema(
       expertType: {
         type: String,
         enum: ["ayurvedic", "naturopathy"],
-        default: "ayurvedic",
+        // No default, field can be undefined
       },
       profileImage: { type: String, default: "" },
       experience: { type: Number, default: 0 },

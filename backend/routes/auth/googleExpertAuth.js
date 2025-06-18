@@ -29,6 +29,7 @@ router.get(
   "/callback",
   passport.authenticate("google-expert", {
     failureRedirect: "/api/auth/google/expert/failureLogin",
+    failureMessage: true,
   }),
   googleAuthController.handleGoogleCallback
 );

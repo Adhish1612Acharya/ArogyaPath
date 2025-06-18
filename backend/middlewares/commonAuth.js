@@ -56,6 +56,7 @@ export const isEmailAlreadyVerified = async (req, res, next) => {
     throw new ExpressError(404, "No user exists");
   }
 
+  console.log("Found User : ", foundUser);
   // Check if already verified
   if (foundUser.verifications?.email) {
     throw new ExpressError(400, "Email already verified");
@@ -79,6 +80,7 @@ export const isEmailVerified = async (req, res, next) => {
     }
 
     let foundUser = null;
+
 
     // Try to find user/expert with this email
     if (role === "User") {
