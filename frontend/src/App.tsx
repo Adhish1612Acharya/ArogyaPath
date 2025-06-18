@@ -49,6 +49,7 @@ import UserProfilePage from "./pages/AfterRegisterPage/UserProfilePage";
 import Loader from "./components/Loader";
 import AboutUs from "./pages/AboutUs/AboutUs";
 import ContactUs from "./pages/ContactUs/ContactUs";
+import TermsNConditions from "./pages/TermsNConditions/TermsNConditions";
 import { useState, useEffect } from "react";
 
 const App = () => {
@@ -84,6 +85,7 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/terms-and-conditions" element={<TermsNConditions />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
 
           <Route element={<GuestProtectedRoute />}>
