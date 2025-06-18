@@ -121,8 +121,8 @@ const App = () => {
           </Route>
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/verify-email" element={<EmailVerify />} />
-            <Route path="/verify-mobile" element={<MobileVerify />} />
+           
+            {/* <Route path="/verify-mobile" element={<MobileVerify />} /> */}
             <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
             <Route path="/chats/:id" element={<ChatPage />} />

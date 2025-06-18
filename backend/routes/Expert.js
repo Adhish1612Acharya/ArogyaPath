@@ -7,10 +7,11 @@ import {
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import * as expertProfileController from "../controllers/expert.js";
-import handleExpertDocumentUpload from "../middlewares/cloudinary/handleExpertDocumentUpload.js";
-import { handleCloudinaryDiskUpload } from "../middlewares/cloudinary/handleCloudinaryDiskUpload.js";
+import {handleExpertDocumentUpload} from "../middlewares/cloudinary/handleExpertDocumentUpload.js";
+import { handleExpertDocumentDiskUpload } from "../middlewares/cloudinary/handleExpertDocumentsDiskUpload.js";
 import { validateExpertDocuments } from "../middlewares/experts/validateExpertDocument.js";
 import { parseFormdata } from "../middlewares/cloudinaryMiddleware.js";
+
 
 const router = express.Router();
 
@@ -22,7 +23,7 @@ router.patch(
   checkExpertLogin,
   profileAlreadyCompleted,
   // Handle file uploads with multer
-  handleCloudinaryDiskUpload,
+  handleExpertDocumentDiskUpload,
   // Validate required documents are present
   validateExpertDocuments,
   parseFormdata,
