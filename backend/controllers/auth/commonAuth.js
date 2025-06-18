@@ -16,7 +16,7 @@ export const setForgotPasswordToken = async (req, res) => {
   }
 
   if (!user) throw new ExpressError(400, "User not found");
-  
+
   const token = crypto.randomBytes(32).toString("hex");
   user.resetPasswordToken = token;
   user.resetPasswordExpires = Date.now() + 1000 * 60 * 15; // 15 mins
@@ -90,20 +90,16 @@ export const logout = (req, res) => {
 };
 
 const checkAuth = (req, res) => {
-  console.log("IsLoggedIn called");
-  console.log("Cookies received:", req.headers.cookie);
-  console.log("Session Data:", req.session);
-  console.log("Session Passport:", req.session.passport);
   const loggedIn = req.isAuthenticated();
   const userRole = req.user?.role || null;
-
-  console.log("LoggedIn : ", loggedIn);
+  const verifications = req.user?.verifications || null;
 
   res.status(200).json({
     success: true,
     message: "Auth Status",
     loggedIn,
     userRole,
+    verifications,
   });
 };
 

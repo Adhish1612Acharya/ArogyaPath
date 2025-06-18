@@ -1,8 +1,8 @@
+import { documentUpload } from "../../utils/cloudinary/expertDocumentUploadConfig.js";
 import ExpressError from "../../utils/expressError.js";
-import { documentUpload } from "./expertDocumentUploadConfig.js";
 import multer from "multer";
 
-export const handleCloudinaryDiskUpload = (req, res, next) =>
+export const handleExpertDocumentDiskUpload = (req, res, next) =>
   documentUpload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === "LIMIT_FILE_SIZE") {
