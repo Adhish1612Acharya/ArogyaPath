@@ -46,9 +46,22 @@ import EmailVerificationPage from "./pages/auth/EmailVerificationPage/EmailVerif
 import VerifyingEmailPage from "./pages/auth/VerifyingEmailPage/VerifyingEmailPage";
 import ExpertProfilePage from "./pages/AfterRegisterPage/ExpertProfilePage";
 import UserProfilePage from "./pages/AfterRegisterPage/UserProfilePage";
+import Loader from "./components/Loader";
+import AboutUs from "./pages/AboutUs/AboutUs";
+import ContactUs from "./pages/ContactUs/ContactUs";
+import { useState, useEffect } from "react";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 3200); 
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) return <Loader />;
+
   return (
     <>
       <PageNavBar />
@@ -69,6 +82,8 @@ const App = () => {
       <div className="main-container">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
 
           <Route element={<GuestProtectedRoute />}>
