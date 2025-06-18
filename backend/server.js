@@ -112,7 +112,7 @@ console.log("Environment  : NODE_ENV :  ", process.env.NODE_ENV);
 app.use(bodyParser.json());
 
 const corsOptions = {
-  origin: ["http://localhost:5173", process.env.VITE_API_URL],
+  origin: ["https://arogyapaths.netlify.app","http://localhost:5173"],
   credentials: true,
   methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
 };
