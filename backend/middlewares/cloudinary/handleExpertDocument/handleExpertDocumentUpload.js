@@ -1,5 +1,5 @@
-import { cloudinaryUploadFilesWithCleanup } from "../../utils/cloudinary/cloudinaryUploadFilesWithCleanup.js";
-import ExpressError from "../../utils/expressError.js";
+import { cloudinaryUploadFilesWithCleanup } from "../../../utils/cloudinary/cloudinaryUploadFilesWithCleanup.js";
+import ExpressError from "../../../utils/expressError.js";
 
 export const handleExpertDocumentUpload = async (req, res, next) => {
   try {
@@ -16,7 +16,7 @@ export const handleExpertDocumentUpload = async (req, res, next) => {
     });
 
     req.documentUrls = Object.fromEntries(
-      Object.entries(uploaded).map(([field, info]) => [field, info.url])
+      Object.entries(uploaded).map(([field, info]) => [field, info[0].url])
     );
     next();
   } catch (error) {

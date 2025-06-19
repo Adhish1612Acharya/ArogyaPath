@@ -121,7 +121,7 @@ const YourChats: React.FC = () => {
           >
             Your Conversations
           </Typography>
-          <Box sx={{ display: "flex", gap: 1 }}>
+          {/* <Box sx={{ display: "flex", gap: 1 }}>
             <Tooltip title="New chat">
               <IconButton
                 onClick={handleCreateNewChat}
@@ -136,7 +136,7 @@ const YourChats: React.FC = () => {
                 <AddIcon />
               </IconButton>
             </Tooltip>
-          </Box>
+          </Box> */}
         </Box>
       </Paper>
 

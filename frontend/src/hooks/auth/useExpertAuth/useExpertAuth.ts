@@ -2,7 +2,7 @@ import useApi from "@/hooks/useApi/useApi";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import { toast } from "react-toastify";
 import { ExpertRegisterFormData } from "./useExpertAuth.types";
-import { ExpertFormData } from "@/pages/AfterRegisterPage/ExpertCompleteProfile/ExpertCompleteProfile.types";
+import { ExpertFormData } from "@/pages/Expert/ExpertCompleteProfile/ExpertCompleteProfile.types";
 
 const useExpertAuth = () => {
   const { post, patch } = useApi();

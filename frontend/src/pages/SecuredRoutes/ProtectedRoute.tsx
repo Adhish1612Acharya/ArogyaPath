@@ -1,38 +1,30 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import { checkAuthAndGetNavigation } from "@/utils/checkVerifications";
+import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
+import Loader from "@/components/Loader";
 
 const ProtectedRoute = () => {
-  const { setIsLoggedIn, setRole } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [redirectPath, setRedirectPath] = useState<string | null>(null);
-
+  const { checkAuthStatus, loading, navigationState } = useCheckAuth();
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const { authStatus, navigation } = await checkAuthAndGetNavigation();
-        setIsLoggedIn(authStatus.loggedIn);
-        setRole(authStatus.userRole || undefined);
-
-        if (navigation.shouldRedirect) {
-          setRedirectPath(navigation.redirectPath);
-        }
-      } catch {
-        setIsLoggedIn(false);
-        setRole(undefined);
-        setRedirectPath("/auth");
-      } finally {
-        setLoading(false);
-      }
+    const check = async () => {
+      await checkAuthStatus();
     };
+    check();
+  }, []);
 
-    checkAuth();
-  }, [setIsLoggedIn, setRole]);
+  if (loading) return <Loader />;
 
-  if (loading) return <div className="p-4">Checking authentication...</div>;
+  if (navigationState?.shouldRedirect) {
+    return <Navigate to={navigationState.redirectPath} replace />;
+  }
 
-  if (redirectPath) return <Navigate to={redirectPath} replace />;
+  // if (navigationState?.shouldRedirect) {
+  //   const currentPath = window.location.pathname;
+
+  //   if (navigationState.redirectPath !== currentPath) {
+  //     return <Navigate to={navigationState.redirectPath} replace />;
+  //   }
+  // }
 
   return <Outlet />;
 };

@@ -1,40 +1,29 @@
-import { useAuth } from "@/context/AuthContext";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import { checkAuthAndGetNavigation } from "@/utils/checkVerifications";
+import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
+import Loader from "@/components/Loader";
 
 const UserProtectedRoute = () => {
-  const { setIsLoggedIn, setRole } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [redirectPath, setRedirectPath] = useState<string | null>(null);
+  const { checkAuthStatus, loading, navigationState, authState } =
+    useCheckAuth();
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const { authStatus, navigation } = await checkAuthAndGetNavigation();
-        setIsLoggedIn(authStatus.loggedIn);
-        setRole(authStatus.userRole || undefined);
-
-        if (navigation.shouldRedirect) {
-          setRedirectPath(navigation.redirectPath);
-        } else if (authStatus.userRole !== "user") {
-          setRedirectPath("/");
-        }
-      } catch {
-        setIsLoggedIn(false);
-        setRole(undefined);
-        setRedirectPath("/auth");
-      } finally {
-        setLoading(false);
-      }
+    const check = async () => {
+      await checkAuthStatus();
     };
+    check();
+  }, []);
 
-    checkUser();
-  }, [setIsLoggedIn, setRole]);
+  if (loading) return <Loader />;
 
-  if (loading) return <div className="p-4">Checking user access...</div>;
+  if (navigationState?.shouldRedirect) {
+    return <Navigate to={navigationState.redirectPath} replace />;
+  }
 
-  if (redirectPath) return <Navigate to={redirectPath} replace />;
+  // Additional check for user role
+  if (!loading && authState?.userRole !== "user") {
+    return <Navigate to="/" replace />;
+  }
 
   return <Outlet />;
 };

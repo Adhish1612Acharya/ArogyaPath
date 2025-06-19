@@ -1,6 +1,5 @@
 import axios from "axios";
 import ExpressError from "../utils/expressError.js";
-import extractPdfText from "../utils/extractTextFromPdf.js";
 import { verifyMediaContent } from "../utils/geminiApiCalls/verifyMediaContent.js";
 import { verifyTextContent } from "../utils/geminiApiCalls/verifyTextContent.js";
 import FormData from "form-data";
@@ -9,7 +8,7 @@ import FormData from "form-data";
  * Middleware to verify uploaded media and text using AI models.
  */
 export const verifyPostData = async (req, res, next) => {
-  const files = req.files || [];
+  const files = req.files.media || [];
   const { title = "", description = "", routines = [] } = req.body;
 
   // Combine all textual content including routines and potential PDF text

@@ -82,10 +82,8 @@ export const googleCallBackFunctionForExpert = async (
   try {
     const email = profile.emails?.[0]?.value || null;
     const emailVerified =
-      profile.emails?.[0]?.verified ||
-      profile.email_verified ||
-      false;
-      console.log(profile)
+      profile.emails?.[0]?.verified || profile.email_verified || false;
+    console.log(profile);
     if (!email) {
       return done(null, false, {
         message: "Google profile does not have an email",
@@ -97,8 +95,14 @@ export const googleCallBackFunctionForExpert = async (
         message: "Email already exists in User collection",
       });
     }
-    const expert = await Expert.findOne({ googleId: profile.id });
+    const expert = await Expert.findOne({
+      $or: [{ googleId: profile.id }, { email: email }],
+    });
     if (expert) {
+      if (expert.googleId === null) {
+        expert.googleId = profile.id;
+        await expert.save();
+      }
       if (expert.verifications.email) return done(null, expert);
 
       if (emailVerified) {
@@ -137,10 +141,8 @@ export const googleCallBackFunctionForUser = async (
 ) => {
   try {
     const email = profile.emails?.[0]?.value || null;
-   const emailVerified =
-      profile.emails?.[0]?.verified ||
-      profile.email_verified ||
-      false;
+    const emailVerified =
+      profile.emails?.[0]?.verified || profile.email_verified || false;
 
     if (!email) {
       return done(null, false, {
@@ -155,8 +157,14 @@ export const googleCallBackFunctionForUser = async (
       });
     }
 
-    const user = await User.findOne({ googleId: profile.id });
+    const user = await User.findOne({
+      $or: [{ googleId: profile.id }, { email: email }],
+    });
     if (user) {
+      if (user.googleId === null) {
+        user.googleId = profile.id;
+        await user.save();
+      }
       // If already verified, just return
       if (user.verifications?.email) return done(null, user);
 
