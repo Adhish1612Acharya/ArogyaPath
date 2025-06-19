@@ -12,12 +12,7 @@ const useSocket = (chatId: string, currUser: any) => {
   useEffect(() => {
     if (!chatId || !currUser) return;
 
-    console.log(
-      "Initializing socket with user:",
-      currUser,
-      "and chat:",
-      chatId
-    );
+  
     socketRef.current = io(ENDPOINT);
 
     socketRef.current.on("connect", () => {

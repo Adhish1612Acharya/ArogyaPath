@@ -30,6 +30,7 @@ export const completeProfile = async (req, res) => {
   // Update verification status
   expert.verifications.completeProfile = true;
   expert.verifications.isDoctor = true;
+  expert.verifications.contactNo=true;
 
   await expert.save();
 

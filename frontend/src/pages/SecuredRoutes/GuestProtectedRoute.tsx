@@ -1,42 +1,34 @@
-import { useAuth } from "@/context/AuthContext";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import useApi from "@/hooks/useApi/useApi";
+import { useEffect } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
+import Loader from "@/components/Loader";
 
 const GuestProtectedRoute = () => {
-  const { get } = useApi<{
-    message: string;
-    loggedIn: boolean;
-    userRole: "expert" | "user" | null;
-  }>();
-  const { isLoggedIn, setIsLoggedIn, setRole } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const { checkAuthStatus, loading, authState } = useCheckAuth();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const res = await get(
-          `${import.meta.env.VITE_SERVER_URL}/api/auth/check`
-        );
-        setIsLoggedIn(res.loggedIn);
-        setRole(res.userRole || undefined);
-      } catch {
-        setIsLoggedIn(false);
-        setRole(undefined);
-      } finally {
-        setLoading(false);
-      }
+    const check = async () => {
+      await checkAuthStatus();
     };
+    check();
+  }, []);
 
-    checkAuth();
-  }, [setIsLoggedIn, setRole, navigate]);
+  if (loading) return <Loader />; 
 
-  if (loading) return <div>Loading...</div>;
+  // If user is logged in, redirect them to their appropriate dashboard
+  if (authState?.loggedIn) {
+    // If they're logged in, redirect based on role
+    if (authState.userRole === "expert") {
+      return <Navigate to="/" replace />;
+    } else if (authState.userRole === "user") {
+      return <Navigate to="/" replace />;
+    } else {
+      return <Navigate to="/" replace />;
+    }
+  }
 
-  if (!loading && isLoggedIn) return <Navigate to="/" replace />;
-
-  return !isLoggedIn && !loading && <Outlet />;
+  // Allow access only to non-authenticated users
+  return <Outlet />;
 };
 
 export default GuestProtectedRoute;

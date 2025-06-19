@@ -1,4 +1,4 @@
-import { ExpertFormData } from "@/pages/AfterRegisterPage/ExpertCompleteProfile/ExpertCompleteProfile.types";
+import { ExpertFormData } from "@/pages/Expert/ExpertCompleteProfile/ExpertCompleteProfile.types";
 
 export interface ReviewStepProps {
   formData: ExpertFormData;

@@ -21,7 +21,7 @@ import {
   styled,
   alpha,
   Container,
-  Badge,
+  // Badge,
   useMediaQuery,
   useTheme,
   Grow,
@@ -267,7 +267,7 @@ const PageNavBar: FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { role, isLoggedIn, setRole, setIsLoggedIn } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [notificationsAnchorEl, setNotificationsAnchorEl] =
+  const [_notificationsAnchorEl, setNotificationsAnchorEl] =
     useState<null | HTMLElement>(null);
   const [logOutLoad, setLogOutLoad] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -315,9 +315,9 @@ const PageNavBar: FC = () => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleNotificationsOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationsAnchorEl(event.currentTarget);
-  };
+  // const handleNotificationsOpen = (event: React.MouseEvent<HTMLElement>) => {
+  //   setNotificationsAnchorEl(event.currentTarget);
+  // };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
@@ -484,30 +484,30 @@ const PageNavBar: FC = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {role && !isMobile && (
                 <>
-                  <Zoom in>
-                    <IconButton
-                      size="medium"
-                      color="inherit"
-                      onClick={handleNotificationsOpen}
-                      id="notifications-button"
-                      sx={{
-                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                        "&:hover": {
-                          backgroundColor: alpha(
-                            theme.palette.primary.main,
-                            0.2
-                          ),
-                          transform: "scale(1.1)",
-                        },
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      <Badge badgeContent={3} color="error">
-                        <NotificationsIcon />
-                      </Badge>
-                    </IconButton>
-                  </Zoom>
-                  <Menu
+                    {/* <Zoom in>
+                      <IconButton
+                        size="medium"
+                        color="inherit"
+                        onClick={handleNotificationsOpen}
+                        id="notifications-button"
+                        sx={{
+                          backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                          "&:hover": {
+                            backgroundColor: alpha(
+                              theme.palette.primary.main,
+                              0.2
+                            ),
+                            transform: "scale(1.1)",
+                          },
+                          transition: "all 0.3s ease",
+                        }}
+                      >
+                        <Badge badgeContent={3} color="error">
+                          <NotificationsIcon />
+                        </Badge>
+                      </IconButton>
+                    </Zoom> */}
+                  {/* <Menu
                     anchorEl={notificationsAnchorEl}
                     open={Boolean(notificationsAnchorEl)}
                     onClose={handleMenuClose}
@@ -570,7 +570,7 @@ const PageNavBar: FC = () => {
                         View All Notifications
                       </Typography>
                     </MenuItem>
-                  </Menu>
+                  </Menu> */}
                 </>
               )}
 
@@ -648,7 +648,7 @@ const PageNavBar: FC = () => {
                     <MenuItem
                       onClick={() => {
                         handleMenuClose();
-                        navigate("/profile");
+                        // navigate("/profile");
                       }}
                       sx={{ py: 1.5 }}
                     >
@@ -851,7 +851,7 @@ const PageNavBar: FC = () => {
                 component={RouterLink}
                 fullWidth
                 onClick={() => {
-                  navigate("/profile");
+                  // navigate("/profile");
                   setMobileMenuOpen(false);
                 }}
               >

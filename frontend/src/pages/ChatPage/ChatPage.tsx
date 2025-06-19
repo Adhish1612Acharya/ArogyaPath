@@ -52,12 +52,12 @@ const ChatPage = () => {
       try {
         if (!id) {
           toast.error("Chat ID is missing");
-          navigate("/chats");
+          navigate("/u/chats");
           return;
         }
 
         const response = await fetchChatMessages(id);
-        console.log("Chat response:", response);
+     
 
         const participants = response.chatInfo.participants.filter(
           (participant: any) => participant.user._id !== response.currUser._id
@@ -82,11 +82,11 @@ const ChatPage = () => {
     };
 
     initializeChat();
-  }, [id, navigate]);
+  }, [id]);
 
   useEffect(() => {
     const removeListener = onNewMessage((newMessage: Message) => {
-      console.log("Received message:", newMessage);
+
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
@@ -138,7 +138,7 @@ const ChatPage = () => {
         >
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <IconButton
-              onClick={() => navigate("/chats")}
+              onClick={() => navigate("/u/chats")}
               sx={{ display: { xs: "flex", md: "none" } }}
             >
               <ArrowBackIcon />

@@ -1,6 +1,6 @@
-import { documentUpload } from "../../utils/cloudinary/expertDocumentUploadConfig.js";
-import ExpressError from "../../utils/expressError.js";
+import { documentUpload } from "../../../utils/cloudinary/expertDocumentUploadConfig.js";
 import multer from "multer";
+import ExpressError from "../../../utils/expressError.js";
 
 export const handleExpertDocumentDiskUpload = (req, res, next) =>
   documentUpload(req, res, (err) => {

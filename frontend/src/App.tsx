@@ -11,10 +11,10 @@ import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 import HomePage from "./pages/HomePage";
 import CreateSuccessStory from "./pages/User/CreateSuccessStory/CreateSuccessStory";
 import { PageNotFound } from "./pages/PageNotFound/PageNotFound";
-import EmailVerify from "./pages/AfterRegisterPage/EmailVerify";
-import MobileVerify from "./pages/AfterRegisterPage/MobileVerify";
-import ExpertCompleteProfile from "./pages/AfterRegisterPage/ExpertCompleteProfile/ExpertCompleteProfile";
-import UserCompleteProfile from "./pages/AfterRegisterPage/UserCompleteProfile";
+
+import MobileVerify from "./pages/auth/MobileVerify/MobileVerify";
+import ExpertCompleteProfile from "./pages/Expert/ExpertCompleteProfile/ExpertCompleteProfile";
+import UserCompleteProfile from "./pages/User/UserCompleteProfile/UserCompleteProfile";
 import { GeneralPost } from "./pages/posts/PostPage/GeneralPost";
 import { RoutinePost } from "./pages/posts/PostPage/RoutinePost";
 import { SuccessStoryPost } from "./pages/posts/PostPage/SuccessStoryPost";
@@ -44,23 +44,13 @@ import YourChats from "./pages/YourChats/YourChats";
 import Premium from "./pages/Premium/Premium";
 import EmailVerificationPage from "./pages/auth/EmailVerificationPage/EmailVerificationPage";
 import VerifyingEmailPage from "./pages/auth/VerifyingEmailPage/VerifyingEmailPage";
-import ExpertProfilePage from "./pages/AfterRegisterPage/ExpertProfilePage";
-import UserProfilePage from "./pages/AfterRegisterPage/UserProfilePage";
-import Loader from "./components/Loader";
+import ExpertProfilePage from "./pages/Expert/ExpertProfilePage";
+import UserProfilePage from "./pages/User/UserProfilePage/UserProfilePage";
 import AboutUs from "./pages/AboutUs/AboutUs";
 import ContactUs from "./pages/ContactUs/ContactUs";
-import { useState, useEffect } from "react";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 3200); 
-    return () => clearTimeout(timer);
-  }, []);
-
-  if (loading) return <Loader />;
 
   return (
     <>
@@ -80,11 +70,19 @@ const App = () => {
         style={{ marginTop: "5rem" }}
       />
       <div className="main-container">
+        {/* <div
+        style={{
+          // marginTop: "4rem",
+          width: "100%",
+          flex: 1,
+        }}
+      > */}
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+          <Route path="/verify-mobile" element={<MobileVerify />} />
 
           <Route element={<GuestProtectedRoute />}>
             <Route path="/expert/login" element={<LoginExpert />} />
@@ -136,8 +134,6 @@ const App = () => {
           </Route>
 
           <Route element={<ProtectedRoute />}>
-           
-            {/* <Route path="/verify-mobile" element={<MobileVerify />} /> */}
             <Route path="/gposts/:id" element={<GeneralPost />} />
             <Route path="/routines/:id" element={<RoutinePost />} />
             <Route path="/chats/:id" element={<ChatPage />} />

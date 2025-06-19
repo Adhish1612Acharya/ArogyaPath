@@ -12,6 +12,9 @@ import {
 } from "../middlewares/cloudinaryMiddleware.js";
 import { handleCloudinaryUpload } from "../middlewares/cloudinary/handleCloudinaryUpload.js";
 import { verifyPostData } from "../middlewares/verifyPostMiddleware.js";
+import { handlePostImageDiskUpload } from "../middlewares/cloudinary/handlePostImage/handlePostImageDiskUpload.js";
+import { validatePostMediaExclusivity } from "../middlewares/cloudinary/handlePostImage/validatePostMediaExclusivity.js";
+import { handlePostCloudinaryUpload } from "../middlewares/cloudinary/handlePostImage/handlePostImageUpload.js";
 const memoryUpload = multer({ storage: multer.memoryStorage() });
 
 const router = express.Router();
@@ -21,11 +24,12 @@ router.get("/", isLoggedIn, wrapAsync(postController.getAllPosts));
 router.post(
   "/",
   checkExpertLogin,
-  memoryUpload.array("media", 5),
+  handlePostImageDiskUpload,
   parseFormdata,
+  validatePostMediaExclusivity,
   validatePost,
   wrapAsync(verifyPostData),
-  wrapAsync(handleCloudinaryUpload),
+  wrapAsync(handlePostCloudinaryUpload),
   cloudinaryErrorHandler,
   wrapAsync(postController.createPost)
 );

@@ -38,7 +38,7 @@ const PrivateChatCard: React.FC<PrivateChatCardProps> = ({
           Reason:{" "}
           {chat.chatRequest?.chatReason?.otherReason ||
           chat.chatRequest?.chatReason?.similarPrakrithi
-            ? "Similar Prakrithi Match"
+            ? `Similar Prakrithi Match : ${chat.chatRequest?.users[0].similarPrakrithiPercenatge}%`
             : "-"}
         </Typography>
         <Typography variant="caption" color="text.secondary">
