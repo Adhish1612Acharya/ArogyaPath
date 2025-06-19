@@ -1,4 +1,5 @@
-import createMulterUploader from "./multerConfig.js";
+import createMulterUploader from "../multerConfig.js";
+
 
 export const postImageUpload = createMulterUploader({
   uploadDir: "uploads/temp/post-images",
@@ -11,5 +12,5 @@ export const postImageUpload = createMulterUploader({
     "application/pdf",
   ],
   maxFileSize: 5 * 1024 * 1024, //5MB
-  fields: [{ name: "media", maxCount: 5 }],
+  fields: [{ name: "media", maxCount: 3 }],
 });

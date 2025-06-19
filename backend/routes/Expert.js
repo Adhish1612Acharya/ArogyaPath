@@ -10,7 +10,7 @@ import * as expertProfileController from "../controllers/expert.js";
 
 import { validateExpertDocuments } from "../middlewares/experts/validateExpertDocument.js";
 import { parseFormdata } from "../middlewares/cloudinaryMiddleware.js";
-import { handleExpertDocumentDiskUpload } from "../middlewares/cloudinary/handleExpertDocument/handleExpertDocumentsDiskUpload.js";
+// import { handleExpertDocumentDiskUpload } from "../middlewares/cloudinary/handleExpertDocument/handleExpertDocumentsDiskUpload.js";
 import { handleExpertDocumentUpload } from "../middlewares/cloudinary/handleExpertDocument/handleExpertDocumentUpload.js";
 
 
@@ -24,7 +24,7 @@ router.patch(
   checkExpertLogin,
   profileAlreadyCompleted,
   // Handle file uploads with multer
-  handleExpertDocumentDiskUpload,
+  // handleExpertDocumentDiskUpload,
   // Validate required documents are present
   validateExpertDocuments,
   parseFormdata,

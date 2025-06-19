@@ -41,7 +41,7 @@ export const validatePost = (req, res, next) => {
 };
 
 export const validateRoutine = (req, res, next) => {
-  console.log(req.body);
+  
   const result = routineSchemaZod.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
   next();
@@ -49,7 +49,9 @@ export const validateRoutine = (req, res, next) => {
 
 export const validateSuccessStory = (req, res, next) => {
   const result = successStorySchemaZod.safeParse(req.body);
+  console.log(result.error);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
+  console.log("validateSuccessStory next");
   next();
 };
 
@@ -79,14 +81,14 @@ export const validateResetPassword = (req, res, next) => {
 };
 
 export const validateExpertCompleteProfile = (req, res, next) => {
-   console.log("Expert Profile body : ", req.body);
+  
   const result = expertProfileSchema.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
   next();
 };
 
 export const validateUserCompleteProfile = (req, res, next) => {
-  console.log("User Profile body : ", req.body);
+
   const result = userProfileSchema.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
   next();

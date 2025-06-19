@@ -1,7 +1,7 @@
 import ExpressError from "../../../utils/expressError.js";
 
 // Utility to determine file type (based on Multer's file object)
-function getResourceType(file) {
+const getFileResourceType = (file) => {
   // Use your own logic if needed
   // Common Multer/Cloudinary pattern: file.mimetype starts with "image/", "video/", or is "application/pdf"
   if (file.mimetype.startsWith("image/")) return "image";
@@ -9,7 +9,7 @@ function getResourceType(file) {
   if (file.mimetype === "application/pdf") return "document";
   // Add more document types as needed
   return "other";
-}
+};
 
 export const validatePostMediaExclusivity = (req, res, next) => {
   // Multer puts files in req.files.media (array) if using .array("media", 5) or .fields([{ name: "media", maxCount: 5 }])
@@ -23,7 +23,7 @@ export const validatePostMediaExclusivity = (req, res, next) => {
   const documents = [];
 
   for (const file of files) {
-    const type = getResourceType(file);
+    const type = getFileResourceType(file);
     if (type === "image") images.push(file);
     else if (type === "video") videos.push(file);
     else if (type === "document") documents.push(file);
@@ -54,6 +54,7 @@ export const validatePostMediaExclusivity = (req, res, next) => {
   if (documents.length > 1) {
     return next(new ExpressError(400, "Only one document allowed per post."));
   }
+
 
   next();
 };

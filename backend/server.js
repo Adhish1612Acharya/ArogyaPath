@@ -105,9 +105,6 @@ const sessionOptions = {
   },
 };
 
-console.log("SessionOptions  : Secure :  ", sessionOptions.cookie.secure);
-console.log("SessionOptions  : SameSite :  ", sessionOptions.cookie.sameSite);
-console.log("Environment  : NODE_ENV :  ", process.env.NODE_ENV);
 
 app.set("trust proxy", 1);
 

@@ -1,23 +1,20 @@
-// middleware/handlePostCloudinaryUpload.js
 import cloudinaryUploadFilesWithCleanup from "../../../utils/cloudinary/uploadUtils/cloudinaryUploadFilesWithCleanup.js";
-import ExpressError from "../../../utils/expressError.js";
 
-export const handlePostCloudinaryUpload = async (req, res, next) => {
-  if (!req.files || !req.files.media) return next();
+export const handleRoutinePostCloudinaryUpload = async (req, res, next) => {
+  if (!req.files || !req.files.thumbnail) return next();
 
   try {
     const uploaded = await cloudinaryUploadFilesWithCleanup(req.files, {
-      folder: `arogyaPath_DEV/post_successStories_images/${req.user._id}`,
-      tags: ["post_successStories_images"],
+      folder: `arogyaPath_DEV/routines_thumbnail_images/${req.user._id}`,
+      tags: ["routines_thumbnail_images"],
       context: {
         user_id: req.user._id,
         post_id: req.body.postId || "new",
       },
     });
 
-
     // Attach URLs to request
-    req.cloudinaryUrls = uploaded.media;
+    req.thumbnail = uploaded.thumbnail;
 
     next();
   } catch (error) {

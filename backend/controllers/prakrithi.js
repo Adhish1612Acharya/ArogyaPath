@@ -39,7 +39,6 @@ const findPrakrithi = async (req, res) => {
     await Prakrithi.create(prakrithiData);
   }
 
-  console.log("New Entry : ", newEntry);
 
   // Send success response
   res.status(201).json({ success: true, data: newEntry || prakrithiData });

@@ -83,7 +83,6 @@ export const googleCallBackFunctionForExpert = async (
     const email = profile.emails?.[0]?.value || null;
     const emailVerified =
       profile.emails?.[0]?.verified || profile.email_verified || false;
-    console.log(profile);
     if (!email) {
       return done(null, false, {
         message: "Google profile does not have an email",

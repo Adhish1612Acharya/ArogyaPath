@@ -1,4 +1,4 @@
-import { cloudinaryUploadFilesWithCleanup } from "../../../utils/cloudinary/cloudinaryUploadFilesWithCleanup.js";
+import cloudinaryUploadFilesWithCleanup from "../../../utils/cloudinary/uploadUtils/cloudinaryUploadFilesWithCleanup.js";
 import ExpressError from "../../../utils/expressError.js";
 
 export const handleExpertDocumentUpload = async (req, res, next) => {

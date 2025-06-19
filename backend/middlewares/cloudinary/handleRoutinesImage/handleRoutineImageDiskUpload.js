@@ -1,9 +1,9 @@
 import multer from "multer";
 import ExpressError from "../../../utils/expressError.js";
-import { postImageUpload } from "../../../utils/cloudinary/uploadConfigs/postImageUploadConfig.js";
+import { routinePostImageUpload } from "../../../utils/cloudinary/uploadConfigs/routinesPostUploadConfig.js";
 
-export const handlePostImageDiskUpload = (req, res, next) =>
-  postImageUpload(req, res, (err) => {
+export const handleRoutineImageDiskUpload = (req, res, next) =>
+  routinePostImageUpload(req, res, (err) => {
     if (err) {
       if (err instanceof multer.MulterError) {
         let errorMessage;
