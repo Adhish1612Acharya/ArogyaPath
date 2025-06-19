@@ -66,7 +66,7 @@ const createMulterUploader = ({
     },
     limits: {
       fileSize: maxFileSize,
-      files: fields.length,
+      // files: fields.length,
     },
   }).fields(fields);
 };

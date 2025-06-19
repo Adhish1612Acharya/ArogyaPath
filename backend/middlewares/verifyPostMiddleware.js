@@ -3,6 +3,8 @@ import ExpressError from "../utils/expressError.js";
 import { verifyMediaContent } from "../utils/geminiApiCalls/verifyMediaContent.js";
 import { verifyTextContent } from "../utils/geminiApiCalls/verifyTextContent.js";
 import FormData from "form-data";
+import mime from "mime-types";
+import fs from "fs/promises";
 
 /**
  * Middleware to verify uploaded media and text using AI models.
@@ -14,9 +16,28 @@ export const verifyPostData = async (req, res, next) => {
   // Combine all textual content including routines and potential PDF text
   let combinedText = `${title}\n${description}\n${routines.join(", ")}`;
 
+
+
   // Validate each uploaded file
   for (const file of files) {
-    const { buffer, mimetype } = file;
+    let { buffer, mimetype } = file;
+    if (!buffer && file.path) {
+      buffer = await fs.readFile(file.path);
+    }
+    if (!buffer) {
+      throw new ExpressError(400, "File buffer missing. Check multer config.");
+    }
+
+    if (!mimetype && file.path) {
+      mimetype = mime.lookup(file.path) || "application/octet-stream";
+    }
+
+    if (!mimetype) {
+      throw new ExpressError(
+        400,
+        "File mimeType missing. Check multer config."
+      );
+    }
 
     // Handle images and videos using Gemini's media content verifier
     if (mimetype.startsWith("image/") || mimetype.startsWith("video/")) {

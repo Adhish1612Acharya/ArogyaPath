@@ -11,21 +11,22 @@ import {
   parseFormdata,
 } from "../middlewares/cloudinaryMiddleware.js";
 import { checkIsTaggedAndVerified } from "../middlewares/experts/postTagged.js";
-import { handleCloudinaryUpload } from "../middlewares/cloudinary/handleCloudinaryUpload.js";
 import { verifyPostData } from "../middlewares/verifyPostMiddleware.js";
-const memoryUpload = multer({ storage: multer.memoryStorage() });
+import { handlePostImageDiskUpload } from "../middlewares/cloudinary/handlePostImage/handlePostImageDiskUpload.js";
+import { validatePostMediaExclusivity } from "../middlewares/cloudinary/handlePostImage/validatePostMediaExclusivity.js";
+import { handlePostCloudinaryUpload } from "../middlewares/cloudinary/handlePostImage/handlePostImageUpload.js";
 
 const router = express.Router();
 
 router.post(
   "/",
   checkUserLogin,
-  memoryUpload.array("media", 5),
+  handlePostImageDiskUpload,
   parseFormdata,
+  validatePostMediaExclusivity,
   validateSuccessStory,
   wrapAsync(verifyPostData),
-  wrapAsync(handleCloudinaryUpload),
-  cloudinaryErrorHandler,
+  wrapAsync(handlePostCloudinaryUpload),
   wrapAsync(successStoryControllers.createSuccessStory)
 );
 
@@ -66,7 +67,10 @@ router.put(
   wrapAsync(checkIsTaggedAndVerified),
   wrapAsync(successStoryControllers.verifySuccessStory)
 );
-router.post("/:id/reject", checkExpertLogin, wrapAsync(successStoryControllers.rejectedSuccessStory));
-
+router.post(
+  "/:id/reject",
+  checkExpertLogin,
+  wrapAsync(successStoryControllers.rejectedSuccessStory)
+);
 
 export default router;

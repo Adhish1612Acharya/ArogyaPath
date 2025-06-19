@@ -1,6 +1,7 @@
 // expertDocumentUploadConfig.js
 
-import createMulterUploader from "./multerConfig.js";
+import createMulterUploader from "../multerConfig";
+
 
 
 const ALLOWED_FILE_TYPES = [
@@ -17,7 +18,7 @@ const REQUIRED_DOCUMENTS = [
   { name: "practiceProof", maxCount: 1 },
 ];
 
-export const documentUpload = createMulterUploader({
+export const expertDocumentUpload = createMulterUploader({
   uploadDir: "uploads/temp/expert-documents",
   allowedFileTypes: ALLOWED_FILE_TYPES,
   maxFileSize: MAX_FILE_SIZE,

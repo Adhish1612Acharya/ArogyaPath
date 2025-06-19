@@ -5,18 +5,15 @@ import findUserById from "../utils/findUserById.js";
 
 export const isAlreadyLoggedIn = (req, res, next) => {
   if (!req.isAuthenticated()) {
-    console.log("Req body : ", req.body);
+ 
     return next();
   } else {
-    throw new ExpressError("Already logged in", 400);
+    throw new ExpressError(400,"Already logged in");
   }
 };
 
 export const isLoggedIn = (req, res, next) => {
-  console.log("IsLoggedIn called");
-  console.log("Cookies received:", req.headers.cookie);
-  console.log("Session Data:", req.session);
-  console.log("Session Passport:", req.session.passport);
+
   if (req.isAuthenticated()) {
     return next();
   } else {
@@ -56,7 +53,7 @@ export const isEmailAlreadyVerified = async (req, res, next) => {
     throw new ExpressError(404, "No user exists");
   }
 
-  console.log("Found User : ", foundUser);
+
   // Check if already verified
   if (foundUser.verifications?.email) {
     throw new ExpressError(400, "Email already verified");

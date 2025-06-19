@@ -30,7 +30,6 @@ export const verifyPremiumPayment = async (req, res) => {
     process.env.RAZORPAY_KEY_SECRET
   );
 
-  console.log("Is valid : ", isValid);
 
   if (isValid) {
     // TODO: Update user's premium status in database

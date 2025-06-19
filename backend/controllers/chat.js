@@ -27,7 +27,6 @@ export const getChatMessages = async (req, res) => {
     },
   };
 
-  console.log("messages fetched : ", messages);
 
   res.status(200).json({
     success: true,

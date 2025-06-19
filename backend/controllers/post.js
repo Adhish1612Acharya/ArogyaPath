@@ -39,7 +39,7 @@ const getPostById = async (req, res) => {
 const createPost = async (req, res) => {
   const { title, description } = req.body;
 
-  const mediaFiles = req.cloudinaryFiles;
+  const mediaFiles = req.cloudinaryUrls;
   console.log("req.body", req.body);
   console.log("Media Files:", mediaFiles);
 
@@ -53,13 +53,12 @@ const createPost = async (req, res) => {
   mediaFiles?.forEach((file) => {
     const resourceType = file.resource_type.toLowerCase();
 
-    if (resourceType === "raw") {
-      // PDFs and other non-image/video files are uploaded as "raw"
-      media.document = file.secure_url;
+    if (file.format === "pdf" || file.resource_type === "raw") {
+      media.document = file.url;
     } else if (resourceType === "video") {
-      media.video = file.secure_url;
+      media.video = file.url;
     } else if (resourceType === "image") {
-      media.images.push(file.secure_url);
+      media.images.push(file.url);
     }
   });
 

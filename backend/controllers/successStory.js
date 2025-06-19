@@ -9,8 +9,11 @@ import ExpressError from "../utils/expressError.js";
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
   const { title, description, routines, tagged } = req.body;
-  const mediaFiles = req.cloudinaryFiles;
+  const mediaFiles = req.cloudinaryUrls;
   const readTime = calculateReadTime({ title, description, routines });
+
+  console.log("req.body", req.body);
+  console.log("Media Files:", mediaFiles);
 
   const media = {
     images: [],
@@ -22,13 +25,15 @@ export const createSuccessStory = async (req, res) => {
   mediaFiles?.forEach((file) => {
     // Determine file type from Cloudinary response
     if (file.resource_type === "image") {
-      media.images.push(file.secure_url);
+      media.images.push(file.url);
     } else if (file.resource_type === "video") {
-      media.video = file.secure_url;
-    } else if (file.format === "pdf") {
-      media.document = file.secure_url;
+      media.video = file.url;
+    } else if (file.format === "pdf" || file.resource_type === "raw") {
+      media.document = file.url;
     }
   });
+
+  console.log("Media : ", media);
 
   //Generate categories using ONLY the description
   const filters = await generateFilters(title, description, routines);
@@ -299,7 +304,7 @@ const filterSuccessStories = async (req, res) => {
   res.json({ success: true, message: "Filtered posts", successStories });
 };
 
- const rejectedSuccessStory = async (req, res) => {
+const rejectedSuccessStory = async (req, res) => {
   const { id } = req.params;
   const expertId = req.user._id;
   const { reason } = req.body;
