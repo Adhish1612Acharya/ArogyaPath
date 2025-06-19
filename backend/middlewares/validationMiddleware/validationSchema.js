@@ -120,7 +120,7 @@ export const resetPasswordSchema = z.object({
 });
 
 // -------------------- expertProfileSchema --------------------
-import { z } from "zod";
+
 
 // Validation Schema for "POST /experts/complete-profile"
 
