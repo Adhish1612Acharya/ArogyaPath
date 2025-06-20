@@ -112,15 +112,15 @@ const NavButton = styled(Button)(({ theme }) => ({
   },
 })) as any;
 
-const LogoBox = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  textDecoration: "none",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    transform: "scale(1.03)",
-  },
-})) as typeof Box;
+// const LogoBox = styled(Box)(() => ({
+//   display: "flex",
+//   alignItems: "center",
+//   textDecoration: "none",
+//   transition: "all 0.3s ease",
+//   "&:hover": {
+//     transform: "scale(1.03)",
+//   },
+// })) as typeof Box;
 
 const AnimatedLogoIcon = styled("img")(({ theme }) => ({
   width: 44,

@@ -37,13 +37,13 @@ const useRoutines = () => {
       routineData.append("description", formData.description);
       if (formData.thumbnail instanceof File) {
         console.log("Post Thumbnail : ", formData.thumbnail);
-        routineData.append("media", formData.thumbnail);
+        routineData.append("thumbnail", formData.thumbnail);
       }
       routineData.append("routines", JSON.stringify(formData.routines));
 
-      for (let [key, value] of routineData.entries()) {
-        console.log(`${key}:`, value);
-      }
+      // for (let [key, value] of routineData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
 
       const response = await post(
         `${import.meta.env.VITE_SERVER_URL}/api/routines`,

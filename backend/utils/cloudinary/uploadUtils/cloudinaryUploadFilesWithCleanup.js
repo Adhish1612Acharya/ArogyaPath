@@ -16,6 +16,7 @@ const cloudinaryUploadFilesWithCleanup = async (files, options = {}) => {
     return uploaded;
   } catch (error) {
     // Cleanup Cloudinary uploads if error occurs
+    console.log(error);
     await deleteCloudinaryFiles(uploadedCloudinary);
     throw error;
   } finally {

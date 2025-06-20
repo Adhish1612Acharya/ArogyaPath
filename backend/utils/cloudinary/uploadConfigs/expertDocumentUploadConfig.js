@@ -1,6 +1,6 @@
 // expertDocumentUploadConfig.js
 
-import createMulterUploader from "../multerConfig";
+import createMulterUploader from "../multerConfig.js";
 
 
 

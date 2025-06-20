@@ -1,3 +1,4 @@
+import removeLocalFiles from "../../../utils/cloudinary/uploadUtils/removeLocalDiskFiles.js";
 import ExpressError from "../../../utils/expressError.js";
 
 // Utility to determine file type (based on Multer's file object)
@@ -11,7 +12,7 @@ const getFileResourceType = (file) => {
   return "other";
 };
 
-export const validatePostMediaExclusivity = (req, res, next) => {
+export const validatePostMediaExclusivity = async (req, res, next) => {
   // Multer puts files in req.files.media (array) if using .array("media", 5) or .fields([{ name: "media", maxCount: 5 }])
   const files = req.files?.media || [];
 
@@ -35,26 +36,36 @@ export const validatePostMediaExclusivity = (req, res, next) => {
     videos.length > 0,
     documents.length > 0,
   ].filter(Boolean).length;
-  if (typesUsed > 1) {
-    return next(
-      new ExpressError(
+
+
+  try {
+    if (typesUsed > 1) {
+      throw new ExpressError(
         400,
         "You can upload either up to 5 images, or 1 video, or 1 document per post (not a mix)."
-      )
-    );
-  }
+      );
+    }
 
-  // Enforce individual limits
-  if (images.length > 5) {
-    return next(new ExpressError(400, "Maximum 5 images allowed per post."));
-  }
-  if (videos.length > 1) {
-    return next(new ExpressError(400, "Only one video allowed per post."));
-  }
-  if (documents.length > 1) {
-    return next(new ExpressError(400, "Only one document allowed per post."));
-  }
+    // Enforce individual limits
+    if (images.length > 5) {
+      throw new ExpressError(400, "Maximum 5 images allowed per post.");
+    }
+    if (videos.length > 1) {
+      throw new ExpressError(400, "Only one video allowed per post.");
+    }
+    if (documents.length > 1) {
+      throw new ExpressError(400, "Only one document allowed per post.");
+    }
 
-
-  next();
+    next();
+  } catch (err) {
+    // Clean up local temp files from all keys in req.files
+    if (req.files) {
+      const tempFiles = Object.values(req.files).flatMap((fileArray) =>
+        fileArray.map((file) => file.path)
+      );
+      await removeLocalFiles(tempFiles);
+    }
+    next(err);
+  }
 };

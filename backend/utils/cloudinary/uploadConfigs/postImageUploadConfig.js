@@ -11,6 +11,6 @@ export const postImageUpload = createMulterUploader({
     "video/mp4",
     "application/pdf",
   ],
-  maxFileSize: 5 * 1024 * 1024, //5MB
+  maxFileSize: 30 * 1024 * 1024, //5MB
   fields: [{ name: "media", maxCount: 3 }],
 });

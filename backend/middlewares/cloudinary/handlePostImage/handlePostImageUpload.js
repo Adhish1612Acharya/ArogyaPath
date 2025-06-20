@@ -7,7 +7,7 @@ export const handlePostCloudinaryUpload = async (req, res, next) => {
 
   try {
     const uploaded = await cloudinaryUploadFilesWithCleanup(req.files, {
-      folder: `arogyaPath_DEV/post_successStories_images/${req.user._id}`,
+      folder: `arogyaPath_DEV/post_successStories_images`,
       tags: ["post_successStories_images"],
       context: {
         user_id: req.user._id,
