@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   Box,
   Button,
@@ -27,8 +27,6 @@ import {
   ArrowBack as ArrowBackIcon,
 } from "@mui/icons-material";
 import { keyframes } from "@emotion/react";
-import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
-import Loader from "@/components/Loader/Loader";
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -42,9 +40,8 @@ const fadeIn = keyframes`
 `;
 
 export default function MobileVerify() {
-  const { checkAuthStatus, loading, authState } = useCheckAuth();
   const theme = useTheme();
-  const navigate = useNavigate();
+
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<
@@ -54,19 +51,6 @@ export default function MobileVerify() {
   const [showEditMobile, setShowEditMobile] = useState(false);
   const [resendDisabled, setResendDisabled] = useState(false);
   const [countdown, setCountdown] = useState(30);
-
-  useEffect(() => {
-    const check = async () => {
-      await checkAuthStatus();
-      // if (!loading && !authState) {
-      //   return navigate("/auth");
-      // }
-      if (!loading && !authState?.loggedIn) {
-        return navigate("/auth");
-      }
-    };
-    check();
-  }, []);
 
   useEffect(() => {
     if (resendDisabled && countdown > 0) {
@@ -116,8 +100,6 @@ export default function MobileVerify() {
     setOtp(["", "", "", "", "", ""]);
     setVerificationStatus("idle");
   };
-
-  if (loading) return <Loader />;
 
   return (
     <Box
