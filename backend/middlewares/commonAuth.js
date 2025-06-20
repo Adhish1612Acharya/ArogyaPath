@@ -17,7 +17,7 @@ export const isLoggedIn = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   } else {
-    throw new ExpressError("Authentication required", 401);
+    throw new ExpressError(401,"Authentication required");
   }
 };
 
