@@ -51,7 +51,7 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!contactNo) {
+    if (!contactNo && window.location.pathname !== "/verify-mobile") {
       return {
         shouldRedirect: true,
         redirectPath: "/verify-mobile",
@@ -59,7 +59,11 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!completeProfile) {
+    // Only redirect to complete-profile if NOT already on that route
+    if (
+      !completeProfile &&
+      window.location.pathname !== "/complete-profile/expert"
+    ) {
       return {
         shouldRedirect: true,
         redirectPath: "/complete-profile/expert",
@@ -67,7 +71,7 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!isDoctor) {
+    if (!isDoctor && window.location.pathname !== "/complete-profile/expert") {
       return {
         shouldRedirect: true,
         redirectPath: "/complete-profile/expert",
@@ -102,7 +106,7 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!contactNo) {
+    if (!contactNo && window.location.pathname !== "/verify-mobile") {
       return {
         shouldRedirect: true,
         redirectPath: "/verify-mobile",
@@ -110,7 +114,10 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!completeProfile) {
+    if (
+      !completeProfile &&
+      window.location.pathname !== "/user/complete-profile"
+    ) {
       return {
         shouldRedirect: true,
         redirectPath: "/user/complete-profile",

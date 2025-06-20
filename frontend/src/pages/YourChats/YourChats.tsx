@@ -7,8 +7,6 @@ import {
   useMediaQuery,
   useTheme,
   Paper,
-  IconButton,
-  Tooltip,
   Chip,
 } from "@mui/material";
 import { People as PeopleIcon, Search as SearchIcon, Add as AddIcon } from "@mui/icons-material";

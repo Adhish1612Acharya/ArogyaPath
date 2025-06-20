@@ -84,16 +84,16 @@ const FloatingIcon = styled(Box)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  boxShadow: '0 6px 32px 0 #00e5ff55',
+  boxShadow: "0 6px 32px 0 #00e5ff55",
   zIndex: 1,
   animation: `${float} 6s ease-in-out infinite`,
   transition: "all 0.3s ease",
-  border: '3px solid #ffd600', // Gold border for pop
+  border: "3px solid #ffd600", // Gold border for pop
   "&:hover": {
     transform: "scale(1.13)",
-    boxShadow: '0 12px 36px 0 #00e5ff99',
+    boxShadow: "0 12px 36px 0 #00e5ff99",
     background: `linear-gradient(135deg, #ffd600 0%, #00e5ff 100%)`,
-    border: '3px solid #00e5ff',
+    border: "3px solid #00e5ff",
   },
   "& img": {
     width: 68,
@@ -103,32 +103,32 @@ const FloatingIcon = styled(Box)(({ theme }) => ({
   },
 }));
 
-const StyledLink = styled(Link)(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  gap: theme.spacing(1),
-  transition: "all 0.3s ease",
-  padding: theme.spacing(0.5, 0),
-  color: alpha(theme.palette.primary.contrastText, 0.85),
-  "&:hover": {
-    color: theme.palette.secondary.main,
-    transform: "translateX(5px)",
-    textDecoration: "none",
-    "& svg": {
-      transform: "rotate(5deg)",
-    },
-  },
-  "& svg": {
-    transition: "all 0.3s ease",
-  },
-  "&.active": {
-    color: theme.palette.secondary.main,
-    fontWeight: 600,
-    "& svg": {
-      color: theme.palette.secondary.main,
-    },
-  },
-}));
+// const StyledLink = styled(Link)(({ theme }) => ({
+//   display: "flex",
+//   alignItems: "center",
+//   gap: theme.spacing(1),
+//   transition: "all 0.3s ease",
+//   padding: theme.spacing(0.5, 0),
+//   color: alpha(theme.palette.primary.contrastText, 0.85),
+//   "&:hover": {
+//     color: theme.palette.secondary.main,
+//     transform: "translateX(5px)",
+//     textDecoration: "none",
+//     "& svg": {
+//       transform: "rotate(5deg)",
+//     },
+//   },
+//   "& svg": {
+//     transition: "all 0.3s ease",
+//   },
+//   "&.active": {
+//     color: theme.palette.secondary.main,
+//     fontWeight: 600,
+//     "& svg": {
+//       color: theme.palette.secondary.main,
+//     },
+//   },
+// }));
 
 const AnimatedDivider = styled(Divider)(({ theme }) => ({
   background: `linear-gradient(90deg, transparent, ${alpha(
@@ -140,7 +140,7 @@ const AnimatedDivider = styled(Divider)(({ theme }) => ({
   margin: "0 auto",
 }));
 
-const NavButton = styled(Button)(({ theme }) => ({
+const NavButton: any = styled(Button)(({ theme }) => ({
   color: theme.palette.primary.contrastText,
   fontWeight: 700,
   fontSize: "1.05rem",
@@ -151,50 +151,50 @@ const NavButton = styled(Button)(({ theme }) => ({
   position: "relative",
   overflow: "hidden",
   background: `linear-gradient(90deg, #00e5ff 0%, #1976d2 100%)`,
-  boxShadow: '0 2px 12px 0 #00e5ff33',
+  boxShadow: "0 2px 12px 0 #00e5ff33",
   margin: theme.spacing(0.5, 0),
   transition: "all 0.35s cubic-bezier(.4,2,.6,1)",
-  '& .MuiButton-startIcon': {
-    color: '#ffd600',
-    fontSize: '1.3em',
+  "& .MuiButton-startIcon": {
+    color: "#ffd600",
+    fontSize: "1.3em",
     marginRight: theme.spacing(1),
-    transition: 'color 0.3s',
+    transition: "color 0.3s",
   },
-  '&:hover': {
+  "&:hover": {
     background: `linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)`,
-    color: '#0d47a1',
-    transform: 'translateY(-4px) scale(1.04)',
-    boxShadow: '0 6px 24px 0 #ffd60055',
-    '& .MuiButton-startIcon': {
-      color: '#1976d2',
+    color: "#0d47a1",
+    transform: "translateY(-4px) scale(1.04)",
+    boxShadow: "0 6px 24px 0 #ffd60055",
+    "& .MuiButton-startIcon": {
+      color: "#1976d2",
     },
-    '&:after': {
-      width: '100%',
-      background: 'linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)',
+    "&:after": {
+      width: "100%",
+      background: "linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)",
     },
   },
-  '&:after': {
+  "&:after": {
     content: '""',
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     width: 0,
     height: 3,
-    background: 'linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)',
+    background: "linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)",
     borderRadius: 2,
-    transition: 'width 0.3s',
+    transition: "width 0.3s",
     zIndex: 1,
   },
-  '&.active': {
-    color: '#ffd600',
+  "&.active": {
+    color: "#ffd600",
     fontWeight: 900,
-    background: 'linear-gradient(90deg, #1976d2 0%, #ffd600 100%)',
-    '&:after': {
-      width: '100%',
-      background: 'linear-gradient(90deg, #ffd600 0%, #1976d2 100%)',
+    background: "linear-gradient(90deg, #1976d2 0%, #ffd600 100%)",
+    "&:after": {
+      width: "100%",
+      background: "linear-gradient(90deg, #ffd600 0%, #1976d2 100%)",
     },
-    '& .MuiButton-startIcon': {
-      color: '#ffd600',
+    "& .MuiButton-startIcon": {
+      color: "#ffd600",
     },
   },
 }));
@@ -202,58 +202,58 @@ const NavButton = styled(Button)(({ theme }) => ({
 // Enhance section titles
 const FooterSectionTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 900,
-  fontSize: '1.35rem',
-  color: '#fff',
-  letterSpacing: '0.08em',
-  textShadow: '0 2px 8px #1976d2',
+  fontSize: "1.35rem",
+  color: "#fff",
+  letterSpacing: "0.08em",
+  textShadow: "0 2px 8px #1976d2",
   marginBottom: theme.spacing(2),
-  textTransform: 'uppercase',
-  display: 'flex',
-  alignItems: 'center',
+  textTransform: "uppercase",
+  display: "flex",
+  alignItems: "center",
 }));
 
 // Enhance navigation and contact links
-const FooterLink = styled(Link)(({ theme }) => ({
-  color: '#fff',
+const FooterLink: any = styled(Link)(({ theme }) => ({
+  color: "#fff",
   fontWeight: 700,
-  fontSize: '1.08rem',
-  letterSpacing: '0.04em',
-  textShadow: '0 2px 8px #1976d2',
-  display: 'flex',
-  alignItems: 'center',
+  fontSize: "1.08rem",
+  letterSpacing: "0.04em",
+  textShadow: "0 2px 8px #1976d2",
+  display: "flex",
+  alignItems: "center",
   marginBottom: theme.spacing(1.2),
-  transition: 'color 0.2s, text-shadow 0.2s',
-  '&:hover': {
-    color: '#ffd600',
-    textShadow: '0 4px 16px #00e5ff',
-    textDecoration: 'underline',
+  transition: "color 0.2s, text-shadow 0.2s",
+  "&:hover": {
+    color: "#ffd600",
+    textShadow: "0 4px 16px #00e5ff",
+    textDecoration: "underline",
   },
 }));
 
 // Enhance contact info
-const FooterContactText = styled(Typography)(({ theme }) => ({
-  color: '#fff',
-  fontWeight: 600,
-  fontSize: '1.08rem',
-  letterSpacing: '0.03em',
-  textShadow: '0 2px 8px #1976d2',
-  marginBottom: theme.spacing(1.2),
-  display: 'flex',
-  alignItems: 'center',
-}));
+// const FooterContactText = styled(Typography)(({ theme }) => ({
+//   color: "#fff",
+//   fontWeight: 600,
+//   fontSize: "1.08rem",
+//   letterSpacing: "0.03em",
+//   textShadow: "0 2px 8px #1976d2",
+//   marginBottom: theme.spacing(1.2),
+//   display: "flex",
+//   alignItems: "center",
+// }));
 
 // Enhanced icon style for neon yellow
-const FooterIconStyle = {
-  color: '#ffd600', // Neon yellow
-  filter: 'drop-shadow(0 0 8px #ffd600)', // Neon glow
-  fontSize: '1.5em',
-  marginRight: 12,
-  transition: 'color 0.2s, filter 0.2s',
-};
-const FooterIconHoverStyle = {
-  color: '#fff', // White on hover for contrast
-  filter: 'drop-shadow(0 0 16px #fff)',
-};
+// const FooterIconStyle = {
+//   color: "#ffd600", // Neon yellow
+//   filter: "drop-shadow(0 0 8px #ffd600)", // Neon glow
+//   fontSize: "1.5em",
+//   marginRight: 12,
+//   transition: "color 0.2s, filter 0.2s",
+// };
+// const FooterIconHoverStyle = {
+//   color: "#fff", // White on hover for contrast
+//   filter: "drop-shadow(0 0 16px #fff)",
+// };
 
 const PageFooter = () => {
   const auth = useAuth();
@@ -347,7 +347,11 @@ const PageFooter = () => {
           { label: "About Us", href: "/about-us", icon: <People /> },
           { label: "Services", href: "/services", icon: <LocalHospital /> },
           { label: "Contact Us", href: "/contact-us", icon: <Article /> },
-          { label: "Success Stories", href: "/success-stories", icon: <Star /> },
+          {
+            label: "Success Stories",
+            href: "/success-stories",
+            icon: <Star />,
+          },
         ],
       },
       {
@@ -376,12 +380,12 @@ const PageFooter = () => {
       component="footer"
       sx={{
         background: `linear-gradient(135deg, #0d47a1 0%, #1976d2 50%, #00e5ff 100%)`, // More vibrant blue gradient
-        color: '#f4f7fa',
+        color: "#f4f7fa",
         position: "relative",
         overflow: "hidden",
         pt: 12,
         pb: 8,
-        boxShadow: '0 8px 32px 0 rgba(13,71,161,0.25)', // Add a soft shadow for depth
+        boxShadow: "0 8px 32px 0 rgba(13,71,161,0.25)", // Add a soft shadow for depth
         borderTopLeftRadius: 32,
         borderTopRightRadius: 32,
         "&::before": {
@@ -414,7 +418,7 @@ const PageFooter = () => {
 
       <FloatingIcon
         sx={{
-          top: "3%", 
+          top: "3%",
           left: "47%",
           animationDelay: "0.5s",
           display: { xs: "none", lg: "flex" },
@@ -474,7 +478,7 @@ const PageFooter = () => {
                       mr: 2.5,
                       filter: "drop-shadow(0 2px 8px #00e5ff)",
                       animation: `${logoPulse} 2.5s infinite cubic-bezier(.4,2,.6,1)`,
-                      transition: 'all 0.3s',
+                      transition: "all 0.3s",
                     }}
                   />
                   <Typography
@@ -486,16 +490,17 @@ const PageFooter = () => {
                       color: "inherit",
                       textDecoration: "none",
                       letterSpacing: "2px",
-                      background: "linear-gradient(90deg, #ffd600 10%, #00e5ff 60%, #1976d2 100%)", // Eye-catching gradient
+                      background:
+                        "linear-gradient(90deg, #ffd600 10%, #00e5ff 60%, #1976d2 100%)", // Eye-catching gradient
                       WebkitBackgroundClip: "text",
                       WebkitTextFillColor: "transparent",
-                      fontSize: { xs: '2.3rem', md: '3rem' },
-                      textShadow: '0 2px 12px #1976d2',
-                      '&:hover': {
-                        transform: 'scale(1.06)',
-                        textShadow: '0 4px 24px #00e5ff',
+                      fontSize: { xs: "2.3rem", md: "3rem" },
+                      textShadow: "0 2px 12px #1976d2",
+                      "&:hover": {
+                        transform: "scale(1.06)",
+                        textShadow: "0 4px 24px #00e5ff",
                       },
-                      transition: 'all 0.3s cubic-bezier(.4,2,.6,1)',
+                      transition: "all 0.3s cubic-bezier(.4,2,.6,1)",
                     }}
                   >
                     ArogyaPath
@@ -507,11 +512,11 @@ const PageFooter = () => {
                     mb: 3,
                     opacity: 1,
                     lineHeight: 1.8,
-                    fontSize: { xs: '1.15rem', md: '1.25rem' },
-                    color: '#fff',
+                    fontSize: { xs: "1.15rem", md: "1.25rem" },
+                    color: "#fff",
                     fontWeight: 600,
-                    letterSpacing: '0.04em',
-                    textShadow: '0 2px 8px #1976d2',
+                    letterSpacing: "0.04em",
+                    textShadow: "0 2px 8px #1976d2",
                   }}
                 >
                   Empowering health through traditional wisdom and modern care.
@@ -527,19 +532,19 @@ const PageFooter = () => {
                       sx={{
                         mb: 2,
                         fontWeight: 800,
-                        fontSize: { xs: '1.2rem', md: '1.3rem' },
+                        fontSize: { xs: "1.2rem", md: "1.3rem" },
                         display: "flex",
                         alignItems: "center",
-                        color: '#ffd600',
-                        letterSpacing: '0.08em',
-                        textTransform: 'uppercase',
-                        textShadow: '0 2px 8px #1976d2',
+                        color: "#ffd600",
+                        letterSpacing: "0.08em",
+                        textTransform: "uppercase",
+                        textShadow: "0 2px 8px #1976d2",
                         "&::before": {
                           content: '""',
                           display: "inline-block",
                           width: "30px",
                           height: "2px",
-                          background: '#00e5ff',
+                          background: "#00e5ff",
                           mr: 1.5,
                         },
                       }}
@@ -557,7 +562,7 @@ const PageFooter = () => {
                       {footerLinks.noUser[1].links.map((link) => (
                         <NavButton
                           key={link.href}
-                          component={RouterLink}
+                          component={RouterLink as any}
                           to={link.href}
                           startIcon={link.icon}
                           className={isActive(link.href) ? "active" : ""}
@@ -743,7 +748,7 @@ const PageFooter = () => {
                       {section.links.map((link, linkIndex) => (
                         <li key={linkIndex}>
                           <FooterLink
-                            component={RouterLink}
+                            component={RouterLink as any}
                             to={link.href}
                             underline="none"
                             className={isActive(link.href) ? "active" : ""}

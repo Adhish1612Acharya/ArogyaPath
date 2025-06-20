@@ -41,6 +41,7 @@ import formSchema from "./AddSuccessStoryFormSchema";
 import { Doctor } from "./AddSuccessStoryFormSchema.types";
 import useApi from "@/hooks/useApi/useApi";
 import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
+import { toast } from "react-toastify";
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -134,7 +135,7 @@ export default function AddSuccessStoryForm() {
     const newFiles = Array.from(e.target.files || []);
     const currentImages = form.getValues("media.images") || [];
     if (currentImages.length + newFiles.length > 3) {
-      alert("You can only upload up to 3 images in total.");
+      toast.warn("You can only upload up to 3 images in total.");
       return;
     }
     const updatedImages = [...currentImages, ...newFiles];
@@ -183,7 +184,8 @@ export default function AddSuccessStoryForm() {
 
   const handleImagePreviewCancel = (i: number) => {
     URL.revokeObjectURL(mediaPreview.images[i]);
-    const newImages = mediaPreview.images?.filter((_, index) => index !== i) || [];
+    const newImages =
+      mediaPreview.images?.filter((_, index) => index !== i) || [];
     setMediaPreview((prev) => ({ ...prev, images: newImages }));
     const currentImages = form.getValues("media.images") || [];
     const newFiles = currentImages.filter((_, index) => index !== i);
@@ -400,30 +402,35 @@ export default function AddSuccessStoryForm() {
                   success story
                 </Typography>
 
-                <Box sx={{ 
-                  display: 'flex',
-                  flexDirection: { xs: 'column', md: 'row' },
-                  gap: 3,
-                  mt: 2
-                }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 3,
+                    mt: 2,
+                  }}
+                >
                   {/* Images Upload */}
-                  <Box sx={{ 
-                    width: { xs: '100%', md: '33.33%' },
-                    p: 3,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'action.hover',
-                    },
-                  }} onClick={() => imageInputRef.current?.click()}>
+                  <Box
+                    sx={{
+                      width: { xs: "100%", md: "33.33%" },
+                      p: 3,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                        backgroundColor: "action.hover",
+                      },
+                    }}
+                    onClick={() => imageInputRef.current?.click()}
+                  >
                     <ImageIcon fontSize="large" color="action" sx={{ mb: 1 }} />
                     <Typography variant="subtitle1">Upload Images</Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -441,23 +448,26 @@ export default function AddSuccessStoryForm() {
                   </Box>
 
                   {/* Video Upload */}
-                  <Box sx={{ 
-                    width: { xs: '100%', md: '33.33%' },
-                    p: 3,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'action.hover',
-                    },
-                  }} onClick={() => videoInputRef.current?.click()}>
+                  <Box
+                    sx={{
+                      width: { xs: "100%", md: "33.33%" },
+                      p: 3,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                        backgroundColor: "action.hover",
+                      },
+                    }}
+                    onClick={() => videoInputRef.current?.click()}
+                  >
                     <VideoIcon fontSize="large" color="action" sx={{ mb: 1 }} />
                     <Typography variant="subtitle1">Upload Video</Typography>
                     <Typography variant="caption" color="text.secondary">
@@ -474,27 +484,32 @@ export default function AddSuccessStoryForm() {
                   </Box>
 
                   {/* Document Upload */}
-                  <Box sx={{ 
-                    width: { xs: '100%', md: '33.33%' },
-                    p: 3,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    borderRadius: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      borderColor: 'primary.main',
-                      backgroundColor: 'action.hover',
-                    },
-                  }} onClick={() => docInputRef.current?.click()}>
-                    <FileTextIcon fontSize="large" color="action" sx={{ mb: 1 }} />
-                    <Typography variant="subtitle1">
-                      Upload Document
-                    </Typography>
+                  <Box
+                    sx={{
+                      width: { xs: "100%", md: "33.33%" },
+                      p: 3,
+                      border: "1px solid",
+                      borderColor: "divider",
+                      borderRadius: 1,
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textAlign: "center",
+                      cursor: "pointer",
+                      "&:hover": {
+                        borderColor: "primary.main",
+                        backgroundColor: "action.hover",
+                      },
+                    }}
+                    onClick={() => docInputRef.current?.click()}
+                  >
+                    <FileTextIcon
+                      fontSize="large"
+                      color="action"
+                      sx={{ mb: 1 }}
+                    />
+                    <Typography variant="subtitle1">Upload Document</Typography>
                     <Typography variant="caption" color="text.secondary">
                       PDF only
                     </Typography>
@@ -515,16 +530,25 @@ export default function AddSuccessStoryForm() {
                     <Typography variant="subtitle2" gutterBottom>
                       Image Previews
                     </Typography>
-                    <Box sx={{ 
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: 2
-                    }}>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 2,
+                      }}
+                    >
                       {mediaPreview.images?.map((url, index) => (
-                        <Box key={index} sx={{ 
-                          width: { xs: '100%', sm: 'calc(50% - 16px)', md: 'calc(33.33% - 16px)' },
-                          position: 'relative'
-                        }}>
+                        <Box
+                          key={index}
+                          sx={{
+                            width: {
+                              xs: "100%",
+                              sm: "calc(50% - 16px)",
+                              md: "calc(33.33% - 16px)",
+                            },
+                            position: "relative",
+                          }}
+                        >
                           <Box
                             sx={{
                               position: "relative",
@@ -618,18 +642,12 @@ export default function AddSuccessStoryForm() {
                       }}
                     >
                       <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <FileTextIcon
-                          color="action"
-                          sx={{ mr: 2 }}
-                        />
+                        <FileTextIcon color="action" sx={{ mr: 2 }} />
                         <Typography variant="body2">
                           {form.getValues("media.document")?.name || "Document"}
                         </Typography>
                       </Box>
-                      <IconButton
-                        size="small"
-                        onClick={handleDocPreviewCancel}
-                      >
+                      <IconButton size="small" onClick={handleDocPreviewCancel}>
                         <CloseIcon fontSize="small" />
                       </IconButton>
                     </Paper>
@@ -700,14 +718,16 @@ export default function AddSuccessStoryForm() {
                           onChange={(val) =>
                             form.setValue(
                               `routines.${index}.time`,
-                              val && typeof (val as any).format === 'function' ? (val as any).format("hh:mm A") : null
+                              val && typeof (val as any).format === "function"
+                                ? (val as any).format("hh:mm A")
+                                : null
                             )
                           }
                           slotProps={{
                             textField: {
                               fullWidth: true,
-                              error: !!form.formState.errors.routines?.[index]
-                                ?.time,
+                              error:
+                                !!form.formState.errors.routines?.[index]?.time,
                               helperText:
                                 form.formState.errors.routines?.[index]?.time
                                   ?.message,
@@ -773,7 +793,9 @@ export default function AddSuccessStoryForm() {
                 </Button>
 
                 {form.watch("tagged")?.length > 0 && (
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}>
+                  <Box
+                    sx={{ display: "flex", flexWrap: "wrap", gap: 1, mt: 1 }}
+                  >
                     {form.watch("tagged").map((doctor) => (
                       <Chip
                         key={doctor.id}
@@ -814,7 +836,9 @@ export default function AddSuccessStoryForm() {
                   ) : null
                 }
               >
-                {form.formState.isSubmitting ? "Submitting..." : "Submit Success Story"}
+                {form.formState.isSubmitting
+                  ? "Submitting..."
+                  : "Submit Success Story"}
               </Button>
             </form>
           </CardContent>

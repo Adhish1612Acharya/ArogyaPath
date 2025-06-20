@@ -39,7 +39,6 @@ export const verifyRazorpayPayment = (params, secret) => {
     .update(razorpay_order_id + "|" + razorpay_payment_id)
     .digest("hex");
 
-  console.log("Generated signature : ", generated_signature);
-  console.log("Razor pay signature : ", razorpay_signature);
+
   return generated_signature === razorpay_signature;
 };

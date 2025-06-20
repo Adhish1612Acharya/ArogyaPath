@@ -14,8 +14,7 @@ import {
   Security as ShieldIcon,
   People as UsersIcon,
 } from "@mui/icons-material";
-import { useAuth } from "@/context/AuthContext";
-import useApi from "@/hooks/useApi/useApi";
+
 import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
 import Loader from "@/components/Loader";
 

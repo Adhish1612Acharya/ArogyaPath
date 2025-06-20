@@ -24,6 +24,8 @@ const uploadToCloudinary = async (files, options = {}) => {
 
       const resourceType = getCloudinaryResourceType(file.mimetype);
 
+      console.log("Resourec type : ", resourceType);
+
       const result = await cloudinary.uploader.upload(file.path, {
         folder,
         resource_type: resourceType,

@@ -1,14 +1,13 @@
 import React, { useState } from "react";
-import { 
-  Box, 
-  TextField, 
-  Button, 
-  Snackbar, 
-  Alert, 
+import {
+  Box,
+  TextField,
+  Button,
+  Snackbar,
+  Alert,
   useTheme,
   Typography,
-  IconButton,
-  InputAdornment
+  InputAdornment,
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { Send, Email, Person, Subject, Message } from "@mui/icons-material";
@@ -21,28 +20,30 @@ interface ContactFormState {
 }
 
 const ContactUsForm: React.FC = () => {
-  const [form, setForm] = useState<ContactFormState>({ 
-    fullName: '', 
-    email: '', 
-    subject: '', 
-    message: '' 
+  const [form, setForm] = useState<ContactFormState>({
+    fullName: "",
+    email: "",
+    subject: "",
+    message: "",
   });
   const [open, setOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const theme = useTheme();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       setOpen(true);
-      setForm({ fullName: '', email: '', subject: '', message: '' });
+      setForm({ fullName: "", email: "", subject: "", message: "" });
       setIsSubmitting(false);
     }, 1500);
   };
@@ -54,19 +55,19 @@ const ContactUsForm: React.FC = () => {
       y: 0,
       transition: {
         delay: i * 0.1,
-        duration: 0.5
-      }
-    })
+        duration: 0.5,
+      },
+    }),
   };
 
   return (
-    <Box 
-      component="form" 
-      onSubmit={handleSubmit} 
-      sx={{ 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: 3 
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 3,
       }}
     >
       <motion.div
@@ -91,26 +92,26 @@ const ContactUsForm: React.FC = () => {
             ),
           }}
           sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '& fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.3)',
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
               },
-              '&:hover fieldset': {
+              "&:hover fieldset": {
                 borderColor: theme.palette.primary.main,
               },
-              '&.Mui-focused fieldset': {
+              "&.Mui-focused fieldset": {
                 borderColor: theme.palette.primary.main,
-                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`
+                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`,
               },
             },
-            '& .MuiInputLabel-root': {
-              color: 'text.secondary',
+            "& .MuiInputLabel-root": {
+              color: "text.secondary",
             },
-            '& .MuiInputLabel-root.Mui-focused': {
+            "& .MuiInputLabel-root.Mui-focused": {
               color: theme.palette.primary.main,
-            }
+            },
           }}
         />
       </motion.div>
@@ -138,20 +139,20 @@ const ContactUsForm: React.FC = () => {
             ),
           }}
           sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '& fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.3)',
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
               },
-              '&:hover fieldset': {
+              "&:hover fieldset": {
                 borderColor: theme.palette.primary.main,
               },
-              '&.Mui-focused fieldset': {
+              "&.Mui-focused fieldset": {
                 borderColor: theme.palette.primary.main,
-                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`
+                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`,
               },
-            }
+            },
           }}
         />
       </motion.div>
@@ -178,20 +179,20 @@ const ContactUsForm: React.FC = () => {
             ),
           }}
           sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '& fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.3)',
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
               },
-              '&:hover fieldset': {
+              "&:hover fieldset": {
                 borderColor: theme.palette.primary.main,
               },
-              '&.Mui-focused fieldset': {
+              "&.Mui-focused fieldset": {
                 borderColor: theme.palette.primary.main,
-                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`
+                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`,
               },
-            }
+            },
           }}
         />
       </motion.div>
@@ -214,26 +215,29 @@ const ContactUsForm: React.FC = () => {
           variant="outlined"
           InputProps={{
             startAdornment: (
-              <InputAdornment position="start" sx={{ alignSelf: 'flex-start', mt: 1 }}>
+              <InputAdornment
+                position="start"
+                sx={{ alignSelf: "flex-start", mt: 1 }}
+              >
                 <Message color="primary" />
               </InputAdornment>
             ),
           }}
           sx={{
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '12px',
-              backgroundColor: 'rgba(255, 255, 255, 0.1)',
-              '& fieldset': {
-                borderColor: 'rgba(255, 255, 255, 0.3)',
+            "& .MuiOutlinedInput-root": {
+              borderRadius: "12px",
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+              "& fieldset": {
+                borderColor: "rgba(255, 255, 255, 0.3)",
               },
-              '&:hover fieldset': {
+              "&:hover fieldset": {
                 borderColor: theme.palette.primary.main,
               },
-              '&.Mui-focused fieldset': {
+              "&.Mui-focused fieldset": {
                 borderColor: theme.palette.primary.main,
-                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`
+                boxShadow: `0 0 0 2px ${theme.palette.primary.light}`,
               },
-            }
+            },
           }}
         />
       </motion.div>
@@ -249,35 +253,35 @@ const ContactUsForm: React.FC = () => {
           size="large"
           endIcon={<Send />}
           disabled={isSubmitting}
-          sx={{ 
-            mt: 1, 
-            borderRadius: '12px',
-            fontWeight: 600, 
+          sx={{
+            mt: 1,
+            borderRadius: "12px",
+            fontWeight: 600,
             boxShadow: `0 4px 20px ${theme.palette.primary.light}`,
-            transition: 'all 0.3s ease',
+            transition: "all 0.3s ease",
             background: `linear-gradient(45deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-            '&:hover': {
-              transform: 'translateY(-2px)',
+            "&:hover": {
+              transform: "translateY(-2px)",
               boxShadow: `0 6px 25px ${theme.palette.primary.light}`,
             },
-            '&:active': {
-              transform: 'translateY(0)',
+            "&:active": {
+              transform: "translateY(0)",
             },
-            '&.Mui-disabled': {
+            "&.Mui-disabled": {
               background: theme.palette.action.disabledBackground,
-            }
+            },
           }}
         >
-          {isSubmitting ? 'Sending...' : 'Send Message'}
+          {isSubmitting ? "Sending..." : "Send Message"}
         </Button>
       </motion.div>
 
-      <Snackbar 
-        open={open} 
-        autoHideDuration={5000} 
-        onClose={() => setOpen(false)} 
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        TransitionComponent={(props) => (
+      <Snackbar
+        open={open}
+        autoHideDuration={5000}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        TransitionComponent={(props: any) => (
           <motion.div
             {...props}
             initial={{ opacity: 0, y: -50 }}
@@ -286,18 +290,18 @@ const ContactUsForm: React.FC = () => {
           />
         )}
       >
-        <Alert 
-          onClose={() => setOpen(false)} 
-          severity="success" 
-          sx={{ 
-            width: '100%',
+        <Alert
+          onClose={() => setOpen(false)}
+          severity="success"
+          sx={{
+            width: "100%",
             boxShadow: theme.shadows[4],
-            borderRadius: '12px',
+            borderRadius: "12px",
             background: `linear-gradient(45deg, ${theme.palette.success.light} 0%, ${theme.palette.success.main} 100%)`,
-            color: 'white',
-            '& .MuiAlert-icon': {
-              color: 'white'
-            }
+            color: "white",
+            "& .MuiAlert-icon": {
+              color: "white",
+            },
           }}
         >
           <Typography variant="body1" fontWeight={500}>
