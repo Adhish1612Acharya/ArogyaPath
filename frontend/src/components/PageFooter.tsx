@@ -26,6 +26,11 @@ import {
   Healing,
   ArrowUpward,
   Send,
+  Star,
+  Home as HomeIcon,
+  Feed as FeedIcon,
+  FitnessCenter as FitnessIcon,
+  Search as SearchIcon,
 } from "@mui/icons-material";
 import {
   Box,
@@ -43,14 +48,16 @@ import {
   Grow,
   Collapse,
   alpha,
+  useMediaQuery,
 } from "@mui/material";
 import { styled, keyframes } from "@mui/material/styles";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import AyLogo from "@/assets/ay.svg";
 
 // Floating animation
 const float = keyframes`
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-15px); }
+  50% { transform: translateY(-10px); }
   100% { transform: translateY(0px); }
 `;
 
@@ -60,35 +67,49 @@ const pulse = keyframes`
   100% { transform: scale(1); opacity: 1; }
 `;
 
+// Add animation keyframes
+const logoPulse = keyframes`
+  0% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 2px 8px #00e5ff); }
+  50% { transform: scale(1.13) rotate(2deg); filter: drop-shadow(0 8px 24px #ffd600); }
+  100% { transform: scale(1) rotate(-2deg); filter: drop-shadow(0 2px 8px #00e5ff); }
+`;
+
 const FloatingIcon = styled(Box)(({ theme }) => ({
   position: "absolute",
-  background: `linear-gradient(135deg, ${theme.palette.secondary.main} 0%, ${theme.palette.primary.light} 100%)`,
+  background: `linear-gradient(135deg, #fffde7 0%, #00e5ff 100%)`, // Brighter blue/white
   color: theme.palette.primary.contrastText,
   borderRadius: "50%",
-  width: 60,
-  height: 60,
+  width: 80,
+  height: 80,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  boxShadow: theme.shadows[10],
+  boxShadow: '0 6px 32px 0 #00e5ff55',
   zIndex: 1,
   animation: `${float} 6s ease-in-out infinite`,
-  "& svg": {
-    fontSize: 30,
-  },
   transition: "all 0.3s ease",
+  border: '3px solid #ffd600', // Gold border for pop
   "&:hover": {
-    transform: "scale(1.1)",
-    boxShadow: theme.shadows[16],
+    transform: "scale(1.13)",
+    boxShadow: '0 12px 36px 0 #00e5ff99',
+    background: `linear-gradient(135deg, #ffd600 0%, #00e5ff 100%)`,
+    border: '3px solid #00e5ff',
+  },
+  "& img": {
+    width: 68,
+    height: 68,
+    objectFit: "contain",
+    filter: "drop-shadow(0 2px 12px #00e5ff)",
   },
 }));
 
-const StyledLink: any = styled(Link)(({ theme }) => ({
+const StyledLink = styled(Link)(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   gap: theme.spacing(1),
   transition: "all 0.3s ease",
   padding: theme.spacing(0.5, 0),
+  color: alpha(theme.palette.primary.contrastText, 0.85),
   "&:hover": {
     color: theme.palette.secondary.main,
     transform: "translateX(5px)",
@@ -100,25 +121,154 @@ const StyledLink: any = styled(Link)(({ theme }) => ({
   "& svg": {
     transition: "all 0.3s ease",
   },
+  "&.active": {
+    color: theme.palette.secondary.main,
+    fontWeight: 600,
+    "& svg": {
+      color: theme.palette.secondary.main,
+    },
+  },
 }));
 
 const AnimatedDivider = styled(Divider)(({ theme }) => ({
-  background: `linear-gradient(90deg, transparent, ${theme.palette.secondary.main}, transparent)`,
+  background: `linear-gradient(90deg, transparent, ${alpha(
+    theme.palette.secondary.main,
+    0.7
+  )}, transparent)`,
   height: 2,
-  opacity: 0.7,
   width: "100%",
   margin: "0 auto",
 }));
+
+const NavButton = styled(Button)(({ theme }) => ({
+  color: theme.palette.primary.contrastText,
+  fontWeight: 700,
+  fontSize: "1.05rem",
+  textTransform: "uppercase",
+  letterSpacing: "0.08em",
+  padding: theme.spacing(1.2, 2.5),
+  borderRadius: 18,
+  position: "relative",
+  overflow: "hidden",
+  background: `linear-gradient(90deg, #00e5ff 0%, #1976d2 100%)`,
+  boxShadow: '0 2px 12px 0 #00e5ff33',
+  margin: theme.spacing(0.5, 0),
+  transition: "all 0.35s cubic-bezier(.4,2,.6,1)",
+  '& .MuiButton-startIcon': {
+    color: '#ffd600',
+    fontSize: '1.3em',
+    marginRight: theme.spacing(1),
+    transition: 'color 0.3s',
+  },
+  '&:hover': {
+    background: `linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)`,
+    color: '#0d47a1',
+    transform: 'translateY(-4px) scale(1.04)',
+    boxShadow: '0 6px 24px 0 #ffd60055',
+    '& .MuiButton-startIcon': {
+      color: '#1976d2',
+    },
+    '&:after': {
+      width: '100%',
+      background: 'linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)',
+    },
+  },
+  '&:after': {
+    content: '""',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    width: 0,
+    height: 3,
+    background: 'linear-gradient(90deg, #ffd600 0%, #00e5ff 100%)',
+    borderRadius: 2,
+    transition: 'width 0.3s',
+    zIndex: 1,
+  },
+  '&.active': {
+    color: '#ffd600',
+    fontWeight: 900,
+    background: 'linear-gradient(90deg, #1976d2 0%, #ffd600 100%)',
+    '&:after': {
+      width: '100%',
+      background: 'linear-gradient(90deg, #ffd600 0%, #1976d2 100%)',
+    },
+    '& .MuiButton-startIcon': {
+      color: '#ffd600',
+    },
+  },
+}));
+
+// Enhance section titles
+const FooterSectionTitle = styled(Typography)(({ theme }) => ({
+  fontWeight: 900,
+  fontSize: '1.35rem',
+  color: '#fff',
+  letterSpacing: '0.08em',
+  textShadow: '0 2px 8px #1976d2',
+  marginBottom: theme.spacing(2),
+  textTransform: 'uppercase',
+  display: 'flex',
+  alignItems: 'center',
+}));
+
+// Enhance navigation and contact links
+const FooterLink = styled(Link)(({ theme }) => ({
+  color: '#fff',
+  fontWeight: 700,
+  fontSize: '1.08rem',
+  letterSpacing: '0.04em',
+  textShadow: '0 2px 8px #1976d2',
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: theme.spacing(1.2),
+  transition: 'color 0.2s, text-shadow 0.2s',
+  '&:hover': {
+    color: '#ffd600',
+    textShadow: '0 4px 16px #00e5ff',
+    textDecoration: 'underline',
+  },
+}));
+
+// Enhance contact info
+const FooterContactText = styled(Typography)(({ theme }) => ({
+  color: '#fff',
+  fontWeight: 600,
+  fontSize: '1.08rem',
+  letterSpacing: '0.03em',
+  textShadow: '0 2px 8px #1976d2',
+  marginBottom: theme.spacing(1.2),
+  display: 'flex',
+  alignItems: 'center',
+}));
+
+// Enhanced icon style for neon yellow
+const FooterIconStyle = {
+  color: '#ffd600', // Neon yellow
+  filter: 'drop-shadow(0 0 8px #ffd600)', // Neon glow
+  fontSize: '1.5em',
+  marginRight: 12,
+  transition: 'color 0.2s, filter 0.2s',
+};
+const FooterIconHoverStyle = {
+  color: '#fff', // White on hover for contrast
+  filter: 'drop-shadow(0 0 16px #fff)',
+};
 
 const PageFooter = () => {
   const auth = useAuth();
   const role = auth && auth.role ? auth.role : "noUser";
   const theme = useTheme();
-  // const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  const location = useLocation();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [scrollPosition, setScrollPosition] = useState(0);
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
+
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
 
   const handleSubscribe = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -194,9 +344,20 @@ const PageFooter = () => {
         title: "Discover",
         icon: <Spa />,
         links: [
-          { label: "About Us", href: "/about", icon: <People /> },
+          { label: "About Us", href: "/about-us", icon: <People /> },
           { label: "Services", href: "/services", icon: <LocalHospital /> },
-          { label: "Health Articles", href: "/articles", icon: <Article /> },
+          { label: "Contact Us", href: "/contact-us", icon: <Article /> },
+          { label: "Success Stories", href: "/success-stories", icon: <Star /> },
+        ],
+      },
+      {
+        title: "Quick Links",
+        icon: <MenuBook />,
+        links: [
+          { label: "Home", href: "/", icon: <HomeIcon /> },
+          { label: "Health Feed", href: "/gposts", icon: <FeedIcon /> },
+          { label: "Routines", href: "/routines", icon: <FitnessIcon /> },
+          { label: "AI Query", href: "/ai-query", icon: <SearchIcon /> },
         ],
       },
     ],
@@ -214,32 +375,23 @@ const PageFooter = () => {
     <Box
       component="footer"
       sx={{
-        background: `linear-gradient(135deg, ${theme.palette.primary.dark} 0%, ${theme.palette.primary.main} 100%)`,
-        color: theme.palette.primary.contrastText,
+        background: `linear-gradient(135deg, #0d47a1 0%, #1976d2 50%, #00e5ff 100%)`, // More vibrant blue gradient
+        color: '#f4f7fa',
         position: "relative",
         overflow: "hidden",
-        py: 8,
+        pt: 12,
+        pb: 8,
+        boxShadow: '0 8px 32px 0 rgba(13,71,161,0.25)', // Add a soft shadow for depth
+        borderTopLeftRadius: 32,
+        borderTopRightRadius: 32,
         "&::before": {
           content: '""',
           position: "absolute",
           top: 0,
           left: 0,
           right: 0,
-          height: "4px",
-          background: `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.primary.light})`,
-          animation: `${float} 8s ease-in-out infinite`,
-        },
-        "&::after": {
-          content: '""',
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "1px",
-          background: `linear-gradient(90deg, transparent, ${alpha(
-            theme.palette.secondary.main,
-            0.5
-          )}, transparent)`,
+          height: "6px",
+          background: `linear-gradient(90deg, #00e5ff, #ffd600, #1976d2, #82b1ff)`, // Multi-color accent bar
         },
       }}
     >
@@ -253,33 +405,22 @@ const PageFooter = () => {
           height: "100%",
           overflow: "hidden",
           zIndex: 0,
-          opacity: 0.1,
+          opacity: 0.12,
           backgroundImage:
-            "radial-gradient(circle, currentColor 1px, transparent 1px)",
-          backgroundSize: "20px 20px",
+            "radial-gradient(circle, #fff 1.5px, transparent 1.5px), radial-gradient(circle, #ffd600 1.5px, transparent 1.5px), radial-gradient(circle, #00e5ff 1.5px, transparent 1.5px)",
+          backgroundSize: "28px 28px, 60px 60px, 90px 90px",
         }}
       />
 
       <FloatingIcon
         sx={{
-          top: "10%",
-          left: "5%",
+          top: "3%", 
+          left: "47%",
           animationDelay: "0.5s",
           display: { xs: "none", lg: "flex" },
         }}
       >
-        <Spa />
-      </FloatingIcon>
-
-      <FloatingIcon
-        sx={{
-          top: "20%",
-          right: "5%",
-          animationDelay: "1s",
-          display: { xs: "none", lg: "flex" },
-        }}
-      >
-        <Healing />
+        <img src={AyLogo} alt="Ayurveda icon" />
       </FloatingIcon>
 
       <Container maxWidth="xl" sx={{ position: "relative", zIndex: 2 }}>
@@ -290,7 +431,7 @@ const PageFooter = () => {
             flexDirection: { xs: "column", md: "row" },
             justifyContent: "space-between",
             alignItems: "flex-start",
-            gap: 4,
+            gap: 6,
             mb: 6,
           }}
         >
@@ -323,39 +464,54 @@ const PageFooter = () => {
                     },
                   }}
                 >
-                  <Spa
+                  <Box
+                    component="img"
+                    src={AyLogo}
+                    alt="ArogyaPath Icon"
                     sx={{
-                      fontSize: 40,
-                      color: theme.palette.secondary.main,
-                      mr: 1,
-                      animation: `${float} 4s ease-in-out infinite`,
+                      width: 60,
+                      height: 60,
+                      mr: 2.5,
+                      filter: "drop-shadow(0 2px 8px #00e5ff)",
+                      animation: `${logoPulse} 2.5s infinite cubic-bezier(.4,2,.6,1)`,
+                      transition: 'all 0.3s',
                     }}
                   />
                   <Typography
-                    variant="h4"
+                    variant="h3"
                     component={RouterLink}
                     to="/"
                     sx={{
-                      fontWeight: 800,
+                      fontWeight: 900,
                       color: "inherit",
                       textDecoration: "none",
-                      letterSpacing: "1px",
-                      "&:hover": {
-                        color: theme.palette.secondary.main,
+                      letterSpacing: "2px",
+                      background: "linear-gradient(90deg, #ffd600 10%, #00e5ff 60%, #1976d2 100%)", // Eye-catching gradient
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      fontSize: { xs: '2.3rem', md: '3rem' },
+                      textShadow: '0 2px 12px #1976d2',
+                      '&:hover': {
+                        transform: 'scale(1.06)',
+                        textShadow: '0 4px 24px #00e5ff',
                       },
-                      transition: "all 0.3s ease",
+                      transition: 'all 0.3s cubic-bezier(.4,2,.6,1)',
                     }}
                   >
-                    AyurCare
+                    ArogyaPath
                   </Typography>
                 </Box>
                 <Typography
                   variant="body1"
                   sx={{
                     mb: 3,
-                    opacity: 0.9,
-                    lineHeight: 1.7,
-                    fontSize: "1.05rem",
+                    opacity: 1,
+                    lineHeight: 1.8,
+                    fontSize: { xs: '1.15rem', md: '1.25rem' },
+                    color: '#fff',
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                    textShadow: '0 2px 8px #1976d2',
                   }}
                 >
                   Empowering health through traditional wisdom and modern care.
@@ -363,8 +519,59 @@ const PageFooter = () => {
                   with contemporary medical expertise.
                 </Typography>
 
+                {/* Quick Navigation for Mobile */}
+                {isMobile && (
+                  <Box sx={{ mb: 4 }}>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        mb: 2,
+                        fontWeight: 800,
+                        fontSize: { xs: '1.2rem', md: '1.3rem' },
+                        display: "flex",
+                        alignItems: "center",
+                        color: '#ffd600',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                        textShadow: '0 2px 8px #1976d2',
+                        "&::before": {
+                          content: '""',
+                          display: "inline-block",
+                          width: "30px",
+                          height: "2px",
+                          background: '#00e5ff',
+                          mr: 1.5,
+                        },
+                      }}
+                    >
+                      Quick Links
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 1,
+                        mb: 3,
+                      }}
+                    >
+                      {footerLinks.noUser[1].links.map((link) => (
+                        <NavButton
+                          key={link.href}
+                          component={RouterLink}
+                          to={link.href}
+                          startIcon={link.icon}
+                          className={isActive(link.href) ? "active" : ""}
+                          size="small"
+                        >
+                          {link.label}
+                        </NavButton>
+                      ))}
+                    </Box>
+                  </Box>
+                )}
+
                 {/* Newsletter Subscription */}
-                <Box sx={{ mt: 4 }}>
+                <Box sx={{ mt: 2 }}>
                   <Typography
                     variant="subtitle1"
                     sx={{
@@ -479,15 +686,15 @@ const PageFooter = () => {
               display: "flex",
               flexWrap: "wrap",
               justifyContent: "space-between",
-              gap: { xs: 4, md: 2 },
+              gap: { xs: 4, md: 3, lg: 4 },
               ml: { md: 2 },
             }}
           >
-            {(footerLinks[role || "noUser"] || []).map((section, index) => (
+            {(footerLinks[role] || footerLinks.noUser).map((section, index) => (
               <Box
                 key={index}
                 sx={{
-                  minWidth: { xs: "140px", sm: "160px" },
+                  minWidth: { xs: "160px", sm: "180px", md: "200px" },
                   flex: 1,
                 }}
               >
@@ -518,16 +725,9 @@ const PageFooter = () => {
                           fontSize: 22,
                         },
                       })}
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: "1.1rem",
-                          letterSpacing: "0.5px",
-                        }}
-                      >
+                      <FooterSectionTitle variant="h6">
                         {section.title}
-                      </Typography>
+                      </FooterSectionTitle>
                     </Box>
                     <Box
                       component="ul"
@@ -542,21 +742,23 @@ const PageFooter = () => {
                     >
                       {section.links.map((link, linkIndex) => (
                         <li key={linkIndex}>
-                          <StyledLink
-                            component={RouterLink as any}
+                          <FooterLink
+                            component={RouterLink}
                             to={link.href}
-                            color="inherit"
                             underline="none"
+                            className={isActive(link.href) ? "active" : ""}
                             sx={{ fontSize: "0.95rem" }}
                           >
                             {React.cloneElement(link.icon, {
                               sx: {
                                 fontSize: 18,
-                                color: alpha(theme.palette.secondary.main, 0.8),
+                                color: isActive(link.href)
+                                  ? theme.palette.secondary.main
+                                  : alpha(theme.palette.secondary.main, 0.8),
                               },
                             })}
                             {link.label}
-                          </StyledLink>
+                          </FooterLink>
                         </li>
                       ))}
                     </Box>
@@ -568,7 +770,7 @@ const PageFooter = () => {
             {/* Contact section */}
             <Box
               sx={{
-                minWidth: { xs: "140px", sm: "180px" },
+                minWidth: { xs: "160px", sm: "180px", md: "200px" },
                 flex: 1,
               }}
             >
@@ -599,16 +801,9 @@ const PageFooter = () => {
                         fontSize: 22,
                       }}
                     />
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: "1.1rem",
-                        letterSpacing: "0.5px",
-                      }}
-                    >
+                    <FooterSectionTitle variant="h6">
                       Contact
-                    </Typography>
+                    </FooterSectionTitle>
                   </Box>
                   <Box
                     sx={{
@@ -617,8 +812,8 @@ const PageFooter = () => {
                       gap: 2,
                     }}
                   >
-                    <StyledLink
-                      href="mailto:ayurcare@example.com"
+                    <FooterLink
+                      href="mailto:contact@arogyapath.com"
                       color="inherit"
                       underline="none"
                     >
@@ -628,9 +823,9 @@ const PageFooter = () => {
                           color: alpha(theme.palette.secondary.main, 0.8),
                         }}
                       />
-                      ayurcare@example.com
-                    </StyledLink>
-                    <StyledLink
+                      contact@arogyapath.com
+                    </FooterLink>
+                    <FooterLink
                       href="tel:+919876543210"
                       color="inherit"
                       underline="none"
@@ -642,16 +837,16 @@ const PageFooter = () => {
                         }}
                       />
                       +91 9876543210
-                    </StyledLink>
-                    <StyledLink href="#" color="inherit" underline="none">
+                    </FooterLink>
+                    <FooterLink href="#" color="inherit" underline="none">
                       <Place
                         sx={{
                           fontSize: 18,
                           color: alpha(theme.palette.secondary.main, 0.8),
                         }}
                       />
-                      Mangalore, India
-                    </StyledLink>
+                      Mangaluru, India
+                    </FooterLink>
                   </Box>
 
                   {/* Social Media */}
@@ -748,7 +943,7 @@ const PageFooter = () => {
                 fontSize: "0.85rem",
               }}
             >
-              © {new Date().getFullYear()} AyurCare. All rights reserved.
+              © {new Date().getFullYear()} ArogyaPath. All rights reserved.
             </Typography>
           </Fade>
 
