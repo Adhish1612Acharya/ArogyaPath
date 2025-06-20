@@ -84,6 +84,7 @@ const App = () => {
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/terms-and-conditions" element={<TermsNConditions />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+          <Route path="/verify-mobile" element={<MobileVerify />} />
 
           <Route element={<GuestProtectedRoute />}>
             <Route path="/expert/login" element={<LoginExpert />} />
@@ -154,7 +155,6 @@ const App = () => {
             <Route path="/premium" element={<Premium />} />
             <Route path="/u/chat-requests/sent" element={<SentChatRequest />} />
             <Route path="/u/chats" element={<YourChats />} />
-            <Route path="/verify-mobile" element={<MobileVerify />} />
           </Route>
 
           <Route path="*" element={<PageNotFound />} />
