@@ -1,9 +1,10 @@
 import { useEffect } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
 import Loader from "@/components/Loader";
 
 const GuestProtectedRoute = () => {
+  const location = useLocation();
   const { checkAuthStatus, loading, authState } = useCheckAuth();
 
   useEffect(() => {
@@ -11,9 +12,9 @@ const GuestProtectedRoute = () => {
       await checkAuthStatus();
     };
     check();
-  }, []);
+  }, [location.pathname]);
 
-  if (loading) return <Loader />; 
+  if (loading) return <Loader />;
 
   // If user is logged in, redirect them to their appropriate dashboard
   if (authState?.loggedIn) {
