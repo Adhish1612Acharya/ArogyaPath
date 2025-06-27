@@ -2,7 +2,8 @@ import useApi from "../useApi/useApi";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import { ChatParticipants, ChatRequestData } from "./useChat.types";
 
-const useChat = () => {
+const 
+useChat = () => {
   const { get, post } = useApi();
 
   const fetchChatMessages = async (chatId: string) => {
