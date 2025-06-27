@@ -51,7 +51,7 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!contactNo && window.location.pathname !== "/verify-mobile") {
+    if (!contactNo) {
       return {
         shouldRedirect: true,
         redirectPath: "/verify-mobile",
@@ -60,10 +60,7 @@ const useCheckAuth = () => {
     }
 
     // Only redirect to complete-profile if NOT already on that route
-    if (
-      !completeProfile &&
-      window.location.pathname !== "/complete-profile/expert"
-    ) {
+    if (!completeProfile) {
       return {
         shouldRedirect: true,
         redirectPath: "/complete-profile/expert",
@@ -71,7 +68,7 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!isDoctor && window.location.pathname !== "/complete-profile/expert") {
+    if (!isDoctor) {
       return {
         shouldRedirect: true,
         redirectPath: "/complete-profile/expert",
@@ -88,6 +85,7 @@ const useCheckAuth = () => {
   const getUserNavigationState = (
     verifications: AuthCheckResponse["verifications"]
   ): NavigationState => {
+    console.log("Verifications in getUserNavigationState:", verifications);
     if (!verifications) {
       return {
         shouldRedirect: true,
@@ -106,7 +104,7 @@ const useCheckAuth = () => {
       };
     }
 
-    if (!contactNo && window.location.pathname !== "/verify-mobile") {
+    if (!contactNo) {
       return {
         shouldRedirect: true,
         redirectPath: "/verify-mobile",
@@ -114,13 +112,10 @@ const useCheckAuth = () => {
       };
     }
 
-    if (
-      !completeProfile &&
-      window.location.pathname !== "/user/complete-profile"
-    ) {
+    if (!completeProfile) {
       return {
         shouldRedirect: true,
-        redirectPath: "/user/complete-profile",
+        redirectPath: "/complete-profile/user",
         message: "Please complete your profile to continue",
       };
     }

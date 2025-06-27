@@ -1,30 +1,26 @@
 import { useEffect } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
 import Loader from "@/components/Loader";
 
 const ProtectedRoute = () => {
+  const location = useLocation();
   const { checkAuthStatus, loading, navigationState } = useCheckAuth();
   useEffect(() => {
     const check = async () => {
       await checkAuthStatus();
     };
     check();
-  }, []);
+  }, [location.pathname]);
 
-  if (loading) return <Loader />;
+  if (loading || !navigationState) return <Loader />;
 
-  if (navigationState?.shouldRedirect) {
+  if (
+    navigationState?.shouldRedirect &&
+    navigationState.redirectPath !== window.location.pathname
+  ) {
     return <Navigate to={navigationState.redirectPath} replace />;
   }
-
-  // if (navigationState?.shouldRedirect) {
-  //   const currentPath = window.location.pathname;
-
-  //   if (navigationState.redirectPath !== currentPath) {
-  //     return <Navigate to={navigationState.redirectPath} replace />;
-  //   }
-  // }
 
   return <Outlet />;
 };

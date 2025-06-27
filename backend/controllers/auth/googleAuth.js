@@ -175,6 +175,7 @@ export const googleCallBackFunctionForUser = async (
       return done(null, user);
     }
 
+
     // Create new user with verification status
     const newUser = await User.create({
       username: profile.displayName,
