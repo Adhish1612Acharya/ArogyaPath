@@ -15,6 +15,7 @@ import chatRoutes from "./routes/Chat.js";
 import { Server } from "socket.io";
 
 import successStoryRoute from "./routes/SuccessStory.js";
+import contactUsRoute from "./routes/contactUs.js";
 
 import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert.js";
@@ -200,6 +201,7 @@ app.use("/api/healthChallenge", healthChallenge);
 app.use("/api/chat", chatRoutes);
 
 app.use("/api/premium", premiumRoute);
+app.use("/api/contact", contactUsRoute);
 
 // -------------------Deployment------------------//
 

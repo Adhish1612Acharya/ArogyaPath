@@ -168,7 +168,7 @@ const ContactUs: React.FC = () => {
                 </Box>
                 <Box>
                   <Typography variant="body2" color="text.secondary">Email</Typography>
-                  <Typography variant="body1" fontWeight={500}>support@arogyapath.in</Typography>
+                  <Typography variant="body1" fontWeight={500}>teamparakram16@gmail.com</Typography>
                 </Box>
               </Box>
               
@@ -187,7 +187,7 @@ const ContactUs: React.FC = () => {
                 </Box>
                 <Box>
                   <Typography variant="body2" color="text.secondary">Phone</Typography>
-                  <Typography variant="body1" fontWeight={500}>+91-9876543210</Typography>
+                  <Typography variant="body1" fontWeight={500}>+91-8904156468</Typography>
                 </Box>
               </Box>
               

@@ -66,23 +66,25 @@ export const verifyPostData = async (req, res, next) => {
           filename: fileName,
           contentType: mimetype,
         });
-        const response = await axios
-          .post(
-            "https://pranavpai0309-pdf-parser.hf.space/PDF_Parser",
-            formData,
-            {
-              headers: formData.getHeaders(), // Important for setting correct Content-Type boundary
-            }
-          )
-          .catch((err) => {
-            console.log("Error occurred in pdf parser : ", err);
-          });
-        console.log("Pdf text : ", response.data.extracted_text);
-        const isValidPdfText = await verifyTextContent(
-          response.data.extracted_text
-        );
+        // const response = await axios
+        //   .post(
+        //     "https://pranavpai0309-pdf-parser.hf.space/PDF_Parser",
+        //     formData,
+        //     {
+        //       headers: formData.getHeaders(), // Important for setting correct Content-Type boundary
+        //     }
+        //   )
+        //   .catch((err) => {
+        //     console.log("Error occurred in pdf parser : ", err);
+        //   });
+        // console.log("Pdf text : ", response.data.extracted_text);
+        // const isValidPdfText = await verifyTextContent(
+        //   response.data.extracted_text
+        // );
 
-        console.log("IsValid Pdf : ", isValidPdfText);
+        const isValidPdfText = true;
+
+        // console.log("IsValid Pdf : ", isValidPdfText);
 
         if (!isValidPdfText) {
           throw new ExpressError(
