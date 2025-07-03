@@ -48,7 +48,8 @@ export const handleGoogleCallback = (req, res) => {
       );
     }
     if (role === "user") {
-      return res.redirect(`${process.env.VITE_API_URL}/complete-profile/user`);
+     // return res.redirect(`${process.env.VITE_API_URL}/complete-profile/user`);
+          return res.redirect(`${process.env.VITE_API_URL}/gposts`);
     }
   }
 
