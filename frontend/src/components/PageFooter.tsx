@@ -10,20 +10,13 @@ import {
   Instagram,
   YouTube,
   LinkedIn,
-  MedicalInformation,
-  LocalHospital,
-  HealthAndSafety,
+
   MenuBook,
   ContactSupport,
   People,
-  QuestionAnswer,
-  Emergency,
+
   Article,
-  Lightbulb,
-  Dashboard,
-  Group,
-  LibraryBooks,
-  Healing,
+
   ArrowUpward,
   Send,
   Star,
@@ -290,52 +283,123 @@ const PageFooter = () => {
 
   const footerLinks = {
     expert: [
+      // {
+      //   title: "Professional",
+      //   icon: <MedicalInformation />,
+      //   links: [
+      //     { label: "Dashboard", href: "/dashboard", icon: <Dashboard /> },
+      //     { label: "Patient Management", href: "/patients", icon: <Group /> },
+      //     { label: "Resources", href: "/resources", icon: <LibraryBooks /> },
+      //     {
+      //       label: "Clinical Guidelines",
+      //       href: "/guidelines",
+      //       icon: <Healing />,
+      //     },
+      //   ],
+
+      //   links: [
+      //     { label: "About Us", href: "/about-us", icon: <People /> },
+      //     // { label: "Services", href: "/services", icon: <LocalHospital /> },
+      //     { label: "Contact Us", href: "/contact-us", icon: <Article /> },
+      //     {
+      //       label: "Success Stories",
+      //       href: "/success-stories",
+      //       icon: <Star />,
+      //     },
+      //   ],
+      // },
+      // {
+      //   title: "Support",
+      //   icon: <ContactSupport />,
+      //   links: [
+      //     { label: "Help Center", href: "/help", icon: <QuestionAnswer /> },
+      //     { label: "Documentation", href: "/docs", icon: <MenuBook /> },
+      //     { label: "Community", href: "/community", icon: <People /> },
+      //   ],
+      // },
+
       {
-        title: "Professional",
-        icon: <MedicalInformation />,
+        title: "Discover",
+        icon: <Spa />,
         links: [
-          { label: "Dashboard", href: "/dashboard", icon: <Dashboard /> },
-          { label: "Patient Management", href: "/patients", icon: <Group /> },
-          { label: "Resources", href: "/resources", icon: <LibraryBooks /> },
+          { label: "About Us", href: "/about-us", icon: <People /> },
+          // { label: "Services", href: "/services", icon: <LocalHospital /> },
+          { label: "Contact Us", href: "/contact-us", icon: <Article /> },
           {
-            label: "Clinical Guidelines",
-            href: "/guidelines",
-            icon: <Healing />,
+            label: "Success Stories",
+            href: "/success-stories",
+            icon: <Star />,
           },
         ],
       },
       {
-        title: "Support",
-        icon: <ContactSupport />,
+        title: "Quick Links",
+        icon: <MenuBook />,
         links: [
-          { label: "Help Center", href: "/help", icon: <QuestionAnswer /> },
-          { label: "Documentation", href: "/docs", icon: <MenuBook /> },
-          { label: "Community", href: "/community", icon: <People /> },
+          { label: "Home", href: "/", icon: <HomeIcon /> },
+          { label: "Health Feed", href: "/gposts", icon: <FeedIcon /> },
+          { label: "Routines", href: "/routines", icon: <FitnessIcon /> },
+          { label: "AI Query", href: "/ai-query", icon: <SearchIcon /> },
         ],
       },
     ],
     user: [
+      // {
+      //   title: "Health",
+      //   icon: <HealthAndSafety />,
+      //   // links: [
+      //   //   { label: "Find Experts", href: "/experts", icon: <LocalHospital /> },
+      //   //   { label: "Health Articles", href: "/articles", icon: <Article /> },
+      //   //   { label: "Wellness Tips", href: "/tips", icon: <Lightbulb /> },
+      //   //   { label: "Emergency Care", href: "/emergency", icon: <Emergency /> },
+      //   // ],
+      //   links: [
+      //     { label: "About Us", href: "/about-us", icon: <People /> },
+      //     // { label: "Services", href: "/services", icon: <LocalHospital /> },
+      //     { label: "Contact Us", href: "/contact-us", icon: <Article /> },
+      //     {
+      //       label: "Success Stories",
+      //       href: "/success-stories",
+      //       icon: <Star />,
+      //     },
+      //   ],
+      // },
+      // {
+      //   title: "Support",
+      //   icon: <ContactSupport />,
+      //   links: [
+      //     { label: "FAQs", href: "/faqs", icon: <QuestionAnswer /> },
+      //     { label: "Contact Us", href: "/contact", icon: <Email /> },
+      //     {
+      //       label: "Patient Rights",
+      //       href: "/rights",
+      //       icon: <HealthAndSafety />,
+      //     },
+      //   ],
+      // },
+
       {
-        title: "Health",
-        icon: <HealthAndSafety />,
+        title: "Discover",
+        icon: <Spa />,
         links: [
-          { label: "Find Experts", href: "/experts", icon: <LocalHospital /> },
-          { label: "Health Articles", href: "/articles", icon: <Article /> },
-          { label: "Wellness Tips", href: "/tips", icon: <Lightbulb /> },
-          { label: "Emergency Care", href: "/emergency", icon: <Emergency /> },
+          { label: "About Us", href: "/about-us", icon: <People /> },
+          // { label: "Services", href: "/services", icon: <LocalHospital /> },
+          { label: "Contact Us", href: "/contact-us", icon: <Article /> },
+          {
+            label: "Success Stories",
+            href: "/success-stories",
+            icon: <Star />,
+          },
         ],
       },
       {
-        title: "Support",
-        icon: <ContactSupport />,
+        title: "Quick Links",
+        icon: <MenuBook />,
         links: [
-          { label: "FAQs", href: "/faqs", icon: <QuestionAnswer /> },
-          { label: "Contact Us", href: "/contact", icon: <Email /> },
-          {
-            label: "Patient Rights",
-            href: "/rights",
-            icon: <HealthAndSafety />,
-          },
+          { label: "Home", href: "/", icon: <HomeIcon /> },
+          { label: "Health Feed", href: "/gposts", icon: <FeedIcon /> },
+          { label: "Routines", href: "/routines", icon: <FitnessIcon /> },
+          { label: "AI Query", href: "/ai-query", icon: <SearchIcon /> },
         ],
       },
     ],
@@ -345,7 +409,7 @@ const PageFooter = () => {
         icon: <Spa />,
         links: [
           { label: "About Us", href: "/about-us", icon: <People /> },
-          { label: "Services", href: "/services", icon: <LocalHospital /> },
+          // { label: "Services", href: "/services", icon: <LocalHospital /> },
           { label: "Contact Us", href: "/contact-us", icon: <Article /> },
           {
             label: "Success Stories",
@@ -818,7 +882,7 @@ const PageFooter = () => {
                     }}
                   >
                     <FooterLink
-                      href="mailto:contact@arogyapath.com"
+                      href="mailto:teamparakram16@gmail.com"
                       color="inherit"
                       underline="none"
                     >
@@ -828,10 +892,10 @@ const PageFooter = () => {
                           color: alpha(theme.palette.secondary.main, 0.8),
                         }}
                       />
-                      contact@arogyapath.com
+                      teamparakram16@gmail.com
                     </FooterLink>
                     <FooterLink
-                      href="tel:+919876543210"
+                      href="tel:+918904156468"
                       color="inherit"
                       underline="none"
                     >
@@ -841,7 +905,7 @@ const PageFooter = () => {
                           color: alpha(theme.palette.secondary.main, 0.8),
                         }}
                       />
-                      +91 9876543210
+                      8904156468
                     </FooterLink>
                     <FooterLink href="#" color="inherit" underline="none">
                       <Place

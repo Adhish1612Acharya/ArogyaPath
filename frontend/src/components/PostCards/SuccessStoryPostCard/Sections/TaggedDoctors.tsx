@@ -1,9 +1,9 @@
 import { Box, Typography, Chip, Avatar } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { SuccessStoryType } from "@/types/SuccessStory.types";
 
 export const TaggedDoctors = ({ post }: { post: SuccessStoryType }) => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   
   const getTaggedDoctorStatus = (doctorId: string) => {
     if (post.verified.some(d => d._id === doctorId)) return "verified";
@@ -25,7 +25,7 @@ export const TaggedDoctors = ({ post }: { post: SuccessStoryType }) => {
               avatar={<Avatar src={doctor.profile.profileImage} />}
               label={`Dr. ${doctor.profile.fullName}`}
               size="small"
-              onClick={() => navigate(`/doctors/profile/${doctor._id}`)}
+              // onClick={() => navigate(`/doctors/profile/${doctor._id}`)}
               sx={{
                 backgroundColor: 
                   status === "verified" ? "rgba(5, 150, 105, 0.1)" :

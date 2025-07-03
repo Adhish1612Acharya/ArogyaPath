@@ -69,7 +69,7 @@ const ExpertSchema = new Schema(
       },
       contactNo: {
         type: Boolean,
-        default: false,
+        default: true,
       },
       completeProfile: {
         type: Boolean,
@@ -77,7 +77,7 @@ const ExpertSchema = new Schema(
       },
       isDoctor: {
         type: Boolean,
-        default: false,
+        default: true,
       },
     },
 

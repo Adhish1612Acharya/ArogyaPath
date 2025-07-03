@@ -7,11 +7,10 @@ import {
   Paper,
   IconButton,
   useTheme,
-
+  Link,
 } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
-import TwitterIcon from "@mui/icons-material/Twitter";
 import { motion } from "framer-motion";
 import { styled } from "@mui/system";
 
@@ -83,45 +82,49 @@ interface TeamMember {
   email: string;
   github: string;
   linkedin: string;
-  twitter: string;
+  image: string;
 }
 
 const team: TeamMember[] = [
   {
     name: "Adhish P Acharya",
     role: "Fullstack Developer",
-    desc: "Builds full-stack applications with seamless integration of frontend, backend, and scalable frontend-backend pipelines for modern web applications",
-    email: "adhish@example.com",
-    github: "https://github.com/adhishdev",
-    linkedin: "https://linkedin.com/in/adhish-acharya",
-    twitter: "https://twitter.com/adhishCodes",
+    desc: "Led Team Prakram and collaboratively architected the project from scratch, driving frontend, backend, database, and deployment integration.",
+    email: "adhishpacharya@gmail.com",
+    github: "https://github.com/Adhish1612Acharya",
+    linkedin: "https://www.linkedin.com/in/adhishpacharya/",
+    image:
+      "https://res.cloudinary.com/daawurvug/image/upload/v1751536906/1728652882622_ponagl.jpg",
   },
   {
     name: "Pranav Pai N",
-    role: "ML and Backend Engineer",
-    desc: "Develops intelligent systems and API infrastructures",
-    email: "pranav@example.com",
-    github: "https://github.com/pranavpai",
-    linkedin: "https://linkedin.com/in/pranav-pai",
-    twitter: "https://twitter.com/pranav_tech",
+    role: "ML and Backend Developer",
+    desc: "Specializes in designing and implementing intelligent machine learning systems, building robust backend APIs, and integrating advanced data-driven features to power the platform's core intelligence and automation.",
+    email: "pranavpai0309@gmail.com",
+    github: "https://github.com/Pranava-Pai-N",
+    linkedin: "https://www.linkedin.com/in/pranav-pai-n-563106292/",
+    image:
+      "https://res.cloudinary.com/daawurvug/image/upload/v1751536915/Pranav_xp1y2j.jpg",
   },
   {
     name: "Vijeth Kumar",
-    role: "Vibe Coder",
-    desc: "Enhances user experience with functional flair and frontend precision",
-    email: "vijeth@example.com",
-    github: "https://github.com/vijethkumar",
-    linkedin: "https://linkedin.com/in/vijethkumar",
-    twitter: "https://twitter.com/vijethcodes",
+    role: "Frontend Developer",
+    desc: "Crafts engaging user experiences and ensures pixel-perfect frontend implementation, focusing on UI/UX design, interactive features, and seamless user journeys that bring the platform to life.",
+    email: "vijethkumar3110@gmail.com",
+    github: "https://github.com/Vijeth-Kumar-18",
+    linkedin: "https://www.linkedin.com/in/vijeth--kumar/",
+    image:
+      "https://res.cloudinary.com/daawurvug/image/upload/v1751536915/Vijeth_wwnnum.jpg",
   },
   {
     name: "U Vivek Shenoy",
     role: "Backend Developer",
-    desc: "Focuses on efficient server-side logic and database systems",
-    email: "vivek@example.com",
+    desc: "Engineers efficient server-side logic, manages complex database schemas, and ensures the reliability and scalability of backend services, supporting the platform's performance and data integrity.",
+    email: "vivekshenoy6763@gmail.com",
     github: "https://github.com/vivekshenoy",
-    linkedin: "https://linkedin.com/in/vivekshenoy",
-    twitter: "https://twitter.com/vivek_backend",
+    linkedin: "https://www.linkedin.com/in/vivek-shenoy-55b20b319/",
+    image:
+      "https://res.cloudinary.com/daawurvug/image/upload/v1751536916/Vivek_twfs7b.jpg",
   },
 ];
 
@@ -232,7 +235,7 @@ const AboutUs: React.FC = () => {
               fontSize: { xs: "1.8rem", md: "2.2rem" },
             }}
           >
-            Meet the Team
+            Meet Team Parakram
           </SectionHeader>
 
           <motion.div
@@ -262,6 +265,7 @@ const AboutUs: React.FC = () => {
                   }}
                 >
                   <Avatar
+                    src={member.image}
                     sx={{
                       width: 96,
                       height: 96,
@@ -300,7 +304,14 @@ const AboutUs: React.FC = () => {
                     color="text.secondary"
                     sx={{ textAlign: "center", mb: 3 }}
                   >
-                    {member.email}
+                    <Link
+                      href={`mailto:${member.email}`}
+                      color="inherit"
+                      underline="always"
+                      sx={{ cursor: "pointer" }}
+                    >
+                      {member.email}
+                    </Link>
                   </Typography>
                   <Stack direction="row" spacing={1}>
                     <IconButton
@@ -335,22 +346,7 @@ const AboutUs: React.FC = () => {
                     >
                       <LinkedInIcon />
                     </IconButton>
-                    <IconButton
-                      component="a"
-                      href={member.twitter}
-                      target="_blank"
-                      rel="noopener"
-                      sx={{
-                        color: "text.primary",
-                        "&:hover": {
-                          color: "#1DA1F2",
-                          transform: "scale(1.1)",
-                        },
-                        transition: "all 0.3s",
-                      }}
-                    >
-                      <TwitterIcon />
-                    </IconButton>
+                    {/* Twitter button removed */}
                   </Stack>
                 </TeamCard>
               </motion.div>
@@ -379,6 +375,36 @@ const AboutUs: React.FC = () => {
               background: `linear-gradient(135deg, ${theme.palette.background.paper} 0%, ${theme.palette.background.default} 100%)`,
             }}
           >
+            <Typography
+              variant="h6"
+              fontWeight={800}
+              sx={{
+                mb: 1,
+                color: theme.palette.primary.main,
+                letterSpacing: 1.5,
+              }}
+            >
+              Team Parakram
+            </Typography>
+            <Box
+              sx={{
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                mb: 3,
+              }}
+            >
+              <img
+                src="https://res.cloudinary.com/daawurvug/image/upload/v1751538124/Team_image_aanfsy.jpg"
+                alt="Team Prakram"
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: 220,
+                  borderRadius: 16,
+                  boxShadow: theme.shadows[3],
+                }}
+              />
+            </Box>
             <Typography
               variant="h5"
               fontWeight={600}

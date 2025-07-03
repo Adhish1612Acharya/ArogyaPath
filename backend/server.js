@@ -15,6 +15,7 @@ import chatRoutes from "./routes/Chat.js";
 import { Server } from "socket.io";
 
 import successStoryRoute from "./routes/SuccessStory.js";
+import contactUsRoute from "./routes/contactUs.js";
 
 import { Strategy as localStrategy } from "passport-local";
 import Expert from "./models/Expert/Expert.js";
@@ -32,6 +33,7 @@ import prakrathiRoutes from "./routes/Prakrathi.js";
 import healthChallenge from "./routes/healthChallenge.js";
 import commonAuthRouter from "./routes/auth/commonAuth.js";
 import emailVerificationRouter from "./routes/auth/emailVerification.js";
+import otpRouter from "./routes/auth/otp.js";
 
 import passport from "passport";
 import MongoStore from "connect-mongo";
@@ -104,7 +106,6 @@ const sessionOptions = {
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   },
 };
-
 
 app.set("trust proxy", 1);
 
@@ -181,6 +182,7 @@ app.use("/api/auth", commonAuthRouter);
 app.use("/api/auth/expert", expertEmailPasswordAuth);
 app.use("/api/auth/user", userEmailPasswordAuth);
 app.use("/api/auth/email", emailVerificationRouter);
+app.use("/api/auth", otpRouter);
 
 app.use("/api/auth/google/expert", expertGoogleAuth);
 app.use("/api/auth/google/user", userGoogleAuth);
@@ -199,6 +201,7 @@ app.use("/api/healthChallenge", healthChallenge);
 app.use("/api/chat", chatRoutes);
 
 app.use("/api/premium", premiumRoute);
+app.use("/api/contact", contactUsRoute);
 
 // -------------------Deployment------------------//
 
