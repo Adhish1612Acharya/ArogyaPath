@@ -19,6 +19,7 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
 import { useState } from "react";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 const UserLoginForm = () => {
   const { userLogin } = useUserAuth();
@@ -27,6 +28,7 @@ const UserLoginForm = () => {
   const redirectPath = searchParams.get("redirect");
 
   const [emailVerification, setEmailVerification] = useState<boolean>(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const {
     register,
@@ -41,6 +43,10 @@ const UserLoginForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
+    if (!turnstileToken) {
+      alert("Please Complete the Captcha Verification");
+      return;
+    }
     try {
       const response = await userLogin(data.email, data.password);
 
@@ -158,7 +164,15 @@ const UserLoginForm = () => {
                 },
               }}
             />
-
+            <Turnstile
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onError={() => setTurnstileToken(null)}
+              options={{
+                theme: "light",
+                size: "normal",
+              }}
+            />
             <Button
               type="submit"
               variant="contained"
