@@ -25,6 +25,8 @@ import { LoadingButton } from "@mui/lab";
 import loginSchema from "./ExpertLoginFormSchema";
 import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
 import { amber } from "@mui/material/colors";
+import { Turnstile } from "@marsidev/react-turnstile";
+
 
 const ExpertLoginForm: FC = () => {
     // const theme = useTheme();
@@ -33,6 +35,8 @@ const ExpertLoginForm: FC = () => {
   const redirectPath = searchParams.get("redirect");
   const { expertLogin } = useExpertAuth();
   const [emailVerification, setEmailVerification] = useState<boolean>(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  
 
   const {
     handleSubmit,
@@ -48,6 +52,10 @@ const ExpertLoginForm: FC = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
+    if (!turnstileToken) {
+      alert("Please Complete the Captcha Verification");
+      return;
+    }
     try {
       const response = await expertLogin(data.email, data.password);
       if (response.success) {
@@ -198,6 +206,15 @@ const ExpertLoginForm: FC = () => {
               Forgot password?
             </Link>
           </Box>
+            <Turnstile
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onError={() => setTurnstileToken(null)}
+              options={{
+                theme: "light",
+                size: "normal",
+              }}
+            />
           {/* Submit Button */}
           <LoadingButton
             type="submit"
