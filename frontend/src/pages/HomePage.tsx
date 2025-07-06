@@ -165,8 +165,8 @@ const HomePage = () => {
       {/* Hero Section */}
       <Box
         sx={{
-          pt: { xs: 12, md: 18 },
-          pb: { xs: 12, md: 18 },
+          pt: { xs: 12, md: 5 },
+          pb: { xs: 12, md: 5 },
           background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
           position: "relative",
           overflow: "hidden",
@@ -446,7 +446,7 @@ const HomePage = () => {
       </Box>
 
       {/* Stats Section */}
-      <Box sx={{ 
+      {/* <Box sx={{ 
         py: 12, 
         backgroundColor: "primary.light",
         position: "relative",
@@ -518,7 +518,7 @@ const HomePage = () => {
             ))}
           </Box>
           
-          {/* Decorative elements */}
+          <--Decorative elements--> 
           <motion.div
             animate={{
               rotate: [0, 360],
@@ -540,7 +540,7 @@ const HomePage = () => {
             }}
           />
         </Container>
-      </Box>
+      </Box> */}
 
       {/* Features Section */}
       <Box sx={{ 
@@ -752,7 +752,7 @@ const HomePage = () => {
                     border: "6px solid white"
                   }}
                 />
-                <Box
+                {/* <Box
                   component="img"
                   src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1f"
                   alt="Doctor Consultation"
@@ -767,7 +767,7 @@ const HomePage = () => {
                     zIndex: 1,
                     border: "6px solid white"
                   }}
-                />
+                /> */}
                 
                 <motion.div
                   animate={{

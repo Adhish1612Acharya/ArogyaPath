@@ -79,11 +79,13 @@ export function AllRoutinePosts() {
     try {
       setIsLoading(true);
       const response = await getAllRoutinesPost();
-      setRoutinePosts(response.routines);
-      setUserId(response.userId);
+      setRoutinePosts(response?.routines || []);
+      setUserId(response?.userId || '');
       setIsLoading(false);
     } catch (error: any) {
       console.error(error.message);
+      setRoutinePosts([]); // Ensure it's always an array
+      setIsLoading(false);
       if (error.status === 401) navigate("/auth");
     }
   };
@@ -123,22 +125,24 @@ export function AllRoutinePosts() {
     try {
       setIsLoading(true);
       const response = await filterSearch(filters);
-      setRoutinePosts(response.posts);
+      setRoutinePosts(response?.posts || []);
       setIsLoading(false);
     } catch (error: any) {
       console.error("Filter failed:", error.message);
+      setRoutinePosts([]); // Ensure it's always an array
+      setIsLoading(false);
       if (error.status === 401) navigate("/auth");
     }
   };
 
-  const filteredPosts = routinePosts.filter(
+  const filteredPosts = routinePosts?.filter(
     (post) =>
       post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       post.filters.some((tag) =>
         tag.toLowerCase().includes(searchQuery.toLowerCase())
       )
-  );
+  ) || [];
 
   return (
     <Box

@@ -64,7 +64,7 @@ const useRoutines = () => {
 
   const filterSearch = async (query: string) => {
     try {
-      console.log("Query :", query);
+      console.log(query);
       const response = await get(
         `${import.meta.env.VITE_SERVER_URL}/api/routines/filter`,
         {

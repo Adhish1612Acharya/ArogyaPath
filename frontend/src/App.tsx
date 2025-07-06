@@ -49,12 +49,14 @@ import UserProfilePage from "./pages/User/UserProfilePage/UserProfilePage";
 import AboutUs from "./pages/AboutUs/AboutUs";
 import ContactUs from "./pages/ContactUs/ContactUs";
 import TermsNConditions from "./pages/TermsNConditions/TermsNConditions";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
 
   return (
     <>
+      <ScrollToTop />
       <PageNavBar />
 
       <ToastContainer
