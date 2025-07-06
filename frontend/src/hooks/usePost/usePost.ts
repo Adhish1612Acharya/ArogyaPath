@@ -66,6 +66,7 @@ const usePost = () => {
 
   const filterSearch = async (query: string) => {
     try {
+      console.log(query);
       const response = await get(
         `${import.meta.env.VITE_SERVER_URL}/api/posts/filter`,
         {
