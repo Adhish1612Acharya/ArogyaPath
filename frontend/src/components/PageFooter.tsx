@@ -44,7 +44,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { styled, keyframes } from "@mui/material/styles";
-import { Link as RouterLink, useLocation, useNavigate } from "react-router-dom";
+import { Link as RouterLink, useLocation} from "react-router-dom";
 import AyLogo from "@/assets/ay.svg";
 
 // Floating animation
@@ -258,7 +258,7 @@ const PageFooter = () => {
   const [email, setEmail] = useState("");
   const [subscribed, setSubscribed] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
-  const [showTOC, setShowTOC] = React.useState(false);
+  // const [showTOC, setShowTOC] = React.useState(false);
 
 
   const isActive = (path: string) => {
