@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import SectionPaper from './SectionPaper.tsx';
-
 const TermsSections: React.FC = () => {
   return (
     <Box
@@ -126,13 +125,13 @@ const TermsSections: React.FC = () => {
           borderLeft: theme => `4px solid ${theme.palette.primary.main}`,
         }}>
           <Typography variant="body1" paragraph sx={{ mb: 1 }}>
-            <strong>Email:</strong> support@arogyapath.in
+            <strong>Email:</strong> teamparakram16@gmail.com
           </Typography>
           <Typography variant="body1" paragraph sx={{ mb: 1 }}>
             <strong>Address:</strong> Sahyadri College of Engineering & Management, Mangalore, India
           </Typography>
           <Typography variant="body1" paragraph>
-            <strong>Phone:</strong> +91-9876543210
+            <strong>Phone:</strong> +91-8904156468
           </Typography>
         </Box>
         <Typography variant="body1" paragraph sx={{ mt: 3 }}>
