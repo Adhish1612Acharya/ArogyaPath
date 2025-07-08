@@ -281,10 +281,7 @@ const PageFooter = () => {
 
     window.addEventListener("scroll", handleScroll);
 
-    const timer = setTimeout(() => setShowTOC(true), 350);
-
     return () => window.removeEventListener("scroll", handleScroll);
-    clearTimeout(timer);
   }, []);
 
 const footerLinks = {
