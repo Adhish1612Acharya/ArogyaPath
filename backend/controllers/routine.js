@@ -7,12 +7,12 @@ import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 // ------------------------ Create Routine ------------------------
 export const createRoutine = async (req, res) => {
   const { title, description, routines } = req.body;
-  const mediaFiles = req.cloudinaryFiles;
+  const mediaFiles = req.thumbnail;
   console.log("req.body", req.body);
   console.log("Media Files:", mediaFiles);
 
   const thumbnail =
-    mediaFiles?.[0].resource_type === "image" ? mediaFiles[0].secure_url : null;
+    mediaFiles?.[0]?.resource_type === "image" ? mediaFiles[0].url : null;
 
   const readTime = calculateReadTime({ title, description, routines });
 

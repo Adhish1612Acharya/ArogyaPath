@@ -8,6 +8,7 @@ const useSuccessStory = () => {
 
   const submitSuccessStory = async (formData: SuccessStorySchema) => {
     try {
+      console.log("formData : ",formData);
       const postData = new FormData();
       postData.append("title", formData.title);
       postData.append("description", formData.description);
@@ -23,9 +24,9 @@ const useSuccessStory = () => {
       }
       postData.append("tagged", JSON.stringify(formData.tagged));
 
-      // for (let [key, value] of postData.entries()) {
-      //   console.log(`${key}:`, value);
-      // }
+      for (let [key, value] of postData.entries()) {
+        console.log(`${key}:`, value);
+      }
       const response = await post(
         `${import.meta.env.VITE_SERVER_URL}/api/success-stories`,
         postData,

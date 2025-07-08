@@ -23,14 +23,13 @@ export const createPremiumOrder = async (req, res) => {
 export const verifyPremiumPayment = async (req, res) => {
   const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
     req.body;
-  const { id } = req.params;
+
 
   const isValid = verifyRazorpayPayment(
     { razorpay_order_id, razorpay_payment_id, razorpay_signature },
     process.env.RAZORPAY_KEY_SECRET
   );
 
-  console.log("Is valid : ", isValid);
 
   if (isValid) {
     // TODO: Update user's premium status in database

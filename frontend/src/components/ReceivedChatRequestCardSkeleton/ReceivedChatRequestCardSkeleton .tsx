@@ -1,10 +1,8 @@
 import React from "react";
-import { Card, CardContent, Skeleton, Grid } from "@mui/material";
+import { Card, CardContent, Skeleton, Box } from "@mui/material";
 
-
-
-const ReceivedChatRequestCardSkeleton : React.FC = () => (
-  <Grid>
+const ReceivedChatRequestCardSkeleton: React.FC = () => (
+  <Box>
     <Card>
       <CardContent>
         <Skeleton
@@ -18,7 +16,7 @@ const ReceivedChatRequestCardSkeleton : React.FC = () => (
         <Skeleton variant="text" width="80%" />
       </CardContent>
     </Card>
-  </Grid>
+  </Box>
 );
 
-export default ReceivedChatRequestCardSkeleton ;
+export default ReceivedChatRequestCardSkeleton;

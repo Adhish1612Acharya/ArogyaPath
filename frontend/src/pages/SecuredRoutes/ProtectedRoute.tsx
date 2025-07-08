@@ -1,43 +1,28 @@
-import { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
-import useApi from "@/hooks/useApi/useApi";
+import { useEffect } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
+import Loader from "@/components/Loader";
 
 const ProtectedRoute = () => {
-  const { get } = useApi<{
-    message: string;
-    loggedIn: boolean;
-    userRole: "expert" | "user" | null;
-  }>();
-  const { isLoggedIn, setIsLoggedIn, setRole } = useAuth();
-  const [loading, setLoading] = useState(true);
-
+  const location = useLocation();
+  const { checkAuthStatus, loading, navigationState } = useCheckAuth();
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        console.log("Protected route");
-        const res = await get(
-          `${import.meta.env.VITE_SERVER_URL}/api/auth/check`
-        );
-        console.log("Res : ", res);
-        setIsLoggedIn(res.loggedIn);
-        setRole(res.userRole || undefined);
-      } catch {
-        setIsLoggedIn(false);
-        setRole(undefined);
-      } finally {
-        setLoading(false);
-      }
+    const check = async () => {
+      await checkAuthStatus();
     };
+    check();
+  }, [location.pathname]);
 
-    checkAuth();
-  }, [setIsLoggedIn]);
+  if (loading || !navigationState) return <Loader />;
 
-  if (loading) return <div className="p-4">Checking authentication...</div>;
+  if (
+    navigationState?.shouldRedirect &&
+    navigationState.redirectPath !== window.location.pathname
+  ) {
+    return <Navigate to={navigationState.redirectPath} replace />;
+  }
 
-  if (!loading && !isLoggedIn) return <Navigate to="/auth" replace />;
-
-  return !loading && isLoggedIn && <Outlet />;
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

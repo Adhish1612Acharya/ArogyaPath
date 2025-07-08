@@ -27,7 +27,6 @@ export const getChatMessages = async (req, res) => {
     },
   };
 
-  console.log("messages fetched : ", messages);
 
   res.status(200).json({
     success: true,
@@ -249,7 +248,7 @@ export const acceptChatRequest = async (req, res) => {
     message:
       "Chat request accepted" +
       (chat ? ", chat created/updated" : ", waiting for more users to accept"),
-    chat: chat || null,
+    chat: chat._id || null,
   });
 };
 

@@ -2,6 +2,7 @@ import Expert from "../../models/Expert/Expert.js";
 import User from "../../models/User/User.js";
 import crypto from "crypto";
 import { sendEmail } from "../../utils/sendEmail.js";
+import ExpressError from "../../utils/expressError.js";
 
 export const setForgotPasswordToken = async (req, res) => {
   const { email, role } = req.body;
@@ -14,7 +15,7 @@ export const setForgotPasswordToken = async (req, res) => {
     user = await Expert.findOne({ email });
   }
 
-  if (!user) return res.status(404).json({ message: "User not found" });
+  if (!user) throw new ExpressError(400, "User not found");
 
   const token = crypto.randomBytes(32).toString("hex");
   user.resetPasswordToken = token;
@@ -64,7 +65,7 @@ export const resetPassword = async (req, res) => {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    res.json({
+    res.status(200).json({
       success: true,
       message: "Password has been reset successfully",
     });
@@ -91,14 +92,14 @@ export const logout = (req, res) => {
 const checkAuth = (req, res) => {
   const loggedIn = req.isAuthenticated();
   const userRole = req.user?.role || null;
-
-  console.log("LoggedIn : ", loggedIn);
+  const verifications = req.user?.verifications || null;
 
   res.status(200).json({
     success: true,
     message: "Auth Status",
     loggedIn,
     userRole,
+    verifications,
   });
 };
 

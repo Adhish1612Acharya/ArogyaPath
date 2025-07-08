@@ -19,6 +19,8 @@ const userSchema = new Schema(
       gender: {
         type: String,
         enum: ["male", "female", "other"],
+        default: null,
+        required: false,
       },
     },
     successStories: [
@@ -31,13 +33,17 @@ const userSchema = new Schema(
         type: Boolean,
         default: false,
       },
-      phoneNumber: {
-        type: Boolean,
-        default: false,
-      },
+      // phoneNumber: {
+      //   type: Boolean,
+      //   default: true,
+      // },
       completeProfile: {
         type: Boolean,
-        default: false,
+        default: true,
+      },
+      contactNo: {
+        type: Boolean,
+        default: true,
       },
     },
     role: {

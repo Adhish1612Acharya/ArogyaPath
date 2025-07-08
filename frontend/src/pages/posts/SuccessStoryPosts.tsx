@@ -28,7 +28,7 @@ const HeroSection = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(8),
   padding: theme.spacing(4),
   background: "linear-gradient(135deg, #f5f7fa 0%, #e4f0f9 100%)",
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   boxShadow: theme.shadows[2],
 }));
 
@@ -39,7 +39,7 @@ const SearchContainer = styled(Paper)(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(2),
   padding: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   boxShadow: theme.shadows[3],
   marginBottom: theme.spacing(4),
   background: "white",
@@ -65,8 +65,8 @@ export function AllSuccessStoriesPosts() {
 
   const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
+  const [_openEditDialog, setOpenEditDialog] = useState(false);
+  const [_currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
   const [openMediaDialog, setOpenMediaDialog] = useState(false);
   const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<number | null>(null);
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
@@ -272,7 +272,7 @@ export function AllSuccessStoriesPosts() {
                       currentUserId={userId}
                       addVerifiedExpert={addVerifiedExpert}
                       onMediaClick={openMediaViewer}
-                      onDelete={() => handleDelete(post._id)}
+                      // onDelete={() => handleDelete(post._id)}
                       menuItems={[
                         ...(isPostAuthor(post)
                           ? [

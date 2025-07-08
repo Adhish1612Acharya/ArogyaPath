@@ -1,45 +1,35 @@
-import { useAuth } from "@/context/AuthContext";
-import useApi from "@/hooks/useApi/useApi";
-import  { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { useEffect } from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import useCheckAuth from "@/hooks/auth/useCheckAuth/useCheckAuth";
+import Loader from "@/components/Loader";
 
 const UserProtectedRoute = () => {
-  const { get } = useApi<{
-    message: string;
-    loggedIn: boolean;
-    userRole: "expert" | "user" | null;
-  }>();
-  const { isLoggedIn, role, setIsLoggedIn, setRole } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const location = useLocation();
+  const { checkAuthStatus, loading, navigationState, authState } =
+    useCheckAuth();
 
   useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const res = await get(
-          `${import.meta.env.VITE_SERVER_URL}/api/auth/check`
-        );
-        setIsLoggedIn(res.loggedIn);
-        setRole(res.userRole || undefined); // "user"
-      } catch {
-        setIsLoggedIn(false);
-        setRole(undefined);
-      } finally {
-        setLoading(false);
-      }
+    const check = async () => {
+      await checkAuthStatus();
     };
+    check();
+  }, [location.pathname]);
 
-    checkUser();
-  }, [setIsLoggedIn, setRole]);
+  if (loading) return <Loader />;
 
-  if (loading) return <div className="p-4">Checking user access...</div>;
+  if (
+    navigationState?.shouldRedirect &&
+    navigationState.redirectPath !== window.location.pathname
+  ) {
+    return <Navigate to={navigationState.redirectPath} replace />;
+  }
 
-  if (!loading && !isLoggedIn) return <Navigate to="/auth" replace />;
+  // Additional check for user role
+  if (!loading && authState?.userRole !== "user") {
+    return <Navigate to="/" replace />;
+  }
 
-  return isLoggedIn && role === "user" && !loading ? (
-    <Outlet />
-  ) : (
-    <Navigate to="/" replace />
-  );
+  return <Outlet />;
 };
 
 export default UserProtectedRoute;

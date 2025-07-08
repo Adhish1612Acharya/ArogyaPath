@@ -1,12 +1,20 @@
 import express from "express";
 import wrapAsync from "../utils/wrapAsync.js";
-import { isLoggedIn } from "../middlewares/commonAuth.js";
+import {
+  isLoggedIn,
+  profileAlreadyCompleted,
+} from "../middlewares/commonAuth.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
 import { validateExpertCompleteProfile } from "../middlewares/validationMiddleware/validationMiddlewares.js";
 import * as expertProfileController from "../controllers/expert.js";
 
-const router = express.Router();
+import { validateExpertDocuments } from "../middlewares/experts/validateExpertDocument.js";
+import { parseFormdata } from "../middlewares/cloudinaryMiddleware.js";
+import { handleExpertDocumentDiskUpload } from "../middlewares/cloudinary/handleExpertDocument/handleExpertDocumentsDiskUpload.js";
+import { handleExpertDocumentUpload } from "../middlewares/cloudinary/handleExpertDocument/handleExpertDocumentUpload.js";
 
+
+const router = express.Router();
 
 // ========== ACTIVE ROUTES ==========
 
@@ -14,7 +22,17 @@ const router = express.Router();
 router.patch(
   "/complete-profile",
   checkExpertLogin,
+  profileAlreadyCompleted,
+  // Handle file uploads with multer
+   handleExpertDocumentDiskUpload,
+  // Validate required documents are present
+  validateExpertDocuments,
+  parseFormdata,
+  // Validate the request body
   validateExpertCompleteProfile,
+  // Upload documents to Cloudinary
+  wrapAsync(handleExpertDocumentUpload),
+  // Complete the profile
   wrapAsync(expertProfileController.completeProfile)
 );
 
@@ -26,17 +44,10 @@ router.get(
 );
 
 // GET: Get expert by ID
-router.get(
-  "/:id",
-  wrapAsync(expertProfileController.getExpertById)
-);
+router.get("/:id", wrapAsync(expertProfileController.getExpertById));
 
 // PUT: Edit expert basic info
-router.put(
-  "/edit/:id",
-  wrapAsync(expertProfileController.editExpert)
-);
-
+router.put("/edit/:id", wrapAsync(expertProfileController.editExpert));
 
 // ========== COMMENTED ROUTES (AS-IS) ==========
 

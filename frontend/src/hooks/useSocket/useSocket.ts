@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import io, { Socket } from "socket.io-client";
 
-const ENDPOINT = "http://localhost:3000";
+const ENDPOINT = import.meta.env.VITE_SERVER_URL || "http://localhost:3000";
 
 const useSocket = (chatId: string, currUser: any) => {
   const socketRef = useRef<Socket | null>(null);
@@ -12,12 +12,6 @@ const useSocket = (chatId: string, currUser: any) => {
   useEffect(() => {
     if (!chatId || !currUser) return;
 
-    console.log(
-      "Initializing socket with user:",
-      currUser,
-      "and chat:",
-      chatId
-    );
     socketRef.current = io(ENDPOINT);
 
     socketRef.current.on("connect", () => {

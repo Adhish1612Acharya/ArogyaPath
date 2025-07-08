@@ -1,11 +1,23 @@
+import Expert from "../../../models/Expert/Expert.js";
 import Token from "../../../models/Token/Token.js";
 import User from "../../../models/User/User.js";
-import { sendEmail } from "../../../utils/sendEmail.js";
+import ExpressError from "../../../utils/expressError.js";
+import { sendEmailVerificationLink } from "../../../utils/sendEmailVerificationLink.js";
+import crypto from "crypto";
 
 export const signUp = async (req, res) => {
   let signUpError = false;
   let error = "";
   const { fullName, email, password } = req.body;
+
+  const expert = await Expert.findOne({ email: email });
+
+  if (expert) {
+    throw new ExpressError(
+      400,
+      "Expert with this email is registered"
+    );
+  }
 
   const newExpert = new User({
     username: fullName,
@@ -20,44 +32,50 @@ export const signUp = async (req, res) => {
       console.log("signUpError");
       console.log(err);
       signUpError = true;
-      error = err.message;
+      if (
+        err.message === "A user with the given username is already registered"
+      ) {
+        error = "A user with the given email is already registered";
+      } else {
+        error = err.message;
+      }
     }
   );
   if (!signUpError && registeredUser) {
     // Create verification token
-    let token = await new Token({
+    const token = await new Token({
       userType: "User",
       userId: registeredUser._id,
       token: crypto.randomBytes(32).toString("hex"),
       expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
     }).save();
 
-    // Generate and send verification email
-    const verificationLink = `${process.env.FRONTEND_URL}/verify-email/${registeredUser._id}/${token.token}`;
-    await sendEmailVerificationLink(email, verificationLink, fullName);
+    let emailError = null;
+    try {
+      await sendEmailVerificationLink(
+        email,
+        registeredUser._id,
+        "User",
+        token.token,
+        fullName
+      );
+    } catch (err) {
+      console.error("Failed to send verification email:", err.message);
+      emailError = err.message;
+      // Optionally store this info in a DB/logs/queue
+    }
 
-    // Login user after signup
-    req.login(registeredUser, (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({
-          message: err.message,
-          success: false,
-        });
-      } else {
-        res.status(200).json({
-          success: true,
-          message: "successSignUp",
-          verified: false,
-          userId: registeredUser._id,
-        });
-      }
+    return res.status(200).json({
+      success: true,
+      message: emailError
+        ? "Sign-up successful, but failed to send verification email."
+        : "Sign-up successful. Verification email sent.",
+      verificationEmailSent: emailError === null ? true : false,
+      verified: false,
+      userId: registeredUser._id,
     });
   } else {
-    res.status(400).json({
-      success: false,
-      message: error,
-    });
+    throw new ExpressError(400, error);
   }
 };
 

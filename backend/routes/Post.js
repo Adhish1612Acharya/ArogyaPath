@@ -4,15 +4,14 @@ import wrapAsync from "../utils/wrapAsync.js";
 import postController from "../controllers/post.js";
 import { isLoggedIn } from "../middlewares/commonAuth.js";
 import { checkExpertLogin } from "../middlewares/experts/auth.js";
-import multer from "multer";
-// import { storage } from "../cloudConfig.js";
 import {
-  cloudinaryErrorHandler,
+
   parseFormdata,
 } from "../middlewares/cloudinaryMiddleware.js";
-import { handleCloudinaryUpload } from "../middlewares/cloudinary/handleCloudinaryUpload.js";
 import { verifyPostData } from "../middlewares/verifyPostMiddleware.js";
-const memoryUpload = multer({ storage: multer.memoryStorage() });
+ import { handlePostImageDiskUpload } from "../middlewares/cloudinary/handlePostImage/handlePostImageDiskUpload.js";
+import { validatePostMediaExclusivity } from "../middlewares/cloudinary/handlePostImage/validatePostMediaExclusivity.js";
+import { handlePostCloudinaryUpload } from "../middlewares/cloudinary/handlePostImage/handlePostImageUpload.js";
 
 const router = express.Router();
 
@@ -21,12 +20,12 @@ router.get("/", isLoggedIn, wrapAsync(postController.getAllPosts));
 router.post(
   "/",
   checkExpertLogin,
-  memoryUpload.array("media", 5),
+   handlePostImageDiskUpload,
   parseFormdata,
+  validatePostMediaExclusivity,
   validatePost,
   wrapAsync(verifyPostData),
-  wrapAsync(handleCloudinaryUpload),
-  cloudinaryErrorHandler,
+  wrapAsync(handlePostCloudinaryUpload),
   wrapAsync(postController.createPost)
 );
 

@@ -6,8 +6,6 @@ import {
   CardContent,
   Chip,
   Divider,
-  Grid,
-
   List,
   ListItem,
   ListItemAvatar,
@@ -219,10 +217,8 @@ const DoctorProfile = () => {
         {/* Header Section */}
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Grid container spacing={3}>
-              <Grid 
-              // item xs={12} md={3}
-              >
+            <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={3}>
+              <Box>
                 <Box
                   display="flex"
                   flexDirection="column"
@@ -245,12 +241,8 @@ const DoctorProfile = () => {
                     Message
                   </Button>
                 </Box>
-              </Grid>
-              <Grid 
-              // item
-              //  xs={12} 
-              // md={9}
-              >
+              </Box>
+              <Box flex={1}>
                 <Box display="flex" alignItems="center" mb={1}>
                   <Typography variant="h4" component="h1" sx={{ mr: 2 }}>
                     {doctor.name}
@@ -307,8 +299,8 @@ const DoctorProfile = () => {
                 <Typography variant="body1" paragraph>
                   {doctor.about}
                 </Typography>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </CardContent>
         </Card>
 
@@ -467,11 +459,9 @@ const DoctorProfile = () => {
               <Typography variant="h6" gutterBottom>
                 Availability
               </Typography>
-              <Grid container spacing={2}>
-                {doctor.availability.map((slot, _index) => (
-                  <Grid 
-                  // item xs={12} sm={6} md={4} key={index}
-                  >
+              <Box display="flex" flexWrap="wrap" gap={2}>
+                {doctor.availability.map((slot, index) => (
+                  <Box key={index} width={{ xs: "100%", sm: "calc(50% - 16px)", md: "calc(33.33% - 16px)" }}>
                     <Card variant="outlined">
                       <CardContent>
                         <Box display="flex" alignItems="center" mb={1}>
@@ -481,9 +471,9 @@ const DoctorProfile = () => {
                         <Typography variant="body2">{slot.time}</Typography>
                       </CardContent>
                     </Card>
-                  </Grid>
+                  </Box>
                 ))}
-              </Grid>
+              </Box>
             </CardContent>
           </Card>
         )}

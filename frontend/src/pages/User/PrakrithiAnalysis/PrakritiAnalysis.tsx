@@ -63,7 +63,7 @@ export default function PrakrithiAnalysis() {
   const [currentSection, setCurrentSection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [emailLoading, setEmailLoading] = useState<boolean>(false);
-  const [analysisComplete, setAnalysisComplete] = useState<boolean>(true);
+  const [analysisComplete, setAnalysisComplete] = useState<boolean>(false);
 
   const [similarUsersDialogOpen, setSimilarUsersDialogOpen] = useState(false);
   const [similarPkUsers, setSimilarPkUsers] = useState<

@@ -43,7 +43,7 @@ const usePost = () => {
         postData.append("media", formData.media.document);
       }
 
-      for (let [key, value] of postData.entries()) {
+      for (const [key, value] of postData.entries()) {
         console.log(`${key}:`, value);
       }
 
@@ -66,6 +66,7 @@ const usePost = () => {
 
   const filterSearch = async (query: string) => {
     try {
+      console.log(query);
       const response = await get(
         `${import.meta.env.VITE_SERVER_URL}/api/posts/filter`,
         {

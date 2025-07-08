@@ -21,7 +21,6 @@ import {
   styled,
   alpha,
   Container,
-  Badge,
   useMediaQuery,
   useTheme,
   Grow,
@@ -30,7 +29,6 @@ import {
   ButtonProps,
 } from "@mui/material";
 import {
-  Spa as LeafIcon,
   Person as UserIcon,
   Logout as LogOutIcon,
   Close as CloseIcon,
@@ -49,6 +47,7 @@ import useApi from "@/hooks/useApi/useApi";
 import { toast } from "react-toastify";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import { keyframes } from "@emotion/react";
+import AyLogo from "@/assets/ay.svg"; // Import your SVG logo
 
 // Custom animations
 const pulse = keyframes`
@@ -84,7 +83,7 @@ const NavButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
   letterSpacing: "0.02em",
   padding: theme.spacing(1, 2),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   position: "relative",
   overflow: "hidden",
   transition: "all 0.3s ease",
@@ -113,24 +112,23 @@ const NavButton = styled(Button)(({ theme }) => ({
   },
 })) as any;
 
-const LogoBox = styled(Box)(() => ({
-  display: "flex",
-  alignItems: "center",
-  textDecoration: "none",
-  transition: "all 0.3s ease",
-  "&:hover": {
-    transform: "scale(1.03)",
-  },
-})) as typeof Box;
+// const LogoBox = styled(Box)(() => ({
+//   display: "flex",
+//   alignItems: "center",
+//   textDecoration: "none",
+//   transition: "all 0.3s ease",
+//   "&:hover": {
+//     transform: "scale(1.03)",
+//   },
+// })) as typeof Box;
 
-const LogoIcon = styled(Box)(({ theme }) => ({
-  padding: theme.spacing(1),
-  marginRight: theme.spacing(1),
-  borderRadius: 12,
+const AnimatedLogoIcon = styled("img")(({ theme }) => ({
+  width: 44,
+  height: 44,
+  objectFit: "contain",
+  marginRight: theme.spacing(1.5),
+  borderRadius: 14,
   background: "linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
   boxShadow: "0 4px 12px rgba(76, 175, 80, 0.3)",
   transition: "all 0.3s ease",
   animation: `${float} 4s ease-in-out infinite`,
@@ -140,15 +138,17 @@ const LogoIcon = styled(Box)(({ theme }) => ({
   },
 }));
 
-const LogoText = styled(Typography)(({ theme }) => ({
+const AnimatedLogoText = styled(Typography)(({ theme }) => ({
   fontWeight: 800,
   background: "linear-gradient(45deg, #4CAF50 30%, #2E7D32 90%)",
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
-  fontSize: "1.5rem",
+  fontSize: "2.1rem",
   letterSpacing: "-0.5px",
+  transition: "all 0.3s ease",
+  animation: `${pulse} 2.5s infinite`,
   [theme.breakpoints.down("sm")]: {
-    fontSize: "1.3rem",
+    fontSize: "1.6rem",
   },
 }));
 
@@ -194,7 +194,7 @@ const MobileMenuItem = styled(Button)<RouterButtonProps>(({ theme }) => ({
   justifyContent: "flex-start",
   padding: theme.spacing(1.5, 2),
   marginBottom: theme.spacing(1),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   fontWeight: 600,
   fontSize: "1rem",
   textTransform: "none",
@@ -265,9 +265,9 @@ const PageNavBar: FC = () => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-  const { role, isLoggedIn } = useAuth();
+  const { role, isLoggedIn, setRole, setIsLoggedIn } = useAuth();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [notificationsAnchorEl, setNotificationsAnchorEl] =
+  const [_notificationsAnchorEl, setNotificationsAnchorEl] =
     useState<null | HTMLElement>(null);
   const [logOutLoad, setLogOutLoad] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -313,10 +313,6 @@ const PageNavBar: FC = () => {
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-  };
-
-  const handleNotificationsOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setNotificationsAnchorEl(event.currentTarget);
   };
 
   const handleMenuClose = () => {
@@ -400,14 +396,29 @@ const PageNavBar: FC = () => {
       }
       setLogOutLoad(false);
       handleMenuClose();
+      setRole(undefined);
+      setIsLoggedIn(false);
       navigate("/");
     } catch (error) {
       handleAxiosError(error);
       setLogOutLoad(false);
     }
   };
-
   const isActive = (path: string) => {
+    // Check for sign-up paths
+    if (
+      path === "/auth?signUpRedirect=true" &&
+      location.search.includes("signUpRedirect=true")
+    ) {
+      return true;
+    } // Check for regular paths
+    if (path === "/auth") {
+      return (
+        location.pathname === "/auth" &&
+        !location.search.includes("signUpRedirect")
+      );
+    }
+
     return location.pathname === path;
   };
 
@@ -428,12 +439,14 @@ const PageNavBar: FC = () => {
             }}
           >
             {/* Logo and App Name */}
-            <LogoBox component={RouterLink} to="/">
-              <LogoIcon>
-                <LeafIcon sx={{ color: "common.white", fontSize: 28 }} />
-              </LogoIcon>
-              <LogoText variant="h6">ArogyaPath</LogoText>
-            </LogoBox>
+            <Box
+              component={RouterLink}
+              to="/"
+              sx={{ display: "flex", alignItems: "center", textDecoration: "none" }}
+            >
+              <AnimatedLogoIcon src={AyLogo} alt="ArogyaPath Icon" />
+              <AnimatedLogoText variant="h6">ArogyaPath</AnimatedLogoText>
+            </Box>
 
             {/* Desktop Navigation */}
             <Box
@@ -469,93 +482,7 @@ const PageNavBar: FC = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               {role && !isMobile && (
                 <>
-                  <Zoom in>
-                    <IconButton
-                      size="medium"
-                      color="inherit"
-                      onClick={handleNotificationsOpen}
-                      id="notifications-button"
-                      sx={{
-                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
-                        "&:hover": {
-                          backgroundColor: alpha(
-                            theme.palette.primary.main,
-                            0.2
-                          ),
-                          transform: "scale(1.1)",
-                        },
-                        transition: "all 0.3s ease",
-                      }}
-                    >
-                      <Badge badgeContent={3} color="error">
-                        <NotificationsIcon />
-                      </Badge>
-                    </IconButton>
-                  </Zoom>
-                  <Menu
-                    anchorEl={notificationsAnchorEl}
-                    open={Boolean(notificationsAnchorEl)}
-                    onClose={handleMenuClose}
-                    MenuListProps={{
-                      sx: {
-                        minWidth: 320,
-                        py: 0,
-                        borderRadius: 2,
-                        boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-                      },
-                    }}
-                    TransitionComponent={Grow}
-                  >
-                    <MenuItem
-                      dense
-                      sx={{ backgroundColor: "action.hover", py: 1 }}
-                    >
-                      <Typography variant="subtitle2">
-                        Notifications (3)
-                      </Typography>
-                    </MenuItem>
-                    <Divider />
-                    <MenuItem onClick={handleMenuClose}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", py: 1 }}
-                      >
-                        <Avatar sx={{ width: 40, height: 40, mr: 2 }}>R</Avatar>
-                        <Box>
-                          <Typography variant="body2" fontWeight={500}>
-                            New routine suggestion
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            2 hours ago
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </MenuItem>
-                    <MenuItem onClick={handleMenuClose}>
-                      <Box
-                        sx={{ display: "flex", alignItems: "center", py: 1 }}
-                      >
-                        <Avatar sx={{ width: 40, height: 40, mr: 2 }}>A</Avatar>
-                        <Box>
-                          <Typography variant="body2" fontWeight={500}>
-                            Your Prakrithi analysis is ready
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            1 day ago
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </MenuItem>
-                    <Divider />
-                    <MenuItem
-                      dense
-                      onClick={handleMenuClose}
-                      sx={{ justifyContent: "center" }}
-                    >
-                      <Typography variant="body2" color="primary">
-                        View All Notifications
-                      </Typography>
-                    </MenuItem>
-                  </Menu>
+                  {/* Notifications can be added here if needed */}
                 </>
               )}
 
@@ -633,7 +560,7 @@ const PageNavBar: FC = () => {
                     <MenuItem
                       onClick={() => {
                         handleMenuClose();
-                        navigate("/profile");
+                        // navigate("/profile");
                       }}
                       sx={{ py: 1.5 }}
                     >
@@ -793,16 +720,15 @@ const PageNavBar: FC = () => {
       {/* Mobile Menu */}
       <MobileMenuContainer className={mobileMenuOpen ? "open" : ""}>
         <MobileMenuHeader>
-          <LogoBox
+          <Box
             component={RouterLink}
             to="/"
             onClick={() => setMobileMenuOpen(false)}
+            sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
           >
-            <LogoIcon>
-              <LeafIcon sx={{ color: "common.white", fontSize: 28 }} />
-            </LogoIcon>
-            <LogoText variant="h6">ArogyaPath</LogoText>
-          </LogoBox>
+            <AnimatedLogoIcon src={AyLogo} alt="ArogyaPath Icon" />
+            <AnimatedLogoText variant="h6">ArogyaPath</AnimatedLogoText>
+          </Box>
           <IconButton onClick={() => setMobileMenuOpen(false)}>
             <CloseIcon />
           </IconButton>
@@ -836,7 +762,7 @@ const PageNavBar: FC = () => {
                 component={RouterLink}
                 fullWidth
                 onClick={() => {
-                  navigate("/profile");
+                  // navigate("/profile");
                   setMobileMenuOpen(false);
                 }}
               >

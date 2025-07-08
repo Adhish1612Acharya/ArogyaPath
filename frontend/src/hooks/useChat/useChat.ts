@@ -2,7 +2,8 @@ import useApi from "../useApi/useApi";
 import { handleAxiosError } from "@/utils/handleAxiosError";
 import { ChatParticipants, ChatRequestData } from "./useChat.types";
 
-const useChat = () => {
+const 
+useChat = () => {
   const { get, post } = useApi();
 
   const fetchChatMessages = async (chatId: string) => {
@@ -30,10 +31,12 @@ const useChat = () => {
 
   const sendChatRequest = async (data: ChatRequestData) => {
     try {
+      console.log("sendChatRequest : ");
       const response = await post(
         `${import.meta.env.VITE_SERVER_URL}/api/chat/request`,
         data
       );
+      console.log("ChatRequest : ",response)
       return response;
     } catch (error: any) {
       handleAxiosError(error);

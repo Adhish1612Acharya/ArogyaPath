@@ -7,7 +7,7 @@ import {
 } from "./useUserAuth.types";
 
 const useUserAuth = () => {
-  const { post,  patch } = useApi();
+  const { post, patch } = useApi();
 
   const userLogin = async (email: string, password: string) => {
     try {
@@ -16,6 +16,7 @@ const useUserAuth = () => {
         {
           email,
           password,
+          role: "User",
         }
       );
       if (response.success) {
@@ -41,7 +42,6 @@ const useUserAuth = () => {
       handleAxiosError(error);
     }
   };
-
 
   const userCompleteProfile = async (profileData: UserCompleteProfileData) => {
     try {

@@ -33,7 +33,7 @@ const SimilarPkUserDialog: React.FC<SimilarPkUserDialogProps> = ({
   const [sentSentPrivateRequests, setSentPrivateRequests] = useState<string[]>(
     []
   ); // user ids for private, group: 'group'
-  const [groupRequestSent, setGroupRequesSent] = useState<boolean>(false);
+  const [_groupRequestSent, setGroupRequesSent] = useState<boolean>(false);
 
   const handleUserSelect = (userId: string) => {
     setSelectedUsers((prev) =>

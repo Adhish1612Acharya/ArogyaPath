@@ -8,54 +8,77 @@ const ExpertSchema = new Schema(
     email: { type: String, required: true, unique: true },
     googleId: {
       type: String,
-      unique: true,
-      sparse: true,
       default: null,
     },
-
     profile: {
       fullName: { type: String, default: "" },
       contactNo: { type: Number, default: 0 },
       expertType: {
         type: String,
         enum: ["ayurvedic", "naturopathy"],
-        default: "ayurvedic",
+        // No default, field can be undefined
       },
       profileImage: { type: String, default: "" },
       experience: { type: Number, default: 0 },
-      qualification: { type: String, default: "" },
-      clinicAdress: { type: String, default: "" },
-      specialization: { type: String, default: "" },
+      qualifications: [
+        {
+          degree: { type: String },
+          college: { type: String },
+          year: { type: String },
+        },
+      ],
+      address: {
+        country: {
+          type: String,
+          default: "Bharat",
+        },
+        city: { type: String },
+        state: { type: String },
+        pincode: { type: String },
+        clinicAddress: { type: String, default: "" },
+      },
+      specialization: [{ type: String }],
       bio: { type: String, default: "" },
+      languagesSpoken: [{ type: String }],
     },
-
-    // 🆕 Doctor verification details
-    completeProfileDetails: {
+    verificationDetails: {
       dateOfBirth: { type: Date },
       gender: {
         type: String,
         enum: ["male", "female", "other"],
       },
-      registrationNumber: { type: String },
-      registrationCouncil: { type: String },
-      yearOfRegistration: { type: Number },
-      yearsOfExperience: { type: Number },
 
-      areasOfSpecialization: [{ type: String }],
-      languagesSpoken: [{ type: String }],
-      qualifications: [{ type: String }], // Optional list
-
-      documents: {
-        degreeCertificate: { type: String },      // URL/path to file
-        registrationProof: { type: String },       // URL/path to file
-        practiceProof: { type: String },           // Optional
+      registrationDetails: {
+        registrationNumber: { type: String },
+        registrationCouncil: { type: String },
+        yearOfRegistration: { type: Number },
       },
 
-      mobileNumber: { type: Number },
-      address: { type: String },
-      city: { type: String },
-      state: { type: String },
-      pincode: { type: String },
+      documents: {
+        identityProof: { type: String },
+        degreeCertificate: { type: String }, // URL/path to file
+        registrationProof: { type: String }, // URL/path to file
+        practiceProof: { type: String }, // Optional
+      },
+    },
+
+    verifications: {
+      email: {
+        type: Boolean,
+        default: false,
+      },
+      contactNo: {
+        type: Boolean,
+        default: true,
+      },
+      completeProfile: {
+        type: Boolean,
+        default: false,
+      },
+      isDoctor: {
+        type: Boolean,
+        default: true,
+      },
     },
 
     posts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Post", default: [] }],
@@ -76,25 +99,6 @@ const ExpertSchema = new Schema(
         default: [],
       },
     ],
-
-    verifications: {
-      email: {
-        type: Boolean,
-        default: false,
-      },
-      phoneNumber: {
-        type: Boolean,
-        default: false,
-      },
-      completeProfile: {
-        type: Boolean,
-        default: false,
-      },
-      isDoctor: {
-        type: Boolean,
-        default: false,
-      },
-    },
 
     role: { type: String, enum: ["expert"], default: "expert" },
     resetPasswordToken: { type: String, default: null },

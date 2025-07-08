@@ -11,7 +11,7 @@ import {
   InputAdornment,
   Paper,
 } from "@mui/material";
-import { Add, Edit, Delete } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { Filter } from "@/components/Filter/Filter";
 import { PostCardSkeleton } from "@/components/PostCards/PostCardSkeleton";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,7 +28,7 @@ const HeroSection = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(8),
   padding: theme.spacing(4),
   background: "linear-gradient(135deg, #f5f7fa 0%, #e4f0f9 100%)",
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   boxShadow: theme.shadows[2],
 }));
 
@@ -39,7 +39,7 @@ const SearchContainer = styled(Paper)(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(2),
   padding: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as any) * 2,
   boxShadow: theme.shadows[3],
   marginBottom: theme.spacing(4),
   background: "white",
@@ -65,10 +65,12 @@ export function AllGeneralPosts() {
 
   const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [openEditDialog, setOpenEditDialog] = useState(false);
-  const [currentPost, setCurrentPost] = useState<GeneralPostType | null>(null);
+  const [_openEditDialog, setOpenEditDialog] = useState(false);
+  const [_currentPost, setCurrentPost] = useState<GeneralPostType | null>(null);
   const [openMediaDialog, setOpenMediaDialog] = useState(false);
-  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<number | null>(null);
+  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
+    number | null
+  >(null);
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
   const [generalPosts, setGeneralPosts] = useState<GeneralPostType[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,11 +79,13 @@ export function AllGeneralPosts() {
     try {
       setIsLoading(true);
       const response = await getAllPosts();
-      setGeneralPosts(response.posts);
-      setUserId(response.userId);
+      setGeneralPosts(response?.posts || []);
+      setUserId(response?.userId || '');
       setIsLoading(false);
     } catch (error: any) {
       console.error(error.message);
+      setGeneralPosts([]); // Ensure it's always an array
+      setIsLoading(false);
       if (error.status === 401) navigate("/auth");
     }
   };
@@ -96,7 +100,9 @@ export function AllGeneralPosts() {
   };
 
   const handleDelete = (postId: string) => {
-    setGeneralPosts((prevPosts) => prevPosts.filter((post) => post._id !== postId));
+    setGeneralPosts((prevPosts) =>
+      prevPosts.filter((post) => post._id !== postId)
+    );
   };
 
   const openMediaViewer = (mediaIndex: number, images: string[]) => {
@@ -119,27 +125,34 @@ export function AllGeneralPosts() {
     try {
       setIsLoading(true);
       const response = await filterSearch(filters);
-      setGeneralPosts(response.posts);
+      setGeneralPosts(response?.posts || []);
       setIsLoading(false);
     } catch (error: any) {
       console.error("Filter failed:", error.message);
+      setGeneralPosts([]); // Ensure it's always an array
+      setIsLoading(false);
       if (error.status === 401) navigate("/auth");
     }
   };
 
-  const filteredPosts = generalPosts.filter((post) =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.filters.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredPosts = generalPosts?.filter(
+    (post) =>
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.filters.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+  ) || [];
 
   return (
-    <Box sx={{
-      background: "linear-gradient(to bottom, #f8fafc, #f1f5f9)",
-      py: 6,
-      width: '100vw',
-      px: 0,
-    }}>
+    <Box
+      sx={{
+        background: "linear-gradient(to bottom, #f8fafc, #f1f5f9)",
+        py: 6,
+        width: "100vw",
+        px: 0,
+      }}
+    >
       <Container maxWidth={false}>
         {/* Hero Section */}
         <motion.div
@@ -172,7 +185,8 @@ export function AllGeneralPosts() {
                 mx: "auto",
               }}
             >
-              Discover, share and learn from authentic Ayurvedic wisdom curated by experts
+              Discover, share and learn from authentic Ayurvedic wisdom curated
+              by experts
             </Typography>
           </HeroSection>
 
@@ -193,7 +207,7 @@ export function AllGeneralPosts() {
                 sx: {
                   borderRadius: 2,
                   backgroundColor: "background.paper",
-                }
+                },
               }}
               sx={{
                 flexGrow: 1,
@@ -211,7 +225,8 @@ export function AllGeneralPosts() {
                   startIcon={<Add />}
                   size={isMobile ? "medium" : "large"}
                   sx={{
-                    background: "linear-gradient(45deg, #059669 30%, #10b981 90%)",
+                    background:
+                      "linear-gradient(45deg, #059669 30%, #10b981 90%)",
                     boxShadow: "0 4px 6px rgba(5, 150, 105, 0.2)",
                     "&:hover": {
                       transform: "translateY(-2px)",
@@ -261,8 +276,14 @@ export function AllGeneralPosts() {
                       isSaved={Math.floor(Math.random() * 2) === 1}
                       currentUserId={userId}
                       onMediaClick={openMediaViewer}
-                      onEdit={isPostAuthor(post) ? () => handleEdit(post) : undefined}
-                      onDelete={isPostAuthor(post) ? () => handleDelete(post._id) : undefined}
+                      onEdit={
+                        isPostAuthor(post) ? () => handleEdit(post) : undefined
+                      }
+                      onDelete={
+                        isPostAuthor(post)
+                          ? () => handleDelete(post._id)
+                          : undefined
+                      }
                     />
                   </Box>
                 </motion.div>
@@ -274,32 +295,40 @@ export function AllGeneralPosts() {
               animate={{ opacity: 1 }}
               className="col-span-full text-center py-16"
             >
-              <Box sx={{
-                maxWidth: "500px",
-                mx: "auto",
-                p: 4,
-                borderRadius: 3,
-                backgroundColor: "background.paper",
-                boxShadow: 1,
-              }}>
-                <Box sx={{
-                  width: 120,
-                  height: 120,
+              <Box
+                sx={{
+                  maxWidth: "500px",
                   mx: "auto",
-                  mb: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "grey.100",
-                  borderRadius: "50%",
-                }}>
+                  p: 4,
+                  borderRadius: 3,
+                  backgroundColor: "background.paper",
+                  boxShadow: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 120,
+                    height: 120,
+                    mx: "auto",
+                    mb: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "grey.100",
+                    borderRadius: "50%",
+                  }}
+                >
                   <SearchIcon sx={{ fontSize: 60, color: "grey.400" }} />
                 </Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
                   No posts found
                 </Typography>
-                <Typography variant="body1" sx={{ color: "text.secondary", mb: 3 }}>
-                  Try adjusting your search or filters to find what you're looking for.
+                <Typography
+                  variant="body1"
+                  sx={{ color: "text.secondary", mb: 3 }}
+                >
+                  Try adjusting your search or filters to find what you're
+                  looking for.
                 </Typography>
                 <Button
                   variant="outlined"
