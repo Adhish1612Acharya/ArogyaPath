@@ -10,7 +10,7 @@ export const handleAxiosError = (error: any) => {
 
     switch (status) {
       case 401:
-        toast.error("Either email or passowrd is incorrect");
+        toast.error("Either email or password is incorrect");
         break;
       case 403:
         toast.error(error.message);

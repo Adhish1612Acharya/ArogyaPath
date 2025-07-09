@@ -230,7 +230,7 @@ const RoleSelection = () => {
             px: { xs: 0, sm: 4 },
           }}
         >
-          <Box sx={{ width: { xs: "100%", sm: "50%", md: "50%" } }}>
+          <Box sx={{ width: { xs: "100%", sm: "50%", md: "50%" }}}>
             <RoleCard
               title="Ayurveda Seeker"
               description="Explore holistic wellness tips and routines for your well-being"
@@ -239,7 +239,7 @@ const RoleSelection = () => {
               onClick={() => setSelectedRole("farmer")}
             />
           </Box>
-          <Box sx={{ width: { xs: "100%", sm: "50%", md: "50%" } }}>
+          <Box sx={{ width: { xs: "60%", sm: "50%", md: "50%" } }}>
             <RoleCard
               title="Ayurvedic Expert"
               description="Share natural healing practices and guide others toward balance"
