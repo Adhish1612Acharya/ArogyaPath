@@ -344,7 +344,7 @@ const HomePage = () => {
                           variant="outlined"
                           size="large"
                           component={Link}
-                          to="/about-us"
+                          to="/learn-more"
                           sx={{
                             borderColor: "primary.main",
                             color: "primary.main",

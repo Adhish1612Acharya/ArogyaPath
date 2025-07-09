@@ -51,6 +51,7 @@ import ContactUs from "./pages/ContactUs/ContactUs";
 import TermsNConditions from "./pages/TermsNConditions/TermsNConditions";
 import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
 import CookiePolicy from "./pages/Cookies/cookiePolicy";
+import LearnMore from "./pages/Learn More/learnMore";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
@@ -88,6 +89,7 @@ const App = () => {
           <Route path="/terms-and-conditions" element={<TermsNConditions />} />
           <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+          <Route path="/learn-more" element={<LearnMore />} />
 
           <Route element={<GuestProtectedRoute />}>
             <Route path="/expert/login" element={<LoginExpert />} />

@@ -19,7 +19,7 @@ import {
 } from "./ExpertRegisterForm.types";
 import { useState } from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
-
+import { toast } from "react-toastify";
 
 const ExpertRegisterForm: FC<ExpertRegisterFormProps> = ({ userType }) => {
   const navigate = useNavigate();
@@ -41,8 +41,16 @@ const ExpertRegisterForm: FC<ExpertRegisterFormProps> = ({ userType }) => {
 
   const onRegisterSubmit = async (data: RegisterFormData) => {
     if (!turnstileToken) {
-      alert("Please Complete the Captcha Verification");
-      return;
+      toast.error("Please complete the captcha verification", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
     try {
       const response = await expertSignUp(data);
@@ -111,15 +119,15 @@ const ExpertRegisterForm: FC<ExpertRegisterFormProps> = ({ userType }) => {
         )}
       </FormControl>
       <Box sx={{ mt: 3 }}>
-      <Turnstile
-        siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
-        onSuccess={(token) => setTurnstileToken(token)}
-        onError={() => setTurnstileToken(null)}
-        options={{
-          theme: "light",
-          size: "normal",
-        }}
-      />
+        <Turnstile
+          siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+          onSuccess={(token) => setTurnstileToken(token)}
+          onError={() => setTurnstileToken(null)}
+          options={{
+            theme: "light",
+            size: "normal",
+          }}
+        />
       </Box>
       <LoadingButton
         type="submit"

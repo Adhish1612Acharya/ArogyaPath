@@ -20,6 +20,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
 import { useState } from "react";
 import { Turnstile } from "@marsidev/react-turnstile";
+import { toast } from "react-toastify";
 
 const UserLoginForm = () => {
   const { userLogin } = useUserAuth();
@@ -44,8 +45,16 @@ const UserLoginForm = () => {
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
     if (!turnstileToken) {
-      alert("Please Complete the Captcha Verification");
-      return;
+      toast.error("Please complete the captcha verification", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
     }
     try {
       const response = await userLogin(data.email, data.password);
