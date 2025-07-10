@@ -2,7 +2,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export function GeneralPostCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
       <div className="p-6 sm:p-8">
         <div className="flex items-start gap-4 mb-6">
           <Skeleton className="h-14 w-14 rounded-full" />
@@ -32,12 +33,14 @@ export function GeneralPostCardSkeleton() {
         </div>
       </div>
     </div>
+    </div>
   );
 }
 
 export function RoutinePostCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
       <div className="p-6 sm:p-8">
         <div className="flex items-start gap-4 mb-6">
           <Skeleton className="h-14 w-14 rounded-full" />
@@ -69,12 +72,14 @@ export function RoutinePostCardSkeleton() {
         </div>
       </div>
     </div>
+    </div>
   );
 }
 
 export function SuccessStoryCardSkeleton() {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+    <div className="w-full max-w-2xl mx-auto">
+      <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
       <div className="p-6 sm:p-8">
         <div className="flex items-start gap-4 mb-6">
           <Skeleton className="h-14 w-14 rounded-full" />
@@ -106,6 +111,7 @@ export function SuccessStoryCardSkeleton() {
           <Skeleton className="h-10 w-10" />
         </div>
       </div>
+    </div>
     </div>
   );
 }

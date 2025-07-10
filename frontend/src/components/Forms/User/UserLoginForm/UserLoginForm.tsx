@@ -19,6 +19,8 @@ import GoogleIcon from "@mui/icons-material/Google";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import useUserAuth from "@/hooks/auth/useUserAuth/useUserAuth";
 import { useState } from "react";
+import { Turnstile } from "@marsidev/react-turnstile";
+import { toast } from "react-toastify";
 
 const UserLoginForm = () => {
   const { userLogin } = useUserAuth();
@@ -27,6 +29,7 @@ const UserLoginForm = () => {
   const redirectPath = searchParams.get("redirect");
 
   const [emailVerification, setEmailVerification] = useState<boolean>(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const {
     register,
@@ -41,6 +44,18 @@ const UserLoginForm = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof userLoginSchema>) => {
+    if (!turnstileToken) {
+      toast.error("Please complete the captcha verification", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
     try {
       const response = await userLogin(data.email, data.password);
 
@@ -158,7 +173,15 @@ const UserLoginForm = () => {
                 },
               }}
             />
-
+            <Turnstile
+              siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+              onSuccess={(token) => setTurnstileToken(token)}
+              onError={() => setTurnstileToken(null)}
+              options={{
+                theme: "light",
+                size: "normal",
+              }}
+            />
             <Button
               type="submit"
               variant="contained"

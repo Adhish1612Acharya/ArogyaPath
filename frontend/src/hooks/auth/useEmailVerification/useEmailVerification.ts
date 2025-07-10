@@ -19,7 +19,7 @@ const useEmailVerification = () => {
       );
 
       if (response.success) {
-        toast.success("Verification email sent successfully");
+        toast.success("Verification email sent successfully ");
       }
 
       return response;

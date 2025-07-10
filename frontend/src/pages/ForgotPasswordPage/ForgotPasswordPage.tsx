@@ -65,7 +65,7 @@ export function ForgotPasswordPage() {
         <CssBaseline />
         <Box
           sx={{
-            marginTop: 8,
+            marginTop: 15,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -138,7 +138,7 @@ export function ForgotPasswordPage() {
               )}
               
               <Box sx={{ textAlign: "center", mt: 2 }}>
-                <Link href="/:role/login" variant="body2" color="primary">
+                <Link href="/auth" variant="body2" color="primary">
                   Back to Sign In
                 </Link>
               </Box>

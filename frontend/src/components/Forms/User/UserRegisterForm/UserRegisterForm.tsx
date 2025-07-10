@@ -19,6 +19,9 @@ import {
   Google as GoogleIcon,
   PersonAdd as PersonAddIcon,
 } from "@mui/icons-material";
+import { Turnstile } from "@marsidev/react-turnstile";
+import { useState } from "react";
+import { toast } from "react-toastify";
 
 export const UserRegisterForm = () => {
   const { userSignUp } = useUserAuth();
@@ -33,13 +36,27 @@ export const UserRegisterForm = () => {
       email: "",
     },
   });
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const onSubmit = async (data: z.infer<typeof userRegisterSchema>) => {
+    if (!turnstileToken) {
+      toast.error("Please complete the captcha verification", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
     try {
       const newData = {
         fullName: data.fullName,
         email: data.email,
         password: data.password,
+        turnstileToken: turnstileToken,
       };
 
       const response = await userSignUp(newData);
@@ -148,6 +165,15 @@ export const UserRegisterForm = () => {
               }}
             />
           </Box>
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileToken(null)}
+            options={{
+              theme: "light",
+              size: "normal",
+            }}
+          />
 
           {/* Submit Button */}
           <Button

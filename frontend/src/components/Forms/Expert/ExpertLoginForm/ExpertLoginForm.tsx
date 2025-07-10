@@ -25,14 +25,18 @@ import { LoadingButton } from "@mui/lab";
 import loginSchema from "./ExpertLoginFormSchema";
 import useExpertAuth from "@/hooks/auth/useExpertAuth/useExpertAuth";
 import { amber } from "@mui/material/colors";
+import { Turnstile } from "@marsidev/react-turnstile";
+import { toast } from "react-toastify";
 
 const ExpertLoginForm: FC = () => {
-    // const theme = useTheme();
+  // const theme = useTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectPath = searchParams.get("redirect");
   const { expertLogin } = useExpertAuth();
   const [emailVerification, setEmailVerification] = useState<boolean>(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
 
   const {
     handleSubmit,
@@ -48,6 +52,18 @@ const ExpertLoginForm: FC = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
+    if (!turnstileToken) {
+      toast.error("Please complete the captcha verification", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+      });
+    }
     try {
       const response = await expertLogin(data.email, data.password);
       if (response.success) {
@@ -198,6 +214,15 @@ const ExpertLoginForm: FC = () => {
               Forgot password?
             </Link>
           </Box>
+          <Turnstile
+            siteKey={import.meta.env.VITE_TURNSTILE_SITE_KEY}
+            onSuccess={(token) => setTurnstileToken(token)}
+            onError={() => setTurnstileToken(null)}
+            options={{
+              theme: "light",
+              size: "normal",
+            }}
+          />
           {/* Submit Button */}
           <LoadingButton
             type="submit"

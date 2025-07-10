@@ -49,12 +49,16 @@ import UserProfilePage from "./pages/User/UserProfilePage/UserProfilePage";
 import AboutUs from "./pages/AboutUs/AboutUs";
 import ContactUs from "./pages/ContactUs/ContactUs";
 import TermsNConditions from "./pages/TermsNConditions/TermsNConditions";
+import ScrollToTop from "./components/ScrollToTop/ScrollToTop";
+import CookiePolicy from "./pages/Cookies/cookiePolicy";
+import LearnMore from "./pages/Learn More/learnMore";
 
 const App = () => {
   const { isLoggedIn } = useAuth();
 
   return (
     <>
+      <ScrollToTop />
       <PageNavBar />
 
       <ToastContainer
@@ -83,7 +87,9 @@ const App = () => {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact-us" element={<ContactUs />} />
           <Route path="/terms-and-conditions" element={<TermsNConditions />} />
+          <Route path="/cookie-policy" element={<CookiePolicy />} />
           <Route path="/success-stories/:id" element={<SuccessStoryPost />} />
+          <Route path="/learn-more" element={<LearnMore />} />
 
           <Route element={<GuestProtectedRoute />}>
             <Route path="/expert/login" element={<LoginExpert />} />
