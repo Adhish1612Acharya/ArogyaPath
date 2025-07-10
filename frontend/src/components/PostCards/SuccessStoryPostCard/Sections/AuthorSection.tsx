@@ -5,19 +5,23 @@ import { VerificationBadge } from "./VerificationBadge";
 import { SuccessStoryCardProps } from "../SuccessStoryPostCard.types";
 
 export const AuthorSection = ({ 
-  post, 
-  currentUserId, 
+  post,  
   verificationStatus, 
   showVerifyActions, 
   setShowVerifyActions,
-  handleMenuOpen 
+  handleMenuOpen ,
+  handleVerify,
+  handleMarkInvalid,
+   canVerifyOrInvalidate,
 }: {
   post: SuccessStoryCardProps['post'],
-  currentUserId: string,
   verificationStatus: 'verified' | 'invalid' | 'unverified',
   showVerifyActions: boolean,
   setShowVerifyActions: (show: boolean) => void,
-  handleMenuOpen: (event: React.MouseEvent<HTMLElement>) => void
+  handleMenuOpen: (event: React.MouseEvent<HTMLElement>) => void,
+    handleVerify: () => void,
+  handleMarkInvalid: () => void,
+   canVerifyOrInvalidate:boolean
 }) => {
   return (
     <CardHeader
@@ -44,8 +48,10 @@ export const AuthorSection = ({
             verificationStatus={verificationStatus}
             showVerifyActions={showVerifyActions}
             setShowVerifyActions={setShowVerifyActions}
-            currentUserId={currentUserId}
             post={post}
+            handleVerify={handleVerify}
+            handleMarkInvalid={handleMarkInvalid}
+             canVerifyOrInvalidate={ canVerifyOrInvalidate}
           />
           <IconButton
             size="small"

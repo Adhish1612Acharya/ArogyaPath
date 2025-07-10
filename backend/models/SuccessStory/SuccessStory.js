@@ -44,11 +44,6 @@ const SuccessStorySchema = new Schema(
         default: [],
       },
     ],
-    status: {
-      type: String,
-      enum: ["pending", "verified", "rejected"],
-      default: "pending",
-    },
     rejections: [
       {
         expert: {

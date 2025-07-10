@@ -124,18 +124,25 @@ export const getAllSuccessStories = async (req, res) => {
     const alreadyVerified = story.verified.some(
       (expert) => expert._id.toString() === userId
     );
-
+    const alreadyRejected = story.rejections.some(
+      (rejection) => rejection.expert && rejection.expert.toString() === userId
+    );
     const verifyAuthorization =
       (req.user.role === "expert" &&
         story.tagged.length === 0 &&
         !alreadyVerified &&
+        !alreadyRejected &&
         story.verified.length < 5) ||
-      (req.user.role === "expert" && isTagged && !alreadyVerified);
+      (req.user.role === "expert" &&
+        isTagged &&
+        !alreadyVerified &&
+        !alreadyRejected);
 
     return {
       ...story.toObject(),
       verifyAuthorization,
       alreadyVerified,
+      alreadyRejected,
     };
   });
 
@@ -144,6 +151,7 @@ export const getAllSuccessStories = async (req, res) => {
     success: true,
     successStories: transformedSuccessStories,
     userId: req.user._id,
+    userRole: req.user.role,
   });
 };
 
@@ -164,29 +172,31 @@ export const getSingleSuccessStory = async (req, res) => {
     );
 
   if (!successStory) {
-    return res.status(404).json({ message: "Success story not found" });
+    throw new ExpressError(404, "Success story not found");
   }
 
   const userId = req.user._id.toString();
-
   const isTagged = successStory.tagged.some(
     (expert) => expert._id.toString() === userId
   );
-
   const alreadyVerified = successStory.verified.some(
     (expert) => expert._id.toString() === userId
   );
-
+  const alreadyRejected = successStory.rejections.some(
+    (rejection) => rejection.expert && rejection.expert.toString() === userId
+  );
   const verifyAuthorization =
     (successStory.tagged.length === 0 &&
       successStory.verified.length < 5 &&
-      !alreadyVerified) ||
-    (isTagged && !alreadyVerified);
+      !alreadyVerified &&
+      !alreadyRejected) ||
+    (isTagged && !alreadyVerified && !alreadyRejected);
 
   const transformedSuccessStory = {
     ...successStory.toObject(),
     verifyAuthorization,
     alreadyVerified,
+    alreadyRejected,
   };
 
   return res.status(200).json({
@@ -235,45 +245,70 @@ export const deleteSuccessStory = async (req, res) => {
   });
 };
 
-// 6. Verify Success Story
+// 6. Verify or Reject Success Story
 export const verifySuccessStory = async (req, res) => {
   const { id } = req.params;
   const expertId = req.user._id;
+  const { action, reason } = req.body;
 
-  const successStory = await SuccessStory.findByIdAndUpdate(
-    id,
-    {
-      $addToSet: { verified: expertId },
-    },
-    { new: true } // So we get the updated doc with the new `verified` list
-  );
-
+  const successStory = await SuccessStory.findById(id);
   if (!successStory) {
-    return res.status(404).json({
-      success: false,
-      message: "Success story not found",
-    });
+    throw new ExpressError(404, "Success story not found");
   }
 
-  // Update Expert - push to verifiedPosts, remove from taggedPosts
-  const expertDetails = await Expert.findByIdAndUpdate(
-    expertId,
-    {
-      $addToSet: { verifiedPosts: id },
-      $pull: { taggedPosts: id },
-    },
-    { new: true }
-  ).select("_id profile.fullName profile.profileImage profile.expertType");
+  if (action === "accept") {
+    // Add expert to verified array
+    successStory.verified.addToSet(expertId);
+    await successStory.save();
 
-  return res.status(200).json({
-    success: true,
-    message: "Success story verified successfully",
-    data: {
-      id: successStory._id,
-      verifiedCount: successStory.verified.length,
-      expertDetails: expertDetails,
-    },
-  });
+    // Update Expert - push to verifiedPosts, remove from taggedPosts
+    await Expert.findByIdAndUpdate(
+      expertId,
+      {
+        $addToSet: { verifiedPosts: { post: id, action } },
+        $pull: { taggedPosts: id },
+      },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Success story verified successfully",
+      data: {
+        id: successStory._id,
+        verified: successStory.verified,
+        rejected: successStory.rejections,
+      },
+    });
+  } else {
+    // Add to rejections array
+    successStory.rejections.push({
+      expert: expertId,
+      reason: reason.trim(),
+      date: new Date(),
+    });
+    await successStory.save();
+
+    // Update Expert - remove from taggedPosts
+    await Expert.findByIdAndUpdate(
+      expertId,
+      {
+        $addToSet: { verifiedPosts: { post: id, action, reason } },
+        $pull: { taggedPosts: id },
+      },
+      { new: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Success story rejected successfully",
+      data: {
+        id: successStory._id,
+        verified: successStory.verified,
+        rejected: successStory.rejections,
+      },
+    });
+  }
 };
 
 const filterSuccessStories = async (req, res) => {

@@ -1,9 +1,5 @@
 import { useState, useRef, FC } from "react";
-import { 
-  Card, 
-  Divider, 
-  Collapse
-} from "@mui/material";
+import { Card, Divider, Collapse } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { SuccessStoryCardProps } from "./SuccessStoryPostCard.types";
 import { AuthorSection } from "./Sections/AuthorSection";
@@ -16,6 +12,7 @@ import { PostMenu } from "./Sections/PostMenu";
 import { VerifiersDialog, InvalidDialog } from "./Sections/VerificationDialogs";
 import ShareMenu from "../../ShareMenu/ShareMenu";
 import type { Comment } from "@/types/Comment.types";
+import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: Number(theme.shape.borderRadius) * 2,
@@ -37,6 +34,8 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
   menuItems,
   onMediaClick,
 }) => {
+  const { verifySuccessStory } = useSuccessStory();
+
   const commentInputRef = useRef<HTMLInputElement | null>(null);
 
   const [commentOpen, setCommentOpen] = useState(false);
@@ -53,8 +52,19 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
   const [verificationLoading, setVerificationLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<
     "verified" | "invalid" | "unverified"
-  >(post.verified.length > 0 ? "verified" : post.invalid ? "invalid" : "unverified");
-  const [showVerifyActions, setShowVerifyActions] = useState(false);
+  >(
+    post.alreadyVerified
+      ? "verified"
+      : post.alreadyRejected
+      ? "invalid"
+      : "unverified"
+  );
+  const [showVerifyActions, setShowVerifyActions] = useState(
+    post.verifyAuthorization
+  );
+  const [canVerifyOrInvalidate, setCanVerifyOrInvalidate] = useState<boolean>(
+    post.verifyAuthorization
+  );
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -88,24 +98,61 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
     setSaved(!saved);
   };
 
-  const confirmInvalid = () => {
+  const handleVerify = async () => {
     setVerificationLoading(true);
-    setTimeout(() => {
-      setVerificationStatus("invalid");
+    try {
+      const response = await verifySuccessStory(post._id, "accept");
+      if (response?.success) {
+        setVerificationStatus("verified");
+        setShowVerifyActions(false);
+        setVerifiersDialogOpen(true);
+        setCanVerifyOrInvalidate(false);
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
       setVerificationLoading(false);
-      setInvalidDialogOpen(false);
-    }, 1000);
+    }
+  };
+
+  const handleMarkInvalid = () => {
+    setInvalidDialogOpen(true);
+    setShowVerifyActions(false);
+  };
+
+  const confirmInvalid = async () => {
+    if (!invalidReason.trim()) {
+      // Optionally show error toast here
+      return;
+    }
+    setVerificationLoading(true);
+    try {
+      const response = await verifySuccessStory(
+        post._id,
+        "reject",
+        invalidReason
+      );
+      if (response?.success) {
+        setVerificationStatus("invalid");
+        setInvalidDialogOpen(false);
+        setCanVerifyOrInvalidate(false);
+      }
+    } finally {
+      setVerificationLoading(false);
+    }
   };
 
   return (
     <StyledCard>
       <AuthorSection
         post={post}
-        currentUserId={currentUserId}
         verificationStatus={verificationStatus}
         showVerifyActions={showVerifyActions}
         setShowVerifyActions={setShowVerifyActions}
         handleMenuOpen={handleMenuOpen}
+        handleMarkInvalid={handleMarkInvalid}
+        handleVerify={handleVerify}
+        canVerifyOrInvalidate={canVerifyOrInvalidate}
       />
 
       <TaggedDoctors post={post} />

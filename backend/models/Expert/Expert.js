@@ -94,9 +94,19 @@ const ExpertSchema = new Schema(
     ],
     verifiedPosts: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "SuccessStory",
-        default: [],
+        post: {
+          type: Schema.Types.ObjectId,
+          ref: "SuccessStory",
+        },
+        action: {
+          type: String,
+          enum: ["accept", "reject"],
+          default: "accept",
+        },
+        reason: {
+          type: String,
+          default: "",
+        },
       },
     ],
 
