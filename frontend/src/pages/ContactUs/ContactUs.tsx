@@ -4,6 +4,7 @@ import ContactUsForm from "../../components/Forms/ContactUsForm/ContactUsForm.ts
 import { motion } from "framer-motion";
 import styled from "@emotion/styled";
 import ContactIllustration from "../../assets/contact-illustration.svg";
+import { MapEmbed } from "./MapEmbedding.tsx";
 
 const FloatingShapes = styled.div`
   position: absolute;
@@ -254,8 +255,11 @@ const ContactUs: React.FC = () => {
           </Paper>
         </motion.div>
       </Box>
+      <Box mt={6} display="flex" justifyContent="center">
+        <MapEmbed />
+      </Box>
     </Box>
   );
 };
 
-export default ContactUs;
+export default ContactUs

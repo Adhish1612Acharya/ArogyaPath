@@ -443,30 +443,36 @@ const AISearchPage = () => {
                 >
                   Recommended Posts
                 </Typography>
-                <Box sx={{ display: "grid", gap: 3 }}>
-                  {results.generalPosts.map((post) => (
-                    <GeneralPostCard
-                      key={post._id}
-                      post={post}
-                      isLiked={
-                        Math.floor(Math.random() * 2) === 1 ? true : false
-                      }
-                      isSaved={
-                        Math.floor(Math.random() * 2) === 1 ? true : false
-                      }
-                      currentUserId={userId}
-                      onMediaClick={openMediaViewer}
-                      onDelete={() => {
-                        return;
-                      }}
-                      onEdit={() => {
-                        return;
-                      }}
-                      // menuItems={[]}
-                    />
-                  ))}
-                </Box>
+                {results.generalPosts.length > 0 ? (
+                  <Box sx={{ display: "grid", gap: 3 }}>
+                    {results.generalPosts.map((post) => (
+                      <GeneralPostCard
+                        key={post._id}
+                        post={post}
+                        isLiked={Math.random() < 0.5}
+                        isSaved={Math.random() < 0.5}
+                        currentUserId={userId}
+                        onMediaClick={openMediaViewer}
+                        onDelete={() => { }}
+                        onEdit={() => { }}
+                      />
+                    ))}
+                  </Box>
+                ) : (
+                  <>
+                    <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                      No Posts found
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ color: "text.secondary", mb: 3 }}
+                    >
+                      Try adjusting your search or filters to find what you're looking for.
+                    </Typography>
+                  </>
+                )}
               </div>
+
             )}
 
             {results.routines.length > 0 && (
@@ -478,30 +484,36 @@ const AISearchPage = () => {
                 >
                   Suggested Routines
                 </Typography>
-                <Box sx={{ display: "grid", gap: 3 }}>
-                  {results.routines.map((routine) => (
-                    <RoutinePostCard
-                      key={routine._id}
-                      post={routine}
-                      isLiked={
-                        Math.floor(Math.random() * 2) === 1 ? true : false
-                      }
-                      isSaved={
-                        Math.floor(Math.random() * 2) === 1 ? true : false
-                      }
-                      currentUserId={userId}
-                      onMediaClick={openMediaViewer}
-                      // menuItems={[]}
-                      onDelete={() => {
-                        return;
-                      }}
-                      onEdit={() => {
-                        return;
-                      }}
-                    />
-                  ))}
-                </Box>
+                {results.routines.length > 0 ? (
+                  <Box sx={{ display: "grid", gap: 3 }}>
+                    {results.routines.map((routine) => (
+                      <RoutinePostCard
+                        key={routine._id}
+                        post={routine}
+                        isLiked={Math.random() < 0.5}
+                        isSaved={Math.random() < 0.5}
+                        currentUserId={userId}
+                        onMediaClick={openMediaViewer}
+                        onDelete={() => { }}
+                        onEdit={() => { }}
+                      />
+                    ))}
+                  </Box>
+                ) : (
+                  <>
+                    <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                      No routines found
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ color: "text.secondary", mb: 3 }}
+                    >
+                      Try adjusting your search or filters to find what you're looking for.
+                    </Typography>
+                  </>
+                )}
               </div>
+
             )}
 
             {results.successStories.length > 0 && (
@@ -513,25 +525,36 @@ const AISearchPage = () => {
                 >
                   Inspiring Stories
                 </Typography>
-                <Box sx={{ display: "grid", gap: 3 }}>
-                  {results.successStories.map((story, index) => (
-                    <SuccessStoryPostCard
-                      key={index}
-                      post={story}
-                      isLiked={
-                        Math.floor(Math.random() * 2) === 1 ? true : false
-                      }
-                      isSaved={
-                        Math.floor(Math.random() * 2) === 1 ? true : false
-                      }
-                      addVerifiedExpert={addVerifiedExpert}
-                      currentUserId={userId}
-                      onMediaClick={openMediaViewer}
-                      menuItems={[]}
-                    />
-                  ))}
-                </Box>
+                {results.successStories.length > 0 ? (
+                  <Box sx={{ display: "grid", gap: 3 }}>
+                    {results.successStories.map((story, index) => (
+                      <SuccessStoryPostCard
+                        key={index}
+                        post={story}
+                        isLiked={Math.random() < 0.5}
+                        isSaved={Math.random() < 0.5}
+                        addVerifiedExpert={addVerifiedExpert}
+                        currentUserId={userId}
+                        onMediaClick={openMediaViewer}
+                        menuItems={[]}
+                      />
+                    ))}
+                  </Box>
+                ) : (
+                  <>
+                    <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
+                      No Success Stories found
+                    </Typography>
+                    <Typography
+                      variant="body1"
+                      sx={{ color: "text.secondary", mb: 3 }}
+                    >
+                      Try adjusting your search or filters to find what you're looking for.
+                    </Typography>
+                  </>
+                )}
               </div>
+
             )}
           </motion.div>
         )}
@@ -543,8 +566,8 @@ const AISearchPage = () => {
         title={""}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
-        // onNext={handleNextImage}
-        // onPrev={handlePrevImage}
+      // onNext={handleNextImage}
+      // onPrev={handlePrevImage}
       />
     </Box>
   );

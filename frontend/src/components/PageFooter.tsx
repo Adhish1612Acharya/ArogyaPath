@@ -1030,7 +1030,7 @@ return (
           >
             <Link
               component={RouterLink}
-              to="/privacy"
+              to="/privacy-policy"
               color="inherit"
               underline="hover"
               variant="body2"
