@@ -43,6 +43,7 @@ import premiumRoute from "./routes/premium.js";
 
 import Message from "./models/Message/Message.js";
 import Chat from "./models/Chat/Chat.js";
+import nodemailer from "nodemailer";
 
 const app = express();
 
@@ -315,4 +316,34 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("A user disconnected:", socket.id);
   });
+});
+
+
+app.post('/send-email', async (req, res) => {
+  const { fullName, email, subject, message } = req.body;
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth:
+    {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  const mailOptions = {
+    from: email,
+    to: process.env.EMAIL_USER,
+    subject: `${subject}`,
+    text: `${message}`
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).send({ success: true });
+  }
+  catch (error) {
+    console.log(error);
+    res.status(500).send({ success: false, error: error.message });
+  }
 });

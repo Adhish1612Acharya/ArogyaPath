@@ -27,6 +27,7 @@ const ContactUsForm: React.FC = () => {
     message: "",
   });
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const theme = useTheme();
 
@@ -36,16 +37,28 @@ const ContactUsForm: React.FC = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setOpen(true);
-      setForm({ fullName: "", email: "", subject: "", message: "" });
-      setIsSubmitting(false);
-    }, 1500);
+    try {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
+      });
+
+      if (response.ok) {
+        setOpen(true);
+        setForm({ fullName: "", email: "", subject: "", message: "" });
+      } else {
+        setError(true);
+      }
+    } catch (err) {
+      setError(true);
+    }
   };
 
   const inputVariants = {
@@ -309,8 +322,44 @@ const ContactUsForm: React.FC = () => {
           </Typography>
         </Alert>
       </Snackbar>
+      <Snackbar
+        open={error}
+        autoHideDuration={5000}
+        onClose={() => setError(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        TransitionComponent={(props: any) => (
+          <motion.div
+            {...props}
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+          />
+        )}
+      >
+        <Alert
+          onClose={() => setError(false)}
+          severity="error"
+          sx={{
+            width: "100%",
+            boxShadow: theme.shadows[4],
+            borderRadius: "12px",
+            background: `linear-gradient(45deg, ${theme.palette.error.light} 0%, ${theme.palette.error.main} 100%)`,
+            color: "white",
+            "& .MuiAlert-icon": {
+              color: "white",
+            },
+          }}
+        >
+          <Typography variant="body1" fontWeight={500}>
+            Failed to send message. Please try again later.
+          </Typography>
+        </Alert>
+      </Snackbar>
+
     </Box>
   );
 };
+
+
 
 export default ContactUsForm;
