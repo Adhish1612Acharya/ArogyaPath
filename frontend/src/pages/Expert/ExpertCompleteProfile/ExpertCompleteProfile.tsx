@@ -103,6 +103,7 @@ const ExpertCompleteProfile: React.FC = () => {
     }
   };
 
+
   const handleNext = async () => {
     let isValid = false;
 
