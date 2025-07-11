@@ -11,7 +11,7 @@ import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 import HomePage from "./pages/HomePage";
 import CreateSuccessStory from "./pages/User/CreateSuccessStory/CreateSuccessStory";
 import { PageNotFound } from "./pages/PageNotFound/PageNotFound";
-
+import Premium from "./pages/Premium/Premium";
 import MobileVerify from "./pages/auth/MobileVerify/MobileVerify";
 import ExpertCompleteProfile from "./pages/Expert/ExpertCompleteProfile/ExpertCompleteProfile";
 import UserCompleteProfile from "./pages/User/UserCompleteProfile/UserCompleteProfile";
@@ -41,7 +41,6 @@ import ChatPage from "./pages/ChatPage/ChatPage";
 import SentChatRequest from "./pages/SentChatRequest/SentChatRequest";
 import ReceivedChatRequestPage from "./pages/ReceivedChatRequest/ReceivedChatRequest";
 import YourChats from "./pages/YourChats/YourChats";
-import Premium from "./pages/Premium/Premium";
 import EmailVerificationPage from "./pages/auth/EmailVerificationPage/EmailVerificationPage";
 import VerifyingEmailPage from "./pages/auth/VerifyingEmailPage/VerifyingEmailPage";
 import ExpertProfilePage from "./pages/Expert/ExpertProfilePage";
@@ -93,6 +92,7 @@ const App = () => {
           <Route path="/learn-more" element={<LearnMore />} />
           <Route path ="/privacy-policy" element = {<PrivacyPolicy />} />
 
+
           <Route element={<GuestProtectedRoute />}>
             <Route path="/expert/login" element={<LoginExpert />} />
             <Route path="/expert/register" element={<RegisterExpert />} />
@@ -139,7 +139,7 @@ const App = () => {
             <Route path="/expert/posts/create" element={<CreatePost />} />
             <Route path="/expert/tagged" element={<ExpertTaggedPosts />} />
             <Route path="/expert/profile" element={<ExpertProfilePage />} />
-            {/* <Route path="/posts/create" element={<CreatePost />} /> */}
+            <Route path="/posts/create" element={<CreatePost />} />
           </Route>
 
           <Route element={<ProtectedRoute />}>

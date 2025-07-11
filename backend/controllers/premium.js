@@ -3,20 +3,46 @@ import {
   verifyRazorpayPayment,
 } from "../utils/razorpayUtils.js";
 
-// Controller to create a Razorpay order for premium
 export const createPremiumOrder = async (req, res) => {
   const { id } = req.params;
-  // fetch premium details from Premium Model later on
-  const amount = 500.00; // Example amount in INR
+  const { plan } = req.body;
+
+  let amount;
+  let receiptId;
+
+  switch (plan) {
+    case "basic":
+      amount = 19900;  // ₹199 in paise
+      receiptId = "order_basic_" + id;
+      break;
+    case "standard":
+      amount = 50000; // ₹500 in paise
+      receiptId = "order_standard_" + id;
+      break;
+    case "pro":
+      amount = 99900; // ₹999 in paise
+      receiptId = "order_pro_" + id;
+      break;
+    default:
+      return res.status(400).json({ success: false, message: "Invalid plan" });
+  }
+
   const currency = "INR";
-  const order = await createRazorpayOrder(amount, currency, "order_rcptid_11");
-  res.json({
-    success: true,
-    message: "Order created successfully",
-    orderId: order.id,
-    amount: order.amount,
-    currency: order.currency,
-  });
+
+  try {
+    const order = await createRazorpayOrder(amount, currency, receiptId);
+
+    res.json({
+      success: true,
+      message: "Order created successfully",
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+    });
+  } catch (error) {
+    console.error("Error creating order:", error);
+    res.status(500).json({ success: false, message: "Order creation failed" });
+  }
 };
 
 // Controller to verify Razorpay payment for premium
