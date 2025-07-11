@@ -2,29 +2,31 @@ import { Box, Button, Tooltip } from "@mui/material";
 import { CheckCircle, Warning } from "@mui/icons-material";
 import { Loader2 } from "lucide-react";
 import { SuccessStoryType } from "@/types/SuccessStory.types";
+import { VerificationDialogDataType } from "../SuccessStoryPostCard.types";
 
 export const VerificationBadge = ({
   verificationStatus,
   showVerifyActions,
-  setShowVerifyActions,
   post,
   verificationLoading,
   handleVerify,
   handleMarkInvalid,
-  canVerifyOrInvalidate,
+  handleVerifiersDialogOpen,
 }: {
   verificationStatus: "verified" | "invalid" | "unverified";
   showVerifyActions: boolean;
-  setShowVerifyActions: (show: boolean) => void;
   post: SuccessStoryType;
-  verificationLoading?: boolean;
+  verificationLoading: boolean;
   handleVerify: () => void;
   handleMarkInvalid: () => void;
-  canVerifyOrInvalidate: boolean;
+  handleVerifiersDialogOpen: (
+    verifiers: VerificationDialogDataType[],
+    postTitle: string
+  ) => void;
 }) => {
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
-      {canVerifyOrInvalidate ? (
+      {post.verifyAuthorization ? (
         <Tooltip
           title="Not yet verified by medical professionals. Click to verify or mark invalid."
           arrow
@@ -58,56 +60,67 @@ export const VerificationBadge = ({
           {verificationStatus !== "unverified" &&
             post.verified.length + post.rejections.length > 0 && (
               <>
-                <Tooltip title="Verified by medical professionals" arrow>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "4px 8px",
-                      borderRadius: 1,
-                      backgroundColor: "success.light",
-                      color: "success.dark",
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      marginRight: 1,
-                      cursor: "pointer",
-                      "& svg": {
-                        marginRight: "4px",
-                        fontSize: "1rem",
-                      },
-                    }}
-                  >
-                    <CheckCircle fontSize="small" />
-                    Verified
-                  </Box>
-                </Tooltip>
+                {post.verified.length > 0 && (
+                  <Tooltip title="Verified by medical professionals" arrow>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "4px 8px",
+                        borderRadius: 1,
+                        backgroundColor: "success.light",
+                        color: "success.dark",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        marginRight: 1,
+                        cursor: "pointer",
+                        "& svg": {
+                          marginRight: "4px",
+                          fontSize: "1rem",
+                        },
+                      }}
+                      onClick={() =>
+                        handleVerifiersDialogOpen(post.verified, post.title)
+                      }
+                    >
+                      <CheckCircle fontSize="small" />
+                      Verified
+                    </Box>
+                  </Tooltip>
+                )}
 
-                <Tooltip title={`Invalid post:`} arrow>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "4px 8px",
-                      borderRadius: 1,
-                      backgroundColor: "error.light",
-                      color: "error.dark",
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      marginRight: 1,
-                      "& svg": {
-                        marginRight: "4px",
-                        fontSize: "1rem",
-                      },
-                    }}
-                  >
-                    <Warning fontSize="small" />
-                    Invalid
-                  </Box>
-                </Tooltip>
+                {post.rejections.length > 0 && (
+                  <Tooltip title={`Invalid post:`} arrow>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "4px 8px",
+                        borderRadius: 1,
+                        backgroundColor: "error.light",
+                        color: "error.dark",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        marginRight: 1,
+                        "& svg": {
+                          marginRight: "4px",
+                          fontSize: "1rem",
+                        },
+                        cursor: "pointer",
+                      }}
+                      onClick={() =>
+                        handleVerifiersDialogOpen(post.rejections, post.title)
+                      }
+                    >
+                      <Warning fontSize="small" />
+                      Invalid
+                    </Box>
+                  </Tooltip>
+                )}
               </>
             )}
 
@@ -144,7 +157,7 @@ export const VerificationBadge = ({
             )}
         </>
       )}
-      {canVerifyOrInvalidate && showVerifyActions && (
+      {post.verifyAuthorization && showVerifyActions && (
         <Box sx={{ display: "flex", gap: 1, ml: 2 }}>
           <Button
             variant="outlined"

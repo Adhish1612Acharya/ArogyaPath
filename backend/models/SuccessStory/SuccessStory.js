@@ -39,9 +39,15 @@ const SuccessStorySchema = new Schema(
     ],
     verified: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "Expert",
-        default: [],
+        expert: {
+          type: Schema.Types.ObjectId,
+          ref: "Expert",
+          required: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
     rejections: [

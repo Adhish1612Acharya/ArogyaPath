@@ -17,6 +17,7 @@ import {
   userSignupSchema,
   expertSignupSchema,
   loginSchema,
+  contactUsSchema,
 } from "./validationSchema.js";
 
 export const validateUser = (req, res, next) => {
@@ -41,7 +42,6 @@ export const validatePost = (req, res, next) => {
 };
 
 export const validateRoutine = (req, res, next) => {
-  
   const result = routineSchemaZod.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
   next();
@@ -81,14 +81,12 @@ export const validateResetPassword = (req, res, next) => {
 };
 
 export const validateExpertCompleteProfile = (req, res, next) => {
-  
   const result = expertProfileSchema.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
   next();
 };
 
 export const validateUserCompleteProfile = (req, res, next) => {
-
   const result = userProfileSchema.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
   next();
@@ -136,7 +134,13 @@ export const checkChatRequestDoesNotContainCurrentUser = (req, res, next) => {
   if (users && users.some((u) => u.user === currUserId)) {
     throw new ExpressError(400, "Current user cannot be in the users list");
   }
-  next()
+  next();
+};
+
+export const validateContactUs = (req, res, next) => {
+  const result = contactUsSchema.safeParse(req.body);
+  if (!result.success) throw new ExpressError(400, parseZodError(result.error));
+  next();
 };
 
 export default {
@@ -152,4 +156,5 @@ export default {
   validateChatUsersIds,
   validateChatRequest,
   checkChatRequestDoesNotContainCurrentUser,
+  validateContactUs,
 };

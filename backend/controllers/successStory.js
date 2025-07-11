@@ -5,6 +5,7 @@ import calculateReadTime from "../utils/calculateReadTime.js";
 import generateFilters from "../utils/geminiApiCalls/generateFilters.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import ExpressError from "../utils/expressError.js";
+import populateSuccessStory from "../utils/populateSuccesssStory.js";
 
 // 1. Create a Success Story
 export const createSuccessStory = async (req, res) => {
@@ -104,17 +105,15 @@ export const createSuccessStory = async (req, res) => {
 
 // 2. Get All Success Stories
 export const getAllSuccessStories = async (req, res) => {
-  const stories = await SuccessStory.find()
-    .select("-updatedAt")
-    .populate("owner", "_id profile.fullName profile.profileImage")
-    .populate(
-      "tagged",
-      "_id profile.fullName profile.profileImage profile.expertType"
-    )
-    .populate(
-      "verified",
-      "_id profile.fullName profile.profileImage profile.expertType"
-    );
+  let stories = await SuccessStory.find().select("-updatedAt");
+  stories = await Promise.all(
+    stories.map(async (story) => {
+      const populated = await populateSuccessStory(
+        SuccessStory.findById(story._id)
+      ).then((doc) => doc);
+      return populated;
+    })
+  );
   const userId = req.user._id.toString();
 
   const transformedSuccessStories = stories.map((story) => {
@@ -122,17 +121,17 @@ export const getAllSuccessStories = async (req, res) => {
       (expert) => expert._id.toString() === userId
     );
     const alreadyVerified = story.verified.some(
-      (expert) => expert._id.toString() === userId
+      (v) => v.expert && v.expert._id.toString() === userId
     );
     const alreadyRejected = story.rejections.some(
-      (rejection) => rejection.expert && rejection.expert.toString() === userId
+      (rej) => rej.expert && rej.expert._id.toString() === userId
     );
     const verifyAuthorization =
       (req.user.role === "expert" &&
         story.tagged.length === 0 &&
         !alreadyVerified &&
         !alreadyRejected &&
-        story.verified.length < 5) ||
+        story.verified.length + story.rejections.length < 5) ||
       (req.user.role === "expert" &&
         isTagged &&
         !alreadyVerified &&
@@ -158,36 +157,25 @@ export const getAllSuccessStories = async (req, res) => {
 // 3. Get a Single Success Story
 export const getSingleSuccessStory = async (req, res) => {
   const { id } = req.params;
-
-  const successStory = await SuccessStory.findById(id)
-    .select("-updatedAt")
-    .populate("owner", "_id profile.fullName profile.profileImage")
-    .populate(
-      "tagged",
-      "_id profile.fullName profile.profileImage profile.expertType"
-    )
-    .populate(
-      "verified",
-      "_id profile.fullName profile.profileImage profile.expertType"
-    );
-
+  let successStory = await populateSuccessStory(
+    SuccessStory.findById(id).select("-updatedAt")
+  );
   if (!successStory) {
     throw new ExpressError(404, "Success story not found");
   }
-
   const userId = req.user._id.toString();
   const isTagged = successStory.tagged.some(
     (expert) => expert._id.toString() === userId
   );
   const alreadyVerified = successStory.verified.some(
-    (expert) => expert._id.toString() === userId
+    (v) => v.expert && v.expert._id.toString() === userId
   );
   const alreadyRejected = successStory.rejections.some(
-    (rejection) => rejection.expert && rejection.expert.toString() === userId
+    (rej) => rej.expert && rej.expert._id.toString() === userId
   );
   const verifyAuthorization =
     (successStory.tagged.length === 0 &&
-      successStory.verified.length < 5 &&
+      successStory.verified.length + successStory.rejections.length < 5 &&
       !alreadyVerified &&
       !alreadyRejected) ||
     (isTagged && !alreadyVerified && !alreadyRejected);
@@ -251,17 +239,17 @@ export const verifySuccessStory = async (req, res) => {
   const expertId = req.user._id;
   const { action, reason } = req.body;
 
-  const successStory = await SuccessStory.findById(id);
+  let successStory = await populateSuccessStory(
+    SuccessStory.findById(id).select("-updatedAt")
+  );
   if (!successStory) {
     throw new ExpressError(404, "Success story not found");
   }
 
   if (action === "accept") {
     // Add expert to verified array
-    successStory.verified.addToSet(expertId);
+    successStory.verified.push({ expert: expertId, date: new Date() });
     await successStory.save();
-
-    // Update Expert - push to verifiedPosts, remove from taggedPosts
     await Expert.findByIdAndUpdate(
       expertId,
       {
@@ -270,16 +258,6 @@ export const verifySuccessStory = async (req, res) => {
       },
       { new: true }
     );
-
-    return res.status(200).json({
-      success: true,
-      message: "Success story verified successfully",
-      data: {
-        id: successStory._id,
-        verified: successStory.verified,
-        rejected: successStory.rejections,
-      },
-    });
   } else {
     // Add to rejections array
     successStory.rejections.push({
@@ -288,8 +266,6 @@ export const verifySuccessStory = async (req, res) => {
       date: new Date(),
     });
     await successStory.save();
-
-    // Update Expert - remove from taggedPosts
     await Expert.findByIdAndUpdate(
       expertId,
       {
@@ -298,17 +274,27 @@ export const verifySuccessStory = async (req, res) => {
       },
       { new: true }
     );
-
-    return res.status(200).json({
-      success: true,
-      message: "Success story rejected successfully",
-      data: {
-        id: successStory._id,
-        verified: successStory.verified,
-        rejected: successStory.rejections,
-      },
-    });
   }
+
+  // Re-fetch the updated story with population
+  successStory = await populateSuccessStory(
+    SuccessStory.findById(id).select("verified rejections")
+  );
+  const transformedSuccessStory = successStory.toObject();
+
+  return res.status(200).json({
+    success: true,
+    message:
+      action === "reject"
+        ? "Success story rejected successfully"
+        : "Success story verified successfully",
+    data: {
+      id: successStory._id,
+      verified: successStory.verified,
+      rejected: successStory.rejections,
+      successStory: transformedSuccessStory,
+    },
+  });
 };
 
 const filterSuccessStories = async (req, res) => {

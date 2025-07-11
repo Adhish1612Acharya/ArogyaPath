@@ -23,8 +23,8 @@ export const checkIsTaggedAndVerified = async (req, res, next) => {
     expertId.equals(req.user._id)
   );
 
-  const isAlreadyVerified = successPost.verified.some((expertId) =>
-    expertId.equals(req.user._id)
+  const isAlreadyVerified = successPost.verified.some(
+    (v) => v.expert && v.expert.equals(req.user._id)
   );
 
   const isAlreadyRejected = successPost.rejections.some(
