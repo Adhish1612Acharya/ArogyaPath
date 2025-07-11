@@ -30,8 +30,8 @@ export const UserCompleteProfileForm: React.FC<UserCompleteProfileFormProps> = (
   defaultValues,
 }) => {
   const theme = useTheme();
-  const methods = useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
+    const methods = useForm<UserFormData>({
+    resolver: zodResolver(userSchema),  
     defaultValues: {
       fullName: "",
       gender: "",

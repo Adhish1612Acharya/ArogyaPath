@@ -1,3 +1,5 @@
+import ExpressError from "../../utils/expressError";
+
 // Middleware to validate required documents
 export const validateExpertDocuments = (req, res, next) => {
   const files = req.files;
