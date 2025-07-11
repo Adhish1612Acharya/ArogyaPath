@@ -11,7 +11,7 @@ import CreatePost from "./pages/Expert/CreatePost/CreatePost";
 import HomePage from "./pages/HomePage";
 import CreateSuccessStory from "./pages/User/CreateSuccessStory/CreateSuccessStory";
 import { PageNotFound } from "./pages/PageNotFound/PageNotFound";
-
+import Premium from "./pages/Premium/Premium";
 import MobileVerify from "./pages/auth/MobileVerify/MobileVerify";
 import ExpertCompleteProfile from "./pages/Expert/ExpertCompleteProfile/ExpertCompleteProfile";
 import UserCompleteProfile from "./pages/User/UserCompleteProfile/UserCompleteProfile";
@@ -159,7 +159,7 @@ const App = () => {
               path="/u/chat-requests/received"
               element={<ReceivedChatRequestPage />}
             />
-            {/* <Route path="/premium" element={<Premium />} /> */}
+            <Route path="/premium" element={<Premium />} />
             <Route path="/u/chat-requests/sent" element={<SentChatRequest />} />
             <Route path="/u/chats" element={<YourChats />} />
             <Route path="/verify-mobile" element={<MobileVerify />} />
