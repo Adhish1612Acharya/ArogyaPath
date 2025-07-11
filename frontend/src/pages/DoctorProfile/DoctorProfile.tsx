@@ -1,36 +1,130 @@
 import {
-  Avatar,
   Box,
   Button,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemText,
-  Tab,
-  Tabs,
   Typography,
+  Container,
 } from "@mui/material";
-import {
-  LocationOn,
-  Work,
-  School,
-  Star,
-  StarHalf,
-  StarBorder,
-  CalendarToday,
-  AccessTime,
-  Verified,
-  Language,
-  Email,
-  Phone,
-} from "@mui/icons-material";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import ProfileHeader from "@/components/DoctorProfile/ProfileHeader/ProfileHeader";
+import ContentTabs from "@/components/DoctorProfile/ContentTabs/ContentTabs";
+import AboutSection from "@/components/DoctorProfile/AboutSection/AboutSection";
+import GeneralPostCard from "@/components/PostCards/GeneralPostCard/GeneralPostCard";
+import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostCard";
+import { GeneralPostCardSkeleton, RoutinePostCardSkeleton } from "@/components/PostCards/PostCardSkeletons";
+import { GeneralPostType } from "@/types/GeneralPost.types";
+import { RoutinePostType } from "@/types/RoutinesPost.types";
+
+// Local interfaces for doctor profile
+interface Post {
+  id: string;
+  author: {
+    name: string;
+    avatar: string;
+    verified: boolean;
+  };
+  content: string;
+  image?: string;
+  timestamp: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  tags: string[];
+  isLiked: boolean;
+  isBookmarked: boolean;
+}
+
+interface Routine {
+  id: string;
+  author: {
+    name: string;
+    avatar: string;
+    verified: boolean;
+  };
+  title: string;
+  description: string;
+  image?: string;
+  video?: string;
+  timestamp: string;
+  duration: string;
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
+  category: string;
+  likes: number;
+  comments: number;
+  shares: number;
+  exercises: number;
+  participants: number;
+  isLiked: boolean;
+  isBookmarked: boolean;
+  isStarted: boolean;
+  progress?: number;
+}
+
+// Conversion functions
+const convertPostToGeneralPost = (post: Post): GeneralPostType => ({
+  _id: post.id,
+  title: post.content.split('\n')[0].substring(0, 100) + "...", // Use first line as title
+  description: post.content,
+  media: {
+    images: post.image ? [post.image] : [],
+    video: null,
+    document: null,
+  },
+  filters: post.tags.map(tag => tag.replace('#', '')),
+  readTime: "2 min read",
+  likesCount: post.likes,
+  commentsCount: post.comments,
+  owner: {
+    _id: "doctor-1",
+    profile: {
+      fullName: post.author.name,
+      profileImage: post.author.avatar,
+    },
+  },
+  createdAt: new Date(Date.now() - getTimeOffset(post.timestamp)).toISOString(),
+});
+
+const convertRoutineToRoutinePost = (routine: Routine): RoutinePostType => ({
+  _id: routine.id,
+  title: routine.title,
+  description: routine.description,
+  thumbnail: routine.image || routine.video || null,
+  filters: [routine.category, routine.difficulty],
+  routines: Array(routine.exercises).fill(0).map((_, i) => ({
+    time: `${i + 1} min`,
+    content: `Exercise ${i + 1}`,
+  })),
+  readTime: routine.duration,
+  likesCount: routine.likes,
+  commentsCount: routine.comments,
+  owner: {
+    _id: "doctor-1",
+    profile: {
+      fullName: routine.author.name,
+      profileImage: routine.author.avatar,
+    },
+  },
+  createdAt: new Date(Date.now() - getTimeOffset(routine.timestamp)).toISOString(),
+});
+
+// Helper function to convert human-readable timestamps to milliseconds
+const getTimeOffset = (timestamp: string): number => {
+  if (timestamp.includes("hours ago")) {
+    const hours = parseInt(timestamp.match(/(\d+)/)?.[0] || "0");
+    return hours * 60 * 60 * 1000;
+  } else if (timestamp.includes("day ago") || timestamp.includes("days ago")) {
+    const days = parseInt(timestamp.match(/(\d+)/)?.[0] || "1");
+    return days * 24 * 60 * 60 * 1000;
+  } else if (timestamp.includes("week ago") || timestamp.includes("weeks ago")) {
+    const weeks = parseInt(timestamp.match(/(\d+)/)?.[0] || "1");
+    return weeks * 7 * 24 * 60 * 60 * 1000;
+  } else if (timestamp.includes("minute ago") || timestamp.includes("minutes ago")) {
+    const minutes = parseInt(timestamp.match(/(\d+)/)?.[0] || "1");
+    return minutes * 60 * 1000;
+  }
+  return 0; // Default to now if can't parse
+};
 
 interface Doctor {
   id: string;
@@ -48,6 +142,9 @@ interface Doctor {
   email: string;
   phone: string;
   about: string;
+  followers: number;
+  following: number;
+  posts: number;
   education: Array<{
     degree: string;
     university: string;
@@ -58,14 +155,7 @@ interface Doctor {
     hospital: string;
     period: string;
   }>;
-  services: Array<{
-    name: string;
-    price: string;
-  }>;
-  availability: Array<{
-    day: string;
-    time: string;
-  }>;
+  specializations: string[];
 }
 
 const DoctorProfile = () => {
@@ -74,31 +164,35 @@ const DoctorProfile = () => {
   const [doctor, setDoctor] = useState<Doctor | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [savedItems, setSavedItems] = useState<(Post | Routine)[]>([]);
 
   useEffect(() => {
-    // In a real app, you would fetch the doctor data from an API
     const fetchDoctorData = async () => {
       try {
         // Simulate API call
         setTimeout(() => {
-          // Mock data - replace with actual API call
           const mockDoctor: Doctor = {
             id: id || "1",
             name: "Dr. Sarah Johnson",
-            avatar: "https://randomuser.me/api/portraits/women/65.jpg",
-            specialty: "Cardiologist",
+            avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=300&h=300&fit=crop&crop=face",
+            specialty: "Cardiologist & Wellness Expert",
             hospital: "Mount Sinai Hospital",
             university: "Harvard Medical School",
             verified: true,
             rating: 4.8,
-            reviews: 124,
+            reviews: 1240,
             experience: 15,
             location: "New York, USA",
             languages: ["English", "Spanish", "French"],
             email: "s.johnson@example.com",
-            phone: "+1 (555) 123-4567",
-            about:
-              "Dr. Sarah Johnson is a board-certified cardiologist with over 15 years of experience. She specializes in interventional cardiology and has performed over 2,000 successful procedures. Dr. Johnson is committed to providing personalized care to each of her patients.",
+            phone: "+91 9999999999",
+            about: "💚 Transforming lives through holistic heart health | 🏥 15+ years in interventional cardiology | 🌱 Advocate for preventive care & wellness | 📚 Sharing evidence-based health tips daily",
+            followers: 45200,
+            following: 180,
+            posts: 234,
             education: [
               {
                 degree: "MD in Cardiology",
@@ -128,20 +222,148 @@ const DoctorProfile = () => {
                 period: "2012-2015",
               },
             ],
-            services: [
-              { name: "Consultation", price: "$200" },
-              { name: "Echocardiogram", price: "$350" },
-              { name: "Stress Test", price: "$400" },
-              { name: "Angioplasty", price: "$5,000" },
-            ],
-            availability: [
-              { day: "Monday", time: "9:00 AM - 5:00 PM" },
-              { day: "Tuesday", time: "9:00 AM - 5:00 PM" },
-              { day: "Wednesday", time: "10:00 AM - 6:00 PM" },
-              { day: "Friday", time: "8:00 AM - 4:00 PM" },
+            specializations: [
+              "Interventional Cardiology",
+              "Cardiac Catheterization", 
+              "Coronary Artery Disease",
+              "Heart Failure",
+              "Preventive Cardiology"
             ],
           };
+
+          const mockPosts: Post[] = [
+            {
+              id: "1",
+              author: {
+                name: mockDoctor.name,
+                avatar: mockDoctor.avatar,
+                verified: mockDoctor.verified,
+              },
+              content: "🫀 Heart Health Tip: Did you know that just 30 minutes of brisk walking daily can reduce your risk of heart disease by 35%? Your heart is a muscle - the more you move, the stronger it gets! \n\nWhat's your favorite way to stay active? Share below! 👇",
+              image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
+              timestamp: "2 hours ago",
+              likes: 432,
+              comments: 89,
+              shares: 23,
+              tags: ["#HeartHealth", "#Cardiology", "#Prevention", "#WellnessTip"],
+              isLiked: false,
+              isBookmarked: false,
+            },
+            {
+              id: "2", 
+              author: {
+                name: mockDoctor.name,
+                avatar: mockDoctor.avatar,
+                verified: mockDoctor.verified,
+              },
+              content: "🥗 Nutrition spotlight: Mediterranean diet isn't just delicious - it's scientifically proven to support heart health! Rich in omega-3s, antioxidants, and healthy fats. \n\nMy patients who follow this eating pattern show remarkable improvements in their cardiovascular markers. Food really is medicine! 💊✨",
+              timestamp: "1 day ago",
+              likes: 567,
+              comments: 124,
+              shares: 45,
+              tags: ["#MediterraneanDiet", "#Nutrition", "#HeartHealth", "#Prevention"],
+              isLiked: true,
+              isBookmarked: false,
+            },
+            {
+              id: "3",
+              author: {
+                name: mockDoctor.name,
+                avatar: mockDoctor.avatar,
+                verified: mockDoctor.verified,
+              },
+              content: "🩺 Patient success story: Met with John today - 6 months post cardiac procedure. His dedication to lifestyle changes has been incredible. Blood pressure normalized, cholesterol levels excellent, and he's never felt better! \n\nThis is why I love what I do. Every patient's journey inspires me to keep pushing the boundaries of cardiac care. 💪❤️",
+              image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=600&h=400&fit=crop",
+              timestamp: "3 days ago",
+              likes: 890,
+              comments: 156,
+              shares: 67,
+              tags: ["#PatientSuccess", "#Cardiology", "#Inspiration", "#Recovery"],
+              isLiked: false,
+              isBookmarked: true,
+            },
+          ];
+
+          const mockRoutines: Routine[] = [
+            {
+              id: "1",
+              author: {
+                name: mockDoctor.name,
+                avatar: mockDoctor.avatar,
+                verified: mockDoctor.verified,
+              },
+              title: "Heart-Healthy Morning Routine",
+              description: "Start your day right with this 15-minute cardiac wellness routine. Perfect for beginners and designed by cardiologists.",
+              image: "https://images.unsplash.com/photo-1506629905607-47882ab26e84?w=600&h=400&fit=crop",
+              timestamp: "5 days ago",
+              duration: "15 min",
+              difficulty: "Beginner",
+              category: "Cardio",
+              likes: 1200,
+              comments: 234,
+              shares: 89,
+              exercises: 6,
+              participants: 8450,
+              isLiked: true,
+              isBookmarked: false,
+              isStarted: false,
+            },
+            {
+              id: "2",
+              author: {
+                name: mockDoctor.name,
+                avatar: mockDoctor.avatar,
+                verified: mockDoctor.verified,
+              },
+              title: "Stress-Relief Breathing Exercises",
+              description: "Evidence-based breathing techniques to lower blood pressure and reduce cardiovascular stress. Used in my clinical practice.",
+              video: "https://images.unsplash.com/photo-1506629905607-47882ab26e84?w=600&h=400&fit=crop",
+              timestamp: "1 week ago",
+              duration: "10 min",
+              difficulty: "Beginner", 
+              category: "Wellness",
+              likes: 756,
+              comments: 145,
+              shares: 56,
+              exercises: 4,
+              participants: 5670,
+              isLiked: false,
+              isBookmarked: true,
+              isStarted: true,
+              progress: 60,
+            },
+            {
+              id: "3",
+              author: {
+                name: mockDoctor.name,
+                avatar: mockDoctor.avatar,
+                verified: mockDoctor.verified,
+              },
+              title: "Advanced Cardiac Conditioning",
+              description: "High-intensity interval training specifically designed for cardiovascular health. Consult your doctor before starting.",
+              image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&h=400&fit=crop",
+              timestamp: "2 weeks ago",
+              duration: "25 min",
+              difficulty: "Advanced",
+              category: "HIIT",
+              likes: 445,
+              comments: 78,
+              shares: 34,
+              exercises: 8,
+              participants: 2340,
+              isLiked: false,
+              isBookmarked: false,
+              isStarted: false,
+            },
+          ];
+
           setDoctor(mockDoctor);
+          setPosts(mockPosts);
+          setRoutines(mockRoutines);
+          setSavedItems([
+            ...mockPosts.filter(p => p.isBookmarked), 
+            ...mockRoutines.filter(r => r.isBookmarked)
+          ]);
           setLoading(false);
         }, 800);
       } catch (error) {
@@ -157,475 +379,195 @@ const DoctorProfile = () => {
     setActiveTab(newValue);
   };
 
-  const renderRatingStars = (rating: number) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+  };
 
-    for (let i = 1; i <= 5; i++) {
-      if (i <= fullStars) {
-        stars.push(<Star key={i} color="primary" />);
-      } else if (i === fullStars + 1 && hasHalfStar) {
-        stars.push(<StarHalf key={i} color="primary" />);
-      } else {
-        stars.push(<StarBorder key={i} color="primary" />);
-      }
-    }
+  const handleMessage = () => {
+    console.log("Message doctor");
+  };
 
-    return stars;
+  const handleBookAppointment = () => {
+    console.log("Book appointment");
   };
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-      >
-        <Typography variant="h6">Loading doctor profile...</Typography>
-      </Box>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <div className="space-y-6">
+          <GeneralPostCardSkeleton />
+          <RoutinePostCardSkeleton />
+          <GeneralPostCardSkeleton />
+        </div>
+      </Container>
     );
   }
 
   if (!doctor) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="60vh"
-        flexDirection="column"
-      >
-        <Typography variant="h6" gutterBottom>
-          Doctor not found
-        </Typography>
-        <Button variant="contained" onClick={() => navigate(-1)}>
-          Go Back
-        </Button>
-      </Box>
+      <Container maxWidth="md" sx={{ py: 4 }}>
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          minHeight="60vh"
+          flexDirection="column"
+        >
+          <Typography variant="h6" gutterBottom>
+            Doctor not found
+          </Typography>
+          <Button variant="contained" onClick={() => navigate(-1)}>
+            Go Back
+          </Button>
+        </Box>
+      </Container>
     );
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Box sx={{ maxWidth: 1200, mx: "auto", p: 3 }}>
-        {/* Header Section */}
-        <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Box display="flex" flexDirection={{ xs: "column", md: "row" }} gap={3}>
-              <Box>
-                <Box
-                  display="flex"
-                  flexDirection="column"
-                  alignItems="center"
-                >
-                  <Avatar
-                    src={doctor.avatar}
-                    alt={doctor.name}
-                    sx={{
-                      width: 150,
-                      height: 150,
-                      mb: 2,
-                      border: "3px solid #4caf50",
-                    }}
-                  />
-                  <Button variant="contained" fullWidth sx={{ mb: 2 }}>
-                    Book Appointment
-                  </Button>
-                  <Button variant="outlined" fullWidth>
-                    Message
-                  </Button>
-                </Box>
-              </Box>
-              <Box flex={1}>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Typography variant="h4" component="h1" sx={{ mr: 2 }}>
-                    {doctor.name}
-                  </Typography>
-                  {doctor.verified && (
-                    <Verified color="primary" fontSize="large" />
-                  )}
-                </Box>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* Profile Header */}
+        <ProfileHeader
+          doctor={doctor}
+          isFollowing={isFollowing}
+          onFollow={handleFollow}
+          onMessage={handleMessage}
+          onBookAppointment={handleBookAppointment}
+        />
 
-                <Typography
-                  variant="h6"
-                  color="text.secondary"
-                  sx={{ mb: 1, display: "flex", alignItems: "center" }}
-                >
-                  <Work sx={{ mr: 1 }} /> {doctor.specialty}
-                </Typography>
-
-                <Typography
-                  variant="subtitle1"
-                  sx={{ mb: 2, display: "flex", alignItems: "center" }}
-                >
-                  <LocationOn sx={{ mr: 1 }} /> {doctor.hospital} •{" "}
-                  {doctor.location}
-                </Typography>
-
-                <Box display="flex" alignItems="center" mb={2}>
-                  {renderRatingStars(doctor.rating)}
-                  <Typography variant="body1" sx={{ ml: 1 }}>
-                    {doctor.rating} ({doctor.reviews} reviews)
-                  </Typography>
-                </Box>
-
-                <Box display="flex" flexWrap="wrap" gap={1} mb={2}>
-                  <Chip
-                    icon={<AccessTime />}
-                    label={`${doctor.experience} years experience`}
-                    variant="outlined"
-                  />
-                  <Chip
-                    icon={<School />}
-                    label={doctor.university}
-                    variant="outlined"
-                  />
-                  {doctor.languages.map((lang) => (
-                    <Chip
-                      key={lang}
-                      icon={<Language />}
-                      label={lang}
-                      variant="outlined"
-                    />
-                  ))}
-                </Box>
-
-                <Typography variant="body1" paragraph>
-                  {doctor.about}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-
-        {/* Tabs Section */}
-        <Box sx={{ borderBottom: 1, borderColor: "divider", mb: 3 }}>
-          <Tabs
-            value={activeTab}
-            onChange={handleTabChange}
-            variant="scrollable"
-            scrollButtons="auto"
-          >
-            <Tab label="Overview" />
-            <Tab label="Education" />
-            <Tab label="Experience" />
-            <Tab label="Services" />
-            <Tab label="Availability" />
-            <Tab label="Contact" />
-          </Tabs>
-        </Box>
+        {/* Content Tabs */}
+        <ContentTabs
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          postsCount={posts.length}
+          routinesCount={routines.length}
+          savedCount={savedItems.length}
+          aboutVisible={true}
+        />
 
         {/* Tab Content */}
-        {activeTab === 0 && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Professional Information
-              </Typography>
-              <Typography variant="body1" paragraph>
-                {doctor.about}
-              </Typography>
-
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="h6" gutterBottom>
-                Specializations
-              </Typography>
-              <Box display="flex" flexWrap="wrap" gap={1} mb={3}>
-                <Chip label="Interventional Cardiology" />
-                <Chip label="Cardiac Catheterization" />
-                <Chip label="Coronary Artery Disease" />
-                <Chip label="Heart Failure" />
-              </Box>
-
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="h6" gutterBottom>
-                Languages Spoken
-              </Typography>
-              <Box display="flex" flexWrap="wrap" gap={1}>
-                {doctor.languages.map((lang) => (
-                  <Chip
-                    key={lang}
-                    icon={<Language />}
-                    label={lang}
-                    variant="outlined"
-                  />
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-        )}
-
-        {activeTab === 1 && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Education
-              </Typography>
-              <List>
-                {doctor.education.map((edu, index) => (
-                  <ListItem key={index} alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: "primary.main" }}>
-                        <School />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={edu.degree}
-                      secondary={
-                        <>
-                          <Typography
-                            component="span"
-                            variant="body2"
-                            color="text.primary"
-                          >
-                            {edu.university}
-                          </Typography>
-                          {` • ${edu.year}`}
-                        </>
-                      }
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-        )}
-
-        {activeTab === 2 && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Professional Experience
-              </Typography>
-              <List>
-                {doctor.experienceList.map((exp, index) => (
-                  <ListItem key={index} alignItems="flex-start">
-                    <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: "secondary.main" }}>
-                        <Work />
-                      </Avatar>
-                    </ListItemAvatar>
-                    <ListItemText
-                      primary={
-                        <>
-                          <Typography
-                            component="span"
-                            variant="subtitle1"
-                            color="text.primary"
-                          >
-                            {exp.position}
-                          </Typography>
-                          {` • ${exp.hospital}`}
-                        </>
-                      }
-                      secondary={exp.period}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-        )}
-
-        {activeTab === 3 && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Services & Pricing
-              </Typography>
-              <List>
-                {doctor.services.map((service, index) => (
-                  <ListItem key={index}>
-                    <ListItemText primary={service.name} />
-                    <Typography variant="body1">{service.price}</Typography>
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-        )}
-
-        {activeTab === 4 && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Availability
-              </Typography>
-              <Box display="flex" flexWrap="wrap" gap={2}>
-                {doctor.availability.map((slot, index) => (
-                  <Box key={index} width={{ xs: "100%", sm: "calc(50% - 16px)", md: "calc(33.33% - 16px)" }}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <Box display="flex" alignItems="center" mb={1}>
-                          <CalendarToday sx={{ mr: 1 }} />
-                          <Typography variant="subtitle1">{slot.day}</Typography>
-                        </Box>
-                        <Typography variant="body2">{slot.time}</Typography>
-                      </CardContent>
-                    </Card>
-                  </Box>
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-        )}
-
-        {activeTab === 5 && (
-          <Card sx={{ mb: 3 }}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Contact Information
-              </Typography>
-              <List>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <Email />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Email"
-                    secondary={doctor.email}
-                    secondaryTypographyProps={{
-                      component: "a",
-                      href: `mailto:${doctor.email}`,
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Posts Tab */}
+            {activeTab === 0 && (
+              <Box>
+                {posts.map((post) => (
+                  <GeneralPostCard
+                    key={post.id}
+                    post={convertPostToGeneralPost(post)}
+                    isLiked={post.isLiked}
+                    isSaved={post.isBookmarked}
+                    currentUserId="current-user"
+                    onMediaClick={(mediaIndex, images) => {
+                      console.log("Media clicked:", mediaIndex, images);
                     }}
+                    onEdit={() => console.log("Edit post:", post.id)}
+                    onDelete={() => console.log("Delete post:", post.id)}
                   />
-                </ListItem>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <Phone />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Phone"
-                    secondary={doctor.phone}
-                    secondaryTypographyProps={{
-                      component: "a",
-                      href: `tel:${doctor.phone.replace(/\D/g, "")}`,
+                ))}
+                {posts.length === 0 && (
+                  <Box textAlign="center" py={8}>
+                    <Typography variant="h6" color="text.secondary">
+                      No posts yet
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            )}
+
+            {/* Routines Tab */}
+            {activeTab === 1 && (
+              <Box>
+                {routines.map((routine) => (
+                  <RoutinePostCard
+                    key={routine.id}
+                    post={convertRoutineToRoutinePost(routine)}
+                    isLiked={routine.isLiked}
+                    isSaved={routine.isBookmarked}
+                    currentUserId="current-user"
+                    onMediaClick={(mediaIndex, images) => {
+                      console.log("Media clicked:", mediaIndex, images);
                     }}
+                    onEdit={() => console.log("Edit routine:", routine.id)}
+                    onDelete={() => console.log("Delete routine:", routine.id)}
                   />
-                </ListItem>
-                <ListItem>
-                  <ListItemAvatar>
-                    <Avatar>
-                      <LocationOn />
-                    </Avatar>
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary="Location"
-                    secondary={doctor.hospital + ", " + doctor.location}
-                  />
-                </ListItem>
-              </List>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Reviews Section (Always visible) */}
-        <Card sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" gutterBottom>
-              Patient Reviews
-            </Typography>
-            <Box display="flex" alignItems="center" mb={2}>
-              {renderRatingStars(doctor.rating)}
-              <Typography variant="h6" sx={{ ml: 1 }}>
-                {doctor.rating} out of 5
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ ml: 1 }}>
-                ({doctor.reviews} reviews)
-              </Typography>
-            </Box>
-
-            {/* Mock Reviews - in a real app these would come from an API */}
-            <Box>
-              <Box sx={{ mb: 3 }}>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Avatar
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
-                    sx={{ mr: 2 }}
-                  />
-                  <Box>
-                    <Typography variant="subtitle1">John D.</Typography>
-                    <Box display="flex">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star
-                          key={i}
-                          color={i <= 5 ? "primary" : "disabled"}
-                          fontSize="small"
-                        />
-                      ))}
-                    </Box>
+                ))}
+                {routines.length === 0 && (
+                  <Box textAlign="center" py={8}>
+                    <Typography variant="h6" color="text.secondary">
+                      No routines yet
+                    </Typography>
                   </Box>
-                </Box>
-                <Typography variant="body2" sx={{ ml: 7 }}>
-                  "Dr. Johnson was very thorough and took the time to explain
-                  everything clearly. Her expertise in cardiology is evident, and
-                  I felt completely comfortable under her care."
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ ml: 7, display: "block" }}
-                >
-                  Posted 2 weeks ago
-                </Typography>
+                )}
               </Box>
+            )}
 
-              <Divider sx={{ my: 2 }} />
-
-              <Box sx={{ mb: 3 }}>
-                <Box display="flex" alignItems="center" mb={1}>
-                  <Avatar
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    sx={{ mr: 2 }}
-                  />
-                  <Box>
-                    <Typography variant="subtitle1">Maria S.</Typography>
-                    <Box display="flex">
-                      {[1, 2, 3, 4].map((i) => (
-                        <Star
-                          key={i}
-                          color={i <= 4 ? "primary" : "disabled"}
-                          fontSize="small"
-                        />
-                      ))}
-                      <StarBorder color="primary" fontSize="small" />
-                    </Box>
+            {/* Saved Tab */}
+            {activeTab === 2 && (
+              <Box>
+                {savedItems.map((item) => {
+                  // Check if item is a routine by checking for 'title' property
+                  if ('title' in item) {
+                    return (
+                      <RoutinePostCard
+                        key={item.id}
+                        post={convertRoutineToRoutinePost(item as Routine)}
+                        isLiked={(item as Routine).isLiked}
+                        isSaved={(item as Routine).isBookmarked}
+                        currentUserId="current-user"
+                        onMediaClick={(mediaIndex, images) => {
+                          console.log("Media clicked:", mediaIndex, images);
+                        }}
+                        onEdit={() => console.log("Edit routine:", item.id)}
+                        onDelete={() => console.log("Delete routine:", item.id)}
+                      />
+                    );
+                  } else {
+                    return (
+                      <GeneralPostCard
+                        key={item.id}
+                        post={convertPostToGeneralPost(item as Post)}
+                        isLiked={(item as Post).isLiked}
+                        isSaved={(item as Post).isBookmarked}
+                        currentUserId="current-user"
+                        onMediaClick={(mediaIndex, images) => {
+                          console.log("Media clicked:", mediaIndex, images);
+                        }}
+                        onEdit={() => console.log("Edit post:", item.id)}
+                        onDelete={() => console.log("Delete post:", item.id)}
+                      />
+                    );
+                  }
+                })}
+                {savedItems.length === 0 && (
+                  <Box textAlign="center" py={8}>
+                    <Typography variant="h6" color="text.secondary">
+                      No saved items yet
+                    </Typography>
                   </Box>
-                </Box>
-                <Typography variant="body2" sx={{ ml: 7 }}>
-                  "Excellent doctor with great bedside manner. The only reason I'm
-                  not giving 5 stars is because the wait time was a bit long, but
-                  once I saw her, the quality of care was outstanding."
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{ ml: 7, display: "block" }}
-                >
-                  Posted 1 month ago
-                </Typography>
+                )}
               </Box>
-            </Box>
+            )}
 
-            <Button variant="outlined" sx={{ mt: 2 }}>
-              See All Reviews
-            </Button>
-          </CardContent>
-        </Card>
-      </Box>
-    </motion.div>
+            {/* About Tab */}
+            {activeTab === 3 && (
+              <AboutSection doctor={doctor} />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </motion.div>
+    </Container>
   );
 };
 
