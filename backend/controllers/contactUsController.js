@@ -1,23 +1,29 @@
-import { sendEmail } from "../utils/sendEmail.js";
+import { sendContactUsEmailUtil } from "../utils/sendContactUsEmail.js";
+import ExpressError from "../utils/expressError.js";
 
 // Controller to handle Contact Us form submissions
-const sendContactUsEmail = async (req, res) => {
+const sendContactUsEmail = async (req, res, next) => {
   try {
-    const { name, email, message } = req.body;
-    const subject = `Contact Us Form Submission from ${name}`;
-    const html = `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong><br/>${message}</p>`;
-    await sendEmail({
-      to: process.env.CONTACT_US_EMAIL || "teamparakram16@gmail.com",
-      subject,
-      html,
-    });
+    const { fullName, email, message, subject } = req.body;
+    const emailSubject = `Contact Us Form Submission from ${fullName} : ${subject}`;
+    const html = `<p><strong>Name:</strong> ${fullName}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong><br/>${message}</p>`;
+    await sendContactUsEmailUtil(
+      process.env.CONTACT_US_EMAIL || "teamparakram16@gmail.com",
+      emailSubject,
+      html
+    );
     res
       .status(200)
-      .json({ message: "Your message has been sent successfully." });
+      .json({
+        success: true,
+        message: "Your message has been sent successfully.",
+      });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Failed to send message. Please try again later." });
+    console.error("Error sending contact us email:", error);
+    throw new ExpressError(
+      500,
+      "Failed to send message. Please try again later."
+    );
   }
 };
 

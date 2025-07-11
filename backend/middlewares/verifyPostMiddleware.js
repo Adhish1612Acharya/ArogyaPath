@@ -66,25 +66,31 @@ export const verifyPostData = async (req, res, next) => {
           filename: fileName,
           contentType: mimetype,
         });
-        // const response = await axios
-        //   .post(
-        //     "https://pranavpai0309-pdf-parser.hf.space/PDF_Parser",
-        //     formData,
-        //     {
-        //       headers: formData.getHeaders(), // Important for setting correct Content-Type boundary
-        //     }
-        //   )
-        //   .catch((err) => {
-        //     console.log("Error occurred in pdf parser : ", err);
-        //   });
-        // console.log("Pdf text : ", response.data.extracted_text);
-        // const isValidPdfText = await verifyTextContent(
-        //   response.data.extracted_text
-        // );
+        const response = await axios
+          .post(
+            "https://pranavpai0309-pdf-parser.hf.space/PDF_Parser",
+            formData,
+            {
+              headers: formData.getHeaders(), // Important for setting correct Content-Type boundary
+            }
+          )
+          .catch((err) => {
+            console.log("Error occurred in pdf parser : ", err);
+          });
 
-        const isValidPdfText = true;
+  
 
-        // console.log("IsValid Pdf : ", isValidPdfText);
+          let isValidPdfText = false;
+
+          if(response && response.data && response.data.Response) {
+               isValidPdfText = await verifyTextContent(response.data.Response);
+          }
+
+       
+
+        // const isValidPdfText = true;
+
+        console.log("IsValid Pdf : ", isValidPdfText);
 
         if (!isValidPdfText) {
           throw new ExpressError(
@@ -100,7 +106,10 @@ export const verifyPostData = async (req, res, next) => {
       }
     }
 
+    console.log("Combined Text for AI Verification:", combinedText);
+
     const isPostTextValid = await verifyTextContent(combinedText);
+
     if (!isPostTextValid) {
       throw new ExpressError(
         400,

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   TextField,
@@ -11,53 +11,47 @@ import {
 } from "@mui/material";
 import { motion } from "framer-motion";
 import { Send, Email, Person, Subject, Message } from "@mui/icons-material";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useContactUs from "@/hooks/useContactUs/useContactUs";
+import contactUsSchema from "./contactUsZodSchema";
 
-interface ContactFormState {
-  fullName: string;
-  email: string;
-  subject: string;
-  message: string;
-}
+
+type ContactFormState = z.infer<typeof contactUsSchema>;
 
 const ContactUsForm: React.FC = () => {
-  const [form, setForm] = useState<ContactFormState>({
-    fullName: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
-  const [open, setOpen] = useState(false);
-  const [error, setError] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const theme = useTheme();
+  const { contactUs } = useContactUs();
+  const [open, setOpen] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactFormState>({
+    resolver: zodResolver(contactUsSchema),
+    mode: "onTouched",
+  });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const onSubmit = async (data: ContactFormState) => {
     setIsSubmitting(true);
-
     try {
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/send-email`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
-
-      if (response.ok) {
+      const response = await contactUs(data);
+      if (response.success && response.message) {
         setOpen(true);
-        setForm({ fullName: "", email: "", subject: "", message: "" });
+        reset();
       } else {
         setError(true);
       }
     } catch (err) {
+      console.error("Error sending contact us message:", err);
       setError(true);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -76,7 +70,7 @@ const ContactUsForm: React.FC = () => {
   return (
     <Box
       component="form"
-      onSubmit={handleSubmit}
+      onSubmit={handleSubmit(onSubmit)}
       sx={{
         display: "flex",
         flexDirection: "column",
@@ -91,12 +85,12 @@ const ContactUsForm: React.FC = () => {
       >
         <TextField
           label="Full Name"
-          name="fullName"
-          value={form.fullName}
-          onChange={handleChange}
+          {...register("fullName")}
           required
           fullWidth
           variant="outlined"
+          error={!!errors.fullName}
+          helperText={errors.fullName?.message}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -137,13 +131,13 @@ const ContactUsForm: React.FC = () => {
       >
         <TextField
           label="Email"
-          name="email"
-          value={form.email}
-          onChange={handleChange}
+          {...register("email")}
           required
           fullWidth
           type="email"
           variant="outlined"
+          error={!!errors.email}
+          helperText={errors.email?.message}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -178,12 +172,12 @@ const ContactUsForm: React.FC = () => {
       >
         <TextField
           label="Subject"
-          name="subject"
-          value={form.subject}
-          onChange={handleChange}
+          {...register("subject")}
           required
           fullWidth
           variant="outlined"
+          error={!!errors.subject}
+          helperText={errors.subject?.message}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
@@ -218,14 +212,14 @@ const ContactUsForm: React.FC = () => {
       >
         <TextField
           label="Message"
-          name="message"
-          value={form.message}
-          onChange={handleChange}
+          {...register("message")}
           required
           fullWidth
           multiline
           minRows={5}
           variant="outlined"
+          error={!!errors.message}
+          helperText={errors.message?.message}
           InputProps={{
             startAdornment: (
               <InputAdornment
@@ -355,11 +349,8 @@ const ContactUsForm: React.FC = () => {
           </Typography>
         </Alert>
       </Snackbar>
-
     </Box>
   );
 };
-
-
 
 export default ContactUsForm;

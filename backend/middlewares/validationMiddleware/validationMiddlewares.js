@@ -140,6 +140,7 @@ export const checkChatRequestDoesNotContainCurrentUser = (req, res, next) => {
 export const validateContactUs = (req, res, next) => {
   const result = contactUsSchema.safeParse(req.body);
   if (!result.success) throw new ExpressError(400, parseZodError(result.error));
+  console.log("Contact Us validation passed");
   next();
 };
 

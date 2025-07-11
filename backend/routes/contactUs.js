@@ -6,6 +6,6 @@ import { validateContactUs } from "../middlewares/validationMiddleware/validatio
 const router = express.Router();
 
 // POST /api/contact
-router.post("/", validateContactUs, wrapAsync(sendContactUsEmail));
+router.post("/us", validateContactUs, wrapAsync(sendContactUsEmail));
 
 export default router;

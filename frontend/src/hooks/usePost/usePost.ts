@@ -57,7 +57,7 @@ const usePost = () => {
         }
       );
 
-      toast.success("Routine post created successfully");
+      toast.success("Post created successfully");
       return response;
     } catch (error: any) {
       handleAxiosError(error);

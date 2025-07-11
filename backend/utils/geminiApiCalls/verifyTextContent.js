@@ -79,7 +79,15 @@ export const verifyTextContent = async (textContent) => {
       contents: [
         {
           role: "user",
-          parts: [{ text: textPrompt + "\n" + textContent }],
+          parts: [
+            {
+              text:
+                textPrompt +
+                '\n---\nBelow is the content to validate. Respond ONLY with the JSON object as specified above.\n\nCONTENT:\n"""\n' +
+                textContent +
+                '\n"""',
+            },
+          ],
         },
       ],
     });

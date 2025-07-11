@@ -26,6 +26,10 @@ import RoutinePostCard from "@/components/PostCards/RoutinePostCard/RoutinePostC
 import SuccessStoryPostCard from "@/components/PostCards/SuccessStoryPostCard/SuccessStoryPostCard";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
 import { UserOrExpertDetailsType } from "@/types";
+import {
+  VerifiersDialog,
+  InvalidDialog,
+} from "@/components/PostCards/SuccessStoryPostCard/Sections/VerificationDialogs";
 
 const AISearchPage = () => {
   const { searchWithAi } = useAiSearch();
@@ -50,6 +54,14 @@ const AISearchPage = () => {
     number | null
   >(null);
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
+
+  // Dialog state for success story verification
+  const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
+  const [verifiersDialogData, setVerifiersDialogData] = useState<any[]>([]);
+  const [verifiersDialogPostTitle, setVerifiersDialogPostTitle] = useState("");
+  const [invalidDialogOpen, setInvalidDialogOpen] = useState(false);
+  const [invalidReason, setInvalidReason] = useState("");
+  const [verificationLoading, setVerificationLoading] = useState(false);
 
   useEffect(() => {
     // Initialize speech recognition
@@ -202,6 +214,31 @@ const AISearchPage = () => {
         successStories: updatedSuccessStories,
       };
     });
+  };
+
+  // Handler to open verifiers dialog
+  const handleVerifiersDialogOpen = (verifiers: any[], postTitle: string) => {
+    setVerifiersDialogData(verifiers);
+    setVerifiersDialogPostTitle(postTitle);
+    setVerifiersDialogOpen(true);
+  };
+
+  // Handler to open invalid dialog
+  const handleInvalidDialogOpen = (_postId: string) => {
+    setInvalidDialogOpen(true);
+  };
+
+  // Handler to confirm invalid (should be implemented to call API)
+  const confirmInvalid = async () => {
+    if (!invalidReason.trim()) return;
+    setVerificationLoading(true);
+    try {
+      // You may want to call verifySuccessStory here if needed
+      setInvalidDialogOpen(false);
+      setInvalidReason("");
+    } finally {
+      setVerificationLoading(false);
+    }
   };
 
   return (
@@ -453,8 +490,8 @@ const AISearchPage = () => {
                         isSaved={Math.random() < 0.5}
                         currentUserId={userId}
                         onMediaClick={openMediaViewer}
-                        onDelete={() => { }}
-                        onEdit={() => { }}
+                        onDelete={() => {}}
+                        onEdit={() => {}}
                       />
                     ))}
                   </Box>
@@ -467,12 +504,12 @@ const AISearchPage = () => {
                       variant="body1"
                       sx={{ color: "text.secondary", mb: 3 }}
                     >
-                      Try adjusting your search or filters to find what you're looking for.
+                      Try adjusting your search or filters to find what you're
+                      looking for.
                     </Typography>
                   </>
                 )}
               </div>
-
             )}
 
             {results.routines.length > 0 && (
@@ -494,8 +531,8 @@ const AISearchPage = () => {
                         isSaved={Math.random() < 0.5}
                         currentUserId={userId}
                         onMediaClick={openMediaViewer}
-                        onDelete={() => { }}
-                        onEdit={() => { }}
+                        onDelete={() => {}}
+                        onEdit={() => {}}
                       />
                     ))}
                   </Box>
@@ -508,12 +545,12 @@ const AISearchPage = () => {
                       variant="body1"
                       sx={{ color: "text.secondary", mb: 3 }}
                     >
-                      Try adjusting your search or filters to find what you're looking for.
+                      Try adjusting your search or filters to find what you're
+                      looking for.
                     </Typography>
                   </>
                 )}
               </div>
-
             )}
 
             {results.successStories.length > 0 && (
@@ -537,6 +574,10 @@ const AISearchPage = () => {
                         currentUserId={userId}
                         onMediaClick={openMediaViewer}
                         menuItems={[]}
+                        handleVerifiersDialogOpen={handleVerifiersDialogOpen}
+                        handleInvalidDialogOpen={handleInvalidDialogOpen}
+                        verificationLoading={verificationLoading}
+                        setVerificationLoading={setVerificationLoading}
                       />
                     ))}
                   </Box>
@@ -549,12 +590,12 @@ const AISearchPage = () => {
                       variant="body1"
                       sx={{ color: "text.secondary", mb: 3 }}
                     >
-                      Try adjusting your search or filters to find what you're looking for.
+                      Try adjusting your search or filters to find what you're
+                      looking for.
                     </Typography>
                   </>
                 )}
               </div>
-
             )}
           </motion.div>
         )}
@@ -566,8 +607,31 @@ const AISearchPage = () => {
         title={""}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
-      // onNext={handleNextImage}
-      // onPrev={handlePrevImage}
+        // onNext={handleNextImage}
+        // onPrev={handlePrevImage}
+      />
+
+      {/* Verifiers Dialog at top level for AI search */}
+      <VerifiersDialog
+        open={verifiersDialogOpen}
+        onClose={() => {
+          setVerifiersDialogOpen(false);
+          setVerifiersDialogData([]);
+        }}
+        verifiers={verifiersDialogData}
+        postTitle={verifiersDialogPostTitle}
+      />
+      {/* Invalid Dialog at top level for AI search */}
+      <InvalidDialog
+        open={invalidDialogOpen}
+        onClose={() => {
+          setInvalidDialogOpen(false);
+          setInvalidReason("");
+        }}
+        onConfirm={confirmInvalid}
+        reason={invalidReason}
+        setReason={setInvalidReason}
+        loading={verificationLoading}
       />
     </Box>
   );
