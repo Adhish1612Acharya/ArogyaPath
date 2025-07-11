@@ -3,7 +3,6 @@ import {
   verifyRazorpayPayment,
 } from "../utils/razorpayUtils.js";
 
-// Controller to create a Razorpay order for premium
 export const createPremiumOrder = async (req, res) => {
   const { id } = req.params;
   const { plan } = req.body;
@@ -13,7 +12,7 @@ export const createPremiumOrder = async (req, res) => {
 
   switch (plan) {
     case "basic":
-      amount = 19900; // ₹199 in paise
+      amount = 19900;  // ₹199 in paise
       receiptId = "order_basic_" + id;
       break;
     case "standard":

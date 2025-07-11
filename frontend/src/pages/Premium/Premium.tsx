@@ -62,7 +62,6 @@ const Premium = () => {
 const handlePayment = async (plan: "basic" | "standard" | "pro") => {
   try {
     setActivePlan(plan);
-
     const res = await post(
       `${import.meta.env.VITE_SERVER_URL}/api/premium/:id/buy`,
       { plan }
@@ -98,7 +97,6 @@ const handlePayment = async (plan: "basic" | "standard" | "pro") => {
         color: "#16a34a",
       },
     };
-
     const rzp = new (window as any).Razorpay(options);
     rzp.on("payment.failed", () => {
       toast.error("Payment failed. Please try again.");
@@ -108,7 +106,6 @@ const handlePayment = async (plan: "basic" | "standard" | "pro") => {
   } catch (error) {
     console.error("Payment initiation error:", error);
     toast.error("Could not initiate payment. Please try again.");
-    setActivePlan(null);
   } finally{
     setIsLoading(false);
     setActivePlan(null)
@@ -132,9 +129,9 @@ return (
         <h3 className="text-xl font-semibold text-green-600">Basic</h3>
         <p className="mt-1 text-gray-500 text-sm">Starter health guidance & resources</p>
         <ul className="mt-4 space-y-2 text-sm text-gray-600">
-          <li>✓ Weekly health tips</li>
-          <li>✓ Basic diet plans</li>
-          <li>✓ Limited expert access</li>
+          <li>Weekly health tips</li>
+          <li>Basic diet plans</li>
+          <li>Limited expert access</li>
         </ul>
         <div className="mt-6 text-2xl font-bold text-gray-800">₹199</div>
         <button
@@ -151,9 +148,9 @@ return (
         <h3 className="text-xl font-semibold text-green-700">Standard</h3>
         <p className="mt-1 text-gray-500 text-sm">Most popular for health enthusiasts</p>
         <ul className="mt-4 space-y-2 text-sm text-gray-600">
-          <li>✓ Personalized plans</li>
-          <li>✓ Chat with Ayurvedic experts</li>
-          <li>✓ Exclusive articles & tips</li>
+          <li>Personalized plans</li>
+          <li>Chat with Ayurvedic experts</li>
+          <li>Exclusive articles & tips</li>
         </ul>
         <div className="mt-6 text-2xl font-bold text-gray-800">₹500</div>
         <button
@@ -170,10 +167,10 @@ return (
         <h3 className="text-xl font-semibold text-green-600">Pro</h3>
         <p className="mt-1 text-gray-500 text-sm">For serious wellness seekers</p>
         <ul className="mt-4 space-y-2 text-sm text-gray-600">
-          <li>✓ All Standard benefits</li>
-          <li>✓ One-on-one expert calls</li>
-          <li>✓ Health report analysis</li>
-          <li>✓ Priority support</li>
+          <li>All Standard benefits</li>
+          <li>24/7 Prakrithi Analysis</li>
+          <li>One-on-one expert calls</li>
+          <li>Health report analysis</li>
         </ul>
         <div className="mt-6 text-2xl font-bold text-gray-800">₹999</div>
         <button

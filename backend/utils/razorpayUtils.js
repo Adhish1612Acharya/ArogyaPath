@@ -15,7 +15,7 @@ export const createRazorpayOrder = async (
   receipt = "order_rcptid_11"
 ) => {
   const options = {
-    amount: amount * 100, // Convert to paise
+    amount: amount, 
     currency,
     receipt,
   };
