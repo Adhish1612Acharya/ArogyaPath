@@ -11,6 +11,10 @@ import { useAuth } from "@/context/AuthContext";
 import MediaViewerDialog from "@/components/MediaViewerDialog/MediaViewerDialog";
 import { Delete, Edit } from "@mui/icons-material";
 import { UserOrExpertDetailsType } from "@/types";
+import {
+  VerifiersDialog,
+  InvalidDialog,
+} from "@/components/PostCards/SuccessStoryPostCard/Sections/VerificationDialogs";
 
 export function SuccessStoryPost() {
   const navigate = useNavigate();
@@ -27,9 +31,19 @@ export function SuccessStoryPost() {
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
 
   const [_openEditDialog, setOpenEditDialog] = useState(false);
-  const [_currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
+  const [_currentPost, setCurrentPost] = useState<SuccessStoryType | null>(
+    null
+  );
 
   const [userId, setUserId] = useState<string>("");
+
+  // Dialog state for single post view
+  const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
+  const [verifiersDialogData, setVerifiersDialogData] = useState<any[]>([]);
+  const [verifiersDialogPostTitle, setVerifiersDialogPostTitle] = useState("");
+  const [invalidDialogOpen, setInvalidDialogOpen] = useState(false);
+  const [invalidReason, setInvalidReason] = useState("");
+  const [verificationLoading, setVerificationLoading] = useState(false);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -101,17 +115,47 @@ export function SuccessStoryPost() {
     _postId: string,
     expert: UserOrExpertDetailsType
   ) => {
-    console.log("Add Verified expert : ", expert);
     setPost((prev) => {
-      if (!prev) return prev; // Return null if post is null
-
+      if (!prev) return prev;
+      // Ensure the verified array is always of the correct type
       return {
         ...prev,
-        verified: [...prev.verified, expert],
+        verified: [
+          ...prev.verified,
+          { expert, date: new Date().toISOString() },
+        ],
         verifyAuthorization: false,
         alreadyVerified: true,
       };
     });
+  };
+
+  // Handler to open verifiers dialog
+  const handleVerifiersDialogOpen = (verifiers: any[], postTitle: string) => {
+    setVerifiersDialogData(verifiers);
+    setVerifiersDialogPostTitle(postTitle);
+    setVerifiersDialogOpen(true);
+  };
+
+  // Handler to open invalid dialog
+  const handleInvalidDialogOpen = (_postId: string) => {
+    setInvalidDialogOpen(true);
+  };
+
+  // Handler to confirm invalid (should be implemented to call API)
+  const confirmInvalid = async () => {
+    if (!post) return;
+    if (!invalidReason.trim()) return;
+    setVerificationLoading(true);
+    try {
+      // You may want to call verifySuccessStory here if needed
+      // const response = await verifySuccessStory(post._id, "reject", invalidReason);
+      // if (response?.success) { ... }
+      setInvalidDialogOpen(false);
+      setInvalidReason("");
+    } finally {
+      setVerificationLoading(false);
+    }
   };
 
   if (loading) {
@@ -153,6 +197,10 @@ export function SuccessStoryPost() {
             currentUserId={userId}
             addVerifiedExpert={addVerifiedExpert}
             onMediaClick={openMediaViewer}
+            handleVerifiersDialogOpen={handleVerifiersDialogOpen}
+            handleInvalidDialogOpen={handleInvalidDialogOpen}
+            setVerificationLoading={setVerificationLoading}
+            verificationLoading={verificationLoading}
             menuItems={[
               ...(isPostAuthor(post)
                 ? [
@@ -182,6 +230,29 @@ export function SuccessStoryPost() {
         onClose={closeMediaViewer}
         // onNext={handleNextImage}
         // onPrev={handlePrevImage}
+      />
+
+      {/* Verifiers Dialog at top level for single post view */}
+      <VerifiersDialog
+        open={verifiersDialogOpen}
+        onClose={() => {
+          setVerifiersDialogOpen(false);
+          setVerifiersDialogData([]);
+        }}
+        verifiers={verifiersDialogData}
+        postTitle={verifiersDialogPostTitle}
+      />
+      {/* Invalid Dialog at top level for single post view */}
+      <InvalidDialog
+        open={invalidDialogOpen}
+        onClose={() => {
+          setInvalidDialogOpen(false);
+          setInvalidReason("");
+        }}
+        onConfirm={confirmInvalid}
+        reason={invalidReason}
+        setReason={setInvalidReason}
+        loading={verificationLoading}
       />
     </div>
   );

@@ -226,15 +226,6 @@ app.use(errorHandler);
 
 const port = process.env.PORT || 3000;
 
-// io.on('connection', (socket) => {
-
-//   console.log(`Connected: ${socket.user._id}`);
-
-//   //socket.on('joinRoom', (roomId) => socket.join(roomId));
-
-//   socket.on('disconnect', () => console.log(`Disconnected: ${socket.user._id}`));
-
-// });
 
 const server = app.listen(port, () => {
   console.log("Server listening on port: ", port);

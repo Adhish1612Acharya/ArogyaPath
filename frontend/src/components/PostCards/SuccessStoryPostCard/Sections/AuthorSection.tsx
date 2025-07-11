@@ -1,23 +1,40 @@
-import { Avatar, CardHeader, Typography, Tooltip, Box, IconButton } from "@mui/material";
+import {
+  Avatar,
+  CardHeader,
+  Typography,
+  Tooltip,
+  Box,
+  IconButton,
+} from "@mui/material";
 import { AccessTime, MenuBook, MoreVert } from "@mui/icons-material";
 import { formatDistanceToNow } from "date-fns";
 import { VerificationBadge } from "./VerificationBadge";
-import { SuccessStoryCardProps } from "../SuccessStoryPostCard.types";
+import {
+  SuccessStoryCardProps,
+  VerificationDialogDataType,
+} from "../SuccessStoryPostCard.types";
 
-export const AuthorSection = ({ 
-  post, 
-  currentUserId, 
-  verificationStatus, 
-  showVerifyActions, 
-  setShowVerifyActions,
-  handleMenuOpen 
+export const AuthorSection = ({
+  post,
+  verificationStatus,
+  showVerifyActions,
+  handleMenuOpen,
+  handleVerify,
+  handleMarkInvalid,
+  handleVerifiersDialogOpen,
+  verificationLoading,
 }: {
-  post: SuccessStoryCardProps['post'],
-  currentUserId: string,
-  verificationStatus: 'verified' | 'invalid' | 'unverified',
-  showVerifyActions: boolean,
-  setShowVerifyActions: (show: boolean) => void,
-  handleMenuOpen: (event: React.MouseEvent<HTMLElement>) => void
+  post: SuccessStoryCardProps["post"];
+  verificationStatus: "verified" | "invalid" | "unverified";
+  showVerifyActions: boolean;
+  handleMenuOpen: (event: React.MouseEvent<HTMLElement>) => void;
+  handleVerify: () => void;
+  handleMarkInvalid: () => void;
+  handleVerifiersDialogOpen: (
+    verifiers: VerificationDialogDataType[],
+    postTitle: string
+  ) => void;
+  verificationLoading: boolean;
 }) => {
   return (
     <CardHeader
@@ -39,13 +56,15 @@ export const AuthorSection = ({
         </Avatar>
       }
       action={
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <VerificationBadge 
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <VerificationBadge
             verificationStatus={verificationStatus}
             showVerifyActions={showVerifyActions}
-            setShowVerifyActions={setShowVerifyActions}
-            currentUserId={currentUserId}
             post={post}
+            handleVerify={handleVerify}
+            handleMarkInvalid={handleMarkInvalid}
+            handleVerifiersDialogOpen={handleVerifiersDialogOpen}
+            verificationLoading={verificationLoading}
           />
           <IconButton
             size="small"

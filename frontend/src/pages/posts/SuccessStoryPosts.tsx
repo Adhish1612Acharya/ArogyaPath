@@ -22,6 +22,11 @@ import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
 import { useAuth } from "@/context/AuthContext";
 import SearchIcon from "@mui/icons-material/Search";
 import { styled } from "@mui/material/styles";
+import {
+  VerifiersDialog,
+  InvalidDialog,
+} from "@/components/PostCards/SuccessStoryPostCard/Sections/VerificationDialogs";
+import { VerificationDialogDataType } from "@/components/PostCards/SuccessStoryPostCard/SuccessStoryPostCard.types";
 
 const HeroSection = styled(Box)(({ theme }) => ({
   textAlign: "center",
@@ -61,17 +66,31 @@ export function AllSuccessStoriesPosts() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const { getAllSuccessStories, filterSearch } = useSuccessStory();
+  const { getAllSuccessStories, filterSearch, verifySuccessStory } =
+    useSuccessStory();
 
   const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [_openEditDialog, setOpenEditDialog] = useState(false);
-  const [_currentPost, setCurrentPost] = useState<SuccessStoryType | null>(null);
+  const [_currentPost, setCurrentPost] = useState<SuccessStoryType | null>(
+    null
+  );
   const [openMediaDialog, setOpenMediaDialog] = useState(false);
-  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<number | null>(null);
+  const [selectedMediaImageIndex, setSelectedMediaImageIndex] = useState<
+    number | null
+  >(null);
   const [mediaDialogImages, setMediaDialogImages] = useState<string[]>([]);
   const [successStories, setSuccessStories] = useState<SuccessStoryType[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Dialog state
+  const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
+  const [verifiersDialogData, setVerifiersDialogData] = useState<any[]>([]);
+  const [verifiersDialogPostTitle, setVerifiersDialogPostTitle] = useState("");
+  const [invalidDialogOpen, setInvalidDialogOpen] = useState(false);
+  const [invalidPostId, setInvalidPostId] = useState<string | null>(null);
+  const [invalidReason, setInvalidReason] = useState("");
+  const [verificationLoading, setVerificationLoading] = useState(false);
 
   const fetchAllPosts = async () => {
     try {
@@ -96,7 +115,9 @@ export function AllSuccessStoriesPosts() {
   };
 
   const handleDelete = (postId: string) => {
-    setSuccessStories((prevPosts) => prevPosts.filter((post) => post._id !== postId));
+    setSuccessStories((prevPosts) =>
+      prevPosts.filter((post) => post._id !== postId)
+    );
   };
 
   const openMediaViewer = (mediaIndex: number, images: string[]) => {
@@ -116,10 +137,14 @@ export function AllSuccessStoriesPosts() {
   };
 
   const addVerifiedExpert = (postId: string, expert: any) => {
-    setSuccessStories(prev =>
-      prev.map(post =>
+    setSuccessStories((prev) =>
+      prev.map((post) =>
         post._id === postId
-          ? { ...post, verified: [...post.verified, expert], verifyAuthorization: false }
+          ? {
+              ...post,
+              verified: [...post.verified, expert],
+              verifyAuthorization: false,
+            }
           : post
       )
     );
@@ -137,19 +162,84 @@ export function AllSuccessStoriesPosts() {
     }
   };
 
-  const filteredPosts = successStories.filter((post) =>
-    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.filters.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filteredPosts = successStories.filter(
+    (post) =>
+      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      post.filters.some((tag) =>
+        tag.toLowerCase().includes(searchQuery.toLowerCase())
+      )
   );
 
+  // Handler to open verifiers dialog from any card
+  const handleVerifiersDialogOpen = (
+    verifiers: VerificationDialogDataType[],
+    postTitle: string
+  ) => {
+    setVerifiersDialogData(verifiers);
+    setVerifiersDialogPostTitle(postTitle);
+    setVerifiersDialogOpen(true);
+  };
+
+  // Handler to open invalid dialog from any card
+  const handleInvalidDialogOpen = (postId: string) => {
+    setInvalidPostId(postId);
+    setInvalidDialogOpen(true);
+  };
+
+  // Handler to confirm invalid (should be implemented to call API)
+  const confirmInvalid = async () => {
+    if (!invalidPostId) return;
+    const post = successStories.find((p) => p._id === invalidPostId);
+    if (!post) return;
+    if (!invalidReason.trim()) {
+      // Optionally show error toast here
+      return;
+    }
+    setVerificationLoading(true);
+    try {
+      const response = await verifySuccessStory(
+        post._id,
+        "reject",
+        invalidReason
+      );
+      if (response?.success) {
+        // Update the local state for the post
+        setSuccessStories((prev) =>
+          prev.map((p) =>
+            p._id === post._id
+              ? {
+                  ...p,
+                  verifyAuthorization: false,
+                  alreadyRejected: true,
+                  rejections: response.data.successStory.rejections,
+                }
+              : p
+          )
+        );
+        // Open the verifiers dialog with rejection data
+        handleVerifiersDialogOpen(
+          response.data.successStory.rejections,
+          post.title
+        );
+        setInvalidDialogOpen(false);
+        setInvalidReason("");
+        setInvalidPostId(null);
+      }
+    } finally {
+      setVerificationLoading(false);
+    }
+  };
+
   return (
-    <Box sx={{
-      background: "linear-gradient(to bottom, #f8fafc, #f1f5f9)",
-      py: 6,
-      width: '100vw',
-      px: 0,
-    }}>
+    <Box
+      sx={{
+        background: "linear-gradient(to bottom, #f8fafc, #f1f5f9)",
+        py: 6,
+        width: "100vw",
+        px: 0,
+      }}
+    >
       <Container maxWidth={false}>
         {/* Hero Section */}
         <motion.div
@@ -203,7 +293,7 @@ export function AllSuccessStoriesPosts() {
                 sx: {
                   borderRadius: 2,
                   backgroundColor: "background.paper",
-                }
+                },
               }}
               sx={{
                 flexGrow: 1,
@@ -221,7 +311,8 @@ export function AllSuccessStoriesPosts() {
                   startIcon={<Add />}
                   size={isMobile ? "medium" : "large"}
                   sx={{
-                    background: "linear-gradient(45deg, #059669 30%, #10b981 90%)",
+                    background:
+                      "linear-gradient(45deg, #059669 30%, #10b981 90%)",
                     boxShadow: "0 4px 6px rgba(5, 150, 105, 0.2)",
                     "&:hover": {
                       transform: "translateY(-2px)",
@@ -272,6 +363,10 @@ export function AllSuccessStoriesPosts() {
                       currentUserId={userId}
                       addVerifiedExpert={addVerifiedExpert}
                       onMediaClick={openMediaViewer}
+                      handleVerifiersDialogOpen={handleVerifiersDialogOpen}
+                      handleInvalidDialogOpen={handleInvalidDialogOpen}
+                      setVerificationLoading={setVerificationLoading}
+                      verificationLoading={verificationLoading}
                       // onDelete={() => handleDelete(post._id)}
                       menuItems={[
                         ...(isPostAuthor(post)
@@ -309,32 +404,40 @@ export function AllSuccessStoriesPosts() {
               animate={{ opacity: 1 }}
               className="col-span-full text-center py-16"
             >
-              <Box sx={{
-                maxWidth: "500px",
-                mx: "auto",
-                p: 4,
-                borderRadius: 3,
-                backgroundColor: "background.paper",
-                boxShadow: 1,
-              }}>
-                <Box sx={{
-                  width: 120,
-                  height: 120,
+              <Box
+                sx={{
+                  maxWidth: "500px",
                   mx: "auto",
-                  mb: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  backgroundColor: "grey.100",
-                  borderRadius: "50%",
-                }}>
+                  p: 4,
+                  borderRadius: 3,
+                  backgroundColor: "background.paper",
+                  boxShadow: 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 120,
+                    height: 120,
+                    mx: "auto",
+                    mb: 3,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: "grey.100",
+                    borderRadius: "50%",
+                  }}
+                >
                   <SearchIcon sx={{ fontSize: 60, color: "grey.400" }} />
                 </Box>
                 <Typography variant="h5" sx={{ mb: 1, fontWeight: 600 }}>
                   No stories found
                 </Typography>
-                <Typography variant="body1" sx={{ color: "text.secondary", mb: 3 }}>
-                  Try adjusting your search or filters to find what you're looking for.
+                <Typography
+                  variant="body1"
+                  sx={{ color: "text.secondary", mb: 3 }}
+                >
+                  Try adjusting your search or filters to find what you're
+                  looking for.
                 </Typography>
                 <Button
                   variant="outlined"
@@ -366,6 +469,30 @@ export function AllSuccessStoriesPosts() {
         images={mediaDialogImages}
         selectedImageIndex={selectedMediaImageIndex || 0}
         onClose={closeMediaViewer}
+      />
+
+      {/* Verifiers Dialog at top level */}
+      <VerifiersDialog
+        open={verifiersDialogOpen}
+        onClose={() => {
+          setVerifiersDialogOpen(false);
+          setVerifiersDialogData([]);
+        }}
+        verifiers={verifiersDialogData}
+        postTitle={verifiersDialogPostTitle}
+      />
+
+      {/* Invalid Dialog at top level */}
+      <InvalidDialog
+        open={invalidDialogOpen}
+        onClose={() => {
+          setInvalidDialogOpen(false);
+          setInvalidReason("");
+        }}
+        onConfirm={confirmInvalid}
+        reason={invalidReason}
+        setReason={setInvalidReason}
+        loading={verificationLoading}
       />
     </Box>
   );

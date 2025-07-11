@@ -78,9 +78,36 @@ export const aiQuerySearch = async (req, res) => {
             "_id profile.fullName profile.profileImage profile.expertType"
           )
           .populate(
-            "verified",
+            "verified.expert",
+            "_id profile.fullName profile.profileImage profile.expertType"
+          )
+          .populate(
+            "rejections.expert",
             "_id profile.fullName profile.profileImage profile.expertType"
           );
+        if (data) {
+          data = data.toObject();
+          const userId = req.user?._id?.toString();
+          const isTagged = data.tagged.some(
+            (expert) => expert._id.toString() === userId
+          );
+          const alreadyVerified = data.verified.some(
+            (v) => v.expert && v.expert._id.toString() === userId
+          );
+          const alreadyRejected = data.rejections.some(
+            (rej) => rej.expert && rej.expert._id.toString() === userId
+          );
+          data.verifyAuthorization =
+            req.user &&
+            req.user.role === "expert" &&
+            ((data.tagged.length === 0 &&
+              data.verified.length + data.rejections.length < 5 &&
+              !alreadyVerified &&
+              !alreadyRejected) ||
+              (isTagged && !alreadyVerified && !alreadyRejected));
+          data.alreadyVerified = alreadyVerified;
+          data.alreadyRejected = alreadyRejected;
+        }
         break;
 
       case "routine":

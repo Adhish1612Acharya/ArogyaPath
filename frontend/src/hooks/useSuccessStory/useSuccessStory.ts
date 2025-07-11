@@ -8,7 +8,7 @@ const useSuccessStory = () => {
 
   const submitSuccessStory = async (formData: SuccessStorySchema) => {
     try {
-      console.log("formData : ",formData);
+      console.log("formData : ", formData);
       const postData = new FormData();
       postData.append("title", formData.title);
       postData.append("description", formData.description);
@@ -24,9 +24,9 @@ const useSuccessStory = () => {
       }
       postData.append("tagged", JSON.stringify(formData.tagged));
 
-      for (let [key, value] of postData.entries()) {
-        console.log(`${key}:`, value);
-      }
+      // for (const [key, value] of postData.entries()) {
+      //   console.log(`${key}:`, value);
+      // }
       const response = await post(
         `${import.meta.env.VITE_SERVER_URL}/api/success-stories`,
         postData,
@@ -43,12 +43,18 @@ const useSuccessStory = () => {
     }
   };
 
-  const verifySuccessStory = async (id: string) => {
+  const verifySuccessStory = async (
+    id: string,
+    action: string,
+    reason?: string
+  ) => {
     try {
       const response = await put(
         `${import.meta.env.VITE_SERVER_URL}/api/success-stories/${id}/verify`,
-        {}
+        { action, reason: reason || "" }
       );
+
+      console.log("verifySuccessStory response: ", response);
 
       if (response.success) {
         toast.success("Post Verified");

@@ -14,3 +14,9 @@ export interface SuccessStoryCardProps {
     action: () => void;
   }>;
 }
+
+export interface VerificationDialogDataType {
+  expert: UserOrExpertDetailsType;
+  date: Date | string;
+  reason?: string;
+}

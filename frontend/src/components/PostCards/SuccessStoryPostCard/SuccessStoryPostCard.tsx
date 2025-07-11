@@ -1,11 +1,10 @@
-import { useState, useRef, FC } from "react";
-import { 
-  Card, 
-  Divider, 
-  Collapse
-} from "@mui/material";
+import { useState, useRef, FC, useEffect } from "react";
+import { Card, Divider, Collapse } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { SuccessStoryCardProps } from "./SuccessStoryPostCard.types";
+import {
+  SuccessStoryCardProps,
+  VerificationDialogDataType,
+} from "./SuccessStoryPostCard.types";
 import { AuthorSection } from "./Sections/AuthorSection";
 import { TaggedDoctors } from "./Sections/TaggedDoctors";
 import { PostContent } from "./Sections/PostContent";
@@ -13,9 +12,8 @@ import { RoutinesSection } from "./Sections/RoutinesSection";
 import { PostActions } from "./Sections/PostActions";
 import CommentSection from "../CommentSection/CommentSection";
 import { PostMenu } from "./Sections/PostMenu";
-import { VerifiersDialog, InvalidDialog } from "./Sections/VerificationDialogs";
-import ShareMenu from "../../ShareMenu/ShareMenu";
-import type { Comment } from "@/types/Comment.types";
+import useSuccessStory from "@/hooks/useSuccessStory/useSuccessStory";
+import ShareMenu from "@/components/ShareMenu/ShareMenu";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: Number(theme.shape.borderRadius) * 2,
@@ -29,14 +27,30 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
+const SuccessStoryPostCard: FC<
+  SuccessStoryCardProps & {
+    handleVerifiersDialogOpen: (
+      verifiers: VerificationDialogDataType[],
+      postTitle: string
+    ) => void;
+    handleInvalidDialogOpen: (postId: string) => void;
+    setVerificationLoading?: (loading: boolean) => void;
+    verificationLoading: boolean;
+  }
+> = ({
   post,
   isLiked,
   isSaved,
   currentUserId,
   menuItems,
   onMediaClick,
+  handleVerifiersDialogOpen,
+  handleInvalidDialogOpen,
+  setVerificationLoading,
+  verificationLoading,
 }) => {
+  const { verifySuccessStory } = useSuccessStory();
+
   const commentInputRef = useRef<HTMLInputElement | null>(null);
 
   const [commentOpen, setCommentOpen] = useState(false);
@@ -47,14 +61,26 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
   const [saved, setSaved] = useState(isSaved);
   const [likeCount, setLikeCount] = useState(post.likesCount);
   const [viewCount] = useState(Math.floor(Math.random() * 1000));
-  const [verifiersDialogOpen, setVerifiersDialogOpen] = useState(false);
-  const [invalidDialogOpen, setInvalidDialogOpen] = useState(false);
-  const [invalidReason, setInvalidReason] = useState("");
-  const [verificationLoading, setVerificationLoading] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<
     "verified" | "invalid" | "unverified"
-  >(post.verified.length > 0 ? "verified" : post.invalid ? "invalid" : "unverified");
-  const [showVerifyActions, setShowVerifyActions] = useState(false);
+  >(
+    post.alreadyVerified
+      ? "verified"
+      : post.alreadyRejected
+      ? "invalid"
+      : "unverified"
+  );
+  const [showVerifyActions, setShowVerifyActions] = useState(
+    post.verifyAuthorization
+  );
+
+  const [successStoryPost, setSuccessStoryPost] = useState(post);
+
+  useEffect(()=>{
+    setVerificationStatus(post.alreadyVerified ? "verified" : post.alreadyRejected ? "invalid" : "unverified");
+    setShowVerifyActions(post.verifyAuthorization);
+    setSuccessStoryPost(post);
+  },[post])
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setMenuAnchorEl(event.currentTarget);
@@ -88,39 +114,64 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
     setSaved(!saved);
   };
 
-  const confirmInvalid = () => {
-    setVerificationLoading(true);
-    setTimeout(() => {
-      setVerificationStatus("invalid");
-      setVerificationLoading(false);
-      setInvalidDialogOpen(false);
-    }, 1000);
+  const handleMarkInvalid = () => {
+    if (handleInvalidDialogOpen) handleInvalidDialogOpen(post._id);
+  };
+
+  const handleVerify = async () => {
+    if (setVerificationLoading) setVerificationLoading(true);
+    try {
+      const response = await verifySuccessStory(post._id, "accept");
+      if (response?.success) {
+        setVerificationStatus("verified");
+        setShowVerifyActions(false);
+        if (handleVerifiersDialogOpen)
+          handleVerifiersDialogOpen(
+            response.data.successStory.verified,
+            post.title
+          );
+        setSuccessStoryPost((prev) => {
+          return {
+            ...prev,
+            verifyAuthorization: false,
+            alreadyVerified: true,
+            verified: response.data.successStory.verified,
+          };
+        });
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      if (setVerificationLoading) setVerificationLoading(false);
+    }
   };
 
   return (
     <StyledCard>
       <AuthorSection
-        post={post}
-        currentUserId={currentUserId}
+        post={successStoryPost}
         verificationStatus={verificationStatus}
         showVerifyActions={showVerifyActions}
-        setShowVerifyActions={setShowVerifyActions}
         handleMenuOpen={handleMenuOpen}
+        handleMarkInvalid={handleMarkInvalid}
+        handleVerify={handleVerify}
+        handleVerifiersDialogOpen={handleVerifiersDialogOpen}
+        verificationLoading={verificationLoading}
       />
 
-      <TaggedDoctors post={post} />
+      <TaggedDoctors post={successStoryPost} />
 
-      <PostContent post={post} onMediaClick={onMediaClick} />
+      <PostContent post={successStoryPost} onMediaClick={onMediaClick} />
 
-      <RoutinesSection routines={post.routines} />
+      <RoutinesSection routines={successStoryPost.routines} />
 
       <PostActions
         liked={liked}
         likeCount={likeCount}
-        commentCount={post.commentsCount}
+        commentCount={successStoryPost.commentsCount}
         viewCount={viewCount}
         saved={saved}
-        isAuthor={post.owner._id === currentUserId}
+        isAuthor={successStoryPost.owner._id === currentUserId}
         toggleLike={toggleLike}
         handleCommentClick={handleCommentClick}
         handleShareClick={handleShareClick}
@@ -142,7 +193,7 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
         anchorEl={shareAnchorEl}
         open={Boolean(shareAnchorEl)}
         onClose={handleShareClose}
-        postTitle={post.title}
+        postTitle={successStoryPost.title}
       />
 
       <PostMenu
@@ -151,21 +202,6 @@ const SuccessStoryPostCard: FC<SuccessStoryCardProps> = ({
         onClose={handleMenuClose}
         menuItems={menuItems}
         handleShareClick={handleShareClick}
-      />
-
-      <VerifiersDialog
-        open={verifiersDialogOpen}
-        onClose={() => setVerifiersDialogOpen(false)}
-        verifiers={post.verified}
-      />
-
-      <InvalidDialog
-        open={invalidDialogOpen}
-        onClose={() => setInvalidDialogOpen(false)}
-        onConfirm={confirmInvalid}
-        reason={invalidReason}
-        setReason={setInvalidReason}
-        loading={verificationLoading}
       />
     </StyledCard>
   );

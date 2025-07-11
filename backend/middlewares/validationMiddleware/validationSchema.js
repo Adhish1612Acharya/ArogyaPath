@@ -310,6 +310,12 @@ export const usersIdsSchema = z
       message: "Duplicate users are not allowed in participants array",
     }
   );
+export const contactUsSchema = z.object({
+  fullName: z.string().min(2, "Name is required"),
+  email: z.string().email("Invalid email address"),
+  subject: z.string().min(3, "Subject must be at least 3 characters"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
 
 export default {
   userSchemaZod,
@@ -322,4 +328,5 @@ export default {
   userProfileSchema,
   usersIdsSchema,
   chatRequestSchemaZod,
+  contactUsSchema,
 };

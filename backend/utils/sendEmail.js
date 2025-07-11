@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 
 export const sendEmail = async (toEmail, subject, emailBody, attachments) => {
   try {
-    console.log("To eamil :", toEmail);
+    console.log("To email :", toEmail);
     // Configure transporter
     const transporter = nodemailer.createTransport({
       service: "Gmail",

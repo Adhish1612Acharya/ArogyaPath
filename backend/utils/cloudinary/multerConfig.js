@@ -22,7 +22,6 @@ const createMulterUploader = ({
   maxFileSize = 5 * 1024 * 1024, // 5MB
   fields = [],
 }) => {
-  console.log("Fields   ", fields);
   // Configure disk storage
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
