@@ -20,7 +20,7 @@ export const ConsentSection: React.FC = () => {
             I agree to the{" "}
             <Typography
               component="a"
-              href="#"
+              href="/terms-and-conditions"
               color="primary"
               sx={{ textDecoration: "underline" }}
             >
@@ -29,7 +29,7 @@ export const ConsentSection: React.FC = () => {
             and{" "}
             <Typography
               component="a"
-              href="#"
+              href="/privacy-policy"
               color="primary"
               sx={{ textDecoration: "underline" }}
             >
