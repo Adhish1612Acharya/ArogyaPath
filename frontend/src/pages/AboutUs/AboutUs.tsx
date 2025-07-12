@@ -394,14 +394,15 @@ const AboutUs: React.FC = () => {
                 mb: 3,
               }}
             >
-              <img
+              <Box
+                component="img"
                 src="https://res.cloudinary.com/daawurvug/image/upload/v1751538124/Team_image_aanfsy.jpg"
-                alt="Team Prakram"
-                style={{
+                alt="Team Parakram"
+                sx={{
                   maxWidth: "100%",
                   maxHeight: 220,
-                  borderRadius: 16,
-                  boxShadow: theme.shadows[3],
+                  borderRadius: 2,
+                  boxShadow: 3,
                 }}
               />
             </Box>

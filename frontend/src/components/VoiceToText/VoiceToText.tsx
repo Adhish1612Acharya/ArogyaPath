@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import {
-  Button,
   Box,
   Typography,
   Chip,
+  IconButton,
+  Tooltip,
 } from "@mui/material";
 import {
   Mic as MicIcon,
@@ -99,23 +100,27 @@ const VoiceToText = ({ onTranscriptChange, disabled = false }: VoiceToTextProps)
 
   return (
     <>
-      <Button
-        onClick={toggleListening}
-        variant={isListening ? "contained" : "outlined"}
-        color={isListening ? "error" : "primary"}
-        disabled={disabled}
-        sx={{
-          height: "56px",
-          px: 2,
-          fontSize: "1.125rem",
-          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-          borderWidth: "2px",
-          minWidth: "auto",
-        }}
-        startIcon={isListening ? <MicOffIcon /> : <MicIcon />}
-      >
-        {isListening ? "Stop" : "Speak"}
-      </Button>
+      <Tooltip title={isListening ? "Stop recording" : "Voice message"}>
+        <IconButton
+          onClick={toggleListening}
+          color={isListening ? "error" : "default"}
+          disabled={disabled}
+          sx={{
+            p: { xs: 0.5, sm: 1 },
+            borderRadius: "50%",
+            border: isListening ? "2px solid" : "none",
+            borderColor: isListening ? "error.main" : "transparent",
+            bgcolor: isListening ? "error.light" : "transparent",
+            "&:hover": {
+              bgcolor: isListening ? "error.light" : "action.hover",
+              transform: "scale(1.1)",
+            },
+            transition: "all 0.2s ease",
+          }}
+        >
+          {isListening ? <MicOffIcon /> : <MicIcon />}
+        </IconButton>
+      </Tooltip>
 
       {isListening && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
